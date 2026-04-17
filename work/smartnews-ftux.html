@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css?v=7">
-  <link rel="stylesheet" href="/css/case.css?v=120">
+  <link rel="stylesheet" href="/css/case.css?v=130">
   <style>
     /* Password Wall */
     .pw-wall {
@@ -144,6 +144,24 @@
       <svg class="m-icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
     </button>
 
+    <!-- Mobile sticky header -->
+    <header class="case-mobile-header" id="case-mobile-header">
+      <a href="/" class="case-mobile-back">← <span data-en="Back" data-ja="戻る">Back</span></a>
+      <button class="case-mobile-hamburger" id="case-hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </header>
+
+    <!-- Mobile menu overlay -->
+    <div class="case-mobile-menu" id="case-mobile-menu">
+      <ul>
+        <li><a href="#beginning" class="case-mobile-menu-link" data-en="The Beginning" data-ja="はじまり">The Beginning</a></li>
+        <li><a href="#journey" class="case-mobile-menu-link" data-en="The Journey" data-ja="旅路">The Journey</a></li>
+        <li><a href="#ending" class="case-mobile-menu-link" data-en="The Ending" data-ja="結び">The Ending</a></li>
+        <li><a href="#future" class="case-mobile-menu-link" data-en="The Future" data-ja="未来へ">The Future</a></li>
+      </ul>
+    </div>
+
     <!-- Sidebar with back button -->
     <nav class="case-sidebar">
       <a href="/" class="case-back">← <span data-en="Back" data-ja="戻る">Back</span></a>
@@ -255,15 +273,12 @@
           <div class="evolution-labels">
             <div class="evolution-stop is-active" data-stop="0">
               <div class="evolution-stop-title">Control</div>
-              <div class="evolution-stop-sub">The original category selection</div>
             </div>
             <div class="evolution-stop" data-stop="1">
               <div class="evolution-stop-title">Solution sketch</div>
-              <div class="evolution-stop-sub">Early concept with reading intentions</div>
             </div>
             <div class="evolution-stop" data-stop="2">
               <div class="evolution-stop-title">Final design</div>
-              <div class="evolution-stop-sub">Shipped version with visual intentions</div>
             </div>
           </div>
 
@@ -1618,6 +1633,28 @@
     // Disable right-click when locked
     document.addEventListener('contextmenu', function(e) {
       if (!page.classList.contains('is-visible')) e.preventDefault();
+    });
+  })();
+  </script>
+
+  <script>
+  // Mobile hamburger menu — port of tiket Discover's behavior.
+  (function() {
+    var hamburger = document.getElementById('case-hamburger');
+    var menu = document.getElementById('case-mobile-menu');
+    if (!hamburger || !menu) return;
+
+    hamburger.addEventListener('click', function() {
+      hamburger.classList.toggle('is-open');
+      menu.classList.toggle('is-open');
+    });
+
+    // Close when a nav link is tapped
+    menu.querySelectorAll('a').forEach(function(link) {
+      link.addEventListener('click', function() {
+        hamburger.classList.remove('is-open');
+        menu.classList.remove('is-open');
+      });
     });
   })();
   </script>

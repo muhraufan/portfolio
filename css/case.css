@@ -862,16 +862,59 @@
 
 .journey-flow {
   display: flex;
-  align-items: center;
+  align-items: stretch;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .journey-step {
-  flex: 1;
-  padding: 14px 8px;
+  flex: 1 1 0;
+  min-width: 110px;
+  max-width: 220px;
+  padding: 14px 10px;
   text-align: center;
   letter-spacing: 1px;
   line-height: 1.5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.journey-arrow {
+  flex: 0 0 auto;
+}
+
+/* reserveLangSpace() applies white-space:nowrap + min-width:<measured> to any
+   [data-en] element not in its exclusion list. Too aggressive for flex cells,
+   headings, and wider items — undo it where wrapping is desirable. */
+.journey-step [data-en],
+.journey-step[data-en],
+.case-h2[data-en],
+.case-h3[data-en] {
+  white-space: normal !important;
+  min-width: 0 !important;
+}
+/* For item-style boxes we keep min-width (layout stability across langs)
+   and only need to allow the text to wrap. */
+.direction-item[data-en],
+.direction-item [data-en],
+.labyrinth-leaf[data-en],
+.labyrinth-mobile-pill[data-en] {
+  white-space: normal !important;
+}
+
+/* Opt OUT of reserveLangSpace()'s min-height reservation for multi-line
+   body content whose height naturally differs between languages.
+   Reserving one language's height leaves awkward whitespace in the other.
+   The 0.25s height transition in main.js absorbs the adjustment smoothly.
+   Also undo the nowrap so text can wrap naturally inside the row. */
+.impact-item [data-en],
+.impact-item[data-en],
+.spectrum-scroll-hint [data-en],
+.page-tab-scroll-hint [data-en] {
+  min-height: 0 !important;
+  min-width: 0 !important;
+  white-space: normal !important;
 }
 
 .journey-step--solid {
@@ -887,7 +930,10 @@
 
 .journey-arrow {
   color: var(--text3);
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .journey-platforms {
@@ -1771,7 +1817,7 @@
    above its matching marker (16.667% / 50% / 83.333%). */
 .evolution-labels {
   position: relative;
-  height: 56px;
+  height: 32px;
   margin-bottom: 4px;
 }
 .evolution-stop {
@@ -2106,6 +2152,53 @@
   /* Hide desktop sidebar */
   .case-sidebar {
     display: none;
+  }
+
+  /* Lang + theme toggles sit inside the mobile header row. Switch to
+     position:fixed so they stay pinned when the user scrolls (absolute
+     positioning would let them scroll out of view behind the sticky header). */
+  .case-lang-toggle,
+  .case-theme-toggle {
+    position: fixed;
+    z-index: 1001;
+    top: 14px;
+  }
+  .case-lang-toggle { right: 88px; }
+  .case-theme-toggle { right: 56px; }
+
+  /* Direction chart — stack top-to-bottom on mobile (absolute positioning
+     at fixed %-coords collides on narrow viewports).
+     !important used because the base .direction-chart-area rule is declared
+     later in the file than this @media block, so cascade would otherwise
+     favor the base height: 560px / position: relative. */
+  .direction-chart-area {
+    position: static !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 16px 0 !important;
+  }
+  .direction-chart-axis { display: none !important; }
+  .direction-chart-label--top,
+  .direction-chart-label--bottom {
+    position: static !important;
+    transform: none !important;
+    margin: 0 !important;
+    padding: 4px 0 !important;
+  }
+  .direction-chart-label--top { order: 0 !important; }
+  .direction-item { order: 1 !important; }
+  .direction-chart-label--bottom { order: 2 !important; }
+  .direction-item {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    white-space: normal !important;
+    max-width: 280px !important;
+    text-align: center !important;
   }
 
   /* Sticky mobile header */
@@ -2480,6 +2573,15 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text3);
+  text-align: center;
+}
+/* reserveLangSpace() reserved min-width from nowrap measurement; combined
+   with the default text-align:start this left-aligned the label inside a
+   wider box and shifted the visual center away from the axis. text-align:
+   center above fixes EN, this zeroes the reservation so the box fits the
+   actual text in whichever language is showing. */
+.direction-chart-label[data-en] {
+  min-width: 0 !important;
 }
 
 .direction-chart-label--top {
@@ -2498,10 +2600,16 @@
   padding: 7px 14px;
   border-radius: 4px;
   cursor: default;
+  text-align: center;
   transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   white-space: nowrap;
   z-index: 1;
 }
+/* The absolute-positioned item uses its natural width for layout, but
+   reserveLangSpace() reserves the max of both languages as min-width so
+   there's no layout shift on toggle. We center the text inside that
+   reserved box so the shorter language isn't left-aligned with trailing gap. */
+.direction-item[data-en] { text-align: center; }
 
 .direction-item:hover {
   transform: scale(1.05);
@@ -2937,6 +3045,13 @@
   border-radius: 16px;
   border: 1px solid var(--border);
   transition: border-color 200ms ease;
+}
+/* All four solution PNGs are now flush-cropped (~590x1311, no drop-shadow
+   bleed). Add consistent vertical breathing room inside every frame so
+   the phone mockup doesn't sit edge-to-edge. */
+.choose-card .choose-card-img-wrap img {
+  padding: 9px 0;
+  box-sizing: border-box;
 }
 .choose-card:hover .choose-card-img-wrap img {
   border-color: var(--border2);
