@@ -534,10 +534,11 @@
       });
     });
 
-    // Re-render active path (if any) on language change.
-    window.addEventListener('langchange', function() {
-      // Desktop: if a leaf is hovered, its textContent on labyrinth-path gets
-      // stale — easiest is to clear it (mouseenter will rebuild on next hover).
+    // Re-render active path on language change. Listen for both the
+    // langchange CustomEvent AND html[data-lang] mutations as a fallback
+    // in case the event is missed (timing or measurement-dance races).
+    function rerenderLabyrinthForCurrentLang() {
+      // Desktop: clear stale hover path (mouseenter will rebuild in new lang).
       if (pathEl) pathEl.textContent = '';
       // Mobile: if a pill is active, rebuild the result string in the new lang.
       if (mobileActive) {
@@ -560,7 +561,18 @@
           mobileResult.textContent = parts.join(' → ');
         }
       }
-    });
+    }
+    window.addEventListener('langchange', rerenderLabyrinthForCurrentLang);
+    (function() {
+      var lastLang = getLang();
+      new MutationObserver(function() {
+        var cur = getLang();
+        if (cur !== lastLang) {
+          lastLang = cur;
+          rerenderLabyrinthForCurrentLang();
+        }
+      }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
+    })();
   })();
 
   // Lightbox
@@ -680,10 +692,21 @@
       var active = document.querySelector('.page-tab-btn.is-active');
       if (active) positionIndicator(active);
     });
-    // Re-render active description on lang switch.
-    window.addEventListener('langchange', function() {
+    // Re-render active description on lang switch (langchange + MO fallback).
+    function rerenderTabDescForCurrentLang() {
       descEl.textContent = descs()[currentTabIdx];
-    });
+    }
+    window.addEventListener('langchange', rerenderTabDescForCurrentLang);
+    (function() {
+      var lastLang = getLang();
+      new MutationObserver(function() {
+        var cur = getLang();
+        if (cur !== lastLang) {
+          lastLang = cur;
+          rerenderTabDescForCurrentLang();
+        }
+      }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
+    })();
   })();
 
   // Content Spectrum
@@ -1042,14 +1065,27 @@
     });
 
     // Re-render label, sub, caption, and annotation cards on language change.
-    window.addEventListener('langchange', function() {
+    // Also observe html[data-lang] directly as a belt-and-suspenders fallback
+    // in case langchange timing misses (e.g. reserveLangSpace measurement dance).
+    function rerenderSpectrumForCurrentLang() {
       var it = items();
-      labelEl.textContent = it[currentIdx].name;
-      subEl.textContent = it[currentIdx].desc;
-      captionEl.textContent = it[currentIdx].caption;
+      if (labelEl) labelEl.textContent = it[currentIdx].name;
+      if (subEl) subEl.textContent = it[currentIdx].desc;
+      if (captionEl) captionEl.textContent = it[currentIdx].caption;
       buildAnnotationCards(currentIdx);
-      updateAnnotation(frames[currentIdx]);
-    });
+      if (frames[currentIdx]) updateAnnotation(frames[currentIdx]);
+    }
+    window.addEventListener('langchange', rerenderSpectrumForCurrentLang);
+    (function() {
+      var lastLang = getLang();
+      new MutationObserver(function() {
+        var cur = getLang();
+        if (cur !== lastLang) {
+          lastLang = cur;
+          rerenderSpectrumForCurrentLang();
+        }
+      }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
+    })();
   })();
   // Mobile hamburger menu
   (function() {
