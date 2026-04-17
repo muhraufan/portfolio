@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartNews FTUX — Raufan Yusup</title>
+  <meta name="description" content="Redesigning SmartNews' first-time user experience to reduce decision fatigue.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css?v=7">
+  <link rel="stylesheet" href="/css/case.css?v=106">
+  <style>
+    /* Password Wall */
+    .pw-wall {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 10001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    .pw-wall.is-unlocked {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .pw-inner {
+      text-align: center;
+      max-width: 320px;
+      padding: 24px;
+    }
+    .pw-lock {
+      width: 32px;
+      height: 32px;
+      color: #C8DDD4;
+      margin-bottom: 24px;
+    }
+    .pw-title {
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .pw-desc {
+      color: var(--text2);
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    .pw-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border2);
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      letter-spacing: 1px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .pw-input:focus {
+      border-color: #C8DDD4;
+    }
+    .pw-input.is-error {
+      border-color: #ff6b6b;
+    }
+    .pw-error {
+      color: #ff6b6b;
+      letter-spacing: 1px;
+      margin-top: 8px;
+      min-height: 20px;
+    }
+    .pw-submit {
+      margin-top: 16px;
+      padding: 10px 24px;
+      background: #C8DDD4;
+      color: #111111;
+      border: none;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .pw-submit:hover {
+      opacity: 0.85;
+    }
+    .pw-email {
+      color: var(--text);
+      font-weight: 500;
+      text-underline-offset: 3px;
+    }
+    .pw-email:hover {
+      text-decoration-color: #C8DDD4;
+    }
+    .pw-back {
+      display: inline-block;
+      margin-top: 20px;
+      color: var(--text3);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      letter-spacing: 1px;
+      transition: color 0.15s;
+    }
+    .pw-back:hover {
+      color: var(--text);
+    }
+
+    /* Hide content until unlocked — inline style is primary guard */
+    .case-page.is-visible {
+      display: block !important;
+    }
+  </style>
+</head>
+<body class="minimal">
+
+  <!-- Password Wall -->
+  <div class="pw-wall" id="pw-wall">
+    <div class="pw-inner">
+      <svg class="pw-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <p class="pw-title">This case study is password-protected</p>
+      <p class="pw-desc">Email <a href="mailto:muhammadraufan@gmail.com" class="pw-email">muhammadraufan@gmail.com</a> to get the password.</p>
+      <form id="pw-form" onsubmit="return false;">
+        <input type="password" class="pw-input" id="pw-input" placeholder="Enter password" autocomplete="off" autofocus>
+        <p class="pw-error" id="pw-error"></p>
+        <button type="submit" class="pw-submit" id="pw-submit">Unlock</button>
+      </form>
+      <a href="/" class="pw-back" data-en="← Back to home" data-ja="← 戻る">← Back to home</a>
+    </div>
+  </div>
+
+  <div class="case-page" id="case-page" style="display:none !important">
+
+    <button class="m-lang-toggle case-lang-toggle" aria-label="Toggle language">JA</button>
+    <button class="m-theme-toggle case-theme-toggle" aria-label="Toggle theme">
+      <svg class="m-icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      <svg class="m-icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
+
+    <!-- Sidebar with back button -->
+    <nav class="case-sidebar">
+      <a href="/" class="case-back">← <span data-en="Back" data-ja="戻る">Back</span></a>
+      <ul>
+        <li><a href="#beginning" class="case-nav-link active">The Beginning</a></li>
+        <li><a href="#journey" class="case-nav-link">The Journey</a></li>
+        <li><a href="#ending" class="case-nav-link">The Ending</a></li>
+        <li><a href="#future" class="case-nav-link">The Future</a></li>
+      </ul>
+      <a href="/work/smartnews-ftux-full.html" class="case-cta"><span data-en="View full case study" data-ja="ケーススタディを見る">View full case study</span></a>
+    </nav>
+
+    <!-- Content -->
+    <article class="case-content">
+
+      <header class="case-header">
+        <p class="case-meta">SmartNews · 2025 · 3 months</p>
+        <h1 class="case-title">From overwhelm to clarity: redesigning SmartNews' first-time user experience.</h1>
+        <p class="case-role">Senior Product Designer <span class="m-badge-ai">Working with AI</span></p>
+        <video class="case-cover-video" autoplay loop muted playsinline>
+          <source src="/work/images/FTUX cover.mp4" type="video/mp4">
+        </video>
+      </header>
+
+      <!-- AI role callout -->
+      <div class="ai-role-callout">
+        <p class="ai-role-title"><svg class="ai-role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/><path d="M5 19l1 3 1-3 3-1-3-1-1-3-1 3-3 1 3 1z"/><path d="M19 13l.5 1.5L21 15l-1.5.5L19 17l-.5-1.5L17 15l1.5-.5L19 13z"/></svg> AI as a design partner</p>
+        <ul class="ai-role-list">
+          <li>Built a custom system to generate consistent icon illustrations with AI. Authored structured JSON definitions, then used them to produce precise, style-coherent icons at scale</li>
+          <li>Used Midjourney to explore and create micro-interactions, rapidly iterating on motion concepts before translating them into production</li>
+        </ul>
+      </div>
+
+      <section id="beginning">
+        <h2 class="case-h2">The Beginning</h2>
+        <p>When new users opened SmartNews for the first time, they were met with hundreds of categories to choose from. But most didn't know what they wanted yet — they just wanted to read the news.</p>
+        <p>Instead, the onboarding became a wall of decisions. Only <span class="m-highlight-muted">37.9% of users completed onboarding</span>, while the rest skipped it entirely.</p>
+
+        <!-- Scroll-driven annotated design -->
+        <div class="annotated-track">
+          <div class="annotated-inline">
+            <div class="annotated-phone-frame">
+              <img src="/work/images/ftux-current.png" alt="Current SmartNews onboarding screen showing hundreds of categories">
+              <div class="annotated-highlight" data-for="categories"></div>
+              <div class="annotated-highlight" data-for="value"></div>
+              <div class="annotated-highlight" data-for="structure"></div>
+            </div>
+            <div class="annotated-scroll-steps">
+              <div class="annotated-step" data-highlight="categories">
+                <p class="annotated-step-title">Too many categories</p>
+                <p class="annotated-step-desc">New users often don't know what they want to read yet, but SmartNews presents hundreds of categories at once, creating decision fatigue.</p>
+              </div>
+              <div class="annotated-step" data-highlight="value">
+                <p class="annotated-step-title">Unclear value</p>
+                <p class="annotated-step-desc">The benefits of choosing categories or enabling notifications aren't clearly communicated, so users don't see the purpose.</p>
+              </div>
+              <div class="annotated-step" data-highlight="structure">
+                <p class="annotated-step-title">Confusing structure</p>
+                <p class="annotated-step-desc">The large number of categories, unclear grouping, and lack of guidance make the onboarding process complicated and hard to complete.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout-box">
+          <p class="callout-box-title">We saw an opportunity</p>
+          <p>What if we made onboarding less about choosing categories, and more about understanding intentions?</p>
+        </div>
+      </section>
+
+      <section id="journey">
+        <h2 class="case-h2">The Journey</h2>
+
+        <p>After we unearthed useful insights through usage data, inventory analysis, and user research, as a team, we gather and do a brainstorming ideas together to discover possible solution to solve the problems.</p>
+
+        <!-- HMW Ideation Teaser -->
+        <div class="hmw-teaser" id="hmw-teaser">
+          <div class="hmw-teaser-dots"></div>
+          <div class="hmw-teaser-stickies" id="hmw-stickies"></div>
+          <div class="hmw-teaser-bar">
+            <div class="hmw-teaser-info">
+              <span class="hmw-teaser-label">HMW Session</span>
+              <span class="hmw-teaser-stat">24 ideas. 8 patterns.</span>
+            </div>
+            <span class="hmw-teaser-cta">View ideation →</span>
+          </div>
+        </div>
+
+        <p>So we reframed the experience around reading intentions — why users open SmartNews in the first place.</p>
+        <p>Instead of asking <span class="m-medium">"What topics do you like?"</span> we asked <span class="m-medium">"What kind of news experience do you want?"</span></p>
+        <p>From there, we explored and tested multiple directions:</p>
+
+        <!-- Interactive "What would you choose?" -->
+        <div class="choose-section" id="choose-section">
+          <h2 class="case-h2">What would you have chosen?</h2>
+          <p class="choose-subtitle">We narrowed it down to four directions. Pick the one you'd ship.</p>
+          <hr class="choose-rule">
+          <div class="choose-row" id="choose-row"></div>
+          <div class="choose-reveal is-initial" id="choose-reveal"></div>
+        </div>
+      </section>
+
+      <section id="ending">
+        <h2 class="case-h2">The Ending</h2>
+        <ul class="impact-list">
+          <li class="impact-item">
+            <svg class="impact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <span><span class="m-medium">58.2%</span> onboarding completion rate — up from 37.9%, a +20.3 percentage point improvement.</span>
+          </li>
+          <li class="impact-item">
+            <svg class="impact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11v2M18 13l2-2 2 2"/></svg>
+            <span><span class="m-medium">+5% DAU</span> among new users in the first month after redesign.</span>
+          </li>
+          <li class="impact-item">
+            <svg class="impact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+            <span>Reduced decision fatigue by collapsing hundreds of categories into a handful of intent-based choices.</span>
+          </li>
+        </ul>
+        <p>This project reinforced a core belief: <span class="m-medium">less is more</span> in onboarding. The shift from category selection to intention-based choices taught me the power of reframing a question. The underlying logic didn't change much — we were still building a category list — but the way we asked the question transformed the experience.</p>
+      </section>
+
+      <section id="future">
+        <h2 class="case-h2">The Future</h2>
+        <p>The Reading Intention framework opened the door to deeper personalization. Next steps include adapting the onboarding flow based on user context — time of day, trending topics, and regional relevance — to make the first experience feel even more tailored.</p>
+        <p>There's also potential to extend intent-based logic beyond onboarding, using it to power feed ranking and content recommendations throughout the app lifecycle.</p>
+      </section>
+
+      <footer class="case-footer">
+        <a href="/" class="m-link" data-en="← Back to home" data-ja="← 戻る">← Back to home</a>
+      </footer>
+
+    </article>
+
+  </div>
+
+  <script src="/js/case.js?v=2"></script>
+  <script>
+  // Scroll-driven annotated phone — IntersectionObserver
+  (function() {
+    var phoneFrame = document.querySelector('.annotated-phone-frame');
+    if (!phoneFrame) return;
+    var steps = document.querySelectorAll('.annotated-step[data-highlight]');
+    var highlights = document.querySelectorAll('.annotated-highlight');
+
+    // Red box regions — matches original positions
+    var problems = {
+      categories: { top: '21%', left: '4%', width: '92%', height: '10%' },
+      value:      { top: '0',   left: '0',  width: '100%', height: '100%', borderRadius: '20px' },
+      structure:  { top: '21%', left: '4%', width: '92%', height: '65%' }
+    };
+
+    // Position each highlight overlay from config
+    highlights.forEach(function(el) {
+      var key = el.getAttribute('data-for');
+      var r = problems[key];
+      if (!r) return;
+      el.style.top = r.top;
+      el.style.left = r.left;
+      el.style.width = r.width;
+      el.style.height = r.height;
+      if (r.borderRadius) el.style.borderRadius = r.borderRadius;
+    });
+
+    var activeKey = null;
+
+    function activate(key) {
+      if (key === activeKey) return;
+      activeKey = key;
+
+      // Show matching highlight, hide others
+      highlights.forEach(function(el) {
+        el.classList.toggle('is-active', el.getAttribute('data-for') === key);
+      });
+
+      // Activate matching step text
+      steps.forEach(function(s) {
+        s.classList.toggle('is-active', s.getAttribute('data-highlight') === key);
+      });
+    }
+
+    function deactivate() {
+      if (!activeKey) return;
+      activeKey = null;
+      highlights.forEach(function(el) { el.classList.remove('is-active'); });
+      steps.forEach(function(s) { s.classList.remove('is-active'); });
+    }
+
+    // Scroll handler — activate step closest to focal line
+    var track = document.querySelector('.annotated-track');
+    function onScroll() {
+      var trackRect = track.getBoundingClientRect();
+      var viewH = window.innerHeight;
+
+      // Only active when track is in view
+      if (trackRect.bottom < 0 || trackRect.top > viewH) {
+        deactivate();
+        return;
+      }
+
+      // Focal line at 45% of viewport
+      var focalY = viewH * 0.45;
+      var closest = null;
+      var closestDist = Infinity;
+
+      steps.forEach(function(s) {
+        var rect = s.getBoundingClientRect();
+        var center = rect.top + rect.height / 2;
+        var dist = Math.abs(center - focalY);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closest = s;
+        }
+      });
+
+      if (closest && closestDist < viewH * 0.4) {
+        activate(closest.getAttribute('data-highlight'));
+      } else {
+        deactivate();
+      }
+    }
+
+    // Natural onScroll-based activation is intentionally NOT registered.
+    // Problem activation is driven solely by the scroll takeover below, so the
+    // highlights don't flicker to problem 2 before the section becomes sticky.
+
+    // --- Scroll takeover for problems section ---
+    var problemKeys = ['categories', 'value', 'structure'];
+    var currentProblem = 0;
+    var isHijacked = false;
+    var lockedY = 0;
+    var lastAdvance = 0;
+    var DEBOUNCE = 600;
+    var touchStartY = 0;
+    var scrollDirection = 'down';
+
+    // Dot indicator
+    var dots = document.createElement('div');
+    dots.className = 'scroll-dots';
+    dots.innerHTML = '<span></span><span></span><span></span>';
+    document.body.appendChild(dots);
+    var dotSpans = dots.querySelectorAll('span');
+
+    function updateDots() {
+      dotSpans.forEach(function(d, i) {
+        d.classList.toggle('is-filled', i < currentProblem);
+      });
+    }
+
+    function lockScroll() {
+      lockedY = window.scrollY;
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      window.addEventListener('scroll', keepLocked);
+    }
+
+    function keepLocked() {
+      if (isHijacked) window.scrollTo(0, lockedY);
+    }
+
+    function unlockScroll() {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      window.removeEventListener('scroll', keepLocked);
+    }
+
+    function startHijack() {
+      if (isHijacked) return;
+      isHijacked = true;
+      if (scrollDirection === 'up') {
+        // Entering from below — start at the last problem and step backward.
+        currentProblem = 3;
+        activate(problemKeys[2]);
+      } else {
+        // Entering from above — start fresh.
+        currentProblem = 0;
+        deactivate();
+      }
+      updateDots();
+      lockScroll();
+      dots.classList.add('is-visible');
+      window.addEventListener('wheel', onWheel, { passive: false });
+      window.addEventListener('touchstart', onTouchStart, { passive: true });
+      window.addEventListener('touchmove', onTouchMove, { passive: false });
+      window.addEventListener('resize', releaseHijack);
+      window.addEventListener('keydown', onEscape);
+    }
+
+    function releaseHijack() {
+      if (!isHijacked) return;
+      isHijacked = false;
+      dots.classList.remove('is-visible');
+      window.removeEventListener('wheel', onWheel);
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('resize', releaseHijack);
+      window.removeEventListener('keydown', onEscape);
+      unlockScroll();
+    }
+
+    function advance(dir) {
+      var now = Date.now();
+      if (now - lastAdvance < DEBOUNCE) return;
+
+      if (dir > 0) {
+        if (currentProblem >= 3) {
+          releaseHijack();
+          return;
+        }
+        currentProblem++;
+        activate(problemKeys[currentProblem - 1]);
+      } else {
+        if (currentProblem <= 0) {
+          releaseHijack();
+          return;
+        }
+        currentProblem--;
+        if (currentProblem === 0) deactivate();
+        else activate(problemKeys[currentProblem - 1]);
+      }
+      updateDots();
+      lastAdvance = now;
+    }
+
+    function onWheel(e) {
+      if (!isHijacked) return;
+      e.preventDefault();
+      if (Math.abs(e.deltaY) < 5) return;
+      advance(e.deltaY > 0 ? 1 : -1);
+    }
+
+    function onTouchStart(e) {
+      if (e.touches.length === 1) touchStartY = e.touches[0].clientY;
+    }
+
+    function onTouchMove(e) {
+      if (!isHijacked || e.touches.length !== 1) return;
+      e.preventDefault();
+      var dy = touchStartY - e.touches[0].clientY;
+      if (Math.abs(dy) < 40) return;
+      advance(dy > 0 ? 1 : -1);
+      touchStartY = e.touches[0].clientY;
+    }
+
+    function onEscape(e) {
+      if (e.key === 'Escape') releaseHijack();
+    }
+
+    // Scroll-based trigger: fires when track.top crosses the sticky line
+    // (30% from top of viewport) in either direction. Sets scrollDirection
+    // so startHijack knows which problem to show first.
+    var prevTrackTop = null;
+    function checkTrigger() {
+      if (isHijacked) return;
+      var r = track.getBoundingClientRect();
+      var trigger = window.innerHeight * 0.30;
+      if (prevTrackTop === null) {
+        prevTrackTop = r.top;
+        return;
+      }
+      // Scrolling down past trigger (track.top moves up through the line)
+      if (prevTrackTop > trigger && r.top <= trigger) {
+        scrollDirection = 'down';
+        prevTrackTop = r.top;
+        startHijack();
+        return;
+      }
+      // Scrolling up past trigger (track.top moves down through the line)
+      if (prevTrackTop < trigger && r.top >= trigger) {
+        scrollDirection = 'up';
+        prevTrackTop = r.top;
+        startHijack();
+        return;
+      }
+      prevTrackTop = r.top;
+    }
+    window.addEventListener('scroll', checkTrigger, { passive: true });
+  })();
+  </script>
+  <script>
+  // "What would you choose?" interactive section
+  (function() {
+    var SOLUTIONS = [
+      {
+        id: 'reading-intention',
+        name: 'Reading Intention',
+        image: '/work/images/solution-reading-intention.png',
+        description: 'Let users choose their news intention, app curates the rest.',
+        wasChosen: true,
+        considered: 'A faster path to first read by anchoring onboarding around what users actually came for.',
+        decision: 'It accelerates onboarding more than any other option, while still giving users full control to refine their preferences later in settings. Grouping by intention also opened up cleaner ad targeting \u2014 a meaningful win for the business.'
+      },
+      {
+        id: 'dynamic-curation',
+        name: 'Dynamic Curation',
+        image: '/work/images/solution-dynamic-curation.png',
+        description: 'Group categories dynamically based on related topics.',
+        wasChosen: false,
+        considered: 'A lighter version of Reading Intention, working at the broader category level rather than user-stated intent.',
+        decision: 'The ongoing maintenance cost for the content team would have been significant \u2014 we\u2019d be trading short-term speed for long-term overhead.'
+      },
+      {
+        id: 'smart-skip',
+        name: 'Smart Skip',
+        image: '/work/images/solution-smart-skip.png',
+        description: 'Automatically select relevant categories based on demographics and trends.',
+        wasChosen: false,
+        considered: 'Auto-selecting categories based on demographics and trends \u2014 comparable to Reading Intention in speed.',
+        decision: 'Strong on paper, but the technical capability and our timeline didn\u2019t line up at the time.'
+      },
+      {
+        id: 'smart-grouping',
+        name: 'Smart Grouping',
+        image: '/work/images/solution-smart-grouping.png',
+        description: 'Reorganize existing categories into clearer topic clusters.',
+        wasChosen: false,
+        considered: 'The most MVP-feeling option \u2014 simply reorganizing the existing categories into clearer clusters. Quick to ship, low risk.',
+        decision: 'We actually tried it, and it worked. But it felt like the floor, not the ceiling \u2014 we could do more.'
+      }
+    ];
+
+    var row = document.getElementById('choose-row');
+    var reveal = document.getElementById('choose-reveal');
+    if (!row || !reveal) return;
+
+    var selectedId = null;
+    var isFirstReveal = true;
+
+    var expandSvg = '<svg class="choose-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>';
+
+    SOLUTIONS.forEach(function(sol) {
+      var card = document.createElement('div');
+      card.className = 'choose-card';
+      card.setAttribute('data-solution', sol.id);
+      card.innerHTML =
+        '<div class="choose-card-img-wrap">' +
+          '<img src="' + sol.image + '" alt="' + sol.name + ' mockup">' +
+          expandSvg +
+        '</div>' +
+        '<div class="choose-card-name">' + sol.name + '</div>' +
+        '<div class="choose-card-desc">' + sol.description + '</div>';
+      card.addEventListener('click', function(e) {
+        if (e.target.closest('.choose-expand-icon')) return;
+        selectCard(sol.id);
+      });
+      card.querySelector('.choose-expand-icon').addEventListener('click', function(e) {
+        e.stopPropagation();
+        openFullscreen(sol.image, sol.name);
+      });
+      row.appendChild(card);
+    });
+
+    // Blur only the sidebar items whose vertical range overlaps the screen-box
+    // (the row of phone mockups). Non-overlapping items stay sharp.
+    (function() {
+      var sidebar = document.querySelector('.case-sidebar');
+      if (!sidebar) return;
+      var items = sidebar.querySelectorAll('.case-back, .case-nav-link, .case-cta');
+      if (!items.length) return;
+
+      var ticking = false;
+      function update() {
+        ticking = false;
+        if (getComputedStyle(sidebar).display === 'none') return;
+        var firstImg = row.querySelector('.choose-card-img-wrap img');
+        if (!firstImg) return;
+        // Use the phone-mockup image's vertical span as the "screen box".
+        // All cards share the same y-range, so the first image is enough.
+        var imgRect = firstImg.getBoundingClientRect();
+        var screenTop = imgRect.top;
+        var screenBottom = imgRect.bottom;
+        items.forEach(function(item) {
+          var r = item.getBoundingClientRect();
+          var overlaps = r.bottom > screenTop && r.top < screenBottom;
+          item.classList.toggle('is-blurred', overlaps);
+        });
+      }
+      function requestUpdate() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+      update();
+      window.addEventListener('scroll', requestUpdate, { passive: true });
+      window.addEventListener('resize', requestUpdate);
+      // Re-run once images finish loading, in case layout shifts their position.
+      row.querySelectorAll('.choose-card-img-wrap img').forEach(function(img) {
+        if (!img.complete) img.addEventListener('load', requestUpdate, { once: true });
+      });
+    })();
+
+    function openFullscreen(src, name) {
+      var overlay = document.createElement('div');
+      overlay.className = 'choose-fs-overlay';
+      overlay.innerHTML =
+        '<div class="choose-fs-content">' +
+          '<img src="' + src + '" alt="' + name + '">' +
+          '<button class="choose-fs-close" aria-label="Close">&times;</button>' +
+        '</div>';
+      document.body.appendChild(overlay);
+      requestAnimationFrame(function() { overlay.classList.add('is-visible'); });
+      function close() {
+        overlay.classList.remove('is-visible');
+        setTimeout(function() { overlay.remove(); }, 300);
+      }
+      overlay.addEventListener('click', function(e) {
+        if (e.target === overlay || e.target.closest('.choose-fs-close')) close();
+      });
+      document.addEventListener('keydown', function handler(e) {
+        if (e.key === 'Escape') { close(); document.removeEventListener('keydown', handler); }
+      });
+    }
+
+    function getSolution(id) {
+      for (var i = 0; i < SOLUTIONS.length; i++) {
+        if (SOLUTIONS[i].id === id) return SOLUTIONS[i];
+      }
+      return null;
+    }
+
+    var chosen = getSolution('reading-intention');
+
+    function buildRevealHTML(picked) {
+      var html = '<div class="choose-reveal-content">';
+
+      if (picked.wasChosen) {
+        html += '<div class="choose-reveal-header">Same as us.</div>';
+        html += '<div class="choose-reveal-block">' +
+          '<div class="choose-reveal-label">Considered</div>' +
+          '<div class="choose-reveal-body">' + picked.considered + '</div>' +
+          '</div>';
+        html += '<div class="choose-highlight-box">' +
+          '<div class="choose-reveal-label">Why we chose it</div>' +
+          '<div class="choose-reveal-body">' + picked.decision + '</div>' +
+          '</div>';
+      } else {
+        html += '<div class="choose-reveal-header">Interesting choice. We went with <span class="ri-highlight">Reading Intention</span>.</div>';
+        html += '<div class="choose-reveal-block">' +
+          '<div class="choose-reveal-body"><strong>' + picked.name + '</strong> \u2014 ' + picked.decision + '</div>' +
+          '</div>';
+        html += '<div class="choose-highlight-box">' +
+          '<div class="choose-reveal-label">Why we went with Reading Intention</div>' +
+          '<div class="choose-reveal-body">' + chosen.decision + '</div>' +
+          '</div>';
+      }
+
+      html += '</div>';
+      return html;
+    }
+
+    function updateCards(id) {
+      var cards = row.querySelectorAll('.choose-card');
+      cards.forEach(function(c) {
+        var cid = c.getAttribute('data-solution');
+        c.classList.toggle('is-selected', cid === id);
+        c.classList.toggle('is-dimmed', cid !== id);
+      });
+    }
+
+    function deselectAll() {
+      selectedId = null;
+      isFirstReveal = true;
+      var cards = row.querySelectorAll('.choose-card');
+      cards.forEach(function(c) {
+        c.classList.remove('is-selected');
+        c.classList.remove('is-dimmed');
+      });
+      // Animate reveal out (base transition handles opacity + collapse).
+      reveal.classList.remove('is-visible');
+      reveal.classList.add('is-initial');
+    }
+
+    function selectCard(id) {
+      // Clicking the already-selected card → toggle off.
+      if (id === selectedId) {
+        deselectAll();
+        return;
+      }
+
+      var picked = getSolution(id);
+      updateCards(id);
+
+      if (isFirstReveal) {
+        // First selection — slide in
+        isFirstReveal = false;
+        selectedId = id;
+        reveal.innerHTML = buildRevealHTML(picked);
+        reveal.classList.remove('is-initial');
+        requestAnimationFrame(function() {
+          reveal.classList.add('is-visible');
+        });
+      } else {
+        // Switching — crossfade content
+        selectedId = id;
+        reveal.classList.add('is-swapping');
+        setTimeout(function() {
+          reveal.innerHTML = buildRevealHTML(picked);
+          reveal.classList.remove('is-swapping');
+        }, 150);
+      }
+    }
+  })();
+  </script>
+  <script src="/work/hmw-data.js"></script>
+  <script>
+  // HMW Teaser Card — FigJam-style canvas
+  (function() {
+    var container = document.getElementById('hmw-stickies');
+    if (!container || typeof HMW_DATA === 'undefined') return;
+
+    function seededRandom(seed) {
+      var x = Math.sin(seed) * 10000;
+      return x - Math.floor(x);
+    }
+
+    function charSum(str) {
+      var sum = 0;
+      for (var i = 0; i < str.length; i++) sum += str.charCodeAt(i);
+      return sum;
+    }
+
+    // Pick 12 representative stickies across clusters
+    var picks = ['o1','o3','o4','c2','c4','s1','s3','f1','u1','r2','i2','ch2'];
+    var picksSet = {};
+    picks.forEach(function(id) { picksSet[id] = true; });
+
+    var selected = [];
+    HMW_DATA.clusters.forEach(function(cluster) {
+      cluster.stickies.forEach(function(s) {
+        if (picksSet[s.id]) {
+          selected.push({ id: s.id, text: s.text, color: cluster.color });
+        }
+      });
+    });
+
+    function boostAlpha(color) {
+      var m = color.match(/^rgba\(\s*(\d+),\s*(\d+),\s*(\d+),\s*[\d.]+\)$/);
+      if (m) return 'rgba(' + m[1] + ', ' + m[2] + ', ' + m[3] + ', 0.80)';
+      return color;
+    }
+
+    // Grid layout with seeded jitter — 4 cols × 3 rows to fill the card
+    var gridCols = 4, gridRows = 3;
+    var cellW = 100 / gridCols;
+    var cellH = 100 / gridRows;
+
+    selected.forEach(function(s, i) {
+      var col = i % gridCols, row = Math.floor(i / gridCols);
+      var seed = charSum(s.id);
+      var jitterX = (seededRandom(seed) - 0.5) * 15;
+      var jitterY = (seededRandom(seed + 1) - 0.5) * 15;
+      var x = col * cellW + cellW * 0.2 + jitterX;
+      var y = row * cellH + cellH * 0.15 + jitterY;
+      var rot = (seededRandom(seed + 2) - 0.5) * 10;
+      var dx = (seededRandom(seed + 3) - 0.5) * 6;
+      var dy = (seededRandom(seed + 4) - 0.5) * 6;
+
+      var el = document.createElement('div');
+      el.className = 'hmw-sticky';
+      el.textContent = s.text;
+      el.style.cssText =
+        'left:' + x + '%;top:' + y + '%;' +
+        'transform:rotate(' + rot + 'deg);' +
+        'background:' + boostAlpha(s.color) + ';' +
+        '--dx:' + dx + 'px;--dy:' + dy + 'px;';
+      container.appendChild(el);
+    });
+
+    var teaser = document.getElementById('hmw-teaser');
+    teaser.addEventListener('click', function() {
+      if (window.hmwOverlay) window.hmwOverlay.open();
+    });
+  })();
+  </script>
+  <script>
+  // HMW Fullscreen Overlay
+  (function() {
+    if (typeof HMW_DATA === 'undefined') return;
+
+    function seededRandom(seed) {
+      var x = Math.sin(seed) * 10000;
+      return x - Math.floor(x);
+    }
+    function charSum(str) {
+      var sum = 0;
+      for (var i = 0; i < str.length; i++) sum += str.charCodeAt(i);
+      return sum;
+    }
+
+    // Canvas dimensions
+    var CW = 2000, CH = 1400;
+    var STICKY_W = 100, STICKY_GAP = 12;
+
+    // Build flat list with scattered positions
+    var allStickies = [];
+    var stickyIndex = 0;
+    HMW_DATA.clusters.forEach(function(cluster) {
+      cluster.stickies.forEach(function(s) {
+        var seed = charSum(s.id);
+        allStickies.push({
+          id: s.id,
+          text: s.text,
+          color: cluster.color,
+          clusterId: cluster.id,
+          clusterLabel: cluster.label,
+          index: stickyIndex++,
+          sx: seededRandom(seed) * (CW * 0.8) + (CW * 0.1),
+          sy: seededRandom(seed + 1) * (CH * 0.75) + (CH * 0.1),
+          sr: (seededRandom(seed + 2) - 0.5) * 16
+        });
+      });
+    });
+
+    // Compute grouped positions — 2-column clean grid, no overlap
+    // Reorder: move "others" to last so important clusters come first
+    var clusterIds = [];
+    var clusterMap = {};
+    var othersId = null;
+    HMW_DATA.clusters.forEach(function(c) {
+      clusterMap[c.id] = { label: c.label, stickies: [] };
+      if (c.id === 'others') { othersId = c.id; }
+      else { clusterIds.push(c.id); }
+    });
+    if (othersId) clusterIds.push(othersId);
+    allStickies.forEach(function(s) {
+      clusterMap[s.clusterId].stickies.push(s);
+    });
+
+    var COLS = 3;
+    var stickyH = 120;
+    var hGap = 16, vGap = 12;
+    var labelH = 20, labelGap = 16;
+    function clusterContentH(cid) {
+      var rows = Math.ceil(clusterMap[cid].stickies.length / COLS);
+      return labelH + labelGap + rows * stickyH + (rows - 1) * vGap;
+    }
+    var clusterContentW = COLS * STICKY_W + (COLS - 1) * hGap;
+    var padX = 150, padY = 80, clusterGapX = 80, clusterGapY = 80;
+
+    // Compute cumulative Y per grid row (pairs of clusters)
+    var rowYs = [];
+    var numRows = Math.ceil(clusterIds.length / 2);
+    var cumY = padY;
+    for (var r = 0; r < numRows; r++) {
+      rowYs.push(cumY);
+      var h0 = clusterIds[r * 2] ? clusterContentH(clusterIds[r * 2]) : 0;
+      var h1 = clusterIds[r * 2 + 1] ? clusterContentH(clusterIds[r * 2 + 1]) : 0;
+      cumY += Math.max(h0, h1) + clusterGapY;
+    }
+
+    clusterIds.forEach(function(cid, ci) {
+      var col = ci % 2, row = Math.floor(ci / 2);
+      var cx = padX + col * (clusterContentW + clusterGapX);
+      var cy = rowYs[row];
+      clusterMap[cid].gx = cx;
+      clusterMap[cid].gy = cy;
+      clusterMap[cid].stickies.forEach(function(s, si) {
+        var sc = si % COLS, sr2 = Math.floor(si / COLS);
+        s.gx = cx + sc * (STICKY_W + hGap);
+        s.gy = cy + labelH + labelGap + sr2 * (stickyH + vGap);
+        s.gr = 0;
+      });
+    });
+
+    // Create overlay DOM
+    var overlay = document.createElement('div');
+    overlay.className = 'hmw-overlay';
+    overlay.innerHTML =
+      '<div class="hmw-overlay-viewport" id="hmw-viewport">' +
+        '<div class="hmw-overlay-canvas" id="hmw-canvas"></div>' +
+      '</div>' +
+      '<div class="hmw-overlay-float-title">' +
+        '<span class="hmw-overlay-title">HMW Session</span>' +
+        '<span class="hmw-overlay-question">' + HMW_DATA.question + '</span>' +
+      '</div>' +
+      '<button class="hmw-close-btn" id="hmw-close">×</button>' +
+      '<button class="hmw-synth-btn" id="hmw-synth"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:6px"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="10" y="1" width="5" height="5" rx="1"/><rect x="1" y="10" width="5" height="5" rx="1"/><rect x="10" y="10" width="5" height="5" rx="1"/></svg>Synthesize</button>';
+    document.body.appendChild(overlay);
+
+    var canvas = document.getElementById('hmw-canvas');
+    var viewport = document.getElementById('hmw-viewport');
+    var synthBtn = document.getElementById('hmw-synth');
+    var closeBtn = document.getElementById('hmw-close');
+
+    // Boost color opacity for overlay stickies (data uses light teaser values)
+    function boostAlpha(color) {
+      var m = color.match(/^rgba\(\s*(\d+),\s*(\d+),\s*(\d+),\s*[\d.]+\)$/);
+      if (m) return 'rgba(' + m[1] + ', ' + m[2] + ', ' + m[3] + ', 0.80)';
+      return color;
+    }
+
+    // Render stickies on canvas
+    var stickyEls = [];
+    var labelEls = [];
+    allStickies.forEach(function(s) {
+      var el = document.createElement('div');
+      el.className = 'hmw-ov-sticky';
+      el.textContent = s.text;
+      el.style.background = boostAlpha(s.color);
+      el.style.transform = 'translate(' + s.sx + 'px,' + s.sy + 'px) rotate(' + s.sr + 'deg)';
+      canvas.appendChild(el);
+      stickyEls.push(el);
+    });
+
+    // Render cluster labels (hidden initially)
+    clusterIds.forEach(function(cid) {
+      var c = clusterMap[cid];
+      var lbl = document.createElement('div');
+      lbl.className = 'hmw-ov-label';
+      lbl.textContent = c.label;
+      lbl.style.transform = 'translate(' + c.gx + 'px,' + c.gy + 'px)';
+      canvas.appendChild(lbl);
+      labelEls.push(lbl);
+    });
+
+    // Pan state
+    var panX = 0, panY = 0, isPanning = false, startX, startY, startPanX, startPanY;
+    var velX = 0, velY = 0, lastMoveTime, lastMoveX, lastMoveY, inertiaId;
+
+    function applyPan() {
+      canvas.style.transform = 'translate(' + panX + 'px,' + panY + 'px)';
+      viewport.style.backgroundPosition = (panX % 20) + 'px ' + (panY % 20) + 'px';
+    }
+
+    function centerCanvas() {
+      var vw = viewport.offsetWidth, vh = viewport.offsetHeight;
+      panX = (vw - CW) / 2;
+      panY = (vh - CH) / 2;
+      applyPan();
+    }
+
+    viewport.addEventListener('mousedown', function(e) {
+      if (e.target.closest('.hmw-ov-sticky')) return;
+      isPanning = true;
+      startX = e.clientX; startY = e.clientY;
+      startPanX = panX; startPanY = panY;
+      velX = 0; velY = 0;
+      lastMoveTime = Date.now(); lastMoveX = e.clientX; lastMoveY = e.clientY;
+      if (inertiaId) cancelAnimationFrame(inertiaId);
+      viewport.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', function(e) {
+      if (!isPanning) return;
+      var now = Date.now();
+      var dt = now - lastMoveTime;
+      if (dt > 0) {
+        velX = (e.clientX - lastMoveX) / dt * 16;
+        velY = (e.clientY - lastMoveY) / dt * 16;
+      }
+      lastMoveTime = now; lastMoveX = e.clientX; lastMoveY = e.clientY;
+      panX = startPanX + (e.clientX - startX);
+      panY = startPanY + (e.clientY - startY);
+      applyPan();
+    });
+    window.addEventListener('mouseup', function() {
+      if (!isPanning) return;
+      isPanning = false;
+      viewport.style.cursor = '';
+      // Inertia
+      var friction = 0.92;
+      function decay() {
+        velX *= friction; velY *= friction;
+        if (Math.abs(velX) < 0.1 && Math.abs(velY) < 0.1) return;
+        panX += velX; panY += velY;
+        applyPan();
+        inertiaId = requestAnimationFrame(decay);
+      }
+      decay();
+    });
+
+    // Touch pan
+    viewport.addEventListener('touchstart', function(e) {
+      if (e.touches.length !== 1) return;
+      isPanning = true;
+      var t = e.touches[0];
+      startX = t.clientX; startY = t.clientY;
+      startPanX = panX; startPanY = panY;
+      velX = 0; velY = 0;
+      lastMoveTime = Date.now(); lastMoveX = t.clientX; lastMoveY = t.clientY;
+      if (inertiaId) cancelAnimationFrame(inertiaId);
+    }, { passive: true });
+    viewport.addEventListener('touchmove', function(e) {
+      if (!isPanning || e.touches.length !== 1) return;
+      var t = e.touches[0];
+      var now = Date.now();
+      var dt = now - lastMoveTime;
+      if (dt > 0) {
+        velX = (t.clientX - lastMoveX) / dt * 16;
+        velY = (t.clientY - lastMoveY) / dt * 16;
+      }
+      lastMoveTime = now; lastMoveX = t.clientX; lastMoveY = t.clientY;
+      panX = startPanX + (t.clientX - startX);
+      panY = startPanY + (t.clientY - startY);
+      applyPan();
+    }, { passive: true });
+    viewport.addEventListener('touchend', function() {
+      if (!isPanning) return;
+      isPanning = false;
+      var friction = 0.92;
+      function decay() {
+        velX *= friction; velY *= friction;
+        if (Math.abs(velX) < 0.1 && Math.abs(velY) < 0.1) return;
+        panX += velX; panY += velY;
+        applyPan();
+        inertiaId = requestAnimationFrame(decay);
+      }
+      decay();
+    });
+
+    // State
+    var isGrouped = false, isAnimating = false;
+
+    function centerOnGrouped() {
+      // Position top of grouped content at 30% of viewport height
+      var minX = Infinity, minY = Infinity, maxX = -Infinity;
+      allStickies.forEach(function(s) {
+        if (s.gx < minX) minX = s.gx;
+        if (s.gy < minY) minY = s.gy;
+        if (s.gx + STICKY_W > maxX) maxX = s.gx + STICKY_W;
+      });
+      // Account for cluster labels above stickies
+      var topEdge = minY - labelH - labelGap;
+      var bboxCx = (minX + maxX) / 2;
+      var vw = viewport.offsetWidth, vh = viewport.offsetHeight;
+      panX = vw / 2 - bboxCx;
+      panY = vh * 0.12 - topEdge;
+      canvas.style.transition = 'transform 400ms ease-in-out';
+      applyPan();
+      canvas.addEventListener('transitionend', function handler(e) {
+        if (e.propertyName !== 'transform') return;
+        canvas.removeEventListener('transitionend', handler);
+        canvas.style.transition = '';
+      });
+    }
+
+    function toGrouped() {
+      if (isAnimating) return;
+      isAnimating = true;
+      allStickies.forEach(function(s, i) {
+        var el = stickyEls[i];
+        el.style.transition = 'transform 500ms ease-in-out ' + (i * 15) + 'ms';
+        el.style.transform = 'translate(' + s.gx + 'px,' + s.gy + 'px) rotate(0deg)';
+      });
+      var totalTime = allStickies.length * 15 + 500;
+      setTimeout(function() {
+        labelEls.forEach(function(lbl) { lbl.classList.add('is-visible'); });
+        isGrouped = true;
+        synthBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:6px"><circle cx="3" cy="3" r="2"/><circle cx="13" cy="5" r="2"/><circle cx="5" cy="13" r="2"/><circle cx="11" cy="11" r="2"/></svg>Scatter';
+        // Center viewport on grouped stickies
+        centerOnGrouped();
+        setTimeout(function() { isAnimating = false; }, 420);
+      }, totalTime);
+    }
+
+    function toScattered() {
+      if (isAnimating) return;
+      isAnimating = true;
+      // Fade labels out first
+      labelEls.forEach(function(lbl) { lbl.classList.remove('is-visible'); });
+      setTimeout(function() {
+        var total = allStickies.length;
+        allStickies.forEach(function(s, i) {
+          var el = stickyEls[total - 1 - i];
+          var si = allStickies[total - 1 - i];
+          el.style.transition = 'transform 500ms ease-in-out ' + (i * 15) + 'ms';
+          el.style.transform = 'translate(' + si.sx + 'px,' + si.sy + 'px) rotate(' + si.sr + 'deg)';
+        });
+        var totalTime = total * 15 + 500;
+        setTimeout(function() {
+          isAnimating = false;
+          isGrouped = false;
+          synthBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:6px"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="10" y="1" width="5" height="5" rx="1"/><rect x="1" y="10" width="5" height="5" rx="1"/><rect x="10" y="10" width="5" height="5" rx="1"/></svg>Synthesize';
+        }, totalTime);
+      }, 200);
+    }
+
+    synthBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (isGrouped) toScattered(); else toGrouped();
+    });
+
+    // Open / close
+    function openOverlay() {
+      var teaser = document.getElementById('hmw-teaser');
+      var rect = teaser.getBoundingClientRect();
+      var vw = window.innerWidth, vh = window.innerHeight;
+
+      // Set transform origin to teaser center
+      var ox = rect.left + rect.width / 2;
+      var oy = rect.top + rect.height / 2;
+      overlay.style.transformOrigin = ox + 'px ' + oy + 'px';
+      overlay.style.transform = 'scale(0.01)';
+      overlay.style.opacity = '0';
+      overlay.classList.add('is-open');
+      void overlay.offsetHeight;
+
+      overlay.style.transition = 'transform 400ms cubic-bezier(0.4,0,0.2,1), opacity 200ms ease';
+      overlay.style.transform = 'scale(1)';
+      overlay.style.opacity = '1';
+
+      centerCanvas();
+      document.body.style.overflow = 'hidden';
+
+      overlay.addEventListener('transitionend', function handler(e) {
+        if (e.propertyName !== 'transform') return;
+        overlay.removeEventListener('transitionend', handler);
+        overlay.style.transition = '';
+        overlay.style.transform = '';
+        overlay.style.transformOrigin = '';
+      });
+    }
+
+    function closeOverlay() {
+      var teaser = document.getElementById('hmw-teaser');
+      var rect = teaser.getBoundingClientRect();
+      var ox = rect.left + rect.width / 2;
+      var oy = rect.top + rect.height / 2;
+      overlay.style.transformOrigin = ox + 'px ' + oy + 'px';
+      overlay.style.transition = 'transform 400ms cubic-bezier(0.4,0,0.2,1), opacity 200ms ease 200ms';
+      overlay.style.transform = 'scale(0.01)';
+      overlay.style.opacity = '0';
+
+      overlay.addEventListener('transitionend', function handler(e) {
+        if (e.propertyName !== 'transform') return;
+        overlay.removeEventListener('transitionend', handler);
+        overlay.classList.remove('is-open');
+        overlay.style.transition = '';
+        overlay.style.transform = '';
+        overlay.style.transformOrigin = '';
+        overlay.style.opacity = '';
+        document.body.style.overflow = '';
+
+        // Reset to scattered
+        if (isGrouped) {
+          labelEls.forEach(function(lbl) { lbl.classList.remove('is-visible'); });
+          allStickies.forEach(function(s, i) {
+            stickyEls[i].style.transition = 'none';
+            stickyEls[i].style.transform = 'translate(' + s.sx + 'px,' + s.sy + 'px) rotate(' + s.sr + 'deg)';
+          });
+          isGrouped = false;
+          synthBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-2px;margin-right:6px"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="10" y="1" width="5" height="5" rx="1"/><rect x="1" y="10" width="5" height="5" rx="1"/><rect x="10" y="10" width="5" height="5" rx="1"/></svg>Synthesize';
+        }
+      });
+    }
+
+    closeBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      closeOverlay();
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && overlay.classList.contains('is-open')) {
+        closeOverlay();
+      }
+    });
+
+    window.hmwOverlay = { open: openOverlay };
+  })();
+  </script>
+  <script>
+  // Password protection
+  (function() {
+    // SHA-256 hash of the password (not stored in plaintext)
+    var HASH = '2a917d6683f3d37aedf1324e823f40191342271096a1291d9e4f88b90ea527d9';
+    var wall = document.getElementById('pw-wall');
+    var page = document.getElementById('case-page');
+    var form = document.getElementById('pw-form');
+    var input = document.getElementById('pw-input');
+    var error = document.getElementById('pw-error');
+
+    async function sha256(str) {
+      var buf = await crypto.subtle.digest('SHA-256',
+        new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf))
+        .map(function(b) { return b.toString(16).padStart(2, '0'); })
+        .join('');
+    }
+
+    function unlock() {
+      wall.classList.add('is-unlocked');
+      page.style.cssText = '';
+      page.classList.add('is-visible');
+    }
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var hash = await sha256(input.value);
+      if (hash === HASH) {
+        unlock();
+        input.classList.remove('is-error');
+        error.textContent = '';
+      } else {
+        input.classList.add('is-error');
+        error.textContent = 'Incorrect password';
+        input.value = '';
+        input.focus();
+      }
+    });
+
+    input.addEventListener('input', function() {
+      input.classList.remove('is-error');
+      error.textContent = '';
+    });
+
+    // Prevent casual bypass via keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      if (!page.classList.contains('is-visible')) {
+        // Block Ctrl+U (view source), Ctrl+Shift+I (devtools)
+        if ((e.ctrlKey || e.metaKey) && e.key === 'u') e.preventDefault();
+      }
+    });
+
+    // Disable right-click when locked
+    document.addEventListener('contextmenu', function(e) {
+      if (!page.classList.contains('is-visible')) e.preventDefault();
+    });
+  })();
+  </script>
+</body>
+</html>

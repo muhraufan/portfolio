@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartNews Design System — Raufan Yusup</title>
+  <meta name="description" content="Building SmartNews' first design system foundations.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="container">
+      <div class="nav-inner">
+        <a href="/" class="nav-logo">Raufan</a>
+        <div class="nav-links">
+          <a href="/about.html">About</a>
+          <a href="/stack.html">Stack</a>
+          <a href="/contact.html">Contact</a>
+          <button class="theme-toggle" aria-label="Toggle theme">●</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main>
+
+    <button class="m-lang-toggle case-lang-toggle" aria-label="Toggle language">JA</button>
+    <button class="m-theme-toggle case-theme-toggle" aria-label="Toggle theme">
+      <svg class="m-icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      <svg class="m-icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
+
+    <div class="container">
+
+      <a href="/" class="case-back" data-en="← Back to home" data-ja="← 戻る">← Back to home</a>
+
+      <!-- Case Study Hero -->
+      <div class="case-hero">
+        <p class="case-kicker">SmartNews · 2024</p>
+        <h1 class="case-title">SmartNews Design System Foundations</h1>
+
+        <div class="case-meta-row">
+          <div class="case-meta-item">
+            <span class="case-meta-label">Company</span>
+            <span class="case-meta-value">SmartNews, Inc.</span>
+          </div>
+          <div class="case-meta-item">
+            <span class="case-meta-label">Timeline</span>
+            <span class="case-meta-value">Aug – Nov 2024 (4 months)</span>
+          </div>
+          <div class="case-meta-item">
+            <span class="case-meta-label">Role</span>
+            <span class="case-meta-value">Senior Product Designer (Sole Designer)</span>
+          </div>
+        </div>
+
+        <!-- Cover -->
+        <div class="case-cover">
+          <div class="case-cover-inner" style="background: linear-gradient(135deg, #5856d6 0%, #af52de 100%);">🎨</div>
+        </div>
+      </div>
+
+      <!-- Quote -->
+      <blockquote class="case-quote">
+        "Design system quality lies in the invisible."
+      </blockquote>
+
+      <!-- Overview -->
+      <div class="case-section">
+        <h2>Overview</h2>
+        <p>
+          SmartNews had grown rapidly — but its design foundation hadn't kept pace.
+          Inconsistent UI patterns, duplicated components, and misaligned color tokens
+          were slowing down the team. As the sole designer on this initiative, I was
+          tasked with building SmartNews' first formal design system from scratch.
+        </p>
+        <p>
+          The goal: establish a shared design language that designers and engineers
+          could build with confidence, and reduce the friction caused by inconsistencies
+          across the product.
+        </p>
+      </div>
+
+      <!-- Problem -->
+      <div class="case-section">
+        <h2>The Problem</h2>
+        <p>
+          Before the design system, the team faced several compounding issues:
+        </p>
+        <ul>
+          <li>No consistent naming conventions between design and engineering</li>
+          <li>Color tokens undefined — every designer used slightly different values</li>
+          <li>No formal light/dark mode token strategy</li>
+          <li>Components were duplicated across files with inconsistent variants</li>
+          <li>Designer–engineer handoff was slow due to unclear specifications</li>
+        </ul>
+      </div>
+
+      <!-- Approach -->
+      <div class="case-section">
+        <h2>The Approach</h2>
+        <h3>Color Primitives → Color Tokens</h3>
+        <p>
+          I started at the foundation: color. The first step was establishing color
+          primitives (the raw palette) and mapping them to semantic color tokens
+          (what each color <em>means</em> in context). Light and dark mode were
+          addressed simultaneously from day one, not retrofitted later.
+        </p>
+        <p>
+          Token naming was a key focus. Rather than technical names like
+          <code>gray-700</code>, tokens used semantic names like <code>text-primary</code>
+          or <code>surface-default</code> — vocabulary that meant the same thing
+          to a designer and an engineer.
+        </p>
+        <h3>Typography System</h3>
+        <p>
+          I standardized type scales, weights, and line heights into a clear hierarchy.
+          Each style was given a clear role: heading, subheading, body, caption,
+          label — with specific size and weight pairings that scaled predictably
+          across breakpoints.
+        </p>
+        <h3>Component Library</h3>
+        <p>
+          Working from the most-used components first, I audited the existing UI,
+          identified patterns, and rebuilt them as proper Figma components with
+          auto-layout, variants, and interactive states.
+        </p>
+      </div>
+
+      <!-- Results -->
+      <div class="case-section">
+        <h2>Results</h2>
+        <div class="case-outcome">
+          <div class="outcome-item">
+            <div>
+              <p class="outcome-stat">↑</p>
+              <p class="outcome-label">Noticeable increase in design system component adoption vs. previous UI kit</p>
+            </div>
+          </div>
+          <div class="outcome-item">
+            <div>
+              <p class="outcome-stat">1</p>
+              <p class="outcome-label">Single source of truth for all UI components at SmartNews</p>
+            </div>
+          </div>
+          <div class="outcome-item">
+            <div>
+              <p class="outcome-stat">2× mode</p>
+              <p class="outcome-label">Full light and dark mode support built into every component</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Learnings -->
+      <div class="case-section">
+        <h2>What I Learned</h2>
+        <p>
+          Building a design system solo is humbling. You quickly realize that a
+          design system is never "done" — it's a living document that must grow
+          with the product. The most valuable thing I built wasn't the components
+          themselves, but the <em>naming frameworks</em> and <em>decision rules</em>
+          that helped the whole team understand why things were the way they were.
+        </p>
+        <p>
+          The biggest win? When an engineer used the token <code>text-primary</code>
+          in their PR and a designer immediately understood what it meant without
+          a handoff doc. That shared language was the real product.
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <span class="footer-copy">© 2025 by Raufan</span>
+        <div class="footer-links">
+          <a href="https://twitter.com/muhraufan" target="_blank" rel="noopener">Twitter</a>
+          <a href="https://instagram.com/muhraufan" target="_blank" rel="noopener">Instagram</a>
+          <a href="https://linkedin.com/in/muhraufan" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/case.js?v=2"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

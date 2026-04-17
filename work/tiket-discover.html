@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>tiket.com Discover — Raufan Yusup</title>
+  <meta name="description" content="From dreaming to booking: designing tiket.com's new travel discovery experience.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css?v=2">
+  <link rel="stylesheet" href="/css/case.css?v=76">
+</head>
+<body class="minimal">
+
+  <div class="case-page">
+
+    <button class="m-lang-toggle case-lang-toggle" aria-label="Toggle language">JA</button>
+    <button class="m-theme-toggle case-theme-toggle" aria-label="Toggle theme">
+      <svg class="m-icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      <svg class="m-icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
+
+    <!-- Mobile sticky header -->
+    <header class="case-mobile-header" id="case-mobile-header">
+      <a href="/" class="case-mobile-back">← <span data-en="Back" data-ja="戻る">Back</span></a>
+      <button class="case-mobile-hamburger" id="case-hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </header>
+
+    <!-- Mobile menu overlay -->
+    <div class="case-mobile-menu" id="case-mobile-menu">
+      <ul>
+        <li><a href="#beginning" class="case-mobile-menu-link">The Beginning</a></li>
+        <li><a href="#journey" class="case-mobile-menu-link">The Journey</a></li>
+        <li><a href="#ending" class="case-mobile-menu-link">The Ending</a></li>
+      </ul>
+      <a href="/work/tiket-discover-full.html" class="case-cta"><span data-en="View full case study" data-ja="ケーススタディを見る">View full case study</span></a>
+    </div>
+
+    <!-- Sidebar with back button (desktop) -->
+    <nav class="case-sidebar">
+      <a href="/" class="case-back">← <span data-en="Back" data-ja="戻る">Back</span></a>
+      <ul>
+        <li><a href="#beginning" class="case-nav-link active">The Beginning</a></li>
+        <li><a href="#journey" class="case-nav-link">The Journey</a></li>
+        <li><a href="#ending" class="case-nav-link">The Ending</a></li>
+      </ul>
+      <a href="/work/tiket-discover-full.html" class="case-cta"><span data-en="View full case study" data-ja="ケーススタディを見る">View full case study</span></a>
+    </nav>
+
+    <!-- Content -->
+    <article class="case-content">
+
+      <header class="case-header">
+        <p class="case-meta">tiket.com · 2021 · 5 months</p>
+        <h1 class="case-title">From dreaming to booking: designing tiket.com's new travel discovery experience.</h1>
+        <p class="case-role">Product Designer & Researcher</p>
+        <video class="case-cover-video" autoplay loop muted playsinline>
+          <source src="/work/images/tiket-discover-cover.mp4" type="video/mp4">
+        </video>
+      </header>
+
+      <section id="beginning">
+        <h2 class="case-h2">The Beginning</h2>
+        <p>Once upon a time, people opened tiket.com only when they already knew where to go. They came for discounts, not discovery.</p>
+        <p>But travel doesn't start with booking — it starts with a spark. A photo, a story, a "maybe someday." That spark was scattered across apps, blogs, and social media — never inside tiket.com.</p>
+        <p>We saw an opportunity:</p>
+        <p class="case-emphasis">What if the journey could begin here?</p>
+
+        <!-- User journey diagram -->
+        <div class="journey-diagram">
+          <div class="journey-opportunity">
+            <span class="journey-opportunity-label">Huge opportunity</span>
+          </div>
+          <div class="journey-flow">
+            <div class="journey-step journey-step--solid">
+              <span>User has a trigger to travel</span>
+            </div>
+            <div class="journey-arrow">→</div>
+            <div class="journey-step journey-step--dashed">
+              <span>Dreaming destination</span>
+            </div>
+            <div class="journey-arrow">→</div>
+            <div class="journey-step journey-step--dashed">
+              <span>Exploring destination</span>
+            </div>
+            <div class="journey-arrow">→</div>
+            <div class="journey-step journey-step--solid">
+              <span>Locating the product</span>
+            </div>
+          </div>
+          <div class="journey-platforms">
+            <div class="journey-platform-group">
+              <span class="journey-platform-label">Commonly used platforms</span>
+              <span class="journey-platform-icons">TikTok · Instagram · YouTube · Twitter</span>
+            </div>
+            <div class="journey-platform-group journey-platform-end">
+              <span class="journey-platform-label">tiket.com</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="journey">
+        <h2 class="case-h2">The Journey</h2>
+        <p>We talked to travelers, mapped their decisions, and realized: planning a trip isn't linear. It's a loop of three questions — Budget, Time, and Theme. That became our Labyrinth Framework, capturing how people truly explore destinations.</p>
+
+        <!-- Labyrinth Framework diagram -->
+        <div class="labyrinth" id="labyrinth">
+          <p class="labyrinth-note">*Hover to explore connections</p>
+          <div class="labyrinth-grid">
+            <div class="labyrinth-col">
+              <div class="labyrinth-cat">Time</div>
+              <div class="labyrinth-leaf" data-id="distance" data-connects="low,medium,high,adventure,culture">Distance</div>
+              <div class="labyrinth-leaf" data-id="seasonal" data-connects="low,medium,family,culture">Seasonal</div>
+              <div class="labyrinth-leaf" data-id="holiday" data-connects="medium,high,family,adventure">Holiday</div>
+            </div>
+            <div class="labyrinth-col labyrinth-col--center">
+              <div class="labyrinth-cat">Budget</div>
+              <div class="labyrinth-leaf" data-id="low" data-connects="distance,seasonal,culture,adventure">Low</div>
+              <div class="labyrinth-leaf" data-id="medium" data-connects="seasonal,holiday,family,culture">Medium</div>
+              <div class="labyrinth-leaf" data-id="high" data-connects="holiday,distance,adventure,family">High</div>
+              <div class="labyrinth-user">User</div>
+            </div>
+            <div class="labyrinth-col">
+              <div class="labyrinth-cat">Theme</div>
+              <div class="labyrinth-leaf" data-id="adventure" data-connects="distance,holiday,medium,high">Adventure</div>
+              <div class="labyrinth-leaf" data-id="family" data-connects="seasonal,holiday,low,medium">Family</div>
+              <div class="labyrinth-leaf" data-id="culture" data-connects="distance,seasonal,low,medium">Culture</div>
+            </div>
+          </div>
+          <svg class="labyrinth-svg" id="labyrinth-svg"></svg>
+          <p class="labyrinth-path" id="labyrinth-path"></p>
+
+          <!-- Mobile version -->
+          <div class="labyrinth-mobile" id="labyrinth-mobile">
+            <div class="labyrinth-mobile-row">
+              <div class="labyrinth-mobile-cat">Time</div>
+              <div class="labyrinth-mobile-pills">
+                <div class="labyrinth-mobile-pill" data-mid="distance" data-mconnects="low,medium,high,adventure,culture">Distance</div>
+                <div class="labyrinth-mobile-pill" data-mid="seasonal" data-mconnects="low,medium,family,culture">Seasonal</div>
+                <div class="labyrinth-mobile-pill" data-mid="holiday" data-mconnects="medium,high,family,adventure">Holiday</div>
+              </div>
+            </div>
+            <div class="labyrinth-mobile-row">
+              <div class="labyrinth-mobile-cat">Budget</div>
+              <div class="labyrinth-mobile-pills">
+                <div class="labyrinth-mobile-pill" data-mid="low" data-mconnects="distance,seasonal,culture,adventure">Low</div>
+                <div class="labyrinth-mobile-pill" data-mid="medium" data-mconnects="seasonal,holiday,family,culture">Medium</div>
+                <div class="labyrinth-mobile-pill" data-mid="high" data-mconnects="holiday,distance,adventure,family">High</div>
+              </div>
+            </div>
+            <div class="labyrinth-mobile-row">
+              <div class="labyrinth-mobile-cat">Theme</div>
+              <div class="labyrinth-mobile-pills">
+                <div class="labyrinth-mobile-pill" data-mid="adventure" data-mconnects="distance,holiday,medium,high">Adventure</div>
+                <div class="labyrinth-mobile-pill" data-mid="family" data-mconnects="seasonal,holiday,low,medium">Family</div>
+                <div class="labyrinth-mobile-pill" data-mid="culture" data-mconnects="distance,seasonal,low,medium">Culture</div>
+              </div>
+            </div>
+            <div class="labyrinth-mobile-user">User</div>
+            <p class="labyrinth-mobile-result" id="labyrinth-mobile-result"></p>
+            <p class="labyrinth-mobile-hint">*Tap to explore connections</p>
+          </div>
+        </div>
+
+        <p>From there, Discover was born:</p>
+        <p class="case-emphasis">a space that guides travelers from dreaming to booking.</p>
+
+        <ul>
+          <li><span class="m-medium">Landing Page</span> sparks ideas.</li>
+          <li><span class="m-medium">Curation Page</span> blends stories with offers.</li>
+          <li><span class="m-medium">Destination Page</span> helps finalize plans.</li>
+        </ul>
+
+        <!-- Tabbed phone frame preview -->
+        <div class="page-tabs" id="page-tabs">
+          <div class="page-tabs-nav">
+            <div class="page-tabs-nav-inner" id="page-tabs-nav-inner">
+              <div class="page-tabs-indicator" id="page-tabs-indicator"></div>
+              <button class="page-tab-btn is-active" data-tab="0">Landing</button>
+              <button class="page-tab-btn" data-tab="1">Curation</button>
+              <button class="page-tab-btn" data-tab="2">Destination</button>
+            </div>
+          </div>
+          <p class="page-tab-desc" id="page-tab-desc">Sparks exploration through trending destinations and stories.</p>
+          <div class="page-tab-phone-outer">
+            <div class="page-tab-phone" id="page-tab-phone">
+              <div class="page-tab-frame is-active" data-ptab="0">
+                <img src="/work/images/Landing.png" alt="Landing Page design">
+              </div>
+              <div class="page-tab-frame" data-ptab="1">
+                <img src="/work/images/spectrum-local-travel.png" alt="Curation Page design">
+              </div>
+              <div class="page-tab-frame" data-ptab="2">
+                <img src="/work/images/Destination.png" alt="Destination Page design">
+              </div>
+              <div class="page-tab-scrollbar" id="page-tab-scrollbar">
+                <div class="page-tab-scroll-thumb" id="page-tab-scroll-thumb"></div>
+              </div>
+            </div>
+            <div class="page-tab-scroll-hint" id="page-tab-scroll-hint">
+              Scroll to explore
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Direction Spectrum Chart -->
+        <div class="direction-chart">
+          <p class="direction-chart-hint">*Hover to explore by category</p>
+          <div class="direction-chart-area">
+            <span class="direction-chart-label direction-chart-label--top">Inspiring</span>
+            <div class="direction-chart-axis"></div>
+            <span class="direction-chart-label direction-chart-label--bottom">Hard Selling</span>
+
+            <!-- Items positioned along the spectrum -->
+            <div class="direction-item direction-item--blog" data-cat="blog" style="top:10%; left:12%">Guides &amp; Tips</div>
+            <div class="direction-item direction-item--content" data-cat="content" style="top:25%; left:8%">Curated Destination</div>
+            <div class="direction-item direction-item--content" data-cat="content" style="top:38%; right:8%">Essential Experience</div>
+            <div class="direction-item direction-item--blog" data-cat="blog" style="top:38%; left:12%">Curated Articles</div>
+            <div class="direction-item direction-item--content" data-cat="content" style="top:52%; right:12%">Cross Selling based on user order</div>
+            <div class="direction-item direction-item--blog" data-cat="blog" style="top:52%; left:8%">Culinary Inspiration</div>
+            <div class="direction-item direction-item--content" data-cat="content" style="top:65%; right:8%">Curated Events</div>
+            <div class="direction-item direction-item--product" data-cat="product" style="top:73%; left:8%">Hotel</div>
+            <div class="direction-item direction-item--product" data-cat="product" style="top:73%; right:8%">Transport</div>
+            <div class="direction-item direction-item--product" data-cat="product" style="top:73%; right:32%">Events</div>
+            <div class="direction-item direction-item--product" data-cat="product" style="top:84%; left:8%">Activities</div>
+            <div class="direction-item direction-item--product" data-cat="product" style="top:84%; left:35%">Attraction</div>
+          </div>
+          <div class="direction-chart-legend">
+            <span class="direction-legend-item"><span class="direction-swatch direction-swatch--content"></span>Content</span>
+            <span class="direction-legend-item"><span class="direction-swatch direction-swatch--blog"></span>Blog</span>
+            <span class="direction-legend-item"><span class="direction-swatch direction-swatch--product"></span>Product</span>
+          </div>
+        </div>
+
+        <p>To make it flexible, we built a modular curation system — letting teams create campaign pages or influencer collabs without breaking design consistency.</p>
+
+        <!-- Content Spectrum Diagram -->
+        <div class="spectrum" id="spectrum">
+          <div class="spectrum-ends">
+            <div class="spectrum-end spectrum-end--inspire">Inspiring</div>
+            <div class="spectrum-end spectrum-end--sell">Hard Selling</div>
+          </div>
+          <div class="spectrum-track">
+            <div class="spectrum-line"></div>
+            <div class="spectrum-zone" id="spectrum-zone">
+              <span class="spectrum-zone-label">Opportunity</span>
+            </div>
+            <div class="spectrum-markers" id="spectrum-markers">
+              <div class="spectrum-marker" data-idx="0"></div>
+              <div class="spectrum-marker" data-idx="1"></div>
+              <div class="spectrum-marker" data-idx="2"></div>
+              <div class="spectrum-marker" data-idx="3"></div>
+              <div class="spectrum-marker" data-idx="4"></div>
+              <div class="spectrum-marker" data-idx="5"></div>
+            </div>
+            <div class="spectrum-handle" id="spectrum-handle"></div>
+          </div>
+          <p class="spectrum-active-label" id="spectrum-label">Local travel</p>
+          <p class="spectrum-active-sub" id="spectrum-sub">Theme-based editorial discovery</p>
+          <p class="spectrum-hint">Drag the handle to explore curation types</p>
+
+          <!-- Design preview that changes with the handle -->
+          <div class="spectrum-preview-outer">
+          <!-- Scroll-synced annotations (positioned left of phone) -->
+          <div class="spectrum-annotation" id="spectrum-annotation"></div>
+          <div class="spectrum-preview" id="spectrum-preview">
+            <div class="spectrum-preview-frame is-active" data-frame="0">
+              <img class="spectrum-preview-img" src="/work/images/spectrum-local-travel.png" alt="Local Travel curation page">
+            </div>
+            <div class="spectrum-preview-frame" data-frame="1">
+              <img class="spectrum-preview-img" src="/work/images/spectrum-autumn.png" alt="Autumn Holiday curation page">
+            </div>
+            <div class="spectrum-preview-frame" data-frame="2">
+              <img class="spectrum-preview-img" src="/work/images/spectrum-backpacking.png" alt="Backpacking curation page">
+            </div>
+            <div class="spectrum-preview-frame" data-frame="3">
+              <img class="spectrum-preview-img" src="/work/images/spectrum-quick-escape.png" alt="Quick Escape curation page">
+            </div>
+            <div class="spectrum-preview-frame" data-frame="4">
+              <img class="spectrum-preview-img" src="/work/images/spectrum-influencer.png" alt="Influencer Recommendations curation page">
+            </div>
+            <div class="spectrum-preview-frame" data-frame="5">
+              <img class="spectrum-preview-img" src="/work/images/spectrum-nye.png" alt="New Year Eve curation page">
+            </div>
+
+            <!-- Custom scroll indicator -->
+            <div class="spectrum-scroll-indicator" id="spectrum-scrollbar">
+              <div class="spectrum-scroll-thumb" id="spectrum-scroll-thumb"></div>
+            </div>
+
+          </div>
+          <!-- Scroll hint (beside phone frame) -->
+          <div class="spectrum-scroll-hint" id="spectrum-scroll-hint">
+            Scroll to explore
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+          </div>
+          </div>
+          <p class="spectrum-preview-caption" id="spectrum-caption">Based on theme · Local travel</p>
+        </div>
+      </section>
+
+      <section id="ending">
+        <h2 class="case-h2">The Ending</h2>
+        <p>Discover turned tiket.com from a booking app into a place where travel begins. It united product, marketing, and content teams around one shared story — built on collaboration, flexibility, and clarity.</p>
+        <p>It reminded me that great design isn't only about solving user pain points; it's about aligning teams, empowering them to create, and letting the product grow beyond its surface.</p>
+
+        <h3 class="case-h3">Impact & Achievements</h3>
+        <ul class="impact-list">
+          <li class="impact-item">
+            <svg class="impact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <span>Increased Daily Active Users (DAU) by transforming tiket.com into a content and discovery hub, not just a booking platform.</span>
+          </li>
+          <li class="impact-item">
+            <svg class="impact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98"/><path d="M15.41 6.51l-6.82 3.98"/></svg>
+            <span>Enabled faster brand collaborations — the marketing team could easily pitch thematic, centralized experiences to partners and influencers.</span>
+          </li>
+          <li class="impact-item">
+            <svg class="impact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 10h2"/><path d="M15 10h2"/><path d="M11 10h2"/></svg>
+            <span>Improved internal workflows — content teams now manage blogs, promotions, and placements within a single Discover internal tools.</span>
+          </li>
+          <li class="impact-item">
+            <svg class="impact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span>Boosted revenue streams — growth not only from bookings, but also from brand partnerships and sponsored content.</span>
+          </li>
+        </ul>
+      </section>
+
+      <footer class="case-footer">
+        <a href="/" class="m-link" data-en="← Back to home" data-ja="← 戻る">← Back to home</a>
+      </footer>
+
+    </article>
+
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <img class="lightbox-img" id="lightbox-img" src="" alt="">
+  </div>
+
+  <script src="/js/case.js?v=3"></script>
+  <script>
+  (function() {
+    var container = document.getElementById('labyrinth');
+    var svg = document.getElementById('labyrinth-svg');
+    var pathEl = document.getElementById('labyrinth-path');
+    var leaves = container.querySelectorAll('.labyrinth-leaf');
+    var allLines = [];
+
+    var labels = {
+      distance: 'Distance', seasonal: 'Seasonal', holiday: 'Holiday',
+      low: 'Low', medium: 'Medium', high: 'High',
+      adventure: 'Adventure', family: 'Family', culture: 'Culture'
+    };
+
+    var categories = {
+      distance: 'Time', seasonal: 'Time', holiday: 'Time',
+      low: 'Budget', medium: 'Budget', high: 'Budget',
+      adventure: 'Theme', family: 'Theme', culture: 'Theme'
+    };
+
+    function getCenter(el) {
+      var cr = el.getBoundingClientRect();
+      var pr = container.getBoundingClientRect();
+      return {
+        x: cr.left - pr.left + cr.width / 2,
+        y: cr.top - pr.top + cr.height / 2
+      };
+    }
+
+    function leafById(id) {
+      return container.querySelector('[data-id="' + id + '"]');
+    }
+
+    function drawLines(sourceEl, connectedIds) {
+      clearLines();
+      var src = getCenter(sourceEl);
+      connectedIds.forEach(function(id) {
+        var target = leafById(id);
+        if (!target) return;
+        var tgt = getCenter(target);
+        var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', src.x);
+        line.setAttribute('y1', src.y);
+        line.setAttribute('x2', tgt.x);
+        line.setAttribute('y2', tgt.y);
+        svg.appendChild(line);
+        allLines.push(line);
+        requestAnimationFrame(function() { line.classList.add('is-visible'); });
+      });
+    }
+
+    function clearLines() {
+      allLines.forEach(function(l) { l.remove(); });
+      allLines = [];
+    }
+
+    function buildPath(sourceId, connectedIds) {
+      var grouped = {};
+      connectedIds.forEach(function(id) {
+        var cat = categories[id];
+        if (!grouped[cat]) grouped[cat] = [];
+        grouped[cat].push(labels[id]);
+      });
+      var parts = [labels[sourceId] + ' (' + categories[sourceId] + ')'];
+      Object.keys(grouped).forEach(function(cat) {
+        parts.push(grouped[cat].join(' or ') + ' (' + cat + ')');
+      });
+      return parts.join(' → ');
+    }
+
+    leaves.forEach(function(leaf) {
+      leaf.addEventListener('mouseenter', function() {
+        var sourceId = leaf.dataset.id;
+        var connectedIds = leaf.dataset.connects.split(',');
+
+        leaves.forEach(function(l) {
+          var id = l.dataset.id;
+          if (id === sourceId) {
+            l.classList.add('is-source');
+          } else if (connectedIds.indexOf(id) !== -1) {
+            l.classList.add('is-connected');
+          } else {
+            l.classList.add('is-dimmed');
+          }
+        });
+
+        drawLines(leaf, connectedIds);
+        pathEl.textContent = buildPath(sourceId, connectedIds);
+      });
+
+      leaf.addEventListener('mouseleave', function() {
+        leaves.forEach(function(l) {
+          l.classList.remove('is-source', 'is-connected', 'is-dimmed');
+        });
+        clearLines();
+        pathEl.textContent = '';
+      });
+    });
+
+    // ---- Mobile labyrinth (tap interaction) ----
+    var mobilePills = document.querySelectorAll('.labyrinth-mobile-pill');
+    var mobileResult = document.getElementById('labyrinth-mobile-result');
+    var mobileActive = null;
+
+    var mLabels = {
+      distance: 'Distance', seasonal: 'Seasonal', holiday: 'Holiday',
+      low: 'Low', medium: 'Medium', high: 'High',
+      adventure: 'Adventure', family: 'Family', culture: 'Culture'
+    };
+
+    var mCategories = {
+      distance: 'Time', seasonal: 'Time', holiday: 'Time',
+      low: 'Budget', medium: 'Budget', high: 'Budget',
+      adventure: 'Theme', family: 'Theme', culture: 'Theme'
+    };
+
+    function clearMobile() {
+      mobilePills.forEach(function(p) {
+        p.classList.remove('is-source', 'is-connected', 'is-dimmed');
+      });
+      mobileResult.textContent = '';
+      mobileActive = null;
+    }
+
+    function mPillById(id) {
+      return document.querySelector('[data-mid="' + id + '"]');
+    }
+
+    mobilePills.forEach(function(pill) {
+      pill.addEventListener('click', function() {
+        var id = pill.dataset.mid;
+
+        // Toggle off if tapping the same pill
+        if (mobileActive === id) {
+          clearMobile();
+          return;
+        }
+
+        var connectedIds = pill.dataset.mconnects.split(',');
+        mobileActive = id;
+
+        mobilePills.forEach(function(p) {
+          var pid = p.dataset.mid;
+          if (pid === id) {
+            p.classList.add('is-source');
+            p.classList.remove('is-connected', 'is-dimmed');
+          } else if (connectedIds.indexOf(pid) !== -1) {
+            p.classList.add('is-connected');
+            p.classList.remove('is-source', 'is-dimmed');
+          } else {
+            p.classList.add('is-dimmed');
+            p.classList.remove('is-source', 'is-connected');
+          }
+        });
+
+        // Build path text
+        var grouped = {};
+        connectedIds.forEach(function(cid) {
+          var cat = mCategories[cid];
+          if (!grouped[cat]) grouped[cat] = [];
+          grouped[cat].push(mLabels[cid]);
+        });
+        var parts = [mLabels[id] + ' (' + mCategories[id] + ')'];
+        Object.keys(grouped).forEach(function(cat) {
+          parts.push(grouped[cat].join(' or ') + ' (' + cat + ')');
+        });
+        mobileResult.textContent = parts.join(' → ');
+      });
+    });
+  })();
+
+  // Lightbox
+  (function() {
+    var lightbox = document.getElementById('lightbox');
+    var lightboxImg = document.getElementById('lightbox-img');
+
+    document.querySelectorAll('[data-lightbox]').forEach(function(img) {
+      img.addEventListener('click', function() {
+        lightboxImg.src = img.src;
+        lightboxImg.alt = img.alt;
+        lightbox.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+
+    lightbox.addEventListener('click', function() {
+      lightbox.classList.remove('is-open');
+      document.body.style.overflow = '';
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && lightbox.classList.contains('is-open')) {
+        lightbox.classList.remove('is-open');
+        document.body.style.overflow = '';
+      }
+    });
+  })();
+
+  // Page Tabs (Landing / Curation / Destination)
+  (function() {
+    var tabs = document.querySelectorAll('.page-tab-btn');
+    var frames = document.querySelectorAll('.page-tab-frame');
+    var descEl = document.getElementById('page-tab-desc');
+    var scrollThumb = document.getElementById('page-tab-scroll-thumb');
+    var scrollHint = document.getElementById('page-tab-scroll-hint');
+    var indicator = document.getElementById('page-tabs-indicator');
+    var navInner = document.getElementById('page-tabs-nav-inner');
+
+    var descs = [
+      'Sparks exploration through trending destinations and stories.',
+      'Balances inspiration and offers, tailored to internal team needs.',
+      'Blends local insights and product details to help users finalize bookings.'
+    ];
+
+    function positionIndicator(btn) {
+      var parentRect = navInner.getBoundingClientRect();
+      var btnRect = btn.getBoundingClientRect();
+      indicator.style.left = (btnRect.left - parentRect.left) + 'px';
+      indicator.style.width = btnRect.width + 'px';
+    }
+
+    function updateThumb(frame) {
+      if (!frame) return;
+      var scrollH = frame.scrollHeight;
+      var clientH = frame.clientHeight;
+      if (scrollH <= clientH) { scrollThumb.style.height = '0'; return; }
+      var ratio = clientH / scrollH;
+      var thumbH = Math.max(ratio * 100, 15);
+      var scrollPos = frame.scrollTop / (scrollH - clientH);
+      var thumbTop = scrollPos * (100 - thumbH);
+      scrollThumb.style.height = thumbH + '%';
+      scrollThumb.style.top = thumbTop + '%';
+    }
+
+    function updateHint(frame) {
+      if (!frame) return;
+      var isScrollable = frame.scrollHeight > frame.clientHeight;
+      var hasScrolled = frame.scrollTop > 10;
+      scrollHint.classList.toggle('is-hidden', !isScrollable || hasScrolled);
+    }
+
+    function switchTab(idx) {
+      tabs.forEach(function(t) { t.classList.remove('is-active'); });
+      tabs[idx].classList.add('is-active');
+      positionIndicator(tabs[idx]);
+      frames.forEach(function(f) { f.classList.remove('is-active'); });
+      frames[idx].classList.add('is-active');
+      frames[idx].scrollTop = 0;
+      descEl.textContent = descs[idx];
+      updateThumb(frames[idx]);
+      updateHint(frames[idx]);
+    }
+
+    tabs.forEach(function(tab, i) {
+      tab.addEventListener('click', function() { switchTab(i); });
+    });
+
+    frames.forEach(function(frame) {
+      frame.addEventListener('scroll', function() {
+        if (frame.classList.contains('is-active')) {
+          updateThumb(frame);
+          updateHint(frame);
+        }
+      });
+    });
+
+    // Init
+    positionIndicator(tabs[0]);
+    updateThumb(frames[0]);
+    updateHint(frames[0]);
+    window.addEventListener('resize', function() {
+      var active = document.querySelector('.page-tab-btn.is-active');
+      if (active) positionIndicator(active);
+    });
+  })();
+
+  // Content Spectrum
+  (function() {
+    var handle = document.getElementById('spectrum-handle');
+    var track = handle.parentElement;
+    var zone = document.getElementById('spectrum-zone');
+    var markers = document.querySelectorAll('.spectrum-marker');
+    var labelEl = document.getElementById('spectrum-label');
+    var subEl = document.getElementById('spectrum-sub');
+    var captionEl = document.getElementById('spectrum-caption');
+    var frames = document.querySelectorAll('.spectrum-preview-frame');
+    var dragging = false;
+    var pos = 0.083;
+    var currentIdx = 0;
+
+    var items = [
+      { name: 'Local travel', desc: 'Theme-based editorial discovery', caption: 'Based on theme · Local travel' },
+      { name: 'Autumn holiday', desc: 'Seasonal guide with timely offers', caption: 'Based on time · Autumn holiday' },
+      { name: 'Backpacking', desc: 'Budget-curated trips', caption: 'Based on budget · Backpacking' },
+      { name: 'Quick escape', desc: 'Last-minute deals', caption: 'Based on time · Quick escape' },
+      { name: 'Influencer recs', desc: 'Creator-curated travel picks', caption: 'Based on theme · Influencer recommendations' },
+      { name: 'New Year Eve', desc: 'Event-driven campaign page', caption: 'Based on time · New Year Eve' }
+    ];
+
+    function layout() {
+      var count = items.length;
+      markers.forEach(function(m, i) {
+        var p = (i + 0.5) / count;
+        m.style.left = (p * 100) + '%';
+      });
+      updateHandle(pos);
+    }
+
+    function updateHandle(p) {
+      pos = Math.max(0.02, Math.min(0.98, p));
+      handle.style.left = (pos * 100) + '%';
+
+      var inZone = pos >= 0.25 && pos <= 0.75;
+      zone.classList.toggle('is-active', inZone);
+
+      // Find nearest item
+      var count = items.length;
+      var nearestIdx = 0;
+      var nearestDist = Infinity;
+      items.forEach(function(item, i) {
+        var mp = (i + 0.5) / count;
+        var dist = Math.abs(mp - pos);
+        if (dist < nearestDist) {
+          nearestDist = dist;
+          nearestIdx = i;
+        }
+      });
+
+      // Update markers
+      markers.forEach(function(m, i) {
+        m.classList.toggle('is-active', i === nearestIdx);
+      });
+
+      // Update label
+      labelEl.textContent = items[nearestIdx].name;
+      subEl.textContent = items[nearestIdx].desc;
+
+      // Update preview frame (crossfade)
+      if (nearestIdx !== currentIdx) {
+        frames.forEach(function(f) { f.classList.remove('is-active'); });
+        frames[nearestIdx].classList.add('is-active');
+        frames[nearestIdx].scrollTop = 0;
+        captionEl.textContent = items[nearestIdx].caption;
+        currentIdx = nearestIdx;
+        // Rebuild annotations for new screen
+        buildAnnotationCards(nearestIdx);
+        updateAnnotation(frames[nearestIdx]);
+        updateScrollHint(frames[nearestIdx]);
+        updateScrollThumb(frames[nearestIdx]);
+      }
+    }
+
+    function onMove(clientX) {
+      var rect = track.getBoundingClientRect();
+      var p = (clientX - rect.left) / rect.width;
+      updateHandle(p);
+    }
+
+    handle.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      dragging = true;
+      handle.classList.add('is-dragging');
+    });
+
+    document.addEventListener('mousemove', function(e) {
+      if (dragging) onMove(e.clientX);
+    });
+
+    document.addEventListener('mouseup', function() {
+      if (dragging) {
+        dragging = false;
+        handle.classList.remove('is-dragging');
+      }
+    });
+
+    handle.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      dragging = true;
+      handle.classList.add('is-dragging');
+    }, {passive: false});
+
+    document.addEventListener('touchmove', function(e) {
+      if (dragging) onMove(e.touches[0].clientX);
+    });
+
+    document.addEventListener('touchend', function() {
+      if (dragging) {
+        dragging = false;
+        handle.classList.remove('is-dragging');
+      }
+    });
+
+    var spectrumEl = document.getElementById('spectrum');
+    spectrumEl.addEventListener('click', function(e) {
+      if (e.target === handle) return;
+      var rect = track.getBoundingClientRect();
+      var p = (e.clientX - rect.left) / rect.width;
+      updateHandle(p);
+    });
+
+    // Scroll indicator logic
+    var scrollThumb = document.getElementById('spectrum-scroll-thumb');
+    var scrollHint = document.getElementById('spectrum-scroll-hint');
+
+    function updateScrollThumb(frame) {
+      if (!frame) return;
+      var scrollH = frame.scrollHeight;
+      var clientH = frame.clientHeight;
+      if (scrollH <= clientH) {
+        scrollThumb.style.height = '0';
+        return;
+      }
+      var ratio = clientH / scrollH;
+      var thumbH = Math.max(ratio * 100, 15);
+      var scrollPos = frame.scrollTop / (scrollH - clientH);
+      var thumbTop = scrollPos * (100 - thumbH);
+      scrollThumb.style.height = thumbH + '%';
+      scrollThumb.style.top = thumbTop + '%';
+    }
+
+    function updateScrollHint(frame) {
+      if (!frame) return;
+      var isScrollable = frame.scrollHeight > frame.clientHeight;
+      var hasScrolled = frame.scrollTop > 10;
+      scrollHint.classList.toggle('is-hidden', !isScrollable || hasScrolled);
+    }
+
+    // ---- Scroll-synced annotations ----
+    var annotationContainer = document.getElementById('spectrum-annotation');
+    var activeAnnotIdx = -1;
+    var annotationCards = [];
+
+    var screenAnnotations = {
+      0: [
+        [0,  'inspiring', 'Inspiring', 'Photo/Video Slideshow', 'Dynamic hero with photo or video slideshow, changes every 15s'],
+        [22, 'inspiring', 'Inspiring', 'Destination Recommendation', 'Grid view — 4 destination recommendations based on curation theme'],
+        [42, 'blog', 'Blog', 'Featured Content', 'Curated editorial content from commercial or marketing partnerships'],
+        [58, 'product', 'Product Offers', 'Culinary Offers', 'Local food recommendations aligned with the curation theme'],
+        [75, 'blog', 'Blog', 'Article Recommendation', 'Blog entry points — dynamic content created by the editorial team']
+      ],
+      1: [
+        [0,  'inspiring', 'Inspiring', 'Photo/Video Slideshow', 'Dynamic hero with seasonal autumn imagery'],
+        [20, 'inspiring', 'Inspiring', 'Destination Recommendation', 'Grid view — must-visit autumn destinations'],
+        [40, 'blog', 'Blog', 'Featured Content', 'Don\'t miss — curated seasonal highlights'],
+        [58, 'product', 'Product Offers', 'Tour from TTD Offers', 'Autumn tour packages from Things To Do vertical'],
+        [78, 'blog', 'Blog', 'Article Recommendation', 'Inspiring articles about autumn travel']
+      ],
+      2: [
+        [0,  'inspiring', 'Inspiring', 'Photo/Video Slideshow', 'Dynamic hero for budget travel inspiration'],
+        [18, 'product', 'Product Offers', 'Flight Offers', 'Budget-friendly route offers for backpackers'],
+        [38, 'product', 'Product Offers', 'Best Rating Hotels', 'Affordable, highly-rated accommodation options'],
+        [55, 'product', 'Product Offers', 'Tour from TTD Offers', 'Budget trip packages and activity ideas'],
+        [72, 'product', 'Product Offers', 'Things To Do Offers', 'Activities and experiences grouped by destination']
+      ],
+      3: [
+        [0,  'inspiring', 'Inspiring', 'Photo/Video Slideshow', 'Dynamic hero for spontaneous getaways'],
+        [17, 'inspiring', 'Inspiring', 'Destination Recommendation', 'Grid view — short-trip destinations'],
+        [33, 'product', 'Product Offers', 'Accommodation Category', 'Staycation options — villa, glamping, hotel'],
+        [48, 'blog', 'Blog', 'Featured Content', 'Curated weekend escape recommendations'],
+        [65, 'product', 'Product Offers', 'Flight Offers', 'Direct flight deals for quick getaways']
+      ],
+      4: [
+        [0,  'inspiring', 'Inspiring', 'Photo/Video Slideshow', 'Creator-driven hero with influencer content'],
+        [18, 'inspiring', 'Inspiring', 'Destination Recommendation', 'List view — influencer\'s favorite destinations with testimonials'],
+        [42, 'product', 'Product Offers', 'Flight Offers', 'Flight deals to the recommended destinations'],
+        [58, 'blog', 'Blog', 'Article Recommendation', 'Travel tips articles from the influencer'],
+        [75, 'product', 'Product Offers', 'Accommodation Category', 'Unique stays — villa, glamping, hotels']
+      ],
+      5: [
+        [0,  'inspiring', 'Inspiring', 'Photo/Video Slideshow', 'Festive hero with new year imagery'],
+        [15, 'product', 'Product Offers', 'Thematic Accommodation', 'Staycation deals for the holiday season'],
+        [30, 'product', 'Product Offers', 'Accommodation Category', 'Year-end lodging — villa, glamping, hotel'],
+        [48, 'product', 'Product Offers', 'Flight Offers', 'Holiday flight deals to popular destinations'],
+        [75, 'product', 'Product Offers', 'Things To Do Offers', 'Activities and events for the new year']
+      ]
+    };
+
+    var badgeClasses = {
+      inspiring: 'spectrum-annotation-badge--inspiring',
+      blog: 'spectrum-annotation-badge--blog',
+      product: 'spectrum-annotation-badge--product'
+    };
+
+    function buildAnnotationCards(screenIdx) {
+      annotationContainer.innerHTML = '';
+      annotationCards = [];
+      activeAnnotIdx = -1;
+      var annots = screenAnnotations[screenIdx];
+      if (!annots) return;
+
+      annots.forEach(function(a, i) {
+        var card = document.createElement('div');
+        card.className = 'spectrum-annotation-card';
+        card.innerHTML =
+          '<div class="spectrum-annotation-badge ' + badgeClasses[a[1]] + '">' + a[2] + '</div>' +
+          '<div class="spectrum-annotation-title">' + a[3] + '</div>' +
+          '<div class="spectrum-annotation-desc">' + a[4] + '</div>';
+        annotationContainer.appendChild(card);
+        annotationCards.push(card);
+      });
+
+      // Show first card immediately
+      requestAnimationFrame(function() {
+        annotationCards[0].classList.add('is-active');
+        activeAnnotIdx = 0;
+      });
+    }
+
+    function updateAnnotation(frame) {
+      if (!frame) return;
+      var scrollH = frame.scrollHeight - frame.clientHeight;
+      var pct = scrollH > 0 ? (frame.scrollTop / scrollH) * 100 : 0;
+      var annots = screenAnnotations[currentIdx];
+      if (!annots) return;
+
+      // Find which annotation should be active
+      var targetIdx = 0;
+      for (var i = annots.length - 1; i >= 0; i--) {
+        if (pct >= annots[i][0]) {
+          targetIdx = i;
+          break;
+        }
+      }
+
+      if (targetIdx === activeAnnotIdx) return;
+
+      // Exit current
+      if (activeAnnotIdx >= 0 && annotationCards[activeAnnotIdx]) {
+        annotationCards[activeAnnotIdx].classList.remove('is-active');
+        annotationCards[activeAnnotIdx].classList.add('is-exiting');
+        // Clean up exiting class after transition
+        (function(idx) {
+          setTimeout(function() {
+            if (annotationCards[idx]) annotationCards[idx].classList.remove('is-exiting');
+          }, 400);
+        })(activeAnnotIdx);
+      }
+
+      // Enter new
+      if (annotationCards[targetIdx]) {
+        annotationCards[targetIdx].classList.remove('is-exiting');
+        annotationCards[targetIdx].classList.add('is-active');
+      }
+
+      activeAnnotIdx = targetIdx;
+    }
+
+    // Build initial cards
+    buildAnnotationCards(currentIdx);
+
+    // Attach scroll listeners to all frames
+    frames.forEach(function(frame) {
+      frame.addEventListener('scroll', function() {
+        if (frame.classList.contains('is-active')) {
+          updateScrollThumb(frame);
+          updateScrollHint(frame);
+          updateAnnotation(frame);
+        }
+      });
+    });
+
+    layout();
+    window.addEventListener('resize', function() {
+      layout();
+      updateScrollThumb(frames[currentIdx]);
+      updateScrollHint(frames[currentIdx]);
+    });
+  })();
+  // Mobile hamburger menu
+  (function() {
+    var hamburger = document.getElementById('case-hamburger');
+    var menu = document.getElementById('case-mobile-menu');
+    if (!hamburger || !menu) return;
+
+    hamburger.addEventListener('click', function() {
+      hamburger.classList.toggle('is-open');
+      menu.classList.toggle('is-open');
+    });
+
+    // Close menu when clicking a link
+    menu.querySelectorAll('a').forEach(function(link) {
+      link.addEventListener('click', function() {
+        hamburger.classList.remove('is-open');
+        menu.classList.remove('is-open');
+      });
+    });
+  })();
+  </script>
+</body>
+</html>
