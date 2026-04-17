@@ -280,6 +280,17 @@ function reserveLangSpace() {
   html.setAttribute('data-lang', currentLang);
   items.forEach(it => { it.el.innerHTML = it.savedHTML; });
 
+  // The innerHTML restores above replaced the original .m-highlight nodes
+  // with fresh copies — the confetti IIFE's mouseenter listeners are now
+  // orphaned on the old (detached) nodes. Re-attach to the live nodes.
+  if (window.spawnConfetti) {
+    document.querySelectorAll('.m-highlight').forEach(h => {
+      if (h._confettiWired) return;
+      h._confettiWired = true;
+      h.addEventListener('mouseenter', () => window.spawnConfetti(h));
+    });
+  }
+
   // Apply min sizes — always max of both directions
   items.forEach(it => {
     const maxH = Math.max(it.enH, it.jaH);

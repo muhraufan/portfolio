@@ -1737,6 +1737,292 @@
   margin-top: 8px;
 }
 
+/* ==========================
+   Design evolution — 3-stop slider
+   (reuses .spectrum-* machinery above; only the stop-labels and arrow
+   treatment are new, plus a slight preview/track tightening)
+   ========================== */
+.evolution-section {
+  margin: 48px 0 48px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.evolution-section .case-h2 {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.evolution-subtitle {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text3);
+  letter-spacing: 1px;
+  margin: 4px 0 0;
+}
+.evolution-rule {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 16px 0 32px;
+}
+
+.spectrum.evolution {
+  padding-top: 0;
+}
+/* Stop labels row — each label is absolutely positioned to sit directly
+   above its matching marker (16.667% / 50% / 83.333%). */
+.evolution-labels {
+  position: relative;
+  height: 56px;
+  margin-bottom: 4px;
+}
+.evolution-stop {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  width: 160px;
+  max-width: 30vw;
+  text-align: center;
+  transition: opacity 0.3s;
+}
+.evolution-stop:nth-child(1) { left: 16.667%; }
+.evolution-stop:nth-child(2) { left: 50%; }
+.evolution-stop:nth-child(3) { left: 83.333%; }
+.evolution-stop-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+.evolution-stop-sub {
+  font-size: 12px;
+  color: var(--text3);
+  letter-spacing: 0.3px;
+  line-height: 1.4;
+}
+.evolution-stop:not(.is-active) {
+  opacity: 0.5;
+}
+
+/* The → arrows live on the track between stops, faintly. */
+.evolution-arrow {
+  position: absolute;
+  top: 35%;
+  transform: translate(-50%, -50%);
+  color: rgba(0, 0, 0, 0.3);
+  font-size: 16px;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 1;
+  user-select: none;
+}
+/* Handle must sit above the arrows */
+.spectrum.evolution .spectrum-handle { z-index: 4; }
+/* Smooth handle motion also on left (during snap/click-to-jump) */
+.spectrum.evolution .spectrum-handle { transition: transform 0.15s; }
+
+/* Single-image preview — no scroll. Frame aspect matches the Control and
+   Final mockup PNGs (590 × 1313) so those fit pixel-perfect with no crop.
+   The wider Sketch mockup (+ its 1.12 zoom below) gets trimmed at the
+   sides rather than the bottom. */
+.spectrum.evolution .spectrum-preview {
+  width: 272px;
+  aspect-ratio: 590 / 1313;
+}
+/* Kill every source of inner padding: drop the frame's white background
+   (so any baked-in transparent edges on the PNGs don't render as white
+   "padding"), and pin the image to the frame corners. */
+.spectrum.evolution .spectrum-preview-frame {
+  overflow: hidden;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+}
+/* Each mockup fills the phone frame edge-to-edge. object-fit: cover keeps
+   aspect ratio. object-position: center top anchors the image to the top
+   of the frame so the status bar / title always stays visible, and any
+   overflow is trimmed off the bottom (kinder than cropping from the middle,
+   which otherwise clipped the bottom nav). */
+.spectrum.evolution .spectrum-preview-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  padding: 0;
+  margin: 0;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+/* The solution-sketch PNG was exported with a transparent bleed around the
+   phone content, AND its source aspect (643/1366) is wider than Control/Final.
+   Combined with a top-anchored crop, that pushed the bottom of the mockup
+   out of frame. For this one image only:
+     • object-position: center center → balance the crop top and bottom
+     • transform-origin: center center → zoom from middle, not from the top
+     • scale(1.08) → enough to eat the transparent bleed without
+       sacrificing visible phone content at the bottom
+*/
+.spectrum.evolution [data-frame="1"] .spectrum-preview-img {
+  object-position: center center;
+  transform: scale(1.08);
+  transform-origin: center center;
+}
+.spectrum.evolution .spectrum-scroll-indicator,
+.spectrum.evolution .spectrum-scroll-hint,
+.spectrum.evolution .spectrum-annotation,
+.spectrum.evolution .spectrum-preview-caption {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .evolution-stop { width: 104px; }
+  .evolution-stop-title { font-size: 12px; }
+  .evolution-stop-sub { font-size: 11px; }
+  .evolution-labels { height: 64px; }
+  .evolution-arrow { font-size: 13px; }
+}
+
+/* Dark-mode tweak for the arrows only (everything else already adapts) */
+[data-theme="dark"] .evolution-arrow {
+  color: rgba(255, 255, 255, 0.3);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .evolution-arrow {
+    color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* ==========================
+   Design showcase — two autoplaying phone videos side-by-side
+   (reuses the evolution phone-frame proportions for visual consistency)
+   ========================== */
+.showcase-section {
+  margin: 48px 0 48px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.showcase-section .case-h2 {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.showcase-subtitle {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text3);
+  letter-spacing: 1px;
+  margin: 4px 0 0;
+}
+.showcase-rule {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 16px 0 32px;
+}
+
+.showcase-videos {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.showcase-video {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Default variant: video cropped into a phone mockup frame (onboarding) */
+.showcase-video-frame {
+  position: relative;
+  width: 272px;
+  aspect-ratio: 590 / 1313;
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--bg);
+}
+.showcase-video-frame video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+/* Wide variant: video already contains its own 3-screen composition, so
+   render it at its natural aspect with just rounded corners — no frame. */
+.showcase-video--wide {
+  flex: 0 1 auto;
+}
+.showcase-video-raw {
+  display: block;
+  max-height: 600px;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  border-radius: 20px;
+  background: transparent;
+}
+
+.showcase-video figcaption {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 640px) {
+  .showcase-videos {
+    gap: 16px;
+  }
+  .showcase-video-frame {
+    width: calc(50vw - 24px);
+    max-width: 272px;
+  }
+  .showcase-video-raw {
+    max-height: none;
+    width: 100%;
+  }
+}
+
+/* ==========================
+   The Future — two phone mockups side-by-side above the body text.
+   Frames split the available content width evenly; never wrap.
+   ========================== */
+.future-previews {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: nowrap;
+  margin: 24px 0 32px;
+}
+.future-preview-frame {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  aspect-ratio: 590 / 1311;
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--bg);
+}
+.future-preview-frame img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
 @media (max-width: 700px) {
   .spectrum-modules {
     flex-wrap: wrap;
@@ -2367,7 +2653,7 @@
   border-radius: 4px;
   overflow: hidden;
   cursor: pointer;
-  margin: 32px 0 0;
+  margin: 32px 0 32px;
   transition: border-color 0.2s ease;
 }
 .hmw-teaser:hover {
@@ -2604,7 +2890,7 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 14px;
   font-weight: 400;
-  color: rgba(0,0,0,0.5);
+  color: var(--text3);
   letter-spacing: 1px;
   margin: 4px 0 0;
 }
@@ -2649,14 +2935,14 @@
   object-fit: contain;
   display: block;
   border-radius: 16px;
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid var(--border);
   transition: border-color 200ms ease;
 }
 .choose-card:hover .choose-card-img-wrap img {
-  border-color: rgba(0,0,0,0.2);
+  border-color: var(--border2);
 }
 .choose-card.is-selected .choose-card-img-wrap img {
-  border-color: rgba(0,0,0,0.8);
+  border-color: var(--text);
 }
 
 /* Expand icon */
@@ -2666,11 +2952,12 @@
   right: 8px;
   width: 18px;
   height: 18px;
-  color: rgba(0,0,0,0.6);
+  color: var(--text2);
   opacity: 0;
   transition: opacity 200ms ease;
   cursor: pointer;
-  background: rgba(255,255,255,0.8);
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 4px;
   padding: 2px;
 }
@@ -2688,83 +2975,118 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 600;
   font-size: 0.85rem;
-  color: rgba(0,0,0,0.85);
+  color: var(--text);
   margin: 10px 0 2px;
 }
 .choose-card-desc {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.7rem;
   font-weight: 400;
-  color: rgba(0,0,0,0.4);
+  color: var(--text3);
   line-height: 1.4;
 }
 
-/* Fullscreen popup */
+/* Fullscreen popup — FLIP animation driven by JS, so the background
+   and close button fade independently of the image transform. */
 .choose-fs-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(0,0,0,0.85);
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  transition: opacity 300ms ease;
+  background: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  transition:
+    background 450ms cubic-bezier(0.22, 1, 0.36, 1),
+    backdrop-filter 450ms cubic-bezier(0.22, 1, 0.36, 1),
+    -webkit-backdrop-filter 450ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .choose-fs-overlay.is-visible {
-  opacity: 1;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 .choose-fs-content {
   position: relative;
   max-width: 90vw;
   max-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.choose-fs-content img {
+.choose-fs-content img,
+.choose-fs-img {
   max-width: 100%;
   max-height: 90vh;
   display: block;
   border-radius: 16px;
+  will-change: transform;
+  backface-visibility: hidden;
 }
+/* Floating close button top-right of the viewport, with a soft glass look. */
 .choose-fs-close {
   position: absolute;
-  top: -12px;
-  right: -12px;
-  width: 32px;
-  height: 32px;
+  top: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.9);
-  border: none;
-  font-size: 20px;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  font-size: 22px;
   line-height: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(0,0,0,0.7);
-  transition: background 200ms ease;
+  color: rgba(255, 255, 255, 0.92);
+  opacity: 0;
+  transform: scale(0.85);
+  transition:
+    opacity 250ms ease-out 180ms,
+    transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1) 180ms,
+    background 200ms ease;
+}
+.choose-fs-overlay.is-visible .choose-fs-close {
+  opacity: 1;
+  transform: scale(1);
+}
+.choose-fs-overlay.is-closing .choose-fs-close {
+  opacity: 0;
+  transform: scale(0.85);
+  transition:
+    opacity 150ms ease-in,
+    transform 150ms ease-in;
 }
 .choose-fs-close:hover {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.22);
 }
 
 /* Reveal panel */
+/* Reveal animates its real height so the section below ("The Ending")
+   slides up/down smoothly — same feel as the homepage language switch. */
 .choose-reveal {
   margin-top: 32px;
   overflow: hidden;
-  /* Base transition used when hiding (removing .is-visible). Opacity/transform
-     fade out over 400ms, then max-height collapses instantly after the fade. */
-  transition: opacity 400ms ease-out, transform 400ms ease-out, max-height 0ms 400ms;
-}
-.choose-reveal.is-initial {
+  height: 0;
   opacity: 0;
   transform: translateY(8px);
-  max-height: 0;
+  transition: height 300ms ease,
+              opacity 250ms ease-out,
+              transform 300ms ease-out;
+}
+.choose-reveal.is-initial {
+  /* No-op — base state already matches initial (height: 0, opacity: 0). */
 }
 .choose-reveal.is-visible {
   opacity: 1;
   transform: translateY(0);
-  max-height: 4000px;
-  transition: opacity 400ms ease-out, transform 400ms ease-out, max-height 0ms;
+  /* height is set inline by JS (measured scrollHeight) so the transition
+     has a real target value to animate toward. */
 }
 .choose-reveal.is-swapping .choose-reveal-content {
   opacity: 0;
@@ -2782,7 +3104,7 @@
   font-weight: 600;
   font-size: 14px;
   letter-spacing: 1px;
-  color: rgba(0,0,0,0.88);
+  color: var(--text);
   margin: 0 0 20px;
 }
 .choose-reveal-header .ri-highlight {
@@ -2799,14 +3121,14 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: rgba(0,0,0,0.35);
+  color: var(--text3);
   margin-bottom: 8px;
 }
 .choose-reveal-body {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.85rem;
   line-height: 1.6;
-  color: rgba(0,0,0,0.85);
+  color: var(--text);
 }
 /* Highlight box — matches the ".callout-box" style ("We saw an opportunity")
    used elsewhere in this case study: dashed border, faint green background,
@@ -2833,6 +3155,35 @@
   letter-spacing: 0.3px;
   line-height: 1.6;
   margin: 0;
+}
+/* Gray variant — used when user picks a non-selected solution to explain
+   why it wasn't the one we shipped. Same shape, neutral palette. */
+.choose-highlight-box.is-muted {
+  background: var(--bg2);
+  border-color: var(--border);
+}
+.choose-highlight-box.is-muted .choose-reveal-label {
+  color: var(--text2);
+}
+
+/* Dark-mode overrides for the green highlight-box title so the brand-green
+   tint stays legible against the darker background. */
+[data-theme="dark"] .choose-highlight-box .choose-reveal-label {
+  color: #a8c6b9;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .choose-highlight-box .choose-reveal-label {
+    color: #a8c6b9;
+  }
+}
+/* The muted (gray) variant should override that tint back to neutral. */
+[data-theme="dark"] .choose-highlight-box.is-muted .choose-reveal-label {
+  color: var(--text2);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .choose-highlight-box.is-muted .choose-reveal-label {
+    color: var(--text2);
+  }
 }
 
 @media (max-width: 768px) {

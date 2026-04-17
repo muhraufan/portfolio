@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css?v=7">
-  <link rel="stylesheet" href="/css/case.css?v=106">
+  <link rel="stylesheet" href="/css/case.css?v=120">
   <style>
     /* Password Wall */
     .pw-wall {
@@ -153,7 +153,7 @@
         <li><a href="#ending" class="case-nav-link">The Ending</a></li>
         <li><a href="#future" class="case-nav-link">The Future</a></li>
       </ul>
-      <a href="/work/smartnews-ftux-full.html" class="case-cta"><span data-en="View full case study" data-ja="ケーススタディを見る">View full case study</span></a>
+     <!-- <a href="/work/smartnews-ftux-full.html" class="case-cta"><span data-en="View full case study" data-ja="ケーススタディを見る">View full case study</span></a> -->
     </nav>
 
     <!-- Content -->
@@ -234,15 +234,92 @@
 
         <p>So we reframed the experience around reading intentions — why users open SmartNews in the first place.</p>
         <p>Instead of asking <span class="m-medium">"What topics do you like?"</span> we asked <span class="m-medium">"What kind of news experience do you want?"</span></p>
-        <p>From there, we explored and tested multiple directions:</p>
 
         <!-- Interactive "What would you choose?" -->
         <div class="choose-section" id="choose-section">
-          <h2 class="case-h2">What would you have chosen?</h2>
-          <p class="choose-subtitle">We narrowed it down to four directions. Pick the one you'd ship.</p>
+          <h2 class="case-h2">From there, we narrowed it down to four directions. What would you have chosen? Pick the one you'd ship.</h2>
           <hr class="choose-rule">
           <div class="choose-row" id="choose-row"></div>
           <div class="choose-reveal is-initial" id="choose-reveal"></div>
+        </div>
+      </section>
+
+      <!-- Design evolution — 3-stop slider using the tiket Discover spectrum system -->
+      <section id="evolution" class="evolution-section">
+        <h2 class="case-h2">Design evolution</h2>
+        <p class="evolution-subtitle">From the existing experience to the final design — drag the handle to explore.</p>
+        <hr class="evolution-rule">
+
+        <div class="spectrum evolution" id="evolution-spectrum">
+          <!-- Stop labels, aligned to the three marker positions -->
+          <div class="evolution-labels">
+            <div class="evolution-stop is-active" data-stop="0">
+              <div class="evolution-stop-title">Control</div>
+              <div class="evolution-stop-sub">The original category selection</div>
+            </div>
+            <div class="evolution-stop" data-stop="1">
+              <div class="evolution-stop-title">Solution sketch</div>
+              <div class="evolution-stop-sub">Early concept with reading intentions</div>
+            </div>
+            <div class="evolution-stop" data-stop="2">
+              <div class="evolution-stop-title">Final design</div>
+              <div class="evolution-stop-sub">Shipped version with visual intentions</div>
+            </div>
+          </div>
+
+          <!-- Track: dashed line, three markers, two arrows between them, draggable handle -->
+          <div class="spectrum-track">
+            <div class="spectrum-line"></div>
+            <div class="spectrum-markers" id="evolution-markers">
+              <div class="spectrum-marker is-active" data-idx="0"></div>
+              <div class="spectrum-marker" data-idx="1"></div>
+              <div class="spectrum-marker" data-idx="2"></div>
+            </div>
+            <span class="evolution-arrow" style="left: 33.333%" aria-hidden="true">→</span>
+            <span class="evolution-arrow" style="left: 66.667%" aria-hidden="true">→</span>
+            <div class="spectrum-handle" id="evolution-handle"></div>
+          </div>
+
+          <p class="spectrum-hint">Drag the handle to explore</p>
+
+          <!-- Preview: crossfades between three static mockups on snap -->
+          <div class="spectrum-preview-outer">
+            <div class="spectrum-preview" id="evolution-preview">
+              <div class="spectrum-preview-frame is-active" data-frame="0">
+                <img class="spectrum-preview-img" src="/work/images/evolution-control.png" alt="Control — the original SmartNews category selection screen">
+              </div>
+              <div class="spectrum-preview-frame" data-frame="1">
+                <img class="spectrum-preview-img" src="/work/images/evolution-sketch.png" alt="Solution sketch — early concept built around reading intentions">
+              </div>
+              <div class="spectrum-preview-frame" data-frame="2">
+                <img class="spectrum-preview-img" src="/work/images/evolution-final.png" alt="Final design — the shipped version with visual intentions">
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Design showcase — final shipped flows as autoplaying phone mockups -->
+      <section id="showcase" class="showcase-section">
+        <h2 class="case-h2">Design showcase</h2>
+        <p class="showcase-subtitle">The shipped experience in motion — welcome and onboarding.</p>
+        <hr class="showcase-rule">
+
+        <div class="showcase-videos">
+          <figure class="showcase-video showcase-video--wide">
+            <video class="showcase-video-raw" autoplay loop muted playsinline preload="metadata" aria-label="Welcome page flow">
+              <source src="/work/images/welcome-page.mp4" type="video/mp4">
+            </video>
+            <figcaption>Welcome</figcaption>
+          </figure>
+          <figure class="showcase-video">
+            <div class="showcase-video-frame">
+              <video autoplay loop muted playsinline preload="metadata" aria-label="Onboarding flow">
+                <source src="/work/images/onboarding.mp4" type="video/mp4">
+              </video>
+            </div>
+            <figcaption>Onboarding</figcaption>
+          </figure>
         </div>
       </section>
 
@@ -267,8 +344,19 @@
 
       <section id="future">
         <h2 class="case-h2">The Future</h2>
-        <p>The Reading Intention framework opened the door to deeper personalization. Next steps include adapting the onboarding flow based on user context — time of day, trending topics, and regional relevance — to make the first experience feel even more tailored.</p>
-        <p>There's also potential to extend intent-based logic beyond onboarding, using it to power feed ranking and content recommendations throughout the app lifecycle.</p>
+
+        <div class="future-previews">
+          <div class="future-preview-frame">
+            <img src="/work/images/future-page.png" alt="Future home feed concept — context-adaptive layout">
+          </div>
+          <div class="future-preview-frame">
+            <img src="/work/images/future-page-expand.png" alt="Future home feed expanded state — intent-driven content ranking">
+          </div>
+        </div>
+
+        <p>We’re extending the same principle to notification onboarding — instead of asking users to “turn on notifications,” we plan to ask when they prefer to read news, enabling SmartNews to send updates at optimal times.</p>
+        <p>This approach aims to make permissions feel more relevant and valuable to users while improving engagement with notifications.</p>
+        <p>By reframing onboarding around intent rather than category, we transformed a cluttered setup into a simple, meaningful experience — helping users feel guided from the start and helping SmartNews connect them to what matters faster.</p>
       </section>
 
       <footer class="case-footer">
@@ -279,7 +367,7 @@
 
   </div>
 
-  <script src="/js/case.js?v=2"></script>
+  <script src="/js/case.js?v=3"></script>
   <script>
   // Scroll-driven annotated phone — IntersectionObserver
   (function() {
@@ -498,6 +586,12 @@
     function checkTrigger() {
       if (isHijacked) return;
       var r = track.getBoundingClientRect();
+      // Sidebar nav clicks set this flag — skip the hijack so the user's
+      // smooth scroll can pass straight through to the target section.
+      if (window.__bypassScrollHijack) {
+        prevTrackTop = r.top;
+        return;
+      }
       var trigger = window.innerHeight * 0.30;
       if (prevTrackTop === null) {
         prevTrackTop = r.top;
@@ -520,6 +614,12 @@
       prevTrackTop = r.top;
     }
     window.addEventListener('scroll', checkTrigger, { passive: true });
+
+    // If the user clicks a sidebar link while we're mid-hijack, release
+    // immediately so the smooth scroll to the target section can run.
+    window.addEventListener('sidebar-nav-click', function() {
+      if (isHijacked) releaseHijack();
+    });
   })();
   </script>
   <script>
@@ -590,7 +690,8 @@
       });
       card.querySelector('.choose-expand-icon').addEventListener('click', function(e) {
         e.stopPropagation();
-        openFullscreen(sol.image, sol.name);
+        var srcImg = card.querySelector('.choose-card-img-wrap img');
+        openFullscreen(sol.image, sol.name, srcImg);
       });
       row.appendChild(card);
     });
@@ -634,20 +735,108 @@
       });
     })();
 
-    function openFullscreen(src, name) {
+    // FLIP-style fullscreen: the tapped mockup grows from its card position
+    // into the fullscreen view (and shrinks back on close). Background blur
+    // and the close button fade in/out around that transform.
+    function openFullscreen(src, name, sourceImg) {
+      // Compute the actual visible image rect inside the card image's box
+      // (object-fit: contain letterboxes tall mockups horizontally).
+      function sourceContentRect() {
+        if (!sourceImg) return null;
+        var box = sourceImg.getBoundingClientRect();
+        var nw = sourceImg.naturalWidth || box.width;
+        var nh = sourceImg.naturalHeight || box.height;
+        if (!box.width || !box.height) return null;
+        var boxRatio = box.width / box.height;
+        var imgRatio = nw / nh;
+        var w, h;
+        if (imgRatio > boxRatio) { w = box.width; h = box.width / imgRatio; }
+        else                     { h = box.height; w = box.height * imgRatio; }
+        return {
+          left: box.left + (box.width - w) / 2,
+          top: box.top + (box.height - h) / 2,
+          width: w,
+          height: h
+        };
+      }
+
+      var startRect = sourceContentRect();
+
       var overlay = document.createElement('div');
       overlay.className = 'choose-fs-overlay';
       overlay.innerHTML =
         '<div class="choose-fs-content">' +
-          '<img src="' + src + '" alt="' + name + '">' +
-          '<button class="choose-fs-close" aria-label="Close">&times;</button>' +
-        '</div>';
+          '<img class="choose-fs-img" src="' + src + '" alt="' + name + '">' +
+        '</div>' +
+        '<button class="choose-fs-close" aria-label="Close">&times;</button>';
       document.body.appendChild(overlay);
-      requestAnimationFrame(function() { overlay.classList.add('is-visible'); });
-      function close() {
-        overlay.classList.remove('is-visible');
-        setTimeout(function() { overlay.remove(); }, 300);
+
+      var img = overlay.querySelector('.choose-fs-img');
+
+      function playIn() {
+        var endRect = img.getBoundingClientRect();
+        if (!startRect || !endRect.width || !endRect.height) {
+          // Fallback — just fade in.
+          overlay.classList.add('is-visible');
+          return;
+        }
+        var dx = (startRect.left + startRect.width / 2) -
+                 (endRect.left + endRect.width / 2);
+        var dy = (startRect.top + startRect.height / 2) -
+                 (endRect.top + endRect.height / 2);
+        var scale = startRect.width / endRect.width;
+
+        // Place the image exactly over the source mockup — instantly.
+        img.style.transformOrigin = 'center center';
+        img.style.transition = 'none';
+        img.style.transform =
+          'translate3d(' + dx + 'px,' + dy + 'px,0) scale(' + scale + ')';
+        // Force reflow so the browser registers the starting position.
+        void img.offsetHeight;
+        // Play the expand transition.
+        img.style.transition =
+          'transform 500ms cubic-bezier(0.22, 1, 0.36, 1)';
+        img.style.transform = 'translate3d(0,0,0) scale(1)';
+        // Trigger backdrop/close-button fade-in.
+        overlay.classList.add('is-visible');
       }
+
+      if (img.complete && img.naturalWidth) {
+        requestAnimationFrame(playIn);
+      } else {
+        img.addEventListener('load', function() {
+          requestAnimationFrame(playIn);
+        }, { once: true });
+      }
+
+      var closed = false;
+      function close() {
+        if (closed) return;
+        closed = true;
+        // Re-measure source rect in case the user scrolled the page while open.
+        var endRect = img.getBoundingClientRect();
+        var src2 = sourceContentRect();
+        if (!src2 || !endRect.width) {
+          overlay.classList.add('is-closing');
+          overlay.classList.remove('is-visible');
+          setTimeout(function() { overlay.remove(); }, 450);
+          return;
+        }
+        var dx = (src2.left + src2.width / 2) -
+                 (endRect.left + endRect.width / 2);
+        var dy = (src2.top + src2.height / 2) -
+                 (endRect.top + endRect.height / 2);
+        var scale = src2.width / endRect.width;
+
+        overlay.classList.add('is-closing');
+        overlay.classList.remove('is-visible');
+        img.style.transition =
+          'transform 420ms cubic-bezier(0.4, 0, 0.2, 1)';
+        img.style.transform =
+          'translate3d(' + dx + 'px,' + dy + 'px,0) scale(' + scale + ')';
+        setTimeout(function() { overlay.remove(); }, 450);
+      }
+
       overlay.addEventListener('click', function(e) {
         if (e.target === overlay || e.target.closest('.choose-fs-close')) close();
       });
@@ -680,12 +869,9 @@
           '</div>';
       } else {
         html += '<div class="choose-reveal-header">Interesting choice. We went with <span class="ri-highlight">Reading Intention</span>.</div>';
-        html += '<div class="choose-reveal-block">' +
-          '<div class="choose-reveal-body"><strong>' + picked.name + '</strong> \u2014 ' + picked.decision + '</div>' +
-          '</div>';
-        html += '<div class="choose-highlight-box">' +
-          '<div class="choose-reveal-label">Why we went with Reading Intention</div>' +
-          '<div class="choose-reveal-body">' + chosen.decision + '</div>' +
+        html += '<div class="choose-highlight-box is-muted">' +
+          '<div class="choose-reveal-label">Why we didn\u2019t pick ' + picked.name + '</div>' +
+          '<div class="choose-reveal-body">' + picked.decision + '</div>' +
           '</div>';
       }
 
@@ -702,6 +888,17 @@
       });
     }
 
+    // Animate the reveal panel's real height so "The Ending" below slides
+    // smoothly. Shared timer key prevents stale timeouts clobbering later ones.
+    var revealTimer = null;
+
+    function animateRevealHeightTo(targetPx, onDone) {
+      clearTimeout(revealTimer);
+      revealTimer = setTimeout(function() {
+        if (typeof onDone === 'function') onDone();
+      }, 320); // matches CSS height transition (300ms) + small buffer
+    }
+
     function deselectAll() {
       selectedId = null;
       isFirstReveal = true;
@@ -710,9 +907,17 @@
         c.classList.remove('is-selected');
         c.classList.remove('is-dimmed');
       });
-      // Animate reveal out (base transition handles opacity + collapse).
+      // Pin the current height as an inline value, then animate to 0 while
+      // opacity/transform fade out in sync — section below slides up smoothly.
+      var currentH = reveal.offsetHeight;
+      reveal.style.height = currentH + 'px';
+      // Force reflow so the browser registers the explicit starting height.
+      void reveal.offsetHeight;
       reveal.classList.remove('is-visible');
-      reveal.classList.add('is-initial');
+      reveal.style.height = '0px';
+      animateRevealHeightTo(0, function() {
+        reveal.classList.add('is-initial');
+      });
     }
 
     function selectCard(id) {
@@ -726,24 +931,178 @@
       updateCards(id);
 
       if (isFirstReveal) {
-        // First selection — slide in
+        // First selection — slide in from height: 0 → measured scrollHeight.
         isFirstReveal = false;
         selectedId = id;
-        reveal.innerHTML = buildRevealHTML(picked);
         reveal.classList.remove('is-initial');
-        requestAnimationFrame(function() {
-          reveal.classList.add('is-visible');
+        reveal.innerHTML = buildRevealHTML(picked);
+        // Ensure we're starting from collapsed state before measuring target.
+        reveal.style.height = '0px';
+        void reveal.offsetHeight; // reflow
+        var targetH = reveal.scrollHeight;
+        reveal.classList.add('is-visible');
+        reveal.style.height = targetH + 'px';
+        // After the height transition, release to auto so content can grow
+        // naturally (e.g. if viewport resize rewraps text).
+        animateRevealHeightTo(targetH, function() {
+          if (reveal.classList.contains('is-visible')) {
+            reveal.style.height = 'auto';
+          }
         });
       } else {
-        // Switching — crossfade content
+        // Switching — fade old content, swap, then animate height AND fade
+        // new content back in together.
         selectedId = id;
+        var oldH = reveal.offsetHeight;
+        reveal.style.height = oldH + 'px';
         reveal.classList.add('is-swapping');
         setTimeout(function() {
           reveal.innerHTML = buildRevealHTML(picked);
+          // Measure the new content's natural height without disturbing layout.
+          reveal.style.height = 'auto';
+          var newH = reveal.scrollHeight;
+          reveal.style.height = oldH + 'px';
+          void reveal.offsetHeight; // reflow
           reveal.classList.remove('is-swapping');
+          reveal.style.height = newH + 'px';
+          animateRevealHeightTo(newH, function() {
+            if (reveal.classList.contains('is-visible')) {
+              reveal.style.height = 'auto';
+            }
+          });
         }, 150);
       }
     }
+  })();
+  </script>
+  <script>
+  // Design evolution — 3-stop slider. Reuses the tiket Discover spectrum
+  // CSS system (.spectrum-track, .spectrum-handle, .spectrum-marker,
+  // .spectrum-preview-frame). Trimmed logic: no scroll-synced annotations,
+  // no scroll indicator — just drag → crossfade frames + snap on release.
+  (function() {
+    var spectrum = document.getElementById('evolution-spectrum');
+    if (!spectrum) return;
+    var handle = document.getElementById('evolution-handle');
+    if (!handle) return;
+    var track = handle.parentElement;
+    var markers = spectrum.querySelectorAll('.spectrum-marker');
+    var stops = spectrum.querySelectorAll('.evolution-stop');
+    var frames = spectrum.querySelectorAll('.spectrum-preview-frame');
+    var count = markers.length;
+    if (!count) return;
+
+    var dragging = false;
+    var pos = 0.5 / count;  // first snap point
+    var currentIdx = 0;
+    var SNAP_TRANSITION = 'left 220ms cubic-bezier(0.22, 1, 0.36, 1), transform 0.15s';
+
+    function stopPositionFor(i) { return (i + 0.5) / count; }
+
+    function layout() {
+      markers.forEach(function(m, i) {
+        m.style.left = (stopPositionFor(i) * 100) + '%';
+      });
+      updateHandle(pos);
+    }
+
+    function updateHandle(p) {
+      pos = Math.max(0.02, Math.min(0.98, p));
+      handle.style.left = (pos * 100) + '%';
+
+      // Find nearest snap point
+      var nearestIdx = 0;
+      var nearestDist = Infinity;
+      for (var i = 0; i < count; i++) {
+        var d = Math.abs(stopPositionFor(i) - pos);
+        if (d < nearestDist) { nearestDist = d; nearestIdx = i; }
+      }
+
+      markers.forEach(function(m, i) {
+        m.classList.toggle('is-active', i === nearestIdx);
+      });
+      stops.forEach(function(s, i) {
+        s.classList.toggle('is-active', i === nearestIdx);
+      });
+
+      if (nearestIdx !== currentIdx) {
+        frames.forEach(function(f) { f.classList.remove('is-active'); });
+        frames[nearestIdx].classList.add('is-active');
+        currentIdx = nearestIdx;
+      }
+    }
+
+    function onMove(clientX) {
+      var rect = track.getBoundingClientRect();
+      if (!rect.width) return;
+      updateHandle((clientX - rect.left) / rect.width);
+    }
+
+    function snapTo(idx) {
+      idx = Math.max(0, Math.min(count - 1, idx));
+      handle.style.transition = SNAP_TRANSITION;
+      updateHandle(stopPositionFor(idx));
+      setTimeout(function() { handle.style.transition = ''; }, 240);
+    }
+
+    function snapToNearest() {
+      var nearestIdx = Math.round(pos * count - 0.5);
+      snapTo(nearestIdx);
+    }
+
+    // ---- Pointer: mouse ----
+    handle.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      dragging = true;
+      handle.classList.add('is-dragging');
+      handle.style.transition = '';
+    });
+    document.addEventListener('mousemove', function(e) {
+      if (dragging) onMove(e.clientX);
+    });
+    document.addEventListener('mouseup', function() {
+      if (!dragging) return;
+      dragging = false;
+      handle.classList.remove('is-dragging');
+      snapToNearest();
+    });
+
+    // ---- Pointer: touch ----
+    handle.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      dragging = true;
+      handle.classList.add('is-dragging');
+      handle.style.transition = '';
+    }, { passive: false });
+    document.addEventListener('touchmove', function(e) {
+      if (dragging) onMove(e.touches[0].clientX);
+    });
+    document.addEventListener('touchend', function() {
+      if (!dragging) return;
+      dragging = false;
+      handle.classList.remove('is-dragging');
+      snapToNearest();
+    });
+
+    // ---- Click on track anywhere to jump ----
+    track.addEventListener('click', function(e) {
+      if (e.target === handle || handle.contains(e.target)) return;
+      var rect = track.getBoundingClientRect();
+      if (!rect.width) return;
+      var p = (e.clientX - rect.left) / rect.width;
+      var nearestIdx = Math.round(p * count - 0.5);
+      snapTo(nearestIdx);
+    });
+
+    // ---- Click on a stop label to jump ----
+    stops.forEach(function(s) {
+      s.style.cursor = 'pointer';
+      s.addEventListener('click', function() {
+        snapTo(Number(s.getAttribute('data-stop')) || 0);
+      });
+    });
+
+    layout();
   })();
   </script>
   <script src="/work/hmw-data.js"></script>

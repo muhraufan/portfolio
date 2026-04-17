@@ -25,14 +25,30 @@
 
   sections.forEach((section) => observer.observe(section));
 
-  // Smooth scroll for sidebar links
+  // Smooth scroll for sidebar links. We also signal any page-level
+  // scroll-hijacks (e.g. "The Beginning" problem takeover on the SmartNews
+  // case) to stand down so the jump can pass through their trigger zone.
   navLinks.forEach((link) => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
-      const target = document.querySelector(link.getAttribute('href'));
+      const href = link.getAttribute('href');
+
+      // Flag + event: hijacks should bypass their triggers and release now.
+      window.__bypassScrollHijack = true;
+      window.dispatchEvent(
+        new CustomEvent('sidebar-nav-click', { detail: { href } })
+      );
+
+      const target = document.querySelector(href);
       if (target) {
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
+
+      // Clear the flag after the smooth scroll likely settles.
+      clearTimeout(window.__bypassScrollHijackTimer);
+      window.__bypassScrollHijackTimer = setTimeout(() => {
+        window.__bypassScrollHijack = false;
+      }, 1500);
     });
   });
 })();
