@@ -93,10 +93,46 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  position: relative;
 }
 
 .case-sidebar li {
   margin-bottom: 12px;
+}
+
+/* Static gray "track" that spans every section link — the moving line
+   rides on top of it. */
+.case-nav-track {
+  position: absolute;
+  left: -12px;
+  width: 2px;
+  top: 0;
+  height: 0;
+  background: var(--border2);
+  border-radius: 2px;
+  pointer-events: none;
+}
+/* Rubber-band line indicator that tracks the active section link.
+   Height + top are driven by JS on scroll; the .snapping class swaps in
+   a spring transition when the active section changes. */
+.case-nav-line {
+  position: absolute;
+  left: -12px;
+  width: 2px;
+  height: 20px;
+  top: 0;
+  background: var(--text);
+  border-radius: 2px;
+  pointer-events: none;
+  /* No CSS transition during the stretch — JS updates each frame. */
+  transition: height 0ms, top 0ms;
+}
+.case-nav-line.snapping {
+  /* Spring curve overshoots slightly then settles — the "rubber releasing"
+     feel at the moment a new section becomes active. */
+  transition:
+    height 400ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    top 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .case-nav-link {

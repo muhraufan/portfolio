@@ -1,19 +1,33 @@
 // ---- Sidebar active section tracking ----
 (function () {
-  const sections = document.querySelectorAll('.case-content section[id]');
-  const navLinks = document.querySelectorAll('.case-nav-link');
+  const navLinks = Array.from(document.querySelectorAll('.case-nav-link'));
 
-  if (!sections.length || !navLinks.length) return;
+  if (!navLinks.length) return;
+
+  // Only observe sections that have a matching sidebar link. SN FTUX has
+  // extra <section id="evolution"> / <section id="showcase"> inside the
+  // Journey section that aren't represented in the sidebar — if we
+  // observed them and they became the "intersecting" entry, the callback
+  // would clear all .active classes without setting a new one, leaving
+  // the indicator blank for a stretch of scroll.
+  const sections = Array.from(document.querySelectorAll('.case-content section[id]'))
+    .filter((s) => document.querySelector('.case-nav-link[href="#' + s.id + '"]'));
+
+  if (!sections.length) return;
 
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          navLinks.forEach((link) => link.classList.remove('active'));
           const activeLink = document.querySelector(
             '.case-nav-link[href="#' + entry.target.id + '"]'
           );
-          if (activeLink) activeLink.classList.add('active');
+          // Only update active if we actually have a matching link —
+          // otherwise leave the current .active alone instead of clearing.
+          if (activeLink) {
+            navLinks.forEach((link) => link.classList.remove('active'));
+            activeLink.classList.add('active');
+          }
         }
       });
     },
@@ -24,6 +38,195 @@
   );
 
   sections.forEach((section) => observer.observe(section));
+
+  // ---- Rubber-band line indicator ----
+  // A 2px vertical line on the left of the nav that tracks the active
+  // section link. Three phases:
+  //   1. Idle at a section — line sits at ~20px, aligned to the active link.
+  //   2. Stretching between sections — as the user scrolls past the current
+  //      section toward the next, the line's height grows toward the gap
+  //      between the two links. Eased-in so it feels like rubber under
+  //      tension.
+  //   3. Snapping to new section — when IntersectionObserver swaps the
+  //      .active class, we collapse the line back to 20px at the new link
+  //      with a spring transition (CSS .snapping class).
+  (function setupNavLine() {
+    const sidebar = document.querySelector('.case-sidebar');
+    if (!sidebar) return;
+    const ul = sidebar.querySelector('ul');
+    if (!ul) return;
+    const links = Array.from(sidebar.querySelectorAll('.case-nav-link'));
+    if (!links.length) return;
+
+    // Only draw the line when the sidebar is actually visible
+    // (it's display:none on mobile).
+    function sidebarVisible() {
+      return getComputedStyle(sidebar).display !== 'none';
+    }
+
+    // Static gray track behind the line — spans from the first link's
+    // vertical center to the last link's vertical center.
+    const track = document.createElement('div');
+    track.className = 'case-nav-track';
+    ul.appendChild(track);
+
+    const line = document.createElement('div');
+    line.className = 'case-nav-line';
+    ul.appendChild(line);
+
+    const IDLE_HEIGHT = 20;
+    const SNAP_MS = 400;
+    const BOTTOM_THRESHOLD = 4;  // px from page end that counts as "at bottom"
+    let currentActiveIdx = -1;
+    let ticking = false;
+    let snapTimer = null;
+
+    function linkCenterInUl(link) {
+      const r = link.getBoundingClientRect();
+      const u = ul.getBoundingClientRect();
+      return r.top - u.top + r.height / 2;
+    }
+
+    function updateTrack() {
+      if (!links.length) return;
+      const first = linkCenterInUl(links[0]);
+      const last = linkCenterInUl(links[links.length - 1]);
+      track.style.top = (first - IDLE_HEIGHT / 2) + 'px';
+      track.style.height = Math.max(0, (last - first) + IDLE_HEIGHT) + 'px';
+    }
+
+    function isAtBottom() {
+      const docH = document.documentElement.scrollHeight;
+      const winH = window.innerHeight;
+      // Only trust "at bottom" when the page is actually scrollable.
+      // On first paint (e.g. SN FTUX with the password wall still up and
+      // .case-page display:none) docH barely exceeds winH, and the naive
+      // check `scrollY + winH >= docH - N` would be true at scrollY=0,
+      // incorrectly forcing the last section to be active before the
+      // visitor has scrolled anywhere.
+      if (docH <= winH + 40) return false;
+      return (window.scrollY + winH) >= (docH - BOTTOM_THRESHOLD);
+    }
+
+    function getActiveIdx() {
+      // At page bottom, the last section is always considered active —
+      // otherwise short final sections whose tops never reach the IO
+      // trigger leave the indicator stuck on the previous section.
+      if (isAtBottom()) {
+        // Ensure the CSS class stays in sync.
+        links.forEach((l, i) => l.classList.toggle('active', i === links.length - 1));
+        return links.length - 1;
+      }
+      const active = sidebar.querySelector('.case-nav-link.active');
+      if (!active) return 0;
+      return links.indexOf(active);
+    }
+
+    function easeIn(t) { return t * t; }
+
+    // Progress 0..1 from "just became active" toward "about to become the
+    // next section". IO uses -20%/-70% rootMargin, so the trigger line
+    // sits at ~20% of viewport height from the top.
+    function forwardProgress(activeIdx) {
+      if (activeIdx >= sections.length - 1) return 0;
+      const cur = sections[activeIdx].getBoundingClientRect();
+      const nxt = sections[activeIdx + 1].getBoundingClientRect();
+      const span = nxt.top - cur.top;
+      if (span <= 0) return 0;
+      const triggerY = window.innerHeight * 0.2;
+      const distToTrigger = nxt.top - triggerY;
+      return 1 - Math.max(0, Math.min(1, distToTrigger / span));
+    }
+
+    // Progress 0..1 toward the previous section when scrolling UP —
+    // triggered when the active section's top has moved BELOW the trigger
+    // line (i.e. the user is scrolling back up past the active heading).
+    function backwardProgress(activeIdx) {
+      if (activeIdx <= 0) return 0;
+      const cur = sections[activeIdx].getBoundingClientRect();
+      const prv = sections[activeIdx - 1].getBoundingClientRect();
+      const span = cur.top - prv.top;
+      if (span <= 0) return 0;
+      const triggerY = window.innerHeight * 0.2;
+      const distBelowTrigger = cur.top - triggerY;
+      return Math.max(0, Math.min(1, distBelowTrigger / span));
+    }
+
+    function update() {
+      ticking = false;
+      if (!sidebarVisible()) return;
+      const activeIdx = getActiveIdx();
+      const activeLink = links[activeIdx];
+      if (!activeLink) return;
+      const cCenter = linkCenterInUl(activeLink);
+
+      // Section changed — snap the line to the new active link.
+      if (activeIdx !== currentActiveIdx) {
+        const firstSettle = currentActiveIdx === -1;
+        currentActiveIdx = activeIdx;
+        if (!firstSettle) line.classList.add('snapping');
+        line.style.height = IDLE_HEIGHT + 'px';
+        line.style.top = (cCenter - IDLE_HEIGHT / 2) + 'px';
+        if (snapTimer) clearTimeout(snapTimer);
+        snapTimer = setTimeout(() => {
+          line.classList.remove('snapping');
+          snapTimer = null;
+        }, SNAP_MS);
+        return;
+      }
+
+      // Mid-snap — let the CSS spring finish before resuming JS updates.
+      if (line.classList.contains('snapping')) return;
+
+      const fp = forwardProgress(activeIdx);
+      const bp = backwardProgress(activeIdx);
+
+      // Whichever direction the user is leaning further toward wins the
+      // stretch. If they're idle in the middle of a section (fp=bp=0)
+      // the line collapses to idle.
+      if (fp > 0 && fp >= bp) {
+        const nextLink = links[activeIdx + 1];
+        const nCenter = linkCenterInUl(nextLink);
+        const h = IDLE_HEIGHT + (nCenter - cCenter) * easeIn(fp);
+        line.style.height = h + 'px';
+        line.style.top = (cCenter - IDLE_HEIGHT / 2) + 'px';
+      } else if (bp > 0) {
+        const prevLink = links[activeIdx - 1];
+        const pCenter = linkCenterInUl(prevLink);
+        const h = IDLE_HEIGHT + (cCenter - pCenter) * easeIn(bp);
+        // Anchor the BOTTOM at the active link's center and stretch the
+        // TOP upward toward the previous link.
+        line.style.height = h + 'px';
+        line.style.top = (cCenter + IDLE_HEIGHT / 2 - h) + 'px';
+      } else {
+        line.style.height = IDLE_HEIGHT + 'px';
+        line.style.top = (cCenter - IDLE_HEIGHT / 2) + 'px';
+      }
+    }
+
+    function requestUpdate() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    }
+
+    // Initial settle once layout is stable.
+    requestAnimationFrame(() => setTimeout(() => { updateTrack(); update(); }, 80));
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', () => { updateTrack(); requestUpdate(); });
+
+    // ResizeObserver catches the case where the sidebar is initially inside
+    // a display:none ancestor (e.g. the SN FTUX password wall gating
+    // .case-page). When the ancestor becomes visible and the <ul> resizes
+    // from 0 to its real height, we re-measure the track + line.
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => {
+        updateTrack();
+        requestUpdate();
+      });
+      ro.observe(ul);
+    }
+  })();
 
   // Smooth scroll for sidebar links. We also signal any page-level
   // scroll-hijacks (e.g. "The Beginning" problem takeover on the SmartNews
