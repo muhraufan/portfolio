@@ -2354,3 +2354,14 @@ html[data-lang="ja"] .gb-card-message,
 html[data-lang="ja"] .gb-card-message::placeholder {
   font-size: 16px;
 }
+
+/* ---- Mobile: blur the page content behind the guest card so it doesn't
+   visually clash with the card. Same pattern as the SN FTUX sidebar —
+   foreground filter on the content, not backdrop-filter on the overlay.
+   Only applies when the card is open and only on mobile. */
+@media (max-width: 640px) {
+  body:has(.gb-card-slot-wrap.is-open) > .m-page {
+    filter: blur(4px);
+    transition: filter 0.3s ease;
+  }
+}

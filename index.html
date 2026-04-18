@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css?v=9">
-  <link rel="stylesheet" href="/components/Guestbook/guestbook.css?v=2">
+  <link id="gb-stylesheet" rel="stylesheet" href="/components/Guestbook/guestbook.css?v=4">
 </head>
 <body class="minimal">
 
@@ -79,8 +79,20 @@
   <canvas id="confetti-canvas"></canvas>
   <script src="/js/main.js?v=10"></script>
   <script type="module">
-    import { GuestbookCard } from '/components/Guestbook/GuestbookCard.js?v=2';
-    const card = GuestbookCard();
+    import { GuestbookCard } from '/components/Guestbook/GuestbookCard.js?v=4';
+    import { addEntry } from '/components/Guestbook/guestbookService.js?v=2';
+    const card = GuestbookCard({
+      // Fires once when the user drops the card into the slot — push the
+      // entry (name, message, signature as base64 PNG, card color, pattern)
+      // to Supabase. The UI already gives its own animated "Sent" feedback
+      // so we don't need to await the network call.
+      onSent: (entry) => {
+        addEntry(entry).then((saved) => {
+          if (saved) console.log('[Guestbook] saved entry', saved.id);
+          else console.warn('[Guestbook] save returned null');
+        });
+      }
+    });
     document.body.appendChild(card.el);
   </script>
 </body>

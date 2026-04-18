@@ -2156,15 +2156,23 @@
 
   /* Lang + theme toggles sit inside the mobile header row. Switch to
      position:fixed so they stay pinned when the user scrolls (absolute
-     positioning would let them scroll out of view behind the sticky header). */
+     positioning would let them scroll out of view behind the sticky header).
+     Align their vertical center to the hamburger (which centers at ~31px)
+     by giving them an explicit 32px tall target and centering the content. */
   .case-lang-toggle,
   .case-theme-toggle {
     position: fixed;
     z-index: 1001;
-    top: 14px;
+    top: 15px;
+    height: 32px;
+    min-height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  .case-lang-toggle { right: 88px; }
-  .case-theme-toggle { right: 56px; }
+  .case-lang-toggle { right: 100px; width: 36px; font-size: 13px; }
+  .case-theme-toggle { right: 64px; width: 32px; }
 
   /* Direction chart — stack top-to-bottom on mobile (absolute positioning
      at fixed %-coords collides on narrow viewports).
@@ -3008,18 +3016,30 @@
   margin: 16px 0 32px;
 }
 
-/* Card row — larger cards, centered on full viewport (breakout) */
+/* Card row — mobile-first: a safe 2-column grid that fits any viewport.
+   Desktop gets the 100vw breakout in a min-width media query below. */
 .choose-row {
-  display: flex;
-  justify-content: center;
-  gap: 24px;
-  /* Full-viewport breakout with 40px padding each side.
-     50% refers to half of the content column (inside .case-page padding). */
-  width: 100vw;
-  margin-left: calc(-50vw + 50% - 20px);
-  padding-left: 40px;
-  padding-right: 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
   box-sizing: border-box;
+}
+@media (min-width: 769px) {
+  /* Larger cards, centered on full viewport (breakout) — only where
+     there's horizontal room to absorb the breakout without overflow. */
+  .choose-row {
+    display: flex;
+    grid-template-columns: none;
+    justify-content: center;
+    gap: 24px;
+    /* Full-viewport breakout with 40px padding each side.
+       50% refers to half of the content column (inside .case-page padding). */
+    width: 100vw;
+    margin-left: calc(-50vw + 50% - 20px);
+    padding-left: 40px;
+    padding-right: 40px;
+  }
 }
 .choose-card {
   background: transparent;

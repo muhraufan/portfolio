@@ -36,7 +36,7 @@ import { GuestbookEntries } from './GuestbookEntries.js';
 import { GuestbookForm } from './GuestbookForm.js';
 
 const STYLESHEET_ID = 'gb-stylesheet';
-const STYLESHEET_HREF = '/components/Guestbook/guestbook.css';
+const STYLESHEET_HREF = '/components/Guestbook/guestbook.css?v=4';
 
 function ensureStylesheet() {
   if (document.getElementById(STYLESHEET_ID)) return;

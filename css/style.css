@@ -139,6 +139,7 @@ body.minimal footer:not(.m-footer) {
 /* ---- Language toggle (homepage) ---- */
 .m-top-controls {
   position: absolute;
+  min-height: 38px;
   top: 80px;
   right: 24px;
   display: flex;

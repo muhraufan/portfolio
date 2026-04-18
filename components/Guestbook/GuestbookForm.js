@@ -23,7 +23,7 @@
 // triggers a fresh call so the parent can keep the letter in sync.
 
 const STYLESHEET_ID = 'gb-stylesheet';
-const STYLESHEET_HREF = '/components/Guestbook/guestbook.css';
+const STYLESHEET_HREF = '/components/Guestbook/guestbook.css?v=4';
 
 function ensureStylesheet() {
   if (document.getElementById(STYLESHEET_ID)) return;

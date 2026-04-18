@@ -62,7 +62,7 @@
 import { playReady, playPickup, playDrop, primeAudio } from './sounds.js';
 
 const STYLESHEET_ID = 'gb-stylesheet';
-const STYLESHEET_HREF = '/components/Guestbook/guestbook.css';
+const STYLESHEET_HREF = '/components/Guestbook/guestbook.css?v=4';
 
 function ensureStylesheet() {
   if (document.getElementById(STYLESHEET_ID)) return;
@@ -866,7 +866,7 @@ function createPatternPicker({ initial = DEFAULT_PATTERN, onChange } = {}) {
  */
 export function GuestbookCard(props = {}) {
   ensureStylesheet();
-  const { onOpen, onClose, onReady } = props;
+  const { onOpen, onClose, onReady, onSent } = props;
 
   // ================================================================
   // DOM
@@ -1975,7 +1975,11 @@ export function GuestbookCard(props = {}) {
 
   function isDragSafeTarget(target) {
     if (!target) return false;
-    // Anything inside an interactive sub-region is off-limits.
+    // In ready state, the form is locked (name confirmed, signature
+    // committed) so the entire card face is a valid drag handle — the
+    // visitor shouldn't have to hunt for an "edge" to grab.
+    if (sendPhase === 'ready') return true;
+    // Outside ready, guard against pointerdown on interactive sub-regions.
     if (target.closest('.gb-card-name-row')) return false;
     if (target.closest('.gb-card-name-display')) return false;
     if (target.closest('.gb-card-message-row')) return false;
@@ -2116,6 +2120,14 @@ export function GuestbookCard(props = {}) {
     wrap.classList.add('is-sending');
     // We're past the ready phase — no more drag interactions.
     detachDragListeners();
+
+    // Fire onSent once at the start of the send animation — this is the
+    // "submit" moment. Parent can push to Supabase (or anywhere else)
+    // from here. We snapshot the entry now so even if the user Edits
+    // the card afterwards, the already-submitted payload is preserved.
+    if (typeof onSent === 'function') {
+      try { onSent(getEntry()); } catch (err) { console.error('[Guestbook] onSent callback threw', err); }
+    }
 
     // Anchor the scale origin at the card's bottom center up front so
     // when scaleY kicks in later the card collapses toward the slot,
@@ -2297,24 +2309,35 @@ export function GuestbookCard(props = {}) {
 
   // ---- Download card ---------------------------------------------
   //
-  // We lazy-load html2canvas from a CDN the first time the visitor
-  // asks for a download so the library doesn't weigh on the initial
-  // page load. html2canvas can't preserve the signature canvas
-  // pixel data when cloning the card, so we render the signature
-  // out to a data URL and swap it in as an <img> on the clone.
-  function loadHtml2Canvas() {
-    if (window.html2canvas) return Promise.resolve(window.html2canvas);
-    if (loadHtml2Canvas._promise) return loadHtml2Canvas._promise;
-    loadHtml2Canvas._promise = new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src =
-        'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-      script.async = true;
-      script.onload = () => resolve(window.html2canvas);
-      script.onerror = () => reject(new Error('html2canvas failed to load'));
-      document.head.appendChild(script);
-    });
-    return loadHtml2Canvas._promise;
+  // No external library — we render the card ourselves by cloning the
+  // DOM, inlining every computed style onto the clone, then wrapping
+  // it in an SVG <foreignObject> and converting that to a PNG via a
+  // canvas. html2canvas / html-to-image / modern-screenshot all
+  // silently produced blank or incomplete images in this environment
+  // (couldn't inline Google Fonts through CORS, choked on color-mix,
+  // etc.), so this zero-dependency path is the most reliable.
+
+  // Recursively copy computed styles from `src` to `target`. Both
+  // trees must have the same structure — cloneNode(true) guarantees
+  // that, and we walk them in lock-step.
+  function inlineAllStyles(src, target) {
+    if (!src || !target) return;
+    if (src.nodeType === 1 && target.nodeType === 1) {
+      const cs = window.getComputedStyle(src);
+      let style = '';
+      for (let i = 0; i < cs.length; i++) {
+        const prop = cs[i];
+        const val = cs.getPropertyValue(prop);
+        if (val) style += prop + ':' + val + ';';
+      }
+      // Preserve any inline overrides we set on the clone (width/height/transform etc).
+      const existing = target.getAttribute('style') || '';
+      target.setAttribute('style', style + existing);
+    }
+    const sKids = src.childNodes;
+    const tKids = target.childNodes;
+    const n = Math.min(sKids.length, tKids.length);
+    for (let i = 0; i < n; i++) inlineAllStyles(sKids[i], tKids[i]);
   }
 
   function buildCardSlug() {
@@ -2330,60 +2353,92 @@ export function GuestbookCard(props = {}) {
 
   async function downloadCard() {
     // Quick flash on the (still squished) card as positive feedback.
-    // Even though the card is visually inside the slot, the flash
-    // opacity change briefly registers around the slot area.
     card.style.transition = 'opacity 120ms ease';
     card.style.opacity = '0.8';
-    window.setTimeout(() => {
-      card.style.opacity = '1';
-    }, 100);
+    window.setTimeout(() => { card.style.opacity = '1'; }, 100);
 
-    // Build an off-screen clone of the card at full size so html2canvas
-    // renders the normal, un-squished version.
+    const W = CARD_W;
+    const H = 340;
+
+    // Clone the card. The clone inherits the live card's classes so CSS
+    // still applies — but we can't rely on external stylesheets inside the
+    // SVG foreignObject, so we inline every computed style below.
     const clone = card.cloneNode(true);
+    clone.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+
+    // Pre-inline the positioning bits before inlineAllStyles runs so they
+    // beat the resting translateY(260px) / translateY(-210px) transforms.
     clone.style.transform = 'none';
-    clone.style.position = 'fixed';
-    clone.style.left = '-10000px';
-    clone.style.top = '0';
-    clone.style.width = CARD_W + 'px';
-    clone.style.height = '360px';
+    clone.style.position = 'static';
     clone.style.opacity = '1';
+    clone.style.width = W + 'px';
+    clone.style.height = H + 'px';
     clone.style.pointerEvents = 'none';
 
-    // Canvas pixels don't survive cloneNode — swap the clone's
-    // <canvas> with an <img> of the signature export.
+    // Canvas bitmap doesn't survive cloneNode — swap the clone's <canvas>
+    // for an <img> holding the signature export, so the ink is preserved.
     const cloneCanvas = clone.querySelector('.gb-card-canvas');
     if (cloneCanvas) {
       if (hasStrokes) {
-        const img = document.createElement('img');
-        img.src = canvas.toDataURL('image/png');
-        img.className = 'gb-card-canvas';
-        img.style.width = '100%';
-        img.style.height = '96px';
-        img.style.display = 'block';
-        cloneCanvas.replaceWith(img);
+        const sig = document.createElement('img');
+        sig.src = canvas.toDataURL('image/png');
+        sig.className = 'gb-card-canvas';
+        sig.setAttribute('style', 'display:block;width:100%;height:96px;');
+        cloneCanvas.replaceWith(sig);
       } else {
-        // No signature — replace with an empty placeholder of the
-        // same size so layout stays intact.
         const ph = document.createElement('div');
         ph.className = 'gb-card-canvas';
-        ph.style.width = '100%';
-        ph.style.height = '96px';
+        ph.setAttribute('style', 'width:100%;height:96px;');
         cloneCanvas.replaceWith(ph);
       }
     }
 
-    document.body.appendChild(clone);
+    // Inline every computed style from the live card onto the clone so
+    // the SVG rendering doesn't need external stylesheets.
+    inlineAllStyles(card, clone);
+
+    // Wrap the styled clone in an SVG <foreignObject> and convert to PNG.
+    const svgNs = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNs, 'svg');
+    svg.setAttribute('xmlns', svgNs);
+    svg.setAttribute('width', W);
+    svg.setAttribute('height', H);
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    const fo = document.createElementNS(svgNs, 'foreignObject');
+    fo.setAttribute('width', '100%');
+    fo.setAttribute('height', '100%');
+    fo.appendChild(clone);
+    svg.appendChild(fo);
+
+    const svgStr = new XMLSerializer().serializeToString(svg);
+    const svgUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
 
     try {
-      const h2c = await loadHtml2Canvas();
-      const rendered = await h2c(clone, {
-        backgroundColor: null,
-        scale: 2,
-        useCORS: true,
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      const loaded = new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = () => reject(new Error('SVG failed to load as image'));
       });
-      const dataUrl = rendered.toDataURL('image/png');
+      img.src = svgUrl;
+      await loaded;
 
+      const dpr = 2;
+      const out = document.createElement('canvas');
+      out.width = W * dpr;
+      out.height = H * dpr;
+      const ctx = out.getContext('2d');
+      ctx.scale(dpr, dpr);
+      // Paint the card's background first (belt & suspenders — the inlined
+      // clone already has its own bg, but this guarantees no transparency).
+      const cardBg = window.getComputedStyle(card).backgroundColor;
+      if (cardBg && cardBg !== 'transparent' && cardBg !== 'rgba(0, 0, 0, 0)') {
+        ctx.fillStyle = cardBg;
+        ctx.fillRect(0, 0, W, H);
+      }
+      ctx.drawImage(img, 0, 0, W, H);
+
+      const dataUrl = out.toDataURL('image/png');
       const a = document.createElement('a');
       a.href = dataUrl;
       a.download = buildCardFilename();
@@ -2391,11 +2446,7 @@ export function GuestbookCard(props = {}) {
       a.click();
       document.body.removeChild(a);
     } catch (err) {
-      // Surfacing to the console keeps the flow minimal — the UI
-      // already acknowledged the click with the flash.
       console.error('[Guestbook] Download failed:', err);
-    } finally {
-      clone.remove();
     }
   }
 
