@@ -1008,7 +1008,12 @@
 @media (max-width: 700px) {
   .journey-flow {
     flex-direction: column;
+    align-items: center;
     gap: 4px;
+  }
+  .journey-step {
+    width: 100%;
+    max-width: 240px;
   }
   .journey-arrow {
     transform: rotate(90deg);
@@ -1017,8 +1022,14 @@
     flex-direction: column;
     gap: 12px;
   }
+  .journey-platform-group:first-child,
+  .journey-platform-end {
+    flex: none;
+  }
   .journey-platform-end {
     text-align: left;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border2);
   }
 }
 
@@ -1198,9 +1209,12 @@
     opacity: 0.3;
   }
   .labyrinth-mobile-user {
-    padding: 10px 16px;
-    background: #C8DDD4;
-    color: #111111;
+    align-self: center;
+    padding: 8px 20px;
+    background: transparent;
+    color: var(--text);
+    border: 1.5px solid #C8DDD4;
+    border-radius: 100px;
     font-weight: 500;
     letter-spacing: 1px;
     text-align: center;
@@ -2185,6 +2199,10 @@
 }
 
 @media (max-width: 700px) {
+  /* Sticky mobile header is ~56px tall — keep anchor jumps clear of it */
+  html {
+    scroll-padding-top: 72px;
+  }
   /* Hide desktop sidebar */
   .case-sidebar {
     display: none;
