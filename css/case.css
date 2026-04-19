@@ -939,6 +939,18 @@
   white-space: normal !important;
 }
 
+/* Highlight box content must always wrap, regardless of whether it's a
+   static [data-en] element reserveLangSpace() sees at load or a dynamic
+   node injected later. Overrides any inline nowrap/min-width the JS set. */
+.choose-highlight-box .choose-reveal-label[data-en],
+.choose-highlight-box .choose-reveal-body[data-en],
+.choose-reveal-label[data-en],
+.choose-reveal-body[data-en] {
+  white-space: normal !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
 /* Opt OUT of reserveLangSpace()'s min-height reservation for multi-line
    body content whose height naturally differs between languages.
    Reserving one language's height leaves awkward whitespace in the other.
@@ -1429,34 +1441,30 @@
 .page-tabs-nav-inner {
   display: inline-flex;
   position: relative;
+  gap: 4px;
   border-radius: 100px;
   padding: 4px;
-  background: rgba(0,0,0,0.06);
+  background: var(--bg);
+  border: 1px solid var(--border);
 }
 
-/* Sliding indicator behind active tab */
+/* Sliding indicator retired — each .is-active button carries its own bg.
+   The element is kept in DOM for JS compatibility but visually hidden. */
 .page-tabs-indicator {
-  position: absolute;
-  top: 4px;
-  bottom: 4px;
-  border-radius: 100px;
-  background: var(--text);
-  transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1), width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 0;
+  display: none;
 }
 
 .page-tab-btn {
-  padding: 8px 20px;
-  background: none;
-  border: none;
+  padding: 8px 18px;
+  background: transparent;
+  border: 0;
   border-radius: 100px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--text3);
-  letter-spacing: 0.5px;
+  font-family: 'Noto Sans JP', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text2);
   cursor: pointer;
-  transition: color 0.25s;
+  transition: background 180ms ease, color 180ms ease;
   text-align: center;
   -webkit-tap-highlight-color: transparent;
   white-space: nowrap;
@@ -1465,12 +1473,12 @@
 }
 
 .page-tab-btn:hover {
-  color: var(--text2);
+  color: var(--text);
 }
 
 .page-tab-btn.is-active {
-  color: #fff;
-  font-weight: 500;
+  background: var(--text);
+  color: var(--bg);
 }
 
 .page-tab-desc {
@@ -2481,13 +2489,7 @@
       background: var(--bg2);
     }
 
-    /* Segmented control */
-    .page-tabs-nav-inner {
-      background: rgba(255, 255, 255, 0.08);
-    }
-    .page-tab-btn.is-active {
-      color: var(--bg);
-    }
+    /* Segmented control — theme tokens handle bg/border/active automatically */
   }
 }
 
@@ -2588,13 +2590,7 @@
     background: var(--bg2);
   }
 
-  /* Segmented control */
-  .page-tabs-nav-inner {
-    background: rgba(255, 255, 255, 0.08);
-  }
-  .page-tab-btn.is-active {
-    color: var(--bg);
-  }
+  /* Segmented control — theme tokens handle bg/border/active automatically */
 }
 
 /* ---- Direction Chart (Curation Spectrum) ---- */
@@ -3048,7 +3044,7 @@
    "What would you choose?" interactive section
    ========================== */
 .choose-section {
-  margin: 48px 0 64px;
+  margin: 48px 0 16px;
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 .choose-section .case-h2 {
@@ -3159,6 +3155,33 @@
 
 .choose-card.is-dimmed {
   opacity: 0.3;
+}
+/* Non-interactive presentation — used when we're showing cards side-by-side
+   as exhibits rather than as a pick-one quiz. */
+.choose-card.is-static {
+  cursor: default;
+}
+.choose-card.is-static:hover .choose-card-img-wrap img {
+  border-color: var(--border);
+}
+/* Expand icon rendered as a <button> — reset default browser chrome and
+   size the inner svg. */
+button.choose-expand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  line-height: 1;
+}
+button.choose-expand-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* On static cards the parent doesn't hover-highlight; reveal the expand
+   icon on hover of the image wrap instead so users know it's tappable. */
+.choose-card.is-static .choose-card-img-wrap:hover .choose-expand-icon {
+  opacity: 0.7;
 }
 .choose-card-name {
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -3355,6 +3378,106 @@
   color: var(--text2);
 }
 
+/* Soft-orange variant — peer of the green (is-muted is neutral, this is
+   warm). Used to mark "Pain point addressed" within design sub-sections. */
+.choose-highlight-box.is-pain-point {
+  background: rgba(212, 149, 106, 0.06);
+  border-color: #E8B993;
+}
+.choose-highlight-box.is-pain-point .choose-reveal-label {
+  color: #8B5A2B;
+}
+[data-theme="dark"] .choose-highlight-box.is-pain-point .choose-reveal-label {
+  color: #D4A47A;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .choose-highlight-box.is-pain-point .choose-reveal-label {
+    color: #D4A47A;
+  }
+}
+
+/* Compact collapsible pain-point — same visual family as is-pain-point, but
+   collapsed by default with a button toggle. Used in the summary version of
+   case studies to keep the Pain-point pattern without the full explanation
+   weight. Uses the grid-template-rows trick to animate height cleanly. */
+.choose-highlight-box.is-pain-point.is-compact {
+  padding: 10px 14px;
+  margin-top: 12px;
+}
+.pain-point-toggle {
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8B5A2B;
+  letter-spacing: 0.3px;
+  line-height: 1.4;
+  box-sizing: border-box;
+}
+.pain-point-toggle:focus-visible {
+  outline: 2px solid rgba(139, 90, 43, 0.4);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+.pain-point-toggle::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translate(-1.5px, -1.5px);
+  transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1);
+  flex: none;
+  opacity: 0.7;
+}
+.pain-point-toggle[aria-expanded="true"]::after {
+  transform: rotate(-135deg) translate(-1.5px, -1.5px);
+}
+.pain-point-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 320ms cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 220ms ease;
+  opacity: 0;
+}
+.pain-point-body.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.pain-point-body > .choose-reveal-body {
+  overflow: hidden;
+  min-height: 0;
+  margin: 0;
+  padding-top: 0;
+  border-top: 1px dashed rgba(232, 185, 147, 0);
+  transition: padding-top 320ms cubic-bezier(0.4, 0, 0.2, 1),
+              margin-top 320ms cubic-bezier(0.4, 0, 0.2, 1),
+              border-top-color 260ms ease;
+}
+.pain-point-body.is-open > .choose-reveal-body {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top-color: rgba(232, 185, 147, 0.5);
+}
+[data-theme="dark"] .pain-point-toggle { color: #D4A47A; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .pain-point-toggle { color: #D4A47A; }
+}
+[data-theme="dark"] details.choose-highlight-box.is-pain-point.is-compact > summary {
+  color: #D4A47A;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) details.choose-highlight-box.is-pain-point.is-compact > summary {
+    color: #D4A47A;
+  }
+}
+
 /* Dark-mode overrides for the green highlight-box title so the brand-green
    tint stays legible against the darker background. */
 [data-theme="dark"] .choose-highlight-box .choose-reveal-label {
@@ -3397,5 +3520,121 @@
   }
   .choose-expand-icon {
     opacity: 0.4;
+  }
+}
+
+/* ---- Prototype play button + modal ---- */
+.prototype-play-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0 4px;
+}
+/* Variant — aligns the button to the phone column (45% of the stage) rather
+   than to the whole section, so it visually sits under the phone only. */
+.prototype-play-wrap--phone {
+  width: 45%;
+  margin: 12px 0 16px;
+}
+@media (max-width: 768px) {
+  .prototype-play-wrap--phone { width: 100%; }
+}
+/* Tighten gap when the wrap is immediately followed by a pain-point box. */
+.prototype-play-wrap + .choose-highlight-box {
+  margin-top: 8px;
+}
+.prototype-play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px 7px 12px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.prototype-play-btn:hover {
+  border-color: var(--text);
+  background: var(--bg2);
+}
+.prototype-play-btn svg {
+  width: 13px;
+  height: 13px;
+  flex: none;
+}
+
+.prototype-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.prototype-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+.prototype-modal-inner {
+  position: relative;
+  max-width: 420px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(0.96);
+  transition: transform 0.25s ease;
+}
+.prototype-modal.is-open .prototype-modal-inner {
+  transform: scale(1);
+}
+.prototype-modal video {
+  max-width: 100%;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  border-radius: 32px;
+  background: #000;
+  display: block;
+}
+.prototype-modal-close {
+  position: absolute;
+  top: -44px;
+  right: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+.prototype-modal-close:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+.prototype-modal-close svg {
+  width: 18px;
+  height: 18px;
+}
+@media (max-width: 700px) {
+  .prototype-modal {
+    padding: 16px;
+  }
+  .prototype-modal-close {
+    top: -40px;
   }
 }

@@ -298,7 +298,7 @@ function reserveLangSpace() {
 
     const isSingleLine = it.el.matches(
       '.m-badge-soon, .case-back, .case-mobile-back, .article-back, .back-link, ' +
-      '[data-en]:not(.m-bio):not(.m-name):not(p):not(h1)'
+      '[data-en]:not(.m-bio):not(.m-name):not(p):not(h1):not(.choose-reveal-body):not(.choose-reveal-label)'
     );
     if (isSingleLine) {
       const maxW = Math.max(it.enW, it.jaW);

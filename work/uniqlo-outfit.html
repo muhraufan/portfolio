@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <title data-en="Outfit Inspiration & Purpose-Driven Shopping — Raufan Yusup" data-ja="アウトフィット・インスピレーション ＆ パーパス・ドリブン ショッピング — ラウファン ユスップ">Outfit Inspiration & Purpose-Driven Shopping — Raufan Yusup</title>
+  <meta name="description" content="Rethinking how people discover what to wear on Uniqlo's app.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css?v=9">
+  <link rel="stylesheet" href="/css/case.css?v=147">
+  <style>
+    /* Password Wall — same treatment as SmartNews FTUX */
+    .pw-wall {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 10001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    .pw-wall.is-unlocked {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .pw-inner {
+      text-align: center;
+      max-width: 320px;
+      padding: 24px;
+    }
+    .pw-lock {
+      width: 32px;
+      height: 32px;
+      color: #C8DDD4;
+      margin-bottom: 24px;
+    }
+    .pw-title {
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .pw-desc {
+      color: var(--text2);
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    .pw-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border2);
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      letter-spacing: 1px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .pw-input:focus {
+      border-color: #C8DDD4;
+    }
+    .pw-input.is-error {
+      border-color: #ff6b6b;
+    }
+    .pw-error {
+      color: #ff6b6b;
+      letter-spacing: 1px;
+      margin-top: 8px;
+      min-height: 20px;
+    }
+    .pw-submit {
+      margin-top: 16px;
+      padding: 10px 24px;
+      background: #C8DDD4;
+      color: #111111;
+      border: none;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .pw-submit:hover {
+      opacity: 0.85;
+    }
+    .pw-email {
+      color: var(--text);
+      font-weight: 500;
+      text-underline-offset: 3px;
+    }
+    .pw-email:hover {
+      text-decoration-color: #C8DDD4;
+    }
+    .pw-back {
+      display: inline-block;
+      margin-top: 20px;
+      color: var(--text3);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      letter-spacing: 1px;
+      transition: color 0.15s;
+    }
+    .pw-back:hover {
+      color: var(--text);
+    }
+
+    /* Hide content until unlocked — inline style is primary guard */
+    .case-page.is-visible {
+      display: block !important;
+    }
+
+    /* Case subtitle — sits under the case-title */
+    .case-subtitle {
+      font-size: 14px;
+      color: var(--text2);
+      letter-spacing: 0.5px;
+      line-height: 1.6;
+      margin: -4px 0 12px;
+    }
+
+    /* Single centered phone mockup (used throughout this case study) */
+    .case-phone-figure {
+      margin: 40px auto 8px;
+      max-width: 280px;
+      text-align: center;
+    }
+    .case-phone-figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 20px;
+    }
+    .case-phone-caption {
+      margin-top: 12px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      color: var(--text3);
+      letter-spacing: 0.3px;
+      line-height: 1.5;
+    }
+    .case-phone-figure + p {
+      margin-top: 40px;
+    }
+
+    /* ============ The Framework ============ */
+    .framework-intro {
+      position: relative;
+      z-index: 2;
+      margin: 0 0 24px;
+      /* reserveLangSpace() in main.js adds overflow:hidden on every
+         [data-en] element — that can clip this paragraph if the measured
+         min-height falls short after font swap. Let it breathe. */
+      overflow: visible !important;
+      min-height: 0 !important;
+    }
+    /* Funnel wrap — centered in the content column, labels overlaid per layer */
+    .framework-funnel-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+      margin: 32px auto 32px;
+    }
+    .framework-funnel {
+      width: 100%;
+      height: auto;
+      display: block;
+      overflow: visible;
+    }
+
+    /* Label overlays positioned absolutely inside each funnel layer.
+       Offsets match the layer's diagonal edges + 24px horizontal padding
+       at its midpoint. Layer heights: 80/270 = 29.63% each. */
+    .framework-label-overlay {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;  /* vertical center within the layer */
+      align-items: center;      /* horizontal center within the inset box */
+      text-align: center;
+      gap: 4px;
+      /* Asymmetric padding nudges content below the layer's geometric
+         midline so it reads as optically centered inside each trapezoid
+         (ascenders push visual weight upward at line-height 1.2). */
+      padding: 22px 0 10px;
+      box-sizing: border-box;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    /* Layer heights: 100/330 = 30.30% each. Gaps between layers are 2px.
+       L1 starts at y=0, L2 at y=102/330 = 30.91%, L3 at y=204/330 = 61.82%. */
+    .framework-label-overlay--1 { top: 0;       height: 30.30%; left: 10%; right: 10%; }
+    .framework-label-overlay--2 { top: 30.91%;  height: 30.30%; left: 17%; right: 17%; }
+    .framework-label-overlay--3 { top: 61.82%;  height: 30.30%; left: 24%; right: 24%; }
+
+    .framework-label-head {
+      display: flex;
+      align-items: center;
+      justify-content: center;  /* center the dot+title pair horizontally */
+      gap: 8px;
+    }
+    .framework-label-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      /* Color per layer — set on the overlay rule below */
+    }
+    .framework-label-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      line-height: 1.2;  /* normal line-box so the visual center matches flex center */
+      letter-spacing: 0.2px;
+      margin: 0;
+      opacity: 0.9;  /* idle */
+    }
+    .framework-label-desc {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 400;
+      font-size: 0.72rem;
+      line-height: 1.3;
+      margin: 0;
+      padding: 0;
+      opacity: 0.85;   /* stable — no pulse on taglines so they're always legible */
+      /* Tagline — always one line. Full description lives in the tooltip. */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    /* Per-layer text + dot colors — matched to the site's three-color
+       palette (mint / warm yellow / coral) already used in tiket Discover. */
+    .framework-label-overlay--1 .framework-label-title,
+    .framework-label-overlay--1 .framework-label-desc { color: #3D6B55; }
+    .framework-label-overlay--1 .framework-label-dot  { background: #6C9483; }
+
+    .framework-label-overlay--2 .framework-label-title,
+    .framework-label-overlay--2 .framework-label-desc { color: #8A6D00; }
+    .framework-label-overlay--2 .framework-label-dot  { background: #C9A43F; }
+
+    .framework-label-overlay--3 .framework-label-title,
+    .framework-label-overlay--3 .framework-label-desc { color: #A83838; }
+    .framework-label-overlay--3 .framework-label-dot  { background: #C87878; }
+    /* Sit the content block slightly toward the layer's geometric center
+       by nudging gap between head and desc, keeps both lines above the
+       diagonal bottom of each layer. */
+    .framework-label-overlay { gap: 6px; }
+
+    /* ---- Funnel pulse — 6s loop, gated by IntersectionObserver.
+       Resting state (not in view): layers 0.75, title 0.75, desc 0.6.
+       In view: active layer 1.0 / title 1.0 / desc 0.85, others
+       0.6 / 0.5 / 0.35. Timing identical to the previous version.
+
+       Timeline (6s):
+         0 – 1.2s  (0–20%):   L1 bright
+         1.2 – 1.8s (20–30%): L1→L2 crossfade (0.6s)
+         1.8 – 3.0s (30–50%): L2 bright
+         3.0 – 3.6s (50–60%): L2→L3 crossfade
+         3.6 – 4.8s (60–80%): L3 bright
+         4.0 – 4.4s (66.67–73.33%): purchase fade-in
+         4.4 – 5.6s (73.33–93.33%): purchase visible (1.2s)
+         5.6 – 6.0s (93.33–100%): purchase fade-out + layers reset (pause) */
+    .framework-layer { opacity: 0.75; }
+
+    .framework-funnel-wrap.is-active .framework-layer--1 { animation: fw-pulse-1 6s ease-in-out infinite; }
+    .framework-funnel-wrap.is-active .framework-layer--2 { animation: fw-pulse-2 6s ease-in-out infinite; }
+    .framework-funnel-wrap.is-active .framework-layer--3 { animation: fw-pulse-3 6s ease-in-out infinite; }
+
+    .framework-funnel-wrap.is-active .framework-label-overlay--1 .framework-label-title { animation: fw-title-1 6s ease-in-out infinite; }
+    .framework-funnel-wrap.is-active .framework-label-overlay--2 .framework-label-title { animation: fw-title-2 6s ease-in-out infinite; }
+    .framework-funnel-wrap.is-active .framework-label-overlay--3 .framework-label-title { animation: fw-title-3 6s ease-in-out infinite; }
+
+    /* Taglines stay at a stable legible opacity — they're short and
+       meant to be readable throughout the entire pulse cycle. The pulse
+       is carried by the layer bg + title opacity; desc doesn't need it. */
+
+    .framework-funnel-wrap.is-active .framework-purchase { animation: fw-purchase 6s ease-in-out infinite; }
+
+    @keyframes fw-pulse-1 {
+      0%, 20%   { opacity: 1; }
+      30%, 100% { opacity: 0.6; }
+    }
+    @keyframes fw-pulse-2 {
+      0%, 20%, 60%, 100% { opacity: 0.6; }
+      30%, 50%            { opacity: 1; }
+    }
+    @keyframes fw-pulse-3 {
+      0%, 50%, 90%, 100% { opacity: 0.6; }
+      60%, 80%           { opacity: 1; }
+    }
+
+    @keyframes fw-title-1 {
+      0%, 20%   { opacity: 1; }
+      30%, 100% { opacity: 0.5; }
+    }
+    @keyframes fw-title-2 {
+      0%, 20%, 60%, 100% { opacity: 0.5; }
+      30%, 50%            { opacity: 1; }
+    }
+    @keyframes fw-title-3 {
+      0%, 50%, 90%, 100% { opacity: 0.5; }
+      60%, 80%           { opacity: 1; }
+    }
+
+    @keyframes fw-desc-1 {
+      0%, 20%   { opacity: 0.85; }
+      30%, 100% { opacity: 0.35; }
+    }
+    @keyframes fw-desc-2 {
+      0%, 20%, 60%, 100% { opacity: 0.35; }
+      30%, 50%            { opacity: 0.85; }
+    }
+    @keyframes fw-desc-3 {
+      0%, 50%, 90%, 100% { opacity: 0.35; }
+      60%, 80%           { opacity: 0.85; }
+    }
+
+    .framework-purchase {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    .framework-purchase text {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      fill: #A83838;
+      letter-spacing: 0.3px;
+    }
+    [data-theme="dark"] .framework-purchase text { fill: #E8A0A0; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .framework-purchase text { fill: #E8A0A0; }
+    }
+    @keyframes fw-purchase {
+      0%, 66.67%     { opacity: 0; transform: translateY(4px); }
+      73.33%         { opacity: 1; transform: translateY(0); }
+      93.33%         { opacity: 1; transform: translateY(0); }
+      100%           { opacity: 0; transform: translateY(4px); }
+    }
+
+    /* Mobile — funnel scales down with the column; labels follow via %. */
+    @media (max-width: 700px) {
+      .framework-label-title { font-size: 0.8rem; }
+      .framework-label-desc  { font-size: 0.68rem; }
+    }
+
+    /* Respect reduced-motion preferences — skip the pulse entirely */
+    @media (prefers-reduced-motion: reduce) {
+      .framework-funnel-wrap.is-active .framework-layer,
+      .framework-funnel-wrap.is-active .framework-label-title,
+      .framework-funnel-wrap.is-active .framework-label-desc,
+      .framework-funnel-wrap.is-active .framework-purchase {
+        animation: none;
+      }
+      .framework-layer { opacity: 1; }
+      .framework-label-title { opacity: 1; }
+      .framework-label-desc { opacity: 0.85; }
+      .framework-purchase { opacity: 1; transform: none; }
+    }
+
+    /* Cursor-following tooltip — one element, reused by all three layers.
+       Dark surface, neutral off-white text, subtle mint hairline to tie
+       back to the site's brand accent without shouting. */
+    .framework-layer { cursor: help; }
+    .framework-tooltip {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      background: #1A1A1A;
+      color: #F5F5F3;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 400;
+      font-size: 0.78rem;
+      line-height: 1.6;
+      padding: 12px 16px;
+      border-radius: 6px;
+      border: 1px solid rgba(200, 221, 212, 0.14);
+      max-width: 260px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+      pointer-events: none;
+      opacity: 0;
+      transform: translateZ(0);
+      transition: opacity 100ms ease-in;
+    }
+    .framework-tooltip.is-visible {
+      opacity: 1;
+      transition: opacity 150ms ease-out;
+    }
+
+    /* ===== The Design ===== */
+    .design-intro {
+      max-width: 640px;
+      margin: 0 0 56px;
+    }
+    .design-subsection {
+      margin-top: 72px;
+    }
+    .design-subsection:first-of-type {
+      margin-top: 56px;
+    }
+    .design-tag {
+      display: inline-block;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .design-tag--context { color: #8CB8A0; }
+    .design-tag--visual  { color: #C9A43F; }
+    .design-tag--action  { color: #C87878; }
+    .design-subsection h3.design-h3 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      line-height: 1.3;
+      margin: 0 0 14px;
+      color: var(--text);
+    }
+    .design-subsection p.design-copy {
+      max-width: 640px;
+      margin: 0 0 28px;
+    }
+    .design-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      margin: 32px 0 28px;
+    }
+    .design-tabs {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      background: var(--bg);
+    }
+    .design-tab-btn {
+      font-family: 'Noto Sans JP', 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text2);
+      background: transparent;
+      border: 0;
+      padding: 8px 18px;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: background 180ms ease, color 180ms ease;
+      white-space: nowrap;
+    }
+    .design-tab-btn:hover {
+      color: var(--text);
+    }
+    .design-tab-btn.is-active {
+      background: var(--text);
+      color: var(--bg);
+    }
+    .design-phone-frame {
+      position: relative;
+      width: 100%;
+      max-width: 280px;
+      aspect-ratio: 9 / 19.5;
+      border-radius: 32px;
+      overflow: hidden;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+    }
+    .design-phone-frame img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 250ms ease;
+    }
+    .design-phone-frame img.is-active {
+      opacity: 1;
+    }
+    .design-annotation {
+      max-width: 640px;
+      margin: 20px 0 0;
+      color: var(--text2);
+    }
+    .design-tag--visual-terra { color: #D4956A; }
+
+    /* Scrollable phone + scroll-linked annotations */
+    .design-scroll-stage {
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+      margin: 32px 0 16px;
+    }
+    .design-scroll-phone {
+      flex: 0 0 45%;
+      max-width: 45%;
+      position: relative;
+      max-height: 520px;
+      height: 520px;
+      border-radius: 16px;
+      overflow: visible;
+      background: transparent;
+    }
+    .design-scroll-phone .design-scroll-phone-inner {
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--bg2);
+    }
+    /* Reuse .spectrum-scroll-hint from case.css, but anchor to the LEFT
+       side of our phone (shared rule assumes a centered spectrum phone). */
+    .design-scroll-phone .spectrum-scroll-hint {
+      left: auto;
+      right: calc(100% + 12px);
+    }
+    @media (max-width: 768px) {
+      .design-scroll-phone .spectrum-scroll-hint {
+        right: auto;
+      }
+    }
+    .design-scroll-phone-inner {
+      position: absolute;
+      inset: 0;
+      overflow-y: scroll;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .design-scroll-phone-inner::-webkit-scrollbar { display: none; }
+    .design-scroll-phone-inner img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .design-scroll-annotations {
+      flex: 0 0 45%;
+      max-width: 45%;
+      position: relative;
+      min-height: 520px;
+    }
+    .design-scroll-annotation {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 200ms ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .design-scroll-annotation.is-active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .design-scroll-annotation .design-tag {
+      margin-bottom: 10px;
+    }
+    .design-scroll-annotation-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      line-height: 1.3;
+      margin: 0 0 10px;
+      color: var(--text);
+    }
+    .design-scroll-annotation p {
+      margin: 0;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+    .design-scroll-hint {
+      font-style: italic;
+      font-size: 0.85rem;
+      color: var(--text3);
+      margin: 12px 0 0;
+      opacity: 0.8;
+    }
+    @media (max-width: 768px) {
+      .design-scroll-stage {
+        flex-direction: column;
+        gap: 20px;
+      }
+      /* In a column flex container, flex-basis:100% refers to MAIN-axis
+         (height) and collapses because the parent has no fixed height.
+         Use flex:0 0 auto + explicit width/height so the phone renders
+         at its full size on mobile. */
+      .design-scroll-phone {
+        flex: 0 0 auto;
+        width: 100%;
+        max-width: 280px;
+        margin-left: auto;
+        margin-right: auto;
+        height: 560px;
+        max-height: 560px;
+      }
+      .design-scroll-annotations {
+        flex: 0 0 auto;
+        width: 100%;
+        max-width: 100%;
+        min-height: 0;
+      }
+      .design-scroll-annotation {
+        position: relative;
+        inset: auto;
+        opacity: 1;
+        margin-bottom: 20px;
+      }
+    }
+  </style>
+  <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body class="minimal">
+
+  <!-- Password Wall -->
+  <div class="pw-wall" id="pw-wall">
+    <div class="pw-inner">
+      <svg class="pw-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <p class="pw-title" data-en="This case study is password-protected" data-ja="このケーススタディはパスワードで保護されています">This case study is password-protected</p>
+      <p class="pw-desc" data-en-html='Email <a href="mailto:muhammadraufan@gmail.com" class="pw-email">muhammadraufan@gmail.com</a> to get the password.' data-ja-html='<a href="mailto:muhammadraufan@gmail.com" class="pw-email">muhammadraufan@gmail.com</a> までご連絡ください。パスワードをお送りします。'>Email <a href="mailto:muhammadraufan@gmail.com" class="pw-email">muhammadraufan@gmail.com</a> to get the password.</p>
+      <form id="pw-form" onsubmit="return false;">
+        <input type="password" class="pw-input" id="pw-input" placeholder="Enter password" autocomplete="off" autofocus>
+        <p class="pw-error" id="pw-error"></p>
+        <button type="submit" class="pw-submit" id="pw-submit" data-en="Unlock" data-ja="開く">Unlock</button>
+      </form>
+      <a href="/" class="pw-back" data-en="← Back to home" data-ja="← トップに戻る">← Back to home</a>
+    </div>
+  </div>
+
+  <div class="case-page" id="case-page" style="display:none !important">
+
+    <button class="m-lang-toggle case-lang-toggle" aria-label="Toggle language">JA</button>
+    <button class="m-theme-toggle case-theme-toggle" aria-label="Toggle theme">
+      <svg class="m-icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      <svg class="m-icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
+
+    <!-- Mobile sticky header -->
+    <header class="case-mobile-header" id="case-mobile-header">
+      <a href="/" class="case-mobile-back">← <span data-en="Back" data-ja="戻る">Back</span></a>
+      <button class="case-mobile-hamburger" id="case-hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </header>
+
+    <!-- Mobile menu overlay -->
+    <div class="case-mobile-menu" id="case-mobile-menu">
+      <ul>
+        <li><a href="#moment" class="case-mobile-menu-link" data-en="Overview" data-ja="概要">Overview</a></li>
+        <li><a href="#pain-points" class="case-mobile-menu-link" data-en="The Pain Points" data-ja="ペインポイント">The Pain Points</a></li>
+        <li><a href="#framework" class="case-mobile-menu-link" data-en="The Framework" data-ja="フレームワーク">The Framework</a></li>
+        <li><a href="#design" class="case-mobile-menu-link" data-en="The Design" data-ja="デザイン">The Design</a></li>
+        <li><a href="#closing" class="case-mobile-menu-link" data-en="Closing" data-ja="おわりに">Closing</a></li>
+      </ul>
+      <a href="/work/uniqlo-outfit-full.html" class="case-cta"><span data-en="View full case study" data-ja="ケーススタディを見る">View full case study</span></a>
+    </div>
+
+    <!-- Sidebar with back button -->
+    <nav class="case-sidebar">
+      <a href="/" class="case-back">← <span data-en="Back" data-ja="戻る">Back</span></a>
+      <ul>
+        <li><a href="#moment" class="case-nav-link active" data-en="Overview" data-ja="概要">Overview</a></li>
+        <li><a href="#pain-points" class="case-nav-link" data-en="The Pain Points" data-ja="ペインポイント">The Pain Points</a></li>
+        <li><a href="#framework" class="case-nav-link" data-en="The Framework" data-ja="フレームワーク">The Framework</a></li>
+        <li><a href="#design" class="case-nav-link" data-en="The Design" data-ja="デザイン">The Design</a></li>
+        <li><a href="#closing" class="case-nav-link" data-en="Closing" data-ja="おわりに">Closing</a></li>
+      </ul>
+      <a href="/work/uniqlo-outfit-full.html" class="case-cta"><span data-en="View full case study" data-ja="ケーススタディを見る">View full case study</span></a>
+    </nav>
+
+    <!-- Content -->
+    <article class="case-content">
+
+      <header class="case-header">
+        <p class="case-meta" data-en="Uniqlo · 2026 · In progress" data-ja="ユニクロ · 2026年 · 進行中">Uniqlo · 2026 · In progress</p>
+        <h1 class="case-title" data-en="Outfit Inspiration &amp; Purpose-Driven Shopping" data-ja="アウトフィット・インスピレーション ＆ パーパス・ドリブン ショッピング">Outfit Inspiration &amp; Purpose-Driven Shopping</h1>
+        <p class="case-subtitle" data-en="Rethinking how people discover what to wear on Uniqlo's app." data-ja="ユニクロのアプリで、人々が「何を着るか」と出会う道筋をデザインし直す。">Rethinking how people discover what to wear on Uniqlo's app.</p>
+        <p class="case-role" data-en="Senior Product Designer" data-ja="シニアプロダクトデザイナー">Senior Product Designer</p>
+      </header>
+
+      <!-- ============ 1. Overview ============ -->
+      <section id="moment">
+        <h2 class="case-h2" data-en="Overview" data-ja="概要">Overview</h2>
+
+        <p data-en="During the first month I joined Uniqlo, I reflected on my own relationship with the app, I realized I only open it at the register to show my membership barcode and collect points." data-ja="ユニクロにデザイナーとして入社しました。でも、自分自身とアプリの関係を振り返ってみると——レジでメンバーシップのバーコードを見せてポイントを貯めるときにしか、アプリを開いていないことに気づきました。">During the first month I joined Uniqlo, I reflected on my own relationship with the app, I realized I only open it at the register to show my membership barcode and collect points.</p>
+
+        <p data-en-html='So I looked closer. At myself first, then at what customers were saying. Two things became clear: <span class="m-highlight">I shop with outfits in mind, not individual items</span>. And the Voice of Customer data confirmed I wasn&apos;t alone.' data-ja-html='だから、もっと近くで見てみることにしました。まずは自分自身を、次にお客様の声を。見えてきたのは二つのこと——<span class="m-highlight">自分は「アイテム単位」ではなく「アウトフィット単位」で買い物をしている</span>ということ。そして Voice of Customer のデータは、そう感じているのが自分だけではないことを裏付けていました。'>So I looked closer. At myself first, then at what customers were saying. Two things became clear: <span class="m-highlight">I shop with outfits in mind, not individual items</span>. And the Voice of Customer data confirmed I wasn't alone.</p>
+      </section>
+
+      <!-- ============ 4. The Framework ============ -->
+      <section id="pain-points">
+        <h2 class="case-h2" data-en="The Pain Points" data-ja="ペインポイント">The Pain Points</h2>
+
+        <p class="pain-points-intro" data-en="Three frictions kept surfacing — in my own shopping behavior, and in Voice of Customer data. Tap to read each one." data-ja="三つの摩擦が、繰り返し姿を見せました——自分自身の買い物のなかで、そして Voice of Customer のデータのなかで。タップして、それぞれを読んでみてください。">Three frictions kept surfacing — in my own shopping behavior, and in Voice of Customer data. Tap to read each one.</p>
+
+        <div class="pain-points-lite">
+          <div class="choose-highlight-box is-pain-point is-compact" data-pain-point>
+            <button type="button" class="pain-point-toggle" aria-expanded="false">
+              <span class="pain-point-toggle-label">
+                <span class="pain-point-num">01</span>
+                <span data-en="Outfit Visualization" data-ja="アウトフィットがイメージできない">Outfit Visualization</span>
+              </span>
+            </button>
+            <div class="pain-point-body">
+              <div class="choose-reveal-body" data-en="I struggle to imagine how an item will work with what I already own or with other pieces in the store, especially when shopping online." data-ja="ある一着が、手持ちの服や店にあるほかのアイテムとどう組み合わさるのか——特にオンラインで買う時、うまくイメージできません。">I struggle to imagine how an item will work with what I already own or with other pieces in the store, especially when shopping online.</div>
+            </div>
+          </div>
+
+          <div class="choose-highlight-box is-pain-point is-compact" data-pain-point>
+            <button type="button" class="pain-point-toggle" aria-expanded="false">
+              <span class="pain-point-toggle-label">
+                <span class="pain-point-num">02</span>
+                <span data-en="Decision Overload" data-ja="選びきれない">Decision Overload</span>
+              </span>
+            </button>
+            <div class="pain-point-body">
+              <div class="choose-reveal-body" data-en="When many similar items are available, it becomes hard to decide what to buy without clear guidance or context." data-ja="似たようなアイテムが大量にあると、文脈や指針がない状態で「どれを買うか」を決めるのがむずかしくなります。">When many similar items are available, it becomes hard to decide what to buy without clear guidance or context.</div>
+            </div>
+          </div>
+
+          <div class="choose-highlight-box is-pain-point is-compact" data-pain-point>
+            <button type="button" class="pain-point-toggle" aria-expanded="false">
+              <span class="pain-point-toggle-label">
+                <span class="pain-point-num">03</span>
+                <span data-en="Purchase Confidence" data-ja="買うのに踏み切れない">Purchase Confidence</span>
+              </span>
+            </button>
+            <div class="pain-point-body">
+              <div class="choose-reveal-body" data-en="Uncertainty around fit, styling, and whether an item is &lsquo;enough&rsquo; often makes me hesitate or delay purchasing online." data-ja="サイズ感、着こなし、そして「これで十分か」という不安。そういうもやもやのせいで、オンラインでの購入をためらったり、先延ばしにしたりしてしまいます。">Uncertainty around fit, styling, and whether an item is &lsquo;enough&rsquo; often makes me hesitate or delay purchasing online.</div>
+            </div>
+          </div>
+        </div>
+
+        <style>
+          .pain-points-intro {
+            max-width: 640px;
+            margin: 0 0 20px;
+            color: var(--text2);
+          }
+          .pain-points-lite {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 720px;
+          }
+          .pain-point-toggle-label {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 10px;
+          }
+          .pain-point-num {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 500;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            opacity: 0.65;
+          }
+        </style>
+      </section>
+
+      <section id="framework">
+        <h2 class="case-h2" data-en="The Framework" data-ja="フレームワーク">The Framework</h2>
+
+        <p class="framework-intro" data-en="Before designing, I needed a way to think about the problem. Shopping for an outfit online requires three types of confidence — and they need to happen in sequence." data-ja="デザインを始める前に、この問題を考えるための枠組みが必要でした。オンラインでアウトフィットを買うには、三つの「確信」が——しかも順番に——必要になります。">Before designing, I needed a way to think about the problem. Shopping for an outfit online requires three types of confidence — and they need to happen in sequence.</p>
+
+        <div class="framework-funnel-wrap">
+          <svg class="framework-funnel" viewBox="0 0 380 330" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <!-- Layer 1: Context (mint), rounded top corners.
+                 Funnel tapers 380 → 327 → 274 → 220 across three 100px layers,
+                 with 2px gaps (page bg shows through as white separators). -->
+            <path class="framework-layer framework-layer--1"
+                  d="M 0,12 A 12,12 0 0 1 12,0 L 368,0 A 12,12 0 0 1 380,12 L 353,100 L 27,100 Z"
+                  fill="#DDEBE4"/>
+            <!-- Layer 2: Visual (warm yellow) -->
+            <path class="framework-layer framework-layer--2"
+                  d="M 27,102 L 353,102 L 326,202 L 54,202 Z"
+                  fill="#FAEECA"/>
+            <!-- Layer 3: Action (soft coral), rounded bottom corners -->
+            <path class="framework-layer framework-layer--3"
+                  d="M 54,204 L 326,204 L 312,292 A 12,12 0 0 1 300,304 L 80,304 A 12,12 0 0 1 68,292 L 54,204 Z"
+                  fill="#F9D8D8"/>
+
+            <!-- Purchase made label below the funnel tip -->
+            <g class="framework-purchase">
+              <text x="190" y="322" text-anchor="middle" data-en="Purchase made" data-ja="購入成立">Purchase made</text>
+            </g>
+          </svg>
+
+          <!-- Labels overlaid inside each layer, positioned by % of the wrap. -->
+          <div class="framework-label-overlay framework-label-overlay--1">
+            <div class="framework-label-head">
+              <span class="framework-label-dot"></span>
+              <h3 class="framework-label-title" data-en="Context Confidence" data-ja="コンテクストへの確信">Context Confidence</h3>
+            </div>
+            <p class="framework-label-desc" data-en="&ldquo;What am I shopping for?&rdquo;" data-ja="「何のために買うんだっけ？」">&ldquo;What am I shopping for?&rdquo;</p>
+          </div>
+          <div class="framework-label-overlay framework-label-overlay--2">
+            <div class="framework-label-head">
+              <span class="framework-label-dot"></span>
+              <h3 class="framework-label-title" data-en="Visual Confidence" data-ja="ビジュアルへの確信">Visual Confidence</h3>
+            </div>
+            <p class="framework-label-desc" data-en="&ldquo;How does it look together?&rdquo;" data-ja="「組み合わせたとき、どう見える？」">&ldquo;How does it look together?&rdquo;</p>
+          </div>
+          <div class="framework-label-overlay framework-label-overlay--3">
+            <div class="framework-label-head">
+              <span class="framework-label-dot"></span>
+              <h3 class="framework-label-title" data-en="Action Confidence" data-ja="行動への確信">Action Confidence</h3>
+            </div>
+            <p class="framework-label-desc" data-en="&ldquo;Am I ready to decide?&rdquo;" data-ja="「もう決めていい？」">&ldquo;Am I ready to decide?&rdquo;</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 5. The Design ============ -->
+      <section id="design">
+        <h2 class="case-h2" data-en="The Design" data-ja="デザイン">The Design</h2>
+        <p class="design-intro" data-en="Each design decision maps to one of the three confidence gaps. Context first, then visual, then action — in the order a shopper actually experiences them." data-ja="それぞれのデザイン判断は、三つの自信ギャップのどれかに対応している。コンテクスト、ビジュアル、アクション——買い物客が実際に体験する順番で並べた。">Each design decision maps to one of the three confidence gaps. Context first, then visual, then action — in the order a shopper actually experiences them.</p>
+
+        <!-- Discover Menu -->
+        <div class="design-subsection" id="design-discover-menu">
+          <span class="design-tag design-tag--context">Context Confidence</span>
+          <h3 class="design-h3" data-en="Discover Menu" data-ja="ディスカバーメニュー">Discover Menu</h3>
+          <p class="design-copy" data-en="Shift the entry point from category-first to intention-first. Before a shopper picks a product, they can declare what they're shopping for — a coordinated look, or a specific category." data-ja="入口をカテゴリ起点から、意図起点へ。商品を選ぶ前に、「何のために買い物しているのか」——コーディネートされたセットなのか、特定のカテゴリなのか——を先に宣言できるようにした。">Shift the entry point from category-first to intention-first. Before a shopper picks a product, they can declare what they're shopping for — a coordinated look, or a specific category.</p>
+
+          <div class="choose-highlight-box is-pain-point is-compact" data-pain-point>
+            <button type="button" class="pain-point-toggle" aria-expanded="false">
+              <span data-en="Pain point addressed — Decision Overload" data-ja="解決する痛点 — 判断疲れ">Pain point addressed — Decision Overload</span>
+            </button>
+            <div class="pain-point-body">
+              <div class="choose-reveal-body" data-en="Browsing by category requires too many small decisions. Discover Menu reduces cognitive load by guiding users through curated, purpose-based outfit sets—so they can start from &lsquo;what I need&rsquo; rather than &lsquo;what item to pick.&rsquo;" data-ja="カテゴリから探すと、小さな判断が積み重なっていく。ディスカバーメニューは、目的ごとに編まれたコーディネートセットで導くことで、認知負荷を下げる——「何を選ぶか」ではなく、「今、自分に必要なもの」から始められるように。">Browsing by category requires too many small decisions. Discover Menu reduces cognitive load by guiding users through curated, purpose-based outfit sets—so they can start from &lsquo;what I need&rsquo; rather than &lsquo;what item to pick.&rsquo;</div>
+            </div>
+          </div>
+
+          <div class="design-stage">
+            <div class="design-tabs" role="tablist" aria-label="Discover menu modes">
+              <button type="button" class="design-tab-btn is-active" data-design-tab="category" role="tab" aria-selected="true">カテゴリ</button>
+              <button type="button" class="design-tab-btn" data-design-tab="outfit" role="tab" aria-selected="false">コーディネートセット</button>
+            </div>
+            <div class="design-phone-frame" id="design-discover-phone">
+              <img src="/work/images/discover-menu-category.png" alt="Discover menu — category view" data-design-img="category" class="is-active">
+              <img src="/work/images/discover-menu-outfit.png" alt="Discover menu — outfit view" data-design-img="outfit">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Outfit Detail Page -->
+        <div class="design-subsection" id="design-outfit-detail">
+          <span class="design-tag design-tag--visual-terra">Visual Confidence</span>
+          <h3 class="design-h3" data-en="Outfit Detail Page" data-ja="アウトフィット詳細ページ">Outfit Detail Page</h3>
+          <p class="design-copy" data-en="Once a user enters an outfit, they need to see it as a complete look — and be able to buy it without adding items one by one." data-ja="アウトフィットを開いた瞬間、まずは「一つのまとまった見え方」として体験できること。そして、アイテムを一つずつカートに入れる必要なく、そのまま購入できること。">Once a user enters an outfit, they need to see it as a complete look — and be able to buy it without adding items one by one.</p>
+          <p class="design-copy" data-en="The Outfit Detail Page works like a standard product page, but for an entire outfit. Each item is listed with price, size, and availability. Users can include or exclude pieces. One tap adds everything to the cart." data-ja="アウトフィット詳細ページは、通常の商品ページと同じ構造で動く——ただし対象はアウトフィット全体。各アイテムは価格・サイズ・在庫とともに並び、含める／外すを自由に切り替えられる。ワンタップで、すべてがカートに入る。">The Outfit Detail Page works like a standard product page, but for an entire outfit. Each item is listed with price, size, and availability. Users can include or exclude pieces. One tap adds everything to the cart.</p>
+
+          <div class="design-scroll-stage" id="design-outfit-stage">
+            <div class="design-scroll-phone">
+              <div class="design-scroll-phone-inner" id="design-outfit-scroll">
+                <img src="/work/images/outfit-detail-full.png" alt="Outfit detail page — full scroll">
+              </div>
+              <div class="spectrum-scroll-hint" id="design-outfit-hint">
+                <span data-en="Scroll to explore" data-ja="スクロールして見てみる">Scroll to explore</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+              </div>
+            </div>
+            <div class="design-scroll-annotations" id="design-outfit-annotations">
+              <div class="design-scroll-annotation is-active" data-scroll-percent="0">
+                <span class="design-tag design-tag--visual-terra">Visual Confidence</span>
+                <p class="design-scroll-annotation-title" data-en="Complete outfit view" data-ja="アウトフィット全体を、ひと目で">Complete outfit view</p>
+                <p data-en="A dedicated detail page for a complete outfit, designed like a standard PDP. Users can understand, review, and purchase an outfit as a single decision." data-ja="アウトフィットのための専用詳細ページを、通常の商品ページと同じ骨格で設計した。理解する、吟味する、購入する——その全体を、一つの判断として行えるように。">A dedicated detail page for a complete outfit, designed like a standard PDP. Users can understand, review, and purchase an outfit as a single decision.</p>
+              </div>
+              <div class="design-scroll-annotation" data-scroll-percent="40">
+                <span class="design-tag design-tag--action">Action Confidence</span>
+                <p class="design-scroll-annotation-title" data-en="Item-level control" data-ja="アイテム単位のコントロール">Item-level control</p>
+                <p data-en="Each item in the outfit is clearly listed with price, size, and availability. Users can include or exclude pieces while keeping the outfit context intact." data-ja="アウトフィットを構成する各アイテムを、価格・サイズ・在庫とともに明示する。全体のコーディネート感を保ったまま、含める／外すを自由に選べる。">Each item in the outfit is clearly listed with price, size, and availability. Users can include or exclude pieces while keeping the outfit context intact.</p>
+              </div>
+              <div class="design-scroll-annotation" data-scroll-percent="80">
+                <span class="design-tag design-tag--action">Action Confidence</span>
+                <p class="design-scroll-annotation-title" data-en="Dedicated checkout" data-ja="専用の購入フロー">Dedicated checkout</p>
+                <p data-en="Users can add an entire outfit to the cart in one action, while still having full control to adjust individual items. Faster checkout without feeling forced." data-ja="アウトフィット全体を、ワンアクションでカートへ。その一方で、個別のアイテムを調整する自由は残されている。速く、けれど押しつけがましくない購入体験。">Users can add an entire outfit to the cart in one action, while still having full control to adjust individual items. Faster checkout without feeling forced.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="prototype-play-wrap prototype-play-wrap--phone">
+            <button type="button" class="prototype-play-btn" data-prototype-src="/work/videos/uniqlo-outfit-detail.mp4">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+              <span data-en="Play prototype" data-ja="プロトタイプを再生">Play prototype</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Outfit from Item -->
+        <div class="design-subsection" id="design-outfit-from-item">
+          <span class="design-tag design-tag--action-rose">Action Confidence</span>
+          <h3 class="design-h3" data-en="Outfit from Item" data-ja="アイテムから、アウトフィットへ">Outfit from Item</h3>
+          <p class="design-copy" data-en="Discovery doesn't only happen in the Discover Menu. From any product page, users can jump directly into a recommended outfit — seeing how a single item fits into a complete look." data-ja="発見は、ディスカバーメニューの中だけで起こるわけではない。どの商品ページからでも、おすすめのアウトフィットへそのまま飛べる——一つのアイテムが、どんなコーディネートに収まるかを見ながら。">Discovery doesn't only happen in the Discover Menu. From any product page, users can jump directly into a recommended outfit — seeing how a single item fits into a complete look.</p>
+          <p class="design-copy" data-en="We didn't pick a single entry point — we shipped two. One extends the existing 着用アイテム section so it feels native. The other gives outfits a dedicated block for users ready to see the full look. Together, they meet the two mindsets users bring to a product page." data-ja="入口を一つに絞らず、二つ届けた。一つは既存の「着用アイテム」を拡張し、もとからあったもののように馴染ませる。もう一つは、アウトフィット専用のブロックを独立させ、「全体を見たい」という気持ちに応える。商品ページを訪れるユーザーの二つの心の動きを、それぞれに受け止めるために。">We didn't pick a single entry point — we shipped two. One extends the existing 着用アイテム section so it feels native. The other gives outfits a dedicated block for users ready to see the full look. Together, they meet the two mindsets users bring to a product page.</p>
+
+          <div class="choose-highlight-box is-pain-point is-compact" data-pain-point>
+            <button type="button" class="pain-point-toggle" aria-expanded="false">
+              <span data-en="Pain point addressed — Outfit visualization" data-ja="解決する痛点 — 着こなしの想像">Pain point addressed — Outfit visualization</span>
+            </button>
+            <div class="pain-point-body">
+              <div class="choose-reveal-body" data-en="Starting from a single item often leaves users guessing how to style it. Outfit recommendations turn one product into a complete context — making decisions faster and more confident. Also potentially good for business: turns item interest into outfit consideration, naturally increasing cart size and AOV." data-ja="一つのアイテムから始めると、どう着こなすかの想像が宙に浮く。アウトフィットのおすすめは、その一点を「完成された文脈」へと引き上げ——判断を速く、そして確かなものにする。ビジネスにとっても効くはず：アイテムへの興味を、アウトフィットへの検討へと変え、カートサイズとAOVを自然に押し上げていく。">Starting from a single item often leaves users guessing how to style it. Outfit recommendations turn one product into a complete context — making decisions faster and more confident. Also potentially good for business: turns item interest into outfit consideration, naturally increasing cart size and AOV.</div>
+            </div>
+          </div>
+
+          <!-- Two entry points, both shipped -->
+          <div class="choose-section" id="entry-points-static">
+            <h4 class="case-h2 entry-choose-h4" data-en="Two entry points, both shipped" data-ja="二つの入口、どちらも採用">Two entry points, both shipped</h4>
+            <p class="choose-subtitle" data-en="Rather than picking one, we offered both — each suits a different moment as users browse a product." data-ja="どちらか一方ではなく、両方を届けた——商品を見ているユーザーの心の動きは、一つではないから。">Rather than picking one, we offered both — each suits a different moment as users browse a product.</p>
+            <hr class="choose-rule">
+            <div class="choose-row">
+              <div class="choose-card is-static">
+                <div class="choose-card-img-wrap">
+                  <img src="/work/images/entry-point-option-a.png" alt="Inside 着用アイテム mockup">
+                  <button type="button" class="choose-expand-icon" aria-label="Expand" data-fs-src="/work/images/entry-point-option-a.png" data-fs-name="Inside 着用アイテム">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                  </button>
+                </div>
+                <div class="choose-card-name" data-en="Inside 着用アイテム" data-ja="「着用アイテム」の中">Inside 着用アイテム</div>
+                <div class="choose-card-desc" data-en="Extends the familiar styling section with outfit recommendations, so the entry point feels native to a surface users already know." data-ja="見慣れた着用アイテム セクションを拡張してアウトフィット提案を加えることで、入口が「もとからそこにあったもの」のように馴染む。">Extends the familiar styling section with outfit recommendations, so the entry point feels native to a surface users already know.</div>
+              </div>
+              <div class="choose-card is-static">
+                <div class="choose-card-img-wrap">
+                  <img src="/work/images/entry-point-option-b.png" alt="Standalone outfit section mockup">
+                  <button type="button" class="choose-expand-icon" aria-label="Expand" data-fs-src="/work/images/entry-point-option-b.png" data-fs-name="Standalone section">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                  </button>
+                </div>
+                <div class="choose-card-name" data-en="Standalone section" data-ja="独立したセクション">Standalone section</div>
+                <div class="choose-card-desc" data-en="A dedicated outfit block below the product details — surfaces outfits as a first-class destination, for users ready to see the full look." data-ja="商品詳細の下に、アウトフィット専用のブロックを独立して配置——アウトフィットを一つの目的地として前に出し、「全体を見たい」ユーザーに応える。">A dedicated outfit block below the product details — surfaces outfits as a first-class destination, for users ready to see the full look.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="prototype-play-wrap">
+            <button type="button" class="prototype-play-btn" data-prototype-src="/work/videos/uniqlo-outfit-from-item.mp4">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+              <span data-en="Play prototype" data-ja="プロトタイプを再生">Play prototype</span>
+            </button>
+          </div>
+
+          
+        </div>
+      </section>
+
+      <style>
+        .design-tag--action-rose { color: #C47070; }
+        /* Entry-point option cards — fill the frame like a real phone
+           (aspect-matched, cover-cropped) rather than letterboxing. */
+        #entry-points-static .choose-row .choose-card-img-wrap {
+          aspect-ratio: 9 / 19.5;
+          width: 100%;
+          max-width: 280px;
+          margin: 0 auto;
+          overflow: hidden;
+          border-radius: 16px;
+        }
+        #entry-points-static .choose-row .choose-card .choose-card-img-wrap img {
+          width: 100%;
+          height: 100%;
+          max-height: none;
+          object-fit: cover;
+          padding: 0;
+          border-radius: 16px;
+        }
+        .entry-choose-h4 {
+          font-size: 1.4rem !important;
+          font-weight: 600 !important;
+          line-height: 1.3 !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          border: 0 !important;
+        }
+      </style>
+
+      <script>
+        (function() {
+          var ENTRY_POINTS = [
+            {
+              id: 'inside-styling',
+              name: 'Inside 着用アイテム',
+              nameJa: '「着用アイテム」の中',
+              image: '/work/images/entry-point-option-a.png',
+              description: 'Extends the existing styling section with outfit recommendations',
+              descriptionJa: '既存の着用アイテム セクションを拡張し、アウトフィット提案を加える',
+              wasChosen: true,
+              considered: 'Builds naturally on a pattern users already know — the existing styling section.',
+              consideredJa: 'ユーザーがすでに知っているパターン——既存の着用アイテム セクション——の上に、自然に積み重ねられる。',
+              decision: 'By extending 着用アイテム rather than creating a new section, the entry point feels native. Users don\u2019t need to learn anything new. Outfit recommendations grow from items they\u2019re already viewing — turning single-item interest into outfit-level consideration.',
+              decisionJa: '新しいセクションを作るのではなく、着用アイテムを延長することで、入口が「もとからそこにあったもの」のように馴染む。ユーザーは何も新しく学ばなくていい。いま見ているアイテムから、アウトフィットの提案が自然に立ち上がる——単品への興味が、コーディネート単位の検討へと変わっていく。'
+            },
+            {
+              id: 'standalone',
+              name: 'Standalone section',
+              nameJa: '独立したセクション',
+              image: '/work/images/entry-point-option-b.png',
+              description: 'A dedicated outfit section below the product details',
+              descriptionJa: '商品詳細の下に、アウトフィット専用のセクションを独立して配置する',
+              wasChosen: false,
+              considered: 'Gives outfits their own dedicated space on the product page — more visible, more prominent.',
+              consideredJa: '商品ページの中で、アウトフィットに専用のスペースを与える——より目立ち、より存在感がある。',
+              decision: 'More visible, but adds a new concept to a page that\u2019s already content-heavy. The risk of cognitive overload outweighed the benefit of prominence.',
+              decisionJa: '確かに目立つ。けれど、すでに情報量の多いページに、新しい概念がもう一つ増えることになる。目立つことのメリットより、認知負荷のリスクのほうが大きいと判断した。'
+            }
+          ];
+
+          var row = document.getElementById('entry-choose-row');
+          var reveal = document.getElementById('entry-choose-reveal');
+          if (!row || !reveal) return;
+
+          var selectedId = null;
+          var isFirstReveal = true;
+          var currentLang = (document.documentElement.getAttribute('lang') === 'ja') ? 'ja' : 'en';
+
+          var expandSvg = '<svg class="choose-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>';
+
+          function t(item, field) {
+            var jaKey = field + 'Ja';
+            if (currentLang === 'ja' && item[jaKey]) return item[jaKey];
+            return item[field];
+          }
+
+          function renderCards() {
+            row.innerHTML = '';
+            ENTRY_POINTS.forEach(function(opt) {
+              var card = document.createElement('div');
+              card.className = 'choose-card';
+              card.setAttribute('data-solution', opt.id);
+              card.innerHTML =
+                '<div class="choose-card-img-wrap">' +
+                  '<img src="' + opt.image + '" alt="' + opt.name + ' mockup">' +
+                  expandSvg +
+                '</div>' +
+                '<div class="choose-card-name">' + t(opt, 'name') + '</div>' +
+                '<div class="choose-card-desc">' + t(opt, 'description') + '</div>';
+              card.addEventListener('click', function(e) {
+                if (e.target.closest('.choose-expand-icon')) return;
+                selectCard(opt.id);
+              });
+              card.querySelector('.choose-expand-icon').addEventListener('click', function(e) {
+                e.stopPropagation();
+                var srcImg = card.querySelector('.choose-card-img-wrap img');
+                openFullscreen(opt.image, opt.name, srcImg);
+              });
+              row.appendChild(card);
+            });
+          }
+
+          renderCards();
+
+          // Re-render on language change
+          document.addEventListener('click', function(e) {
+            if (e.target.closest('.lang-toggle, [data-lang-toggle]')) {
+              setTimeout(function() {
+                currentLang = (document.documentElement.getAttribute('lang') === 'ja') ? 'ja' : 'en';
+                renderCards();
+                if (selectedId) {
+                  var picked = getOption(selectedId);
+                  updateCards(selectedId);
+                  reveal.innerHTML = buildRevealHTML(picked);
+                }
+              }, 50);
+            }
+          });
+
+          function openFullscreen(src, name, sourceImg) {
+            function sourceContentRect() {
+              if (!sourceImg) return null;
+              var box = sourceImg.getBoundingClientRect();
+              var nw = sourceImg.naturalWidth || box.width;
+              var nh = sourceImg.naturalHeight || box.height;
+              if (!box.width || !box.height) return null;
+              var boxRatio = box.width / box.height;
+              var imgRatio = nw / nh;
+              var w, h;
+              if (imgRatio > boxRatio) { w = box.width; h = box.width / imgRatio; }
+              else { h = box.height; w = box.height * imgRatio; }
+              return { left: box.left + (box.width - w) / 2, top: box.top + (box.height - h) / 2, width: w, height: h };
+            }
+            var startRect = sourceContentRect();
+            var overlay = document.createElement('div');
+            overlay.className = 'choose-fs-overlay';
+            overlay.innerHTML =
+              '<div class="choose-fs-content">' +
+                '<img class="choose-fs-img" src="' + src + '" alt="' + name + '">' +
+              '</div>' +
+              '<button class="choose-fs-close" aria-label="Close">&times;</button>';
+            document.body.appendChild(overlay);
+            document.body.style.overflow = 'hidden';
+            requestAnimationFrame(function() { overlay.classList.add('is-visible'); });
+            function close() {
+              overlay.classList.remove('is-visible');
+              setTimeout(function() {
+                if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                document.body.style.overflow = '';
+              }, 250);
+            }
+            overlay.addEventListener('click', function(e) {
+              if (e.target === overlay || e.target.classList.contains('choose-fs-close')) close();
+            });
+            document.addEventListener('keydown', function handler(e) {
+              if (e.key === 'Escape') { close(); document.removeEventListener('keydown', handler); }
+            });
+          }
+
+          function getOption(id) {
+            for (var i = 0; i < ENTRY_POINTS.length; i++) {
+              if (ENTRY_POINTS[i].id === id) return ENTRY_POINTS[i];
+            }
+            return null;
+          }
+
+          function buildRevealHTML(picked) {
+            var chosen = getOption('inside-styling');
+            var labels = currentLang === 'ja'
+              ? { same: '私たちと同じ選択。', interesting: '面白い選択。私たちは', considered: '検討したこと', chose: 'それを選んだ理由', notChose: 'を選ばなかった理由', went: 'を選びました。' }
+              : { same: 'Same as us.', interesting: 'Interesting choice. We went with ', considered: 'Considered', chose: 'Why we chose it', notChose: 'Why we didn\u2019t pick ', went: '.' };
+
+            var html = '<div class="choose-reveal-content">';
+            if (picked.wasChosen) {
+              html += '<div class="choose-reveal-header">' + labels.same + '</div>';
+              html += '<div class="choose-reveal-block">' +
+                '<div class="choose-reveal-label">' + labels.considered + '</div>' +
+                '<div class="choose-reveal-body">' + t(picked, 'considered') + '</div>' +
+                '</div>';
+              html += '<div class="choose-highlight-box">' +
+                '<div class="choose-reveal-label">' + labels.chose + '</div>' +
+                '<div class="choose-reveal-body">' + t(picked, 'decision') + '</div>' +
+                '</div>';
+            } else {
+              if (currentLang === 'ja') {
+                html += '<div class="choose-reveal-header">面白い選択。私たちは <span class="ri-highlight">' + t(chosen, 'name') + '</span> を選びました。</div>';
+              } else {
+                html += '<div class="choose-reveal-header">Interesting choice. We went with <span class="ri-highlight">' + t(chosen, 'name') + '</span>.</div>';
+              }
+              html += '<div class="choose-highlight-box is-muted">' +
+                '<div class="choose-reveal-label">' + labels.notChose + t(picked, 'name') + '</div>' +
+                '<div class="choose-reveal-body">' + t(picked, 'decision') + '</div>' +
+                '</div>';
+            }
+            html += '</div>';
+            return html;
+          }
+
+          function updateCards(id) {
+            row.querySelectorAll('.choose-card').forEach(function(c) {
+              var cid = c.getAttribute('data-solution');
+              c.classList.toggle('is-selected', cid === id);
+              c.classList.toggle('is-dimmed', cid !== id);
+            });
+          }
+
+          var revealTimer = null;
+          function animateRevealHeightTo(targetPx, onDone) {
+            clearTimeout(revealTimer);
+            revealTimer = setTimeout(function() {
+              if (typeof onDone === 'function') onDone();
+            }, 320);
+          }
+
+          function deselectAll() {
+            selectedId = null;
+            isFirstReveal = true;
+            row.querySelectorAll('.choose-card').forEach(function(c) {
+              c.classList.remove('is-selected');
+              c.classList.remove('is-dimmed');
+            });
+            var currentH = reveal.offsetHeight;
+            reveal.style.height = currentH + 'px';
+            void reveal.offsetHeight;
+            reveal.classList.remove('is-visible');
+            reveal.style.height = '0px';
+            animateRevealHeightTo(0, function() {
+              reveal.classList.add('is-initial');
+            });
+          }
+
+          function selectCard(id) {
+            if (id === selectedId) { deselectAll(); return; }
+            var picked = getOption(id);
+            updateCards(id);
+
+            if (isFirstReveal) {
+              isFirstReveal = false;
+              selectedId = id;
+              reveal.classList.remove('is-initial');
+              reveal.innerHTML = buildRevealHTML(picked);
+              reveal.style.height = '0px';
+              void reveal.offsetHeight;
+              var targetH = reveal.scrollHeight;
+              reveal.classList.add('is-visible');
+              reveal.style.height = targetH + 'px';
+              animateRevealHeightTo(targetH, function() {
+                if (reveal.classList.contains('is-visible')) reveal.style.height = 'auto';
+              });
+            } else {
+              selectedId = id;
+              var oldH = reveal.offsetHeight;
+              reveal.style.height = oldH + 'px';
+              reveal.classList.add('is-swapping');
+              setTimeout(function() {
+                reveal.innerHTML = buildRevealHTML(picked);
+                reveal.style.height = 'auto';
+                var newH = reveal.scrollHeight;
+                reveal.style.height = oldH + 'px';
+                void reveal.offsetHeight;
+                reveal.classList.remove('is-swapping');
+                reveal.style.height = newH + 'px';
+                animateRevealHeightTo(newH, function() {
+                  if (reveal.classList.contains('is-visible')) reveal.style.height = 'auto';
+                });
+              }, 150);
+            }
+          }
+        })();
+
+        // Compact pain-point collapsibles — toggle aria-expanded and the
+        // .is-open class on the sibling body. Height animates via CSS
+        // grid-template-rows (0fr → 1fr) for a smooth reveal.
+        document.querySelectorAll('[data-pain-point]').forEach(function (box) {
+          var btn = box.querySelector('.pain-point-toggle');
+          var body = box.querySelector('.pain-point-body');
+          if (!btn || !body) return;
+          btn.addEventListener('click', function () {
+            var open = btn.getAttribute('aria-expanded') === 'true';
+            btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+            body.classList.toggle('is-open', !open);
+          });
+        });
+      </script>
+
+      <script>
+        (function() {
+          var tabs = document.querySelectorAll('#design-discover-menu .design-tab-btn');
+          var imgs = document.querySelectorAll('#design-discover-phone img');
+          tabs.forEach(function(tab) {
+            tab.addEventListener('click', function() {
+              var key = tab.getAttribute('data-design-tab');
+              tabs.forEach(function(t) {
+                var active = t === tab;
+                t.classList.toggle('is-active', active);
+                t.setAttribute('aria-selected', active ? 'true' : 'false');
+              });
+              imgs.forEach(function(img) {
+                img.classList.toggle('is-active', img.getAttribute('data-design-img') === key);
+              });
+            });
+          });
+        })();
+
+        // Outfit Detail — scroll happens only inside the phone frame (native
+        // overflow scroll, same as tiket.com discover). Annotations swap based
+        // on inner scrollTop. Hint fades out once the user has scrolled a bit.
+        (function() {
+          var scroller = document.getElementById('design-outfit-scroll');
+          var annWrap = document.getElementById('design-outfit-annotations');
+          var hint = document.getElementById('design-outfit-hint');
+          if (!scroller || !annWrap) return;
+
+          var anns = Array.prototype.slice.call(annWrap.querySelectorAll('.design-scroll-annotation'));
+          var points = anns.map(function(el) {
+            return { el: el, pct: parseFloat(el.getAttribute('data-scroll-percent')) || 0 };
+          }).sort(function(a, b) { return a.pct - b.pct; });
+
+          function syncAnnotations() {
+            var max = scroller.scrollHeight - scroller.clientHeight;
+            var pct = max > 0 ? (scroller.scrollTop / max) * 100 : 0;
+            var active = points[0];
+            for (var i = 0; i < points.length; i++) {
+              if (pct >= points[i].pct) active = points[i];
+            }
+            anns.forEach(function(el) {
+              el.classList.toggle('is-active', el === active.el);
+            });
+          }
+
+          // Track whether the user has ever scrolled. The initial paint
+          // should always show the hint (as long as the frame is scrollable)
+          // — we only hide it once a real user scroll fires.
+          var userScrolled = false;
+          function updateHint() {
+            if (!hint) return;
+            var isScrollable = scroller.scrollHeight > scroller.clientHeight + 1;
+            var hasScrolled = userScrolled && scroller.scrollTop > 10;
+            hint.classList.toggle('is-hidden', !isScrollable || hasScrolled);
+          }
+
+          var ticking = false;
+          scroller.addEventListener('scroll', function() {
+            // Any scroll event past position 0 is treated as user intent;
+            // programmatic scrollTop=0 resets won't trip this because we
+            // gate on scrollTop > 10 below.
+            if (scroller.scrollTop > 10) userScrolled = true;
+            if (!ticking) {
+              ticking = true;
+              requestAnimationFrame(function() {
+                ticking = false;
+                syncAnnotations();
+                updateHint();
+              });
+            }
+          }, { passive: true });
+
+          // If the browser has a restored scroll position, jump without the
+          // CSS smooth transition so the first paint lands at top cleanly.
+          var prevScrollBehavior = scroller.style.scrollBehavior;
+          scroller.style.scrollBehavior = 'auto';
+          scroller.scrollTop = 0;
+          requestAnimationFrame(function() {
+            scroller.style.scrollBehavior = prevScrollBehavior;
+          });
+
+          // Keep the hint state in sync whenever layout changes (image loads,
+          // fonts settle, viewport resizes) without relying on scroll events.
+          if (typeof ResizeObserver !== 'undefined') {
+            var ro = new ResizeObserver(function() { updateHint(); });
+            ro.observe(scroller);
+          }
+
+          function repaint() {
+            syncAnnotations();
+            updateHint();
+          }
+
+          // Browsers restore the scroll position of overflow:scroll elements
+          // across refreshes. If the user was partway down, the hint's
+          // "hasScrolled" check would hide itself on first paint — the exact
+          // bug users hit: hint invisible until they scroll inside and back
+          // to the top. Reset to top on init so the hint is visible first.
+          scroller.scrollTop = 0;
+
+          // Initial paint is fragile: on first visit, scrollHeight may equal
+          // clientHeight until the inner image has both loaded AND laid out,
+          // which can lag past DOMContentLoaded. Re-run at every reliable
+          // milestone so the hint appears as soon as the frame becomes
+          // scrollable.
+          repaint();
+          requestAnimationFrame(function() {
+            scroller.scrollTop = 0;
+            repaint();
+          });
+
+          var innerImg = scroller.querySelector('img');
+          if (innerImg) {
+            if (innerImg.complete && innerImg.naturalHeight) {
+              requestAnimationFrame(function() {
+                scroller.scrollTop = 0;
+                repaint();
+              });
+            } else {
+              innerImg.addEventListener('load', function() {
+                scroller.scrollTop = 0;
+                repaint();
+              }, { once: true });
+              innerImg.addEventListener('error', function() {
+                if (hint) hint.classList.add('is-hidden');
+              }, { once: true });
+            }
+          }
+          window.addEventListener('load', function() {
+            scroller.scrollTop = 0;
+            repaint();
+          });
+          if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(function() {
+              scroller.scrollTop = 0;
+              repaint();
+            });
+          }
+        })();
+      </script>
+
+
+
+      <!-- ============ 8. Closing ============ -->
+      <section id="closing">
+        <h2 class="case-h2" data-en="Closing" data-ja="おわりに">Closing</h2>
+        <p data-en="I enjoyed this more than I expected. The app is mature — which makes finding the right opportunity harder, and more interesting." data-ja="思っていたよりも、ずっと楽しかった。アプリが成熟しているということは、正しい機会を見つけるのが難しい——そして、だからこそ面白い。">I enjoyed this more than I expected. The app is mature — which makes finding the right opportunity harder, and more interesting.</p>
+        <p data-en="There's something compelling about working within strong constraints. Uniqlo's design language is disciplined. The challenge isn't to reinvent it — it's to extend it in a direction it hasn't gone yet." data-ja="強い制約の中で働くことには、何か惹かれるものがある。ユニクロのデザイン言語は、規律正しい。挑戦は、それを作り変えることではない——まだ向いていない方向へ、そっと伸ばしていくこと。">There's something compelling about working within strong constraints. Uniqlo's design language is disciplined. The challenge isn't to reinvent it — it's to extend it in a direction it hasn't gone yet.</p>
+        <p data-en="This is how I think about design — start with a real observation, build a framework, then design to it. Not the other way around." data-ja="これが、私のデザインの考え方——まず本物の観察から始めて、フレームワークを組み立てて、それに向かって設計する。その逆ではなく。">This is how I think about design — start with a real observation, build a framework, then design to it. Not the other way around.</p>
+      </section>
+
+      <footer class="case-footer">
+        <a href="/" class="m-link" data-en="← Back to home" data-ja="← トップに戻る">← Back to home</a>
+      </footer>
+
+    </article>
+
+  </div>
+
+  <script src="/js/case.js?v=8"></script>
+
+  <script>
+  // Password protection — same SHA-256 hash as SmartNews FTUX for now.
+  // Swap HASH for a different password by computing a new sha256 hex digest.
+  (function() {
+    var HASH = '2a917d6683f3d37aedf1324e823f40191342271096a1291d9e4f88b90ea527d9';
+    var wall = document.getElementById('pw-wall');
+    var page = document.getElementById('case-page');
+    var form = document.getElementById('pw-form');
+    var input = document.getElementById('pw-input');
+    var error = document.getElementById('pw-error');
+
+    async function sha256(str) {
+      var buf = await crypto.subtle.digest('SHA-256',
+        new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf))
+        .map(function(b) { return b.toString(16).padStart(2, '0'); })
+        .join('');
+    }
+
+    function unlock() {
+      wall.classList.add('is-unlocked');
+      page.style.cssText = '';
+      page.classList.add('is-visible');
+    }
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var hash = await sha256(input.value);
+      if (hash === HASH) {
+        unlock();
+        input.classList.remove('is-error');
+        error.textContent = '';
+      } else {
+        input.classList.add('is-error');
+        error.textContent = 'Incorrect password';
+        input.value = '';
+        input.focus();
+      }
+    });
+
+    input.addEventListener('input', function() {
+      input.classList.remove('is-error');
+      error.textContent = '';
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (!page.classList.contains('is-visible')) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'u') e.preventDefault();
+      }
+    });
+
+    document.addEventListener('contextmenu', function(e) {
+      if (!page.classList.contains('is-visible')) e.preventDefault();
+    });
+  })();
+  </script>
+
+
+  <script>
+  // Framework funnel — start/pause the pulse loop based on viewport visibility.
+  // Idle state (out of view): all layers at equal 0.75 opacity, no motion.
+  // In view (≥30%): loop runs. Leaves view: pauses, resets to idle.
+  (function() {
+    var wrap = document.querySelector('.framework-funnel-wrap');
+    if (!wrap || !('IntersectionObserver' in window)) return;
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.3) {
+          wrap.classList.add('is-active');
+        } else {
+          wrap.classList.remove('is-active');
+        }
+      });
+    }, { threshold: [0, 0.3, 0.6, 1] });
+    io.observe(wrap);
+  })();
+
+  // Framework funnel — hover tooltip. One reused element, positioned near
+  // the cursor in real time; flips edges to stay inside the viewport.
+  (function() {
+    var layers = document.querySelectorAll('.framework-layer');
+    if (!layers.length) return;
+
+    var TIPS = {
+      'framework-layer--1': {
+        en: "Knowing what you're shopping for \u2014 work, weekend, season, or occasion \u2014 gives you clarity before you browse a single item.",
+        ja: "\u4f55\u306e\u305f\u3081\u306b\u8cb7\u3046\u306e\u304b\u2014\u2014\u4ed5\u4e8b\u3001\u9031\u672b\u3001\u5b63\u7bc0\u3001\u30b7\u30fc\u30f3\u2014\u2014\u305d\u308c\u304c\u81ea\u5206\u306e\u4e2d\u3067\u8a00\u8a9e\u5316\u3067\u304d\u3066\u3044\u308b\u3068\u3001\u4e00\u7740\u3092\u898b\u308b\u524d\u304b\u3089\u8cb7\u3044\u7269\u304c\u30af\u30ea\u30a2\u306b\u306a\u308a\u307e\u3059\u3002"
+      },
+      'framework-layer--2': {
+        en: "Seeing how pieces work together as a complete outfit, not as separate products, reduces uncertainty about styling and fit.",
+        ja: "\u5225\u3005\u306e\u5546\u54c1\u3068\u3057\u3066\u3067\u306f\u306a\u304f\u3001\u300c\u4e00\u5f0f\u306e\u30a2\u30a6\u30c8\u30d5\u30a3\u30c3\u30c8\u300d\u3068\u3057\u3066\u7d44\u307f\u5408\u308f\u305b\u304c\u898b\u3048\u308b\u3053\u3068\u3002\u305d\u3053\u3067\u7740\u3053\u306a\u3057\u3084\u30b5\u30a4\u30ba\u611f\u3078\u306e\u8ff7\u3044\u304c\u307b\u3069\u3051\u3066\u3044\u304d\u307e\u3059\u3002"
+      },
+      'framework-layer--3': {
+        en: "Feeling ready to decide \u2014 because the choice is clear, flexible, and low friction enough to feel safe.",
+        ja: "\u300c\u8cb7\u3046\u300d\u3068\u6c7a\u3081\u3089\u308c\u308b\u611f\u899a\u2014\u2014\u9078\u629e\u80a2\u304c\u660e\u78ba\u3067\u3001\u67d4\u8edf\u3067\u3001\u6469\u64e6\u304c\u5341\u5206\u306b\u5c11\u306a\u304f\u3001\u5b89\u5fc3\u3067\u304d\u308b\u72b6\u614b\u306b\u306a\u3063\u3066\u3044\u308b\u3068\u3044\u3046\u3053\u3068\u3002"
+      }
+    };
+
+    var tip = document.createElement('div');
+    tip.className = 'framework-tooltip';
+    tip.setAttribute('role', 'tooltip');
+    document.body.appendChild(tip);
+
+    var OFFSET_X = 16;
+    var OFFSET_Y = 12;
+    var EDGE_PAD = 8;
+
+    function getLang() {
+      return document.documentElement.getAttribute('data-lang') || 'en';
+    }
+    function layerKey(el) {
+      for (var k in TIPS) {
+        if (el.classList.contains(k)) return k;
+      }
+      return null;
+    }
+    function position(e) {
+      var rect = tip.getBoundingClientRect();
+      var w = rect.width, h = rect.height;
+      var x = e.clientX + OFFSET_X;
+      var y = e.clientY + OFFSET_Y;
+      // Flip to left of cursor if overflowing right edge
+      if (x + w > window.innerWidth - EDGE_PAD) {
+        x = e.clientX - w - OFFSET_X;
+      }
+      // Flip above cursor if overflowing bottom edge
+      if (y + h > window.innerHeight - EDGE_PAD) {
+        y = e.clientY - h - OFFSET_Y;
+      }
+      // Clamp to at least EDGE_PAD from left/top so it never goes off-screen
+      if (x < EDGE_PAD) x = EDGE_PAD;
+      if (y < EDGE_PAD) y = EDGE_PAD;
+      tip.style.left = x + 'px';
+      tip.style.top = y + 'px';
+    }
+
+    layers.forEach(function(layer) {
+      layer.addEventListener('mouseenter', function(e) {
+        var key = layerKey(layer);
+        if (!key) return;
+        tip.textContent = TIPS[key][getLang()] || TIPS[key].en;
+        tip.classList.add('is-visible');
+        position(e);
+      });
+      layer.addEventListener('mousemove', position);
+      layer.addEventListener('mouseleave', function() {
+        tip.classList.remove('is-visible');
+      });
+    });
+  })();
+  </script>
+
+  <script>
+  // Mobile hamburger menu
+  (function() {
+    var hamburger = document.getElementById('case-hamburger');
+    var menu = document.getElementById('case-mobile-menu');
+    if (!hamburger || !menu) return;
+    hamburger.addEventListener('click', function() {
+      hamburger.classList.toggle('is-open');
+      menu.classList.toggle('is-open');
+    });
+    menu.querySelectorAll('a').forEach(function(link) {
+      link.addEventListener('click', function() {
+        hamburger.classList.remove('is-open');
+        menu.classList.remove('is-open');
+      });
+    });
+  })();
+  </script>
+
+  <!-- Static entry-point cards — fullscreen expand on click -->
+  <script>
+  (function () {
+    document.querySelectorAll('#entry-points-static .choose-expand-icon').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var src = btn.getAttribute('data-fs-src');
+        var name = btn.getAttribute('data-fs-name') || '';
+        if (!src) return;
+        var overlay = document.createElement('div');
+        overlay.className = 'choose-fs-overlay';
+        overlay.innerHTML =
+          '<div class="choose-fs-content">' +
+            '<img class="choose-fs-img" src="' + src + '" alt="' + name + '">' +
+          '</div>' +
+          '<button class="choose-fs-close" aria-label="Close">&times;</button>';
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+        requestAnimationFrame(function () { overlay.classList.add('is-visible'); });
+        function close() {
+          overlay.classList.remove('is-visible');
+          setTimeout(function () {
+            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            document.body.style.overflow = '';
+          }, 250);
+        }
+        overlay.addEventListener('click', function (ev) {
+          if (ev.target === overlay || ev.target.classList.contains('choose-fs-close')) close();
+        });
+        document.addEventListener('keydown', function handler(ev) {
+          if (ev.key === 'Escape') { close(); document.removeEventListener('keydown', handler); }
+        });
+      });
+    });
+  })();
+  </script>
+
+  <!-- Shared prototype video modal -->
+  <div class="prototype-modal" id="prototype-modal" role="dialog" aria-modal="true" aria-label="Prototype video">
+    <div class="prototype-modal-inner">
+      <button type="button" class="prototype-modal-close" id="prototype-modal-close" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+      <video id="prototype-modal-video" controls playsinline preload="metadata"></video>
+    </div>
+  </div>
+  <script>
+  (function () {
+    var modal = document.getElementById('prototype-modal');
+    var video = document.getElementById('prototype-modal-video');
+    var closeBtn = document.getElementById('prototype-modal-close');
+    if (!modal || !video) return;
+
+    function open(src) {
+      video.src = src;
+      modal.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+      // Defer play until the browser has the src
+      setTimeout(function () { video.play().catch(function () {}); }, 50);
+    }
+    function close() {
+      modal.classList.remove('is-open');
+      document.body.style.overflow = '';
+      try { video.pause(); } catch (e) {}
+      video.removeAttribute('src');
+      video.load();
+    }
+
+    document.querySelectorAll('.prototype-play-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var src = btn.getAttribute('data-prototype-src');
+        if (src) open(src);
+      });
+    });
+    closeBtn.addEventListener('click', close);
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) close();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.classList.contains('is-open')) close();
+    });
+  })();
+  </script>
+
+</body>
+</html>
