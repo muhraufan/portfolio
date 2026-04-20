@@ -485,14 +485,26 @@
       var maxH = Math.max(it.enH, it.jaH);
       if (maxH > 0) it.el.style.minHeight = maxH + 'px';
 
-      var isSingleLine = it.el.matches('.case-back, .case-mobile-back, .pw-back, [data-en]:not(p):not(h1):not(h2):not(.m-bio)');
+      // Allowlist: only short nav / label elements get nowrap + min-width
+      // treatment. Everything else (paragraphs, card bodies, titles, etc.)
+      // should wrap naturally — a blocklist here was fragile and caused
+      // body copy inside <div data-en> to get clamped to a single line.
+      var isSingleLine = it.el.matches(
+        '.case-back, .case-mobile-back, .pw-back, ' +
+        '.case-cta, .case-nav-link, ' +
+        '.m-lang-toggle, .lang-toggle, .case-lang-toggle, ' +
+        '.m-badge-soon, .m-badge-ai, ' +
+        '.design-tab-btn, .pain-card-vote, .success-chip'
+      );
       if (isSingleLine) {
         var maxW = Math.max(it.enW, it.jaW);
         if (maxW > 0) it.el.style.minWidth = maxW + 'px';
         it.el.style.whiteSpace = 'nowrap';
+        // Only clip overflow when we've forced single-line — multi-line
+        // elements should be able to grow naturally if the measured
+        // min-height underestimates (font swap, responsive width).
+        it.el.style.overflow = 'hidden';
       }
-
-      it.el.style.overflow = 'hidden';
     });
 
     document.querySelectorAll('.m-lang-toggle, .lang-toggle').forEach(function(btn) {
@@ -547,4 +559,51 @@
       });
     });
   });
+})();
+
+// ---- Read-progress bar ----
+// A 2px horizontal bar at the top of the viewport that fills as the
+// visitor scrolls through a case study. Converts a 3,000-line page from
+// "how much more?" anxiety into visible forward motion. We measure
+// progress against <article.case-content> rather than the whole
+// document so the footer and padding don't count toward "read."
+(function () {
+  var article = document.querySelector('.case-content');
+  if (!article) return;
+
+  var bar = document.createElement('div');
+  bar.className = 'case-progress-bar';
+  bar.setAttribute('aria-hidden', 'true');
+  var fill = document.createElement('div');
+  fill.className = 'case-progress-bar-fill';
+  bar.appendChild(fill);
+  document.body.appendChild(bar);
+
+  var ticking = false;
+
+  function update() {
+    ticking = false;
+    var rect = article.getBoundingClientRect();
+    var winH = window.innerHeight;
+    // Start at 0 when the article top is at the viewport top, reach 1
+    // when the article bottom meets the viewport bottom. Clamp.
+    var total = rect.height - winH;
+    if (total <= 0) {
+      fill.style.transform = 'scaleX(0)';
+      return;
+    }
+    var scrolled = -rect.top;
+    var progress = Math.max(0, Math.min(1, scrolled / total));
+    fill.style.transform = 'scaleX(' + progress.toFixed(4) + ')';
+  }
+
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  update();
 })();

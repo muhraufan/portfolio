@@ -2,6 +2,36 @@
    CASE STUDY — Minimal
    ========================== */
 
+/* ---- Read-progress bar ----
+   2px fixed strip at the top of the viewport. The fill scales on X from
+   0 to 1 as the visitor scrolls through the article, so a long case
+   study reads as visible forward motion instead of an open-ended scroll.
+   transform-origin: left so it "grows from the start" rather than
+   centering — that directionality reinforces progress.
+   Currently hidden — the sidebar's reading-time + active-section
+   indicator already covers orientation. Keeping the JS + styles so we
+   can re-enable by removing `display: none`. */
+.case-progress-bar {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: transparent;
+  z-index: 100;
+  pointer-events: none;
+}
+.case-progress-bar-fill {
+  height: 100%;
+  width: 100%;
+  background: var(--text);
+  opacity: 0.85;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.12s linear;
+}
+
 .case-page {
   max-width: 640px;
   margin: 0 auto;
@@ -63,6 +93,20 @@
 .case-sidebar .case-nav-link.is-blurred,
 .case-sidebar .case-cta.is-blurred {
   filter: blur(4px);
+}
+
+/* Reading-time meta — sits between the back link and the section nav.
+   Gives the visitor an up-front sense of scope before committing to a
+   long-form scroll. Muted and small so it reads as metadata, not a
+   competing control. */
+.case-read-time {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin: 20px 0 24px;
 }
 
 .case-back {
@@ -2210,6 +2254,18 @@
   width: 100%;
   display: block;
   margin: 24px 0;
+  /* Subtle 1px inset outline so photo edges don't mush into the page.
+     Pure black in light, pure white in dark — tinted neutrals pick up
+     the surface color and read as dirt on the image edge. */
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+[data-theme="dark"] .case-img {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .case-img {
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
 }
 
 .case-img-click {

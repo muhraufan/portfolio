@@ -296,17 +296,25 @@ function reserveLangSpace() {
     const maxH = Math.max(it.enH, it.jaH);
     if (maxH > 0) it.el.style.minHeight = maxH + 'px';
 
+    // Allowlist: only short nav / label elements get nowrap + min-width
+    // treatment. Everything else (paragraphs, card bodies, titles, etc.)
+    // should wrap naturally — a blocklist here was fragile and caused
+    // body copy inside <div data-en> to get clamped to a single line.
     const isSingleLine = it.el.matches(
-      '.m-badge-soon, .case-back, .case-mobile-back, .article-back, .back-link, ' +
-      '[data-en]:not(.m-bio):not(.m-name):not(p):not(h1):not(.choose-reveal-body):not(.choose-reveal-label)'
+      '.m-badge-soon, .m-badge-ai, ' +
+      '.case-back, .case-mobile-back, .article-back, .back-link, ' +
+      '.case-cta, .case-nav-link, ' +
+      '.m-lang-toggle, .lang-toggle, .case-lang-toggle'
     );
     if (isSingleLine) {
       const maxW = Math.max(it.enW, it.jaW);
       if (maxW > 0) it.el.style.minWidth = maxW + 'px';
       it.el.style.whiteSpace = 'nowrap';
+      // Only clip overflow when we've forced single-line — multi-line
+      // elements should be able to grow naturally if the measured
+      // min-height underestimates (font swap, responsive width).
+      it.el.style.overflow = 'hidden';
     }
-
-    it.el.style.overflow = 'hidden';
   });
 
   // Reserve space for lang toggle buttons
