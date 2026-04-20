@@ -12,8 +12,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=7">
-  <link rel="stylesheet" href="/css/case.css?v=148">
+  <link rel="stylesheet" href="/css/style.css?v=10">
+  <link rel="stylesheet" href="/css/case.css?v=149">
   <style>
     /* Password Wall */
     .pw-wall {
@@ -89,10 +89,13 @@
       font-weight: 500;
       letter-spacing: 1px;
       cursor: pointer;
-      transition: opacity 0.2s;
+      transition: opacity 0.2s, transform 140ms ease-out;
     }
     .pw-submit:hover {
       opacity: 0.85;
+    }
+    .pw-submit:active {
+      transform: scale(0.96);
     }
     .pw-email {
       color: var(--text);

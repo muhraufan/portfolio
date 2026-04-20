@@ -11,8 +11,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=9">
-  <link rel="stylesheet" href="/css/case.css?v=148">
+  <link rel="stylesheet" href="/css/style.css?v=10">
+  <link rel="stylesheet" href="/css/case.css?v=149">
   <style>
     /* Password Wall — same treatment as SmartNews FTUX */
     .pw-wall {
@@ -88,10 +88,13 @@
       font-weight: 500;
       letter-spacing: 1px;
       cursor: pointer;
-      transition: opacity 0.2s;
+      transition: opacity 0.2s, transform 140ms ease-out;
     }
     .pw-submit:hover {
       opacity: 0.85;
+    }
+    .pw-submit:active {
+      transform: scale(0.96);
     }
     .pw-email {
       color: var(--text);
@@ -139,6 +142,17 @@
       width: 100%;
       height: auto;
       border-radius: 20px;
+      /* Subtle inset outline so the phone mockup has a defined edge against
+         any background — pure black in light, pure white in dark. */
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+    [data-theme="dark"] .case-phone-figure img {
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .case-phone-figure img {
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+      }
     }
     .case-phone-caption {
       margin-top: 12px;
@@ -219,7 +233,7 @@
       background: #f7f7f7;
       border-top: 1px solid rgba(0, 0, 0, 0.05);
       transform: translateY(100%);
-      transition: transform 200ms ease-in;
+      transition: transform 200ms ease-out;
       text-align: left;
       pointer-events: none;
     }
@@ -407,6 +421,9 @@
     .pain-card:hover {
       border-color: var(--text);
     }
+    .pain-card:not(.is-voted):active {
+      transform: scale(0.98);
+    }
     .pain-card.is-voted {
       cursor: default;
     }
@@ -466,12 +483,15 @@
       cursor: pointer;
       align-self: flex-start;
       line-height: 1.2;
-      transition: background-color 0.15s ease, color 0.15s ease;
+      transition: background-color 0.15s ease, color 0.15s ease, transform 140ms ease-out;
     }
     .pain-card-vote:hover,
     .pain-card:hover .pain-card-vote {
       background: var(--text);
       color: var(--bg);
+    }
+    .pain-card-vote:active {
+      transform: scale(0.96);
     }
 
     /* Voted state */
@@ -898,7 +918,7 @@
       pointer-events: none;
       opacity: 0;
       transform: translateZ(0);
-      transition: opacity 100ms ease-in;
+      transition: opacity 100ms ease-out;
     }
     .framework-tooltip.is-visible {
       opacity: 1;
@@ -965,11 +985,14 @@
       padding: 8px 18px;
       border-radius: 100px;
       cursor: pointer;
-      transition: background 180ms ease, color 180ms ease;
+      transition: background 180ms ease, color 180ms ease, transform 140ms ease-out;
       white-space: nowrap;
     }
     .design-tab-btn:hover {
       color: var(--text);
+    }
+    .design-tab-btn:active {
+      transform: scale(0.96);
     }
     .design-tab-btn.is-active {
       background: var(--text);
@@ -2081,11 +2104,14 @@
           border-radius: 100px;
           padding: 8px 16px;
           cursor: pointer;
-          transition: border-color 200ms ease, background 200ms ease, opacity 200ms ease, color 200ms ease;
+          transition: border-color 200ms ease, background 200ms ease, opacity 200ms ease, color 200ms ease, transform 140ms ease-out;
           white-space: nowrap;
         }
         .success-chip:hover {
           border-color: rgba(0, 0, 0, 0.35);
+        }
+        .success-chip:active {
+          transform: scale(0.96);
         }
         .success-chip.is-selected {
           background: #C8DDD4;

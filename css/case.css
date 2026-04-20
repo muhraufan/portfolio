@@ -19,20 +19,28 @@
 .case-lang-toggle {
   position: absolute;
   top: 48px;
-  right: 32px;
+  right: 44px;
   z-index: 100;
   background: none;
   border: none;
   cursor: pointer;
   color: var(--text3);
   padding: 6px;
-  transition: color 0.2s;
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, transform 140ms ease-out;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.03em;
 }
 .case-lang-toggle:hover {
   color: var(--text);
+}
+.case-lang-toggle:active {
+  transform: scale(0.96);
 }
 
 /* ---- Sidebar (includes back button) ---- */
@@ -1150,7 +1158,8 @@
   border: 1px dashed var(--border2);
   text-align: center;
   cursor: default;
-  transition: all 0.25s ease;
+  transition: color 0.25s ease, background-color 0.25s ease,
+              border-color 0.25s ease, border-style 0.25s ease;
 }
 
 .labyrinth-leaf.is-source {
@@ -1262,7 +1271,8 @@
     color: var(--text2);
     letter-spacing: 1px;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: color 0.25s ease, background-color 0.25s ease,
+                border-color 0.25s ease, border-style 0.25s ease;
     -webkit-tap-highlight-color: transparent;
   }
   .labyrinth-mobile-pill.is-source {
@@ -3209,12 +3219,27 @@
   height: 18px;
   color: var(--text2);
   opacity: 0;
-  transition: opacity 200ms ease;
+  transition: opacity 200ms ease, transform 140ms ease-out;
   cursor: pointer;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 4px;
   padding: 2px;
+}
+/* Extend the tap target to 40×40 without changing the visible footprint —
+   the pseudo-element captures touches that land near the icon so small
+   controls still clear the minimum hit-area threshold on mobile. */
+.choose-expand-icon::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  transform: translate(-50%, -50%);
+}
+.choose-expand-icon:active {
+  transform: scale(0.92);
 }
 .choose-card:hover .choose-expand-icon {
   opacity: 0.4;
@@ -3341,8 +3366,8 @@ button.choose-expand-icon svg {
   opacity: 0;
   transform: scale(0.85);
   transition:
-    opacity 150ms ease-in,
-    transform 150ms ease-in;
+    opacity 150ms ease-out,
+    transform 150ms ease-out;
 }
 .choose-fs-close:hover {
   background: rgba(255, 255, 255, 0.22);

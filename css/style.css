@@ -24,6 +24,28 @@
   --green:    #C8DDD4;
   --radius:   12px;
   --max:      640px;
+
+  /* Stronger easing curves — built-in CSS easings lack punch */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Respect reduced-motion preference — keep opacity/color transitions that
+   aid comprehension, but disable transform-based motion and auto-play
+   animations. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.2s !important;
+    scroll-behavior: auto !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 /* ---- Dark Mode (system) ---- */
@@ -76,7 +98,15 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-wrap: pretty;
   transition: background 0.2s, color 0.2s;
+}
+
+/* Balance headings so line lengths look even instead of having a short orphan
+   on the last line — applies to every page that uses these elements. */
+h1, h2, h3, h4,
+.case-title, .case-h2, .case-h3 {
+  text-wrap: balance;
 }
 
 /* ---- Japanese font (overrides both Inter and Plus Jakarta Sans) ---- */
@@ -126,14 +156,21 @@ body.minimal footer:not(.m-footer) {
   cursor: pointer;
   color: var(--text3);
   padding: 6px;
-  transition: color 0.2s;
+  transition: color 0.2s, transform 140ms ease-out;
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Ensure a 40x40 minimum hit area regardless of icon size. */
+  min-width: 40px;
+  min-height: 40px;
 }
 
 .m-theme-toggle:hover {
   color: var(--text);
+}
+
+.m-theme-toggle:active {
+  transform: scale(0.96);
 }
 
 /* ---- Language toggle (homepage) ---- */
@@ -155,16 +192,22 @@ body.minimal footer:not(.m-footer) {
   cursor: pointer;
   color: var(--text3);
   padding: 6px;
-  transition: color 0.2s;
+  transition: color 0.2s, transform 140ms ease-out;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.03em;
+  /* Ensure a 40x40 minimum hit area. */
+  min-width: 40px;
+  min-height: 40px;
 }
 .m-lang-toggle:hover {
   color: var(--text);
+}
+.m-lang-toggle:active {
+  transform: scale(0.96);
 }
 
 /* ---- Language toggle (nav pages) ---- */
@@ -179,14 +222,19 @@ body.minimal footer:not(.m-footer) {
   font-weight: 500;
   letter-spacing: 0.03em;
   line-height: 1;
-  transition: color 0.15s, background 0.15s;
+  transition: color 0.15s, background 0.15s, transform 140ms ease-out;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
 }
 .lang-toggle:hover {
   color: var(--text);
   background: var(--bg2);
+}
+.lang-toggle:active {
+  transform: scale(0.96);
 }
 
 /* Show sun in dark mode, moon in light mode */
@@ -385,6 +433,24 @@ body.minimal footer:not(.m-footer) {
 
 .m-list li {
   margin-bottom: 16px;
+  /* Staggered enter on first paint — 60ms between items gives a subtle
+     cascade without making the list feel slow to interact with. */
+  opacity: 0;
+  transform: translateY(6px);
+  animation: m-list-enter 400ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+.m-list li:nth-child(1) { animation-delay: 40ms; }
+.m-list li:nth-child(2) { animation-delay: 100ms; }
+.m-list li:nth-child(3) { animation-delay: 160ms; }
+.m-list li:nth-child(4) { animation-delay: 220ms; }
+.m-list li:nth-child(5) { animation-delay: 280ms; }
+.m-list li:nth-child(6) { animation-delay: 340ms; }
+
+@keyframes m-list-enter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .m-list-soon {
