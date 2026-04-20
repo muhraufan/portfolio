@@ -885,29 +885,15 @@
   padding: 24px 0;
 }
 
-.journey-opportunity {
-  text-align: center;
-  margin-bottom: 12px;
-}
-
-.journey-opportunity-label {
-  color: #C8DDD4;
-  font-weight: 500;
-  letter-spacing: 1px;
-}
-
 .journey-flow {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr) 28px minmax(0, 1fr) 28px minmax(0, 1fr);
   align-items: stretch;
-  justify-content: center;
-  flex-wrap: wrap;
   gap: 8px;
 }
 
 .journey-step {
-  flex: 1 1 0;
-  min-width: 110px;
-  max-width: 220px;
+  min-width: 0;
   padding: 14px 10px;
   text-align: center;
   letter-spacing: 1px;
@@ -917,7 +903,8 @@
   justify-content: center;
 }
 .journey-arrow {
-  flex: 0 0 auto;
+  justify-self: center;
+  align-self: center;
 }
 
 /* reserveLangSpace() applies white-space:nowrap + min-width:<measured> to any
@@ -978,70 +965,144 @@
 
 .journey-arrow {
   color: var(--text3);
-  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.journey-platforms {
-  display: flex;
-  align-items: flex-start;
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px dashed var(--border2);
+.journey-brackets {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr) 28px minmax(0, 1fr) 28px minmax(0, 1fr);
+  align-items: stretch;
+  margin-top: 18px;
+  gap: 8px;
 }
 
-.journey-platform-group {
+.journey-bracket {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  padding-top: 14px;
+  position: relative;
+  text-align: center;
 }
 
-.journey-platform-group:first-child {
-  flex: 3;
+.journey-bracket--opportunity {
+  grid-column: 1 / 6;
 }
 
-.journey-platform-end {
-  flex: 1;
-  text-align: right;
+.journey-bracket--tiket {
+  grid-column: 7 / 8;
 }
 
-.journey-platform-label {
-  color: var(--text2);
-  letter-spacing: 1px;
+.journey-bracket-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 10px;
+  border-left: 1.5px solid;
+  border-right: 1.5px solid;
+  border-bottom: 1.5px solid;
+  border-top: 0;
+  border-radius: 0 0 4px 4px;
 }
 
-.journey-platform-icons {
+.journey-bracket--opportunity .journey-bracket-line {
+  border-color: #7FB8A0;
+}
+
+.journey-bracket--tiket .journey-bracket-line {
+  border-color: var(--text2);
+}
+
+.journey-bracket-title {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.journey-bracket--opportunity .journey-bracket-title {
+  color: #5A9179;
+}
+
+.journey-bracket--tiket .journey-bracket-title {
+  color: var(--text);
+}
+
+.journey-bracket-sub {
+  font-size: 0.78rem;
   color: var(--text3);
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+  margin: 0;
 }
 
 @media (max-width: 700px) {
-  .journey-flow {
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
+  .journey-diagram {
+    display: grid;
+    grid-template-columns: minmax(100px, 38%) minmax(0, 1fr);
+    column-gap: 14px;
+    row-gap: 6px;
+    padding: 16px 0;
+  }
+  .journey-flow,
+  .journey-brackets {
+    display: contents;
+  }
+  .journey-step,
+  .journey-arrow {
+    grid-column: 2;
   }
   .journey-step {
-    width: 100%;
-    max-width: 240px;
+    width: auto;
+    max-width: none;
+    min-width: 0;
+    justify-self: stretch;
+    padding: 14px 12px;
   }
   .journey-arrow {
     transform: rotate(90deg);
+    justify-self: center;
   }
-  .journey-platforms {
+  .journey-bracket {
+    grid-column: 1;
+    padding: 6px 16px 6px 0;
+    position: relative;
+    align-self: stretch;
+    justify-self: stretch;
+    display: flex;
     flex-direction: column;
-    gap: 12px;
+    justify-content: center;
+    align-items: flex-end;
+    text-align: right;
+    gap: 4px;
+    min-width: 0;
   }
-  .journey-platform-group:first-child,
-  .journey-platform-end {
-    flex: none;
+  .journey-bracket--opportunity {
+    grid-row: 1 / 6;
   }
-  .journey-platform-end {
-    text-align: left;
-    padding-top: 12px;
-    border-top: 1px dashed var(--border2);
+  .journey-bracket--tiket {
+    grid-row: 7 / 8;
+  }
+  .journey-bracket-title {
+    font-size: 0.88rem;
+  }
+  .journey-bracket-sub {
+    font-size: 0.7rem;
+    line-height: 1.4;
+  }
+  .journey-bracket-line {
+    top: 4px;
+    bottom: 4px;
+    left: auto;
+    right: 0;
+    width: 8px;
+    height: auto;
+    border-top: 1.5px solid;
+    border-bottom: 1.5px solid;
+    border-left: 1.5px solid;
+    border-right: 0;
+    border-radius: 4px 0 0 4px;
   }
 }
 
@@ -2588,6 +2649,15 @@
   /* Journey diagram */
   .journey-step--solid {
     background: var(--bg2);
+  }
+  .journey-bracket--opportunity .journey-bracket-line {
+    border-color: #7FB8A0;
+  }
+  .journey-bracket--opportunity .journey-bracket-title {
+    color: #9fd8b6;
+  }
+  .journey-bracket--tiket .journey-bracket-line {
+    border-color: var(--text2);
   }
 
   /* Segmented control — theme tokens handle bg/border/active automatically */
