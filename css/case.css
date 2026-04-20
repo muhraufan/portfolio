@@ -885,65 +885,23 @@
   padding: 24px 0;
 }
 
+.journey-opportunity {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.journey-opportunity-label {
+  color: #C8DDD4;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
 .journey-flow {
   display: flex;
   align-items: stretch;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 12px;
-}
-
-.journey-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 14px 14px 12px;
-  border-radius: 12px;
-  position: relative;
-}
-
-.journey-group--opportunity {
-  flex: 3 1 520px;
-  background: rgba(200, 221, 212, 0.22);
-  border: 1px dashed #C8DDD4;
-}
-
-.journey-group--tiket {
-  flex: 1 1 200px;
-  background: var(--bg);
-  border: 1px solid var(--border2);
-}
-
-.journey-group-label {
-  font-size: 12px;
-  letter-spacing: 1px;
-  font-weight: 500;
-  color: #6FA58B;
-  text-transform: uppercase;
-}
-
-.journey-group-label--tiket {
-  color: var(--text2);
-}
-
-.journey-group-steps {
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
   gap: 8px;
-  flex: 1;
-}
-
-.journey-group-footer {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding-top: 10px;
-  border-top: 1px dashed var(--border2);
-}
-
-.journey-arrow--between {
-  align-self: center;
 }
 
 .journey-step {
@@ -1026,6 +984,29 @@
   justify-content: center;
 }
 
+.journey-platforms {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border2);
+}
+
+.journey-platform-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.journey-platform-group:first-child {
+  flex: 3;
+}
+
+.journey-platform-end {
+  flex: 1;
+  text-align: right;
+}
+
 .journey-platform-label {
   color: var(--text2);
   letter-spacing: 1px;
@@ -1039,28 +1020,28 @@
 @media (max-width: 700px) {
   .journey-flow {
     flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-  .journey-group--opportunity,
-  .journey-group--tiket {
-    flex: 1 1 auto;
-  }
-  .journey-group-steps {
-    flex-direction: column;
     align-items: center;
     gap: 4px;
-  }
-  .journey-group-steps .journey-arrow {
-    transform: rotate(90deg);
-  }
-  .journey-arrow--between {
-    transform: rotate(90deg);
-    align-self: center;
   }
   .journey-step {
     width: 100%;
     max-width: 240px;
+  }
+  .journey-arrow {
+    transform: rotate(90deg);
+  }
+  .journey-platforms {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .journey-platform-group:first-child,
+  .journey-platform-end {
+    flex: none;
+  }
+  .journey-platform-end {
+    text-align: left;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border2);
   }
 }
 
@@ -2607,20 +2588,6 @@
   /* Journey diagram */
   .journey-step--solid {
     background: var(--bg2);
-  }
-  .journey-group--opportunity {
-    background: rgba(200, 221, 212, 0.08);
-    border-color: rgba(200, 221, 212, 0.35);
-  }
-  .journey-group--tiket {
-    background: var(--bg2);
-    border-color: var(--border);
-  }
-  .journey-group-label {
-    color: #b5ccc3;
-  }
-  .journey-group-label--tiket {
-    color: var(--text2);
   }
 
   /* Segmented control — theme tokens handle bg/border/active automatically */
