@@ -86,12 +86,14 @@
    Keep the existing color transition for hover states. */
 .case-sidebar .case-back,
 .case-sidebar .case-nav-link,
-.case-sidebar .case-cta {
+.case-sidebar .case-cta,
+.case-sidebar .case-read-time {
   transition: color 0.15s, filter 200ms ease-out;
 }
 .case-sidebar .case-back.is-blurred,
 .case-sidebar .case-nav-link.is-blurred,
-.case-sidebar .case-cta.is-blurred {
+.case-sidebar .case-cta.is-blurred,
+.case-sidebar .case-read-time.is-blurred {
   filter: blur(4px);
 }
 
