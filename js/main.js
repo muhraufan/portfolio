@@ -17,14 +17,37 @@ function applyTheme(theme) {
 
 applyTheme(getTheme());
 
-// Wire up all theme toggles (old nav toggle + new minimal toggle)
-document.querySelectorAll('.theme-toggle, .m-theme-toggle').forEach(btn => {
-  btn?.addEventListener('click', () => {
-    const current = localStorage.getItem('theme');
-    const next = current === 'dark' ? 'light' : 'dark';
+// Wire up all theme toggles (old nav toggle + new minimal toggle).
+// Wrap the swap in document.startViewTransition so CSS can animate a
+// soft wavefront from the toggle's position. See style.css for the
+// ::view-transition-new(root) rule and the --vt-* custom props.
+function runThemeToggle(btn) {
+  const current = localStorage.getItem('theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  const swap = () => {
     localStorage.setItem('theme', next);
     applyTheme(next);
-  });
+  };
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!document.startViewTransition || reduce) { swap(); return; }
+
+  // Origin & coverage radius for the radial-gradient mask.
+  const rect = btn.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const dx = Math.max(cx, window.innerWidth - cx);
+  const dy = Math.max(cy, window.innerHeight - cy);
+  const radius = Math.hypot(dx, dy) * 1.1; // small overshoot past the far corner
+
+  html.style.setProperty('--vt-x', `${cx}px`);
+  html.style.setProperty('--vt-y', `${cy}px`);
+  html.style.setProperty('--vt-r', `${radius}px`);
+
+  document.startViewTransition(swap);
+}
+document.querySelectorAll('.theme-toggle, .m-theme-toggle').forEach(btn => {
+  btn?.addEventListener('click', () => runThemeToggle(btn));
 });
 
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {

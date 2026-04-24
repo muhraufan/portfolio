@@ -266,17 +266,35 @@
     html.setAttribute('data-theme', 'light');
   }
 
+  // View Transition wavefront — see style.css ::view-transition-new(root).
+  function applyThemeValue(next) {
+    localStorage.setItem('theme', next);
+    if (next === 'dark') html.setAttribute('data-theme', 'dark');
+    else html.setAttribute('data-theme', 'light');
+  }
+  function runThemeToggle(btn) {
+    var current = localStorage.getItem('theme') || 'light';
+    var next = current === 'dark' ? 'light' : 'dark';
+    var swap = function () { applyThemeValue(next); };
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!document.startViewTransition || reduce) { swap(); return; }
+
+    var rect = btn.getBoundingClientRect();
+    var cx = rect.left + rect.width / 2;
+    var cy = rect.top + rect.height / 2;
+    var dx = Math.max(cx, window.innerWidth - cx);
+    var dy = Math.max(cy, window.innerHeight - cy);
+    var radius = Math.hypot(dx, dy) * 1.1;
+
+    html.style.setProperty('--vt-x', cx + 'px');
+    html.style.setProperty('--vt-y', cy + 'px');
+    html.style.setProperty('--vt-r', radius + 'px');
+
+    document.startViewTransition(swap);
+  }
   document.querySelectorAll('.m-theme-toggle').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var current = localStorage.getItem('theme') || 'light';
-      var next = current === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('theme', next);
-      if (next === 'dark') {
-        html.setAttribute('data-theme', 'dark');
-      } else {
-        html.setAttribute('data-theme', 'light');
-      }
-    });
+    btn.addEventListener('click', function() { runThemeToggle(btn); });
   });
 })();
 
