@@ -371,6 +371,116 @@ function createPatternSVG(key) {
   return svg;
 }
 
+// ---- Pattern preview thumbnails ----
+// The production patternSVG tiles the motif at its full size for the card
+// background. Re-using that for the tiny 44×44 picker buttons produced
+// awkward crops (one row of dots, broken dash arrangements). Instead, we
+// render a dedicated thumbnail per pattern — a clean, centered sample of
+// the motif sized specifically for 44px preview buttons. Stroke width and
+// spacing are hand-tuned so each thumb clearly reads as the pattern it
+// represents at a glance.
+function createPatternThumbnail(key) {
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('xmlns', NS);
+  svg.setAttribute('viewBox', '0 0 44 44');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('focusable', 'false');
+
+  const line = (x1, y1, x2, y2, w = 1) => {
+    const el = document.createElementNS(NS, 'line');
+    el.setAttribute('x1', x1); el.setAttribute('y1', y1);
+    el.setAttribute('x2', x2); el.setAttribute('y2', y2);
+    el.setAttribute('stroke', 'currentColor');
+    el.setAttribute('stroke-width', w);
+    el.setAttribute('stroke-linecap', 'round');
+    svg.appendChild(el);
+  };
+  const dot = (cx, cy, r) => {
+    const el = document.createElementNS(NS, 'circle');
+    el.setAttribute('cx', cx); el.setAttribute('cy', cy); el.setAttribute('r', r);
+    el.setAttribute('fill', 'currentColor');
+    svg.appendChild(el);
+  };
+
+  switch (key) {
+    case 'dash-scatter': {
+      // 6 short diagonal dashes in a staggered wave, centered in the
+      // 44×44 box with ~6px inset all round.
+      const dashes = [
+        [9, 17, 16, 11],
+        [22, 20, 29, 14],
+        [35, 17, 42, 11],
+        [2, 30, 9, 24],
+        [15, 33, 22, 27],
+        [28, 33, 35, 27],
+      ];
+      dashes.forEach(([x1, y1, x2, y2]) => line(x1, y1, x2, y2, 1.6));
+      break;
+    }
+    case 'dot-grid': {
+      // Clean 3×3 grid of dots, evenly spaced with ~4px margin.
+      const cols = [11, 22, 33];
+      cols.forEach(cy => cols.forEach(cx => dot(cx, cy, 2)));
+      break;
+    }
+    case 'ruled': {
+      // Three horizontal lines evenly spaced, representing notebook ruling.
+      [13, 22, 31].forEach(y => line(5, y, 39, y, 1.2));
+      break;
+    }
+    case 'batik-kawung': {
+      // Two complete kawung motifs (4 ellipses around a center) stacked
+      // vertically so the preview unmistakably shows the motif.
+      const motif = (cx, cy) => {
+        const data = [
+          [cx,     cy - 7, 2.4, 4],
+          [cx,     cy + 7, 2.4, 4],
+          [cx - 7, cy,     4,   2.4],
+          [cx + 7, cy,     4,   2.4],
+        ];
+        data.forEach(([ex, ey, rx, ry]) => {
+          const e = document.createElementNS(NS, 'ellipse');
+          e.setAttribute('cx', ex); e.setAttribute('cy', ey);
+          e.setAttribute('rx', rx); e.setAttribute('ry', ry);
+          e.setAttribute('fill', 'none');
+          e.setAttribute('stroke', 'currentColor');
+          e.setAttribute('stroke-width', 1);
+          svg.appendChild(e);
+        });
+      };
+      motif(13, 13);
+      motif(31, 31);
+      break;
+    }
+    case 'batik-parang': {
+      // A few S-curves rotated -45°, evenly spaced. Drawn in a rotated
+      // group so the curve path itself stays simple.
+      const g = document.createElementNS(NS, 'g');
+      g.setAttribute('transform', 'rotate(-45 22 22)');
+      const addCurve = (x) => {
+        const p = document.createElementNS(NS, 'path');
+        // Curve spans the full rotated viewBox width (≈62px after
+        // rotation). Four evenly-spaced curves fill the thumb.
+        p.setAttribute('d', `M${x},-8 C${x - 4},0 ${x + 4},8 ${x},16 C${x - 4},24 ${x + 4},32 ${x},40 C${x - 4},48 ${x + 4},56 ${x},64`);
+        p.setAttribute('fill', 'none');
+        p.setAttribute('stroke', 'currentColor');
+        p.setAttribute('stroke-width', 1.4);
+        p.setAttribute('stroke-linecap', 'round');
+        g.appendChild(p);
+      };
+      [5, 17, 29, 41].forEach(addCurve);
+      svg.appendChild(g);
+      break;
+    }
+    default:
+      return createPatternThumbnail('dash-scatter');
+  }
+  return svg;
+}
+
 // ---- Date formatting ----
 function formatIssuedDate(d = new Date()) {
   const months = [
@@ -796,7 +906,10 @@ function createPatternPicker({ initial = DEFAULT_PATTERN, onChange } = {}) {
     btn.setAttribute('role', 'radio');
     btn.setAttribute('aria-checked', key === currentKey ? 'true' : 'false');
     btn.setAttribute('aria-label', `Pattern: ${PATTERN_LABELS[key]}`);
-    btn.appendChild(createPatternSVG(key));
+    // Use a hand-tuned thumbnail (not the production tiled pattern)
+    // so each preview reads cleanly at 44×44 with properly centered
+    // motif repetitions instead of cropped tiles.
+    btn.appendChild(createPatternThumbnail(key));
     if (key === currentKey) btn.classList.add('is-selected');
 
     btn.addEventListener('mousedown', (e) => e.stopPropagation());

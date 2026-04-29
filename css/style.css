@@ -508,6 +508,64 @@ body.minimal footer:not(.m-footer) {
 .m-footer {
   font-size: 14px;
   margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* ---- Visitor Gallery CTA ----
+   A gentle looping shimmer catches the eye without being flashy. Built as a
+   moving linear-gradient clipped to the text via background-clip: text.
+   The base color stays solid (inherits .m-link) so the text never disappears;
+   the shimmer just brightens a band that travels across every few seconds. */
+.m-gallery-cta {
+  position: relative;
+  white-space: nowrap;
+}
+/* The base label stays fully readable in its normal color at all times.
+   The shimmer is painted as an OVERLAY via ::after — a duplicated copy of
+   the text whose fill is a moving gradient that's mostly transparent with
+   one bright band. When the band is off-screen the overlay is invisible,
+   so the base label never "disappears". */
+.m-gallery-cta-label {
+  position: relative;
+  /* Inherit the parent's underline so the CTA matches Twitter / LinkedIn.
+     Stay inline (not inline-block) — inline-block makes the parent <a>'s
+     underline skip beneath the span. */
+  text-decoration: inherit;
+  text-underline-offset: inherit;
+  text-decoration-color: inherit;
+}
+.m-gallery-cta-label::after {
+  content: attr(data-shimmer);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+    100deg,
+    transparent 0%,
+    transparent 42%,
+    rgba(255, 255, 255, 0.95) 50%,
+    transparent 58%,
+    transparent 100%
+  );
+  background-size: 250% 100%;
+  background-position: 150% 0;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+  animation: m-gallery-shimmer 3.6s ease-in-out infinite;
+}
+@keyframes m-gallery-shimmer {
+  0%   { background-position: 150% 0; }
+  55%  { background-position: -50% 0; }
+  100% { background-position: -50% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .m-gallery-cta-label::after { animation: none; opacity: 0; }
 }
 
 

@@ -923,14 +923,50 @@
 
 /* ---- Quote ---- */
 .case-quote {
-  font-size: 14px;
-  font-style: italic;
-  color: var(--text3);
-  line-height: 2;
-  letter-spacing: 1px;
-  margin-bottom: 20px;
-  padding-left: 16px;
-  border-left: 2px solid var(--border2);
+  position: relative;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  text-align: center;
+  text-wrap: balance;
+  max-width: 640px;
+  margin: 56px auto;
+  padding: 24px 16px;
+  border: 0;
+  background: transparent;
+  border-radius: 0;
+}
+
+.case-quote::before,
+.case-quote::after {
+  content: "";
+  display: block;
+  width: 32px;
+  height: 1px;
+  margin: 0 auto;
+  background: var(--border2);
+}
+
+.case-quote::before {
+  margin-bottom: 24px;
+}
+
+.case-quote::after {
+  margin-top: 24px;
+}
+
+@media (max-width: 640px) {
+  .case-quote {
+    font-size: 18px;
+    margin: 40px auto;
+    padding: 16px 8px;
+  }
+  .case-quote::before { margin-bottom: 20px; }
+  .case-quote::after { margin-top: 20px; }
 }
 
 /* ---- Journey Diagram ---- */
@@ -1781,6 +1817,7 @@
   font-weight: 500;
   padding: 2px 8px;
   margin-bottom: 6px;
+  border-radius: 4px;
 }
 
 .spectrum-annotation-badge--inspiring {
@@ -3504,6 +3541,7 @@ button.choose-expand-icon svg {
   border-radius: 8px;
   padding: 20px 24px;
   margin-top: 16px;
+  margin-bottom: 16px;
 }
 .choose-highlight-box .choose-reveal-label {
   font-size: 13px;

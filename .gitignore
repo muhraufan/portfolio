@@ -2,6 +2,9 @@ node_modules/
 .DS_Store
 *.log
 
+# Local prototypes / experiments — keep out of git
+*-prototype.html
+
 # Secrets / credentials — never commit
 .env
 .env.*

@@ -604,3 +604,14 @@ document.querySelectorAll('.nav-links a').forEach(link => {
   // Expose for lang-switcher re-attachment
   window.spawnConfetti = spawnConfetti;
 })();
+
+// Keep the shimmer overlay copy of the gallery CTA in sync with the visible
+// label — the language switcher rewrites textContent on data-en/data-ja
+// elements, so we mirror that back into data-shimmer for the ::after content.
+(function syncGalleryCtaShimmer() {
+  const label = document.querySelector('.m-gallery-cta-label');
+  if (!label) return;
+  const sync = () => label.setAttribute('data-shimmer', label.textContent.trim());
+  sync();
+  new MutationObserver(sync).observe(label, { childList: true, characterData: true, subtree: true });
+})();

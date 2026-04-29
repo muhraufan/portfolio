@@ -13,168 +13,44 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --bg: #f5f3f0;
+      --text: #1a1a1a;
+      --text2: #6a6a6a;
+      --text3: #9a9a9a;
+      --border: rgba(0, 0, 0, 0.08);
+    }
+
     html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #f5f3f0;
-      color: #1a1a1a;
-      -webkit-user-select: none;
-      user-select: none;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100%;
     }
 
-    /* ---- Canvas viewport ---- */
-    .canvas-viewport {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      cursor: grab;
-      position: relative;
-    }
-    .canvas-viewport.is-dragging {
-      cursor: grabbing;
-    }
-
-    .canvas-world {
-      width: 4000px;
-      height: 3000px;
-      position: absolute;
-      top: 0;
-      left: 0;
-      will-change: transform;
-    }
-
-    /* ---- Loading / empty states ---- */
-    .canvas-status {
-      position: fixed;
-      inset: 0;
+    /* ---- Header ---- */
+    .page-header {
+      max-width: 1520px;
+      margin: 0 auto;
+      padding: 72px 32px 24px;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-      z-index: 10;
-      transition: opacity 0.6s ease;
-    }
-    .canvas-status.is-hidden {
-      opacity: 0;
-    }
-    .canvas-status-text {
-      font-size: 15px;
-      font-weight: 500;
-      color: #888;
-      letter-spacing: 0.02em;
-      animation: statusPulse 2s ease-in-out infinite;
-    }
-
-    @keyframes statusPulse {
-      0%, 100% { opacity: 0.6; }
-      50% { opacity: 1; }
-    }
-
-    /* ---- Card ---- */
-    .gallery-card {
-      position: absolute;
-      width: 280px;
-      height: 160px;
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
-      transition: box-shadow 0.2s ease, transform 0.2s ease;
-      opacity: 0;
-      animation: cardFadeIn 0.5s ease forwards;
-    }
-    .gallery-card:hover {
-      box-shadow: 0 6px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08);
-      z-index: 5;
-    }
-    .gallery-card.is-new {
-      animation: cardPopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    }
-
-    @keyframes cardFadeIn {
-      from { opacity: 0; transform: scale(0.92); }
-      to   { opacity: 1; transform: scale(1); }
-    }
-    @keyframes cardPopIn {
-      from { opacity: 0; transform: scale(0.5); }
-      to   { opacity: 1; transform: scale(1); }
-    }
-
-    .gallery-card-bg {
-      position: absolute;
-      inset: 0;
-      border-radius: 14px;
-    }
-
-    .gallery-card-pattern {
-      position: absolute;
-      inset: 0;
-      opacity: 0.18;
-      border-radius: 14px;
-      overflow: hidden;
-    }
-    .gallery-card-pattern svg {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .gallery-card-content {
-      position: relative;
-      z-index: 1;
-      padding: 16px 18px;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
+      align-items: baseline;
       justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
     }
-
-    .gallery-card-name {
-      font-size: 14px;
+    .page-header h1 {
+      font-size: 32px;
       font-weight: 600;
-      color: var(--card-ink);
-      margin-bottom: 4px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      letter-spacing: -0.02em;
     }
-
-    .gallery-card-message {
+    .page-header .count {
       font-size: 12px;
-      font-weight: 400;
-      color: var(--card-ink);
-      opacity: 0.75;
-      line-height: 1.5;
-      flex: 1;
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-    }
-
-    .gallery-card-signature {
-      width: 60px;
-      height: 30px;
-      object-fit: contain;
-      opacity: 0.8;
-      margin-top: 6px;
-    }
-
-    .gallery-card-date {
-      font-size: 10px;
       font-weight: 500;
-      color: var(--card-ink);
-      opacity: 0.45;
-      text-align: right;
-      margin-top: auto;
-    }
-
-    .gallery-card-footer {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text3);
     }
 
     /* ---- Back link ---- */
@@ -185,30 +61,357 @@
       z-index: 100;
       font-size: 13px;
       font-weight: 500;
-      color: #555;
+      color: var(--text2);
       text-decoration: none;
       background: rgba(255,255,255,0.85);
       backdrop-filter: blur(8px);
       padding: 8px 14px;
-      border-radius: 8px;
-      border: 1px solid rgba(0,0,0,0.06);
-      transition: background 0.15s ease;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      transition: background 160ms ease-out, color 160ms ease-out;
     }
     .back-link:hover {
       background: rgba(255,255,255,1);
-      color: #1a1a1a;
+      color: var(--text);
+    }
+
+    /* ---- Grid ---- */
+    .gallery-grid {
+      max-width: 1520px;
+      margin: 0 auto;
+      padding: 24px 32px 120px;
+      display: grid;
+      /* 6 cards/row on wide screens; auto-downshifts on smaller. */
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 32px 22px;
+      perspective: 1600px;
+    }
+
+    /* ================================================================
+       CARD
+       ================================================================
+
+       Base transform stack (applied at rest and during hover):
+         perspective → rotateX → rotateY → scale → translateY → translateZ
+       Each axis is driven by a CSS custom property so JS can update them
+       independently: --rx, --ry from cursor position; --s, --ty, --tz
+       flip between resting and active values via the .is-active class. */
+    .gallery-card {
+      position: relative;
+      aspect-ratio: 1.586 / 1; /* credit-card ratio */
+      border-radius: 18px;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      transform:
+        perspective(1600px)
+        rotateX(var(--rx, 0deg))
+        rotateY(var(--ry, 0deg))
+        translateY(var(--ty, 0px))
+        translateZ(var(--tz, 0px))
+        scale(var(--s, 1));
+      transform-origin: center center;
+      /* Crisp contact shadow (close, dark, tight) + soft ambient — reads
+         as a solid object with mass sitting on the surface. */
+      box-shadow:
+        0 1px 1px rgba(0, 0, 0, 0.10),
+        0 2px 4px rgba(0, 0, 0, 0.08),
+        0 8px 18px rgba(0, 0, 0, 0.06);
+      /* Snappy return — a firm card doesn't wobble back into place. */
+      transition:
+        transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+        box-shadow 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      cursor: pointer;
+      opacity: 0;
+      animation: cardFadeIn 0.5s ease forwards;
+      will-change: transform;
+      background: transparent;
+      border: 0;
+      padding: 0;
+      text-align: left;
+      font: inherit;
+      color: inherit;
+    }
+    /* During hover, shorten the transform transition so the tilt tracks
+       the cursor without lag. box-shadow keeps its longer curve to grow
+       in as the card lifts. */
+    .gallery-card.is-active {
+      /* 40ms linear tracking = tight, 1:1 with the cursor. Longer or eased
+         transitions make the card feel like paper flexing behind the pointer. */
+      transition:
+        transform 40ms linear,
+        box-shadow 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      /* "Flying" feel: forward push (tz), small upward hop (ty),
+         slight scale-up, much larger lift shadow. */
+      --tz: 20px;
+      --ty: -3px;
+      --s: 1.02;
+      /* Tight near-edge contact + broader ambient — reads as a solid
+         object lifted just above the surface, not a floating sheet. */
+      box-shadow:
+        0 2px 3px rgba(0, 0, 0, 0.12),
+        0 6px 12px rgba(0, 0, 0, 0.10),
+        0 20px 32px rgba(0, 0, 0, 0.10);
+      z-index: 5;
+    }
+    .gallery-card.is-new {
+      animation: cardPopIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes cardFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes cardPopIn {
+      from { opacity: 0; transform: scale(0.5); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .gallery-card-bg {
+      position: absolute;
+      inset: 0;
+    }
+
+    .gallery-card-pattern {
+      position: absolute;
+      inset: 0;
+      opacity: 0.18;
+      overflow: hidden;
+    }
+    .gallery-card-pattern svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ================================================================
+       SHINE — embedded in the card face, driven by tilt
+       ================================================================
+
+       Fix for the "cursor-attached" look: instead of a radial spotlight
+       under the cursor, we use two broad gradient BANDS whose background-
+       position slides as the card tilts. The viewer sees a sheen that
+       lives on the card's surface and catches light based on viewing
+       angle — not a flashlight attached to their mouse.
+
+       Both layers are always mounted; opacity cross-fades via .is-active. */
+    .gallery-card-shine,
+    .gallery-card-holo {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 320ms ease-out;
+      /* Same sliding position for both — so the two layers reinforce
+         each other as a single reflection rather than splitting. */
+      background-position: var(--shine-px, 50%) var(--shine-py, 50%);
+      background-size: 220% 220%;
+    }
+    .gallery-card-shine {
+      /* Broad diagonal gloss band — the primary "this is a shiny surface"
+         signal. Screen blend adds brightness without washing out color. */
+      background-image: linear-gradient(
+        125deg,
+        transparent 36%,
+        rgba(255, 255, 255, 0.14) 46%,
+        rgba(255, 255, 255, 0.28) 50%,
+        rgba(255, 255, 255, 0.14) 54%,
+        transparent 64%
+      );
+      mix-blend-mode: screen;
+    }
+    .gallery-card-holo {
+      /* Subtle rainbow band offset from the gloss — gives the holographic
+         foil look. Soft-light preserves the card color underneath. */
+      background-image: linear-gradient(
+        110deg,
+        transparent 36%,
+        rgba(255, 180, 220, 0.12) 44%,
+        rgba(180, 220, 255, 0.12) 50%,
+        rgba(255, 230, 170, 0.12) 56%,
+        transparent 64%
+      );
+      background-size: 260% 260%;
+      mix-blend-mode: soft-light;
+    }
+    .gallery-card.is-active .gallery-card-shine { opacity: 0.55; }
+    .gallery-card.is-active .gallery-card-holo { opacity: 0.6; }
+
+    .gallery-card-content {
+      position: relative;
+      z-index: 1;
+      padding: 18px 20px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      transform: translateZ(1px);
+    }
+
+    .gallery-card-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--card-ink);
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: -0.005em;
+    }
+
+    .gallery-card-message {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--card-ink);
+      opacity: 0.78;
+      line-height: 1.45;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      margin-top: 2px;
+    }
+
+    /* Signature row — signature takes remaining width and a generous
+       height, date stays compact on the right. */
+    .gallery-card-footer {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      margin-top: auto;
+      padding-top: 10px;
+    }
+    .gallery-card-signature {
+      flex: 1;
+      min-width: 0;
+      width: 100%;
+      height: 52px;
+      object-fit: contain;
+      object-position: left bottom;
+      opacity: 0.9;
+    }
+    .gallery-card-date {
+      flex: 0 0 auto;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--card-ink);
+      opacity: 0.55;
+      text-align: right;
+      white-space: nowrap;
+      padding-bottom: 2px;
+    }
+
+    /* ================================================================
+       MODAL — click a card to enlarge it
+       ================================================================ */
+    .card-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      background: rgba(20, 18, 16, 0);
+      backdrop-filter: blur(0);
+      -webkit-backdrop-filter: blur(0);
+      opacity: 0;
+      pointer-events: none;
+      transition:
+        opacity 280ms ease-out,
+        background 320ms ease-out,
+        backdrop-filter 320ms ease-out;
+    }
+    .card-modal.is-open {
+      opacity: 1;
+      pointer-events: auto;
+      background: rgba(20, 18, 16, 0.42);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .card-modal-stage {
+      position: relative;
+      perspective: 1800px;
+      width: min(560px, 92vw);
+      transform: scale(0.92);
+      transition: transform 400ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+    .card-modal.is-open .card-modal-stage {
+      transform: scale(1);
+    }
+    /* Card inside modal: scale up proportionally, keep tilt/shine. */
+    .card-modal .gallery-card {
+      width: 100%;
+      cursor: default;
+    }
+    .card-modal .gallery-card-name { font-size: 22px; }
+    .card-modal .gallery-card-message {
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-line-clamp: 6;
+    }
+    .card-modal .gallery-card-signature { height: 90px; }
+    .card-modal .gallery-card-date { font-size: 12px; }
+    .card-modal .gallery-card-content { padding: 28px 32px; }
+    .card-modal-close {
+      position: absolute;
+      top: -52px;
+      right: -6px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      cursor: pointer;
+      transition: background 160ms ease-out, transform 140ms ease-out;
+      font-size: 14px;
+    }
+    .card-modal-close:hover { background: rgba(255, 255, 255, 0.22); }
+    .card-modal-close:active { transform: scale(0.94); }
+
+    /* ---- Empty / loading states ---- */
+    .status {
+      grid-column: 1 / -1;
+      padding: 80px 0;
+      text-align: center;
+      font-size: 14px;
+      color: var(--text3);
+      animation: statusPulse 2s ease-in-out infinite;
+    }
+    @keyframes statusPulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
     }
 
     /* ---- Mobile ---- */
     @media (max-width: 640px) {
-      .gallery-card {
-        width: 240px;
-        height: 140px;
-        transform: scale(0.85);
+      .page-header { padding: 64px 20px 16px; }
+      .page-header h1 { font-size: 26px; }
+      .gallery-grid {
+        padding: 16px 20px 80px;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 24px 14px;
       }
-      .gallery-card-content {
-        padding: 12px 14px;
+      /* Tilt is jittery on touch — flatten it. */
+      .gallery-card { --rx: 0deg !important; --ry: 0deg !important; }
+      .gallery-card.is-active { --ty: -4px; --tz: 24px; --s: 1.03; }
+      .card-modal-close { top: -48px; right: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .gallery-card,
+      .gallery-card.is-active {
+        transition: box-shadow 200ms ease-out;
+        transform: none !important;
       }
+      .gallery-card-shine,
+      .gallery-card-holo { display: none; }
+      .card-modal-stage { transform: none !important; }
     }
   </style>
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
@@ -216,18 +419,26 @@
 <body>
   <a href="/" class="back-link">← Back</a>
 
-  <div class="canvas-status" id="status">
-    <span class="canvas-status-text" id="statusText">Gathering cards…</span>
+  <header class="page-header">
+    <h1>Guest Cards</h1>
+    <span class="count" id="count"></span>
+  </header>
+
+  <div class="gallery-grid" id="grid">
+    <div class="status" id="status">Gathering cards…</div>
   </div>
 
-  <div class="canvas-viewport" id="viewport">
-    <div class="canvas-world" id="world"></div>
+  <!-- Modal for enlarged card -->
+  <div class="card-modal" id="modal" aria-hidden="true" role="dialog">
+    <div class="card-modal-stage" id="modalStage">
+      <button class="card-modal-close" id="modalClose" aria-label="Close">✕</button>
+      <!-- card injected here -->
+    </div>
   </div>
 
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-    // ---- Supabase ----
     const SUPABASE_URL = 'https://dbvaqcorhfqvyyvqyoql.supabase.co';
     const SUPABASE_ANON_KEY =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRidmFxY29yaGZxdnl5dnF5b3FsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NTE4MjEsImV4cCI6MjA5MTQyNzgyMX0.mDAK8f41sJVrnRx-h6Tqbw1RRUrEbWUIdlLThb_pSEk';
@@ -235,27 +446,12 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const DEFAULT_CARD_COLOR = '#E8541A';
-    const WORLD_W = 4000;
-    const WORLD_H = 3000;
-
-    const viewport = document.getElementById('viewport');
-    const world = document.getElementById('world');
+    const grid = document.getElementById('grid');
     const status = document.getElementById('status');
-    const statusText = document.getElementById('statusText');
-
-    // ---- Seeded random from entry id ----
-    function seededRandom(seed) {
-      let h = 0;
-      const s = String(seed);
-      for (let i = 0; i < s.length; i++) {
-        h = Math.imul(31, h) + s.charCodeAt(i) | 0;
-      }
-      return () => {
-        h = Math.imul(h ^ (h >>> 15), h | 1);
-        h ^= h + Math.imul(h ^ (h >>> 7), h | 61);
-        return ((h ^ (h >>> 14)) >>> 0) / 4294967296;
-      };
-    }
+    const countEl = document.getElementById('count');
+    const modal = document.getElementById('modal');
+    const modalStage = document.getElementById('modalStage');
+    const modalClose = document.getElementById('modalClose');
 
     // ---- Pattern SVG generator (mirrors GuestbookCard.js) ----
     let patternUid = 0;
@@ -336,45 +532,36 @@
     }
 
     // ---- Contrast helpers ----
-    function hexToHSL(hex) {
+    function hexToL(hex) {
       const r = parseInt(hex.slice(1,3),16)/255;
       const g = parseInt(hex.slice(3,5),16)/255;
       const b = parseInt(hex.slice(5,7),16)/255;
       const max = Math.max(r,g,b), min = Math.min(r,g,b);
-      const l = (max+min)/2;
-      return l;
+      return (max+min)/2;
     }
     function getInkColor(bg) {
-      return hexToHSL(bg || DEFAULT_CARD_COLOR) > 0.65 ? '#1a1a1a' : '#ffffff';
+      return hexToL(bg || DEFAULT_CARD_COLOR) > 0.65 ? '#1a1a1a' : '#ffffff';
     }
 
     // ---- Build a card DOM element ----
-    function buildCard(entry, isNew = false) {
+    function buildCard(entry, { isNew = false, isModal = false } = {}) {
       const color = entry.card_color || DEFAULT_CARD_COLOR;
       const ink = getInkColor(color);
-      const rng = seededRandom(entry.id);
 
-      // Position within world, with padding from edges
-      const pad = 200;
-      const x = pad + rng() * (WORLD_W - 2 * pad - 280);
-      const y = pad + rng() * (WORLD_H - 2 * pad - 160);
-      const rotation = (rng() - 0.5) * 12; // -6 to +6 degrees
-
-      const card = document.createElement('div');
+      const card = document.createElement(isModal ? 'div' : 'button');
       card.className = 'gallery-card' + (isNew ? ' is-new' : '');
-      card.style.left = `${x}px`;
-      card.style.top = `${y}px`;
-      card.style.transform = `rotate(${rotation}deg)`;
       card.style.setProperty('--card-ink', ink);
-      card.style.animationDelay = isNew ? '0s' : `${rng() * 0.4}s`;
+      card.style.animationDelay = isNew ? '0s' : `${Math.random() * 0.35}s`;
+      if (!isModal) {
+        card.type = 'button';
+        card.setAttribute('aria-label', `Open card from ${entry.name || 'Anonymous'}`);
+      }
 
-      // Background
       const bg = document.createElement('div');
       bg.className = 'gallery-card-bg';
       bg.style.background = color;
       card.appendChild(bg);
 
-      // Pattern
       if (entry.pattern) {
         const patWrap = document.createElement('div');
         patWrap.className = 'gallery-card-pattern';
@@ -383,7 +570,15 @@
         card.appendChild(patWrap);
       }
 
-      // Content
+      // Shine layers — CSS does the look; JS updates --shine-px/py.
+      const shine = document.createElement('div');
+      shine.className = 'gallery-card-shine';
+      card.appendChild(shine);
+
+      const holo = document.createElement('div');
+      holo.className = 'gallery-card-holo';
+      card.appendChild(holo);
+
       const content = document.createElement('div');
       content.className = 'gallery-card-content';
 
@@ -410,7 +605,10 @@
         sig.draggable = false;
         footer.appendChild(sig);
       } else {
-        footer.appendChild(document.createElement('span'));
+        // Empty flex placeholder so date stays right-aligned.
+        const spacer = document.createElement('span');
+        spacer.style.flex = '1';
+        footer.appendChild(spacer);
       }
 
       const date = document.createElement('div');
@@ -422,109 +620,96 @@
       content.appendChild(footer);
       card.appendChild(content);
 
+      attachTilt(card);
+
+      if (!isModal) {
+        card.__entry = entry;
+        card.addEventListener('click', () => openModal(entry));
+      }
+
       return card;
     }
 
-    // ---- Pan / drag with inertia ----
-    let panX = 0, panY = 0;
-    let isDragging = false;
-    let startX, startY, startPanX, startPanY;
-    let velX = 0, velY = 0;
-    let lastMoveX = 0, lastMoveY = 0, lastMoveTime = 0;
-    let inertiaRaf = null;
+    // ---- Tilt + shine driven by cursor ----
+    // We compute:
+    //   x, y        — cursor position on card as 0..1 (left→right, top→bottom)
+    //   --rx, --ry  — tilt degrees (max ±MAX_TILT)
+    //   --shine-px,
+    //   --shine-py  — background-position offsets for the shine bands,
+    //                 so the reflection SLIDES across the card surface
+    //                 as the angle changes (not a spotlight under the
+    //                 cursor).
+    function attachTilt(card) {
+      const MAX_TILT = 7;
 
-    function applyTransform() {
-      world.style.transform = `translate(${panX}px, ${panY}px)`;
-    }
-
-    function centerCanvas() {
-      const vw = viewport.clientWidth;
-      const vh = viewport.clientHeight;
-      panX = -(WORLD_W - vw) / 2;
-      panY = -(WORLD_H - vh) / 2;
-      applyTransform();
-    }
-
-    function clampPan() {
-      const vw = viewport.clientWidth;
-      const vh = viewport.clientHeight;
-      const minX = -(WORLD_W - vw);
-      const minY = -(WORLD_H - vh);
-      panX = Math.max(minX, Math.min(0, panX));
-      panY = Math.max(minY, Math.min(0, panY));
-    }
-
-    function onPointerDown(e) {
-      if (e.button !== 0) return;
-      isDragging = true;
-      viewport.classList.add('is-dragging');
-      startX = e.clientX; startY = e.clientY;
-      startPanX = panX; startPanY = panY;
-      velX = 0; velY = 0;
-      lastMoveX = e.clientX; lastMoveY = e.clientY;
-      lastMoveTime = performance.now();
-      if (inertiaRaf) { cancelAnimationFrame(inertiaRaf); inertiaRaf = null; }
-      viewport.setPointerCapture(e.pointerId);
-    }
-
-    function onPointerMove(e) {
-      if (!isDragging) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      panX = startPanX + dx;
-      panY = startPanY + dy;
-      clampPan();
-      applyTransform();
-
-      const now = performance.now();
-      const dt = now - lastMoveTime;
-      if (dt > 0) {
-        velX = (e.clientX - lastMoveX) / dt * 16;
-        velY = (e.clientY - lastMoveY) / dt * 16;
+      function onMove(e) {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;   // 0..1
+        const y = (e.clientY - rect.top) / rect.height;   // 0..1
+        // Invert so the edge the cursor is over LIFTS toward the viewer:
+        //   cursor on right → right edge up (rotateY negative)
+        //   cursor on top   → top edge up   (rotateX positive with y-inverted)
+        const ry = (0.5 - x) * 2 * MAX_TILT;              // left/right tilt
+        const rx = (y - 0.5) * 2 * MAX_TILT;              // up/down tilt
+        card.style.setProperty('--rx', `${rx}deg`);
+        card.style.setProperty('--ry', `${ry}deg`);
+        // Map 0..1 cursor → 100%..0% position, so light band sweeps
+        // across the card face opposite to the cursor's movement —
+        // mimicking how a physical reflection appears to slide against
+        // your viewing direction.
+        card.style.setProperty('--shine-px', `${(1 - x) * 100}%`);
+        card.style.setProperty('--shine-py', `${(1 - y) * 100}%`);
       }
-      lastMoveX = e.clientX; lastMoveY = e.clientY;
-      lastMoveTime = now;
-    }
-
-    function onPointerUp() {
-      if (!isDragging) return;
-      isDragging = false;
-      viewport.classList.remove('is-dragging');
-      startInertia();
-    }
-
-    function startInertia() {
-      const friction = 0.94;
-      const minVel = 0.3;
-
-      function tick() {
-        velX *= friction;
-        velY *= friction;
-        if (Math.abs(velX) < minVel && Math.abs(velY) < minVel) {
-          inertiaRaf = null;
-          return;
-        }
-        panX += velX;
-        panY += velY;
-        clampPan();
-        applyTransform();
-        inertiaRaf = requestAnimationFrame(tick);
+      function onEnter() { card.classList.add('is-active'); }
+      function onLeave() {
+        card.classList.remove('is-active');
+        card.style.setProperty('--rx', '0deg');
+        card.style.setProperty('--ry', '0deg');
+        // Park the shine at rest — a slight offset-from-center keeps the
+        // gloss barely visible if opacity lingers during the fade-out.
+        card.style.setProperty('--shine-px', '50%');
+        card.style.setProperty('--shine-py', '50%');
       }
-      inertiaRaf = requestAnimationFrame(tick);
+
+      card.addEventListener('pointerenter', onEnter);
+      card.addEventListener('pointermove', onMove);
+      card.addEventListener('pointerleave', onLeave);
+      card.addEventListener('pointercancel', onLeave);
     }
 
-    viewport.addEventListener('pointerdown', onPointerDown);
-    viewport.addEventListener('pointermove', onPointerMove);
-    viewport.addEventListener('pointerup', onPointerUp);
-    viewport.addEventListener('pointercancel', onPointerUp);
+    // ---- Modal ----
+    let lastFocus = null;
+    function openModal(entry) {
+      lastFocus = document.activeElement;
+      // Remove any previous card inside the stage (everything except the
+      // close button) to prevent stacking on rapid re-clicks.
+      modalStage.querySelectorAll('.gallery-card').forEach(n => n.remove());
+      const bigCard = buildCard(entry, { isModal: true });
+      modalStage.appendChild(bigCard);
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      modalClose.focus();
+    }
+    function closeModal() {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      if (lastFocus) lastFocus.focus();
+      // Clean up the card after the exit transition.
+      setTimeout(() => {
+        modalStage.querySelectorAll('.gallery-card').forEach(n => n.remove());
+      }, 320);
+    }
+    modalClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+    });
 
-    // Prevent text selection during drag
-    viewport.addEventListener('dragstart', e => e.preventDefault());
-
-    // ---- Touch: prevent browser scroll ----
-    viewport.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
-
-    // ---- Dummy cards for preview ----
+    // ---- Dummy cards for preview when Supabase is empty ----
     const DUMMY_ENTRIES = [
       { id: 101, name: 'Sarah Chen', message: 'Love the portfolio! The animations are so smooth.', card_color: '#4A90D9', pattern: 'dot-grid', created_at: '2026-04-10T14:30:00Z', signature_data: null },
       { id: 102, name: 'Marcus', message: 'Great work on the guestbook concept. Really creative!', card_color: '#E8541A', pattern: 'dash-scatter', created_at: '2026-04-11T09:15:00Z', signature_data: null },
@@ -535,39 +720,32 @@
       { id: 107, name: 'Priya Sharma', message: 'Found your portfolio through Twitter. Keep it up!', card_color: '#E74C3C', pattern: 'dash-scatter', created_at: '2026-04-13T03:30:00Z', signature_data: null },
       { id: 108, name: 'Anonymous', message: null, card_color: '#34495E', pattern: 'batik-kawung', created_at: '2026-04-13T08:00:00Z', signature_data: null },
       { id: 109, name: 'Liam O\'Brien', message: 'Really dig the batik patterns. Nice cultural touch!', card_color: '#8E44AD', pattern: 'batik-parang', created_at: '2026-04-13T10:15:00Z', signature_data: null },
-      { id: 110, name: 'Zara', message: 'Minimalist and playful at the same time. 👏', card_color: '#F1C40F', pattern: 'ruled', created_at: '2026-04-13T11:00:00Z', signature_data: null },
+      { id: 110, name: 'Zara', message: 'Minimalist and playful at the same time.', card_color: '#F1C40F', pattern: 'ruled', created_at: '2026-04-13T11:00:00Z', signature_data: null },
+      { id: 111, name: 'Hana Ito', message: 'Inspired to build my own signature portfolio after seeing this.', card_color: '#16A085', pattern: 'dot-grid', created_at: '2026-04-14T10:15:00Z', signature_data: null },
+      { id: 112, name: 'Theo', message: 'The color palette choices are chef\'s kiss.', card_color: '#D35400', pattern: 'ruled', created_at: '2026-04-14T14:22:00Z', signature_data: null },
     ];
 
     // ---- Load entries ----
     async function loadEntries() {
       let entries = [];
-
       try {
         const { data, error } = await supabase
           .from('guestbook_entries')
           .select('*')
           .order('created_at', { ascending: false });
-
-        if (!error && data && data.length > 0) {
-          entries = data;
-        }
+        if (!error && data && data.length > 0) entries = data;
       } catch (err) {
         console.error('[Gallery] fetch failed:', err);
       }
 
-      // Fall back to dummy entries if Supabase returned nothing
       if (entries.length === 0) {
         console.info('[Gallery] Using dummy entries for preview');
         entries = DUMMY_ENTRIES;
       }
 
-      // Hide loading status
-      status.classList.add('is-hidden');
-
-      // Render cards with staggered fade-in
-      entries.forEach(entry => {
-        world.appendChild(buildCard(entry));
-      });
+      status.remove();
+      entries.forEach(entry => grid.appendChild(buildCard(entry)));
+      countEl.textContent = `${entries.length} ${entries.length === 1 ? 'card' : 'cards'}`;
     }
 
     // ---- Real-time subscription ----
@@ -575,22 +753,16 @@
       supabase
         .channel('guestbook_gallery')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'guestbook_entries' }, payload => {
-          const card = buildCard(payload.new, true);
-          world.appendChild(card);
+          const card = buildCard(payload.new, { isNew: true });
+          grid.insertBefore(card, grid.firstChild);
+          const n = grid.querySelectorAll('.gallery-card').length;
+          countEl.textContent = `${n} ${n === 1 ? 'card' : 'cards'}`;
         })
         .subscribe();
     }
 
-    // ---- Init ----
-    centerCanvas();
     loadEntries();
     subscribeToNew();
-
-    // Re-center on resize
-    window.addEventListener('resize', () => {
-      clampPan();
-      applyTransform();
-    });
   </script>
 </body>
 </html>
