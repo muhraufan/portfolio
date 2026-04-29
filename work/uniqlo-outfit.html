@@ -18,18 +18,9 @@
   <link rel="stylesheet" href="/css/case.css?v=153">
   <style>
     /* ============================================================
-       MEDIUM-STYLE PAYWALL
-       When body.is-paywalled is on:
-         · .case-content gets clipped + soft-masked at the bottom so
-           the reader sees roughly the first beat of the case study,
-           then the rest fades into the page background.
-         · .pw-paywall card sits directly below the masked article,
-           overlapping the fade slightly so it reads as one moment.
-         · Sidebar / mobile-menu links get dimmed/inert.
-       To turn OFF for drafting: remove `is-paywalled` from <body>
-       and add `return;` at the top of the password IIFE.
+       MEDIUM-STYLE PAYWALL — clip + fade the article, then drop a
+       card in the gap. Toggled by `body.is-paywalled`.
        ============================================================ */
-
     body.is-paywalled .case-content {
       max-height: 1450px;
       overflow: hidden;
@@ -39,8 +30,6 @@
               mask-image: linear-gradient(to bottom,
         black 0%, black 60%, transparent 100%);
     }
-    /* Dim every nav link except the currently-active section so the
-       reader can't try to navigate into the gated portion. */
     body.is-paywalled .case-nav-link:not(.active),
     body.is-paywalled .case-mobile-menu-link:not(.active) {
       opacity: 0.35;
@@ -53,6 +42,7 @@
       z-index: 5;
       margin: -140px auto 64px;
       padding: 32px 32px 36px;
+      max-width: 520px;
       text-align: center;
       background: var(--bg);
       border: 0.5px solid var(--border2);
@@ -168,10 +158,527 @@
       }
       body.is-paywalled .case-content { max-height: 1200px; }
     }
+
+    /* Case subtitle — sits under the case-title */
+    .case-subtitle {
+      font-size: 14px;
+      color: var(--text2);
+      letter-spacing: 0.5px;
+      line-height: 1.6;
+      margin: -4px 0 12px;
+    }
+
+    /* Single centered phone mockup (used throughout this case study) */
+    .case-phone-figure {
+      margin: 40px auto 8px;
+      max-width: 280px;
+      text-align: center;
+    }
+    .case-phone-figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 20px;
+      /* Subtle inset outline so the phone mockup has a defined edge against
+         any background — pure black in light, pure white in dark (tinted
+         neutrals pick up the surface color and read as dirt on the edge). */
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+    [data-theme="dark"] .case-phone-figure img {
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .case-phone-figure img {
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+      }
+    }
+    .case-phone-caption {
+      margin-top: 12px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      color: var(--text3);
+      letter-spacing: 0.3px;
+      line-height: 1.5;
+    }
+    .case-phone-figure + p {
+      margin-top: 40px;
+    }
+
+    /* ============ The Framework ============ */
+    .framework-intro {
+      position: relative;
+      z-index: 2;
+      margin: 0 0 24px;
+      /* reserveLangSpace() in main.js adds overflow:hidden on every
+         [data-en] element — that can clip this paragraph if the measured
+         min-height falls short after font swap. Let it breathe. */
+      overflow: visible !important;
+      min-height: 0 !important;
+    }
+    /* Funnel wrap — centered in the content column, labels overlaid per layer */
+    .framework-funnel-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+      margin: 32px auto 32px;
+    }
+    .framework-funnel {
+      width: 100%;
+      height: auto;
+      display: block;
+      overflow: visible;
+    }
+
+    /* Label overlays positioned absolutely inside each funnel layer.
+       Offsets match the layer's diagonal edges + 24px horizontal padding
+       at its midpoint. Layer heights: 80/270 = 29.63% each. */
+    .framework-label-overlay {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;  /* vertical center within the layer */
+      align-items: center;      /* horizontal center within the inset box */
+      text-align: center;
+      gap: 4px;
+      /* Asymmetric padding nudges content below the layer's geometric
+         midline so it reads as optically centered inside each trapezoid
+         (ascenders push visual weight upward at line-height 1.2). */
+      padding: 22px 0 10px;
+      box-sizing: border-box;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    /* Layer heights: 100/330 = 30.30% each. Gaps between layers are 2px.
+       L1 starts at y=0, L2 at y=102/330 = 30.91%, L3 at y=204/330 = 61.82%. */
+    .framework-label-overlay--1 { top: 0;       height: 30.30%; left: 10%; right: 10%; }
+    .framework-label-overlay--2 { top: 30.91%;  height: 30.30%; left: 17%; right: 17%; }
+    .framework-label-overlay--3 { top: 61.82%;  height: 30.30%; left: 24%; right: 24%; }
+
+    .framework-label-head {
+      display: flex;
+      align-items: center;
+      justify-content: center;  /* center the dot+title pair horizontally */
+      gap: 8px;
+    }
+    .framework-label-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      /* Color per layer — set on the overlay rule below */
+    }
+    .framework-label-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      line-height: 1.2;  /* normal line-box so the visual center matches flex center */
+      letter-spacing: 0.2px;
+      margin: 0;
+      opacity: 0.9;  /* idle */
+    }
+    .framework-label-desc {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 400;
+      font-size: 0.72rem;
+      line-height: 1.3;
+      margin: 0;
+      padding: 0;
+      opacity: 0.85;   /* stable — no pulse on taglines so they're always legible */
+      /* Tagline — always one line. Full description lives in the tooltip. */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    /* Per-layer text + dot colors — matched to the site's three-color
+       palette (mint / warm yellow / coral) already used in tiket Discover. */
+    .framework-label-overlay--1 .framework-label-title,
+    .framework-label-overlay--1 .framework-label-desc { color: #3D6B55; }
+    .framework-label-overlay--1 .framework-label-dot  { background: #6C9483; }
+
+    .framework-label-overlay--2 .framework-label-title,
+    .framework-label-overlay--2 .framework-label-desc { color: #8A6D00; }
+    .framework-label-overlay--2 .framework-label-dot  { background: #C9A43F; }
+
+    .framework-label-overlay--3 .framework-label-title,
+    .framework-label-overlay--3 .framework-label-desc { color: #A83838; }
+    .framework-label-overlay--3 .framework-label-dot  { background: #C87878; }
+    /* Sit the content block slightly toward the layer's geometric center
+       by nudging gap between head and desc, keeps both lines above the
+       diagonal bottom of each layer. */
+    .framework-label-overlay { gap: 6px; }
+
+    /* ---- Funnel pulse — 6s loop, gated by IntersectionObserver.
+       Resting state (not in view): layers 0.75, title 0.75, desc 0.6.
+       In view: active layer 1.0 / title 1.0 / desc 0.85, others
+       0.6 / 0.5 / 0.35. Timing identical to the previous version.
+
+       Timeline (6s):
+         0 – 1.2s  (0–20%):   L1 bright
+         1.2 – 1.8s (20–30%): L1→L2 crossfade (0.6s)
+         1.8 – 3.0s (30–50%): L2 bright
+         3.0 – 3.6s (50–60%): L2→L3 crossfade
+         3.6 – 4.8s (60–80%): L3 bright
+         4.0 – 4.4s (66.67–73.33%): purchase fade-in
+         4.4 – 5.6s (73.33–93.33%): purchase visible (1.2s)
+         5.6 – 6.0s (93.33–100%): purchase fade-out + layers reset (pause) */
+    .framework-layer { opacity: 0.75; }
+
+    .framework-funnel-wrap.is-active .framework-layer--1 { animation: fw-pulse-1 6s ease-in-out infinite; }
+    .framework-funnel-wrap.is-active .framework-layer--2 { animation: fw-pulse-2 6s ease-in-out infinite; }
+    .framework-funnel-wrap.is-active .framework-layer--3 { animation: fw-pulse-3 6s ease-in-out infinite; }
+
+    .framework-funnel-wrap.is-active .framework-label-overlay--1 .framework-label-title { animation: fw-title-1 6s ease-in-out infinite; }
+    .framework-funnel-wrap.is-active .framework-label-overlay--2 .framework-label-title { animation: fw-title-2 6s ease-in-out infinite; }
+    .framework-funnel-wrap.is-active .framework-label-overlay--3 .framework-label-title { animation: fw-title-3 6s ease-in-out infinite; }
+
+    /* Taglines stay at a stable legible opacity — they're short and
+       meant to be readable throughout the entire pulse cycle. The pulse
+       is carried by the layer bg + title opacity; desc doesn't need it. */
+
+    .framework-funnel-wrap.is-active .framework-purchase { animation: fw-purchase 6s ease-in-out infinite; }
+
+    @keyframes fw-pulse-1 {
+      0%, 20%   { opacity: 1; }
+      30%, 100% { opacity: 0.6; }
+    }
+    @keyframes fw-pulse-2 {
+      0%, 20%, 60%, 100% { opacity: 0.6; }
+      30%, 50%            { opacity: 1; }
+    }
+    @keyframes fw-pulse-3 {
+      0%, 50%, 90%, 100% { opacity: 0.6; }
+      60%, 80%           { opacity: 1; }
+    }
+
+    @keyframes fw-title-1 {
+      0%, 20%   { opacity: 1; }
+      30%, 100% { opacity: 0.5; }
+    }
+    @keyframes fw-title-2 {
+      0%, 20%, 60%, 100% { opacity: 0.5; }
+      30%, 50%            { opacity: 1; }
+    }
+    @keyframes fw-title-3 {
+      0%, 50%, 90%, 100% { opacity: 0.5; }
+      60%, 80%           { opacity: 1; }
+    }
+
+    @keyframes fw-desc-1 {
+      0%, 20%   { opacity: 0.85; }
+      30%, 100% { opacity: 0.35; }
+    }
+    @keyframes fw-desc-2 {
+      0%, 20%, 60%, 100% { opacity: 0.35; }
+      30%, 50%            { opacity: 0.85; }
+    }
+    @keyframes fw-desc-3 {
+      0%, 50%, 90%, 100% { opacity: 0.35; }
+      60%, 80%           { opacity: 0.85; }
+    }
+
+    .framework-purchase {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    .framework-purchase text {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      fill: #A83838;
+      letter-spacing: 0.3px;
+    }
+    [data-theme="dark"] .framework-purchase text { fill: #E8A0A0; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .framework-purchase text { fill: #E8A0A0; }
+    }
+    @keyframes fw-purchase {
+      0%, 66.67%     { opacity: 0; transform: translateY(4px); }
+      73.33%         { opacity: 1; transform: translateY(0); }
+      93.33%         { opacity: 1; transform: translateY(0); }
+      100%           { opacity: 0; transform: translateY(4px); }
+    }
+
+    /* Mobile — funnel scales down with the column; labels follow via %. */
+    @media (max-width: 700px) {
+      .framework-label-title { font-size: 0.8rem; }
+      .framework-label-desc  { font-size: 0.68rem; }
+    }
+
+    /* Respect reduced-motion preferences — skip the pulse entirely */
+    @media (prefers-reduced-motion: reduce) {
+      .framework-funnel-wrap.is-active .framework-layer,
+      .framework-funnel-wrap.is-active .framework-label-title,
+      .framework-funnel-wrap.is-active .framework-label-desc,
+      .framework-funnel-wrap.is-active .framework-purchase {
+        animation: none;
+      }
+      .framework-layer { opacity: 1; }
+      .framework-label-title { opacity: 1; }
+      .framework-label-desc { opacity: 0.85; }
+      .framework-purchase { opacity: 1; transform: none; }
+    }
+
+    /* Cursor-following tooltip — one element, reused by all three layers.
+       Dark surface, neutral off-white text, subtle mint hairline to tie
+       back to the site's brand accent without shouting. */
+    .framework-layer { cursor: help; }
+    .framework-tooltip {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      background: #1A1A1A;
+      color: #F5F5F3;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 400;
+      font-size: 0.78rem;
+      line-height: 1.6;
+      padding: 12px 16px;
+      border-radius: 6px;
+      border: 1px solid rgba(200, 221, 212, 0.14);
+      max-width: 260px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+      pointer-events: none;
+      opacity: 0;
+      transform: translateZ(0);
+      transition: opacity 100ms ease-out;
+    }
+    .framework-tooltip.is-visible {
+      opacity: 1;
+      transition: opacity 150ms ease-out;
+    }
+
+    /* ===== The Design ===== */
+    .design-intro {
+      max-width: 640px;
+      margin: 0 0 56px;
+    }
+    .design-subsection {
+      margin-top: 72px;
+    }
+    .design-subsection:first-of-type {
+      margin-top: 56px;
+    }
+    .design-tag {
+      display: inline-block;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .design-tag--context { color: #8CB8A0; }
+    .design-tag--visual  { color: #C9A43F; }
+    .design-tag--action  { color: #C87878; }
+    .design-subsection h3.design-h3 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      line-height: 1.3;
+      margin: 0 0 14px;
+      color: var(--text);
+    }
+    .design-subsection p.design-copy {
+      max-width: 640px;
+      margin: 0 0 28px;
+    }
+    .design-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      margin: 32px 0 28px;
+    }
+    .design-tabs {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      background: var(--bg);
+    }
+    .design-tab-btn {
+      font-family: 'Noto Sans JP', 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text2);
+      background: transparent;
+      border: 0;
+      padding: 8px 18px;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: background 180ms ease, color 180ms ease, transform 140ms ease-out;
+      white-space: nowrap;
+    }
+    .design-tab-btn:hover {
+      color: var(--text);
+    }
+    .design-tab-btn:active {
+      transform: scale(0.96);
+    }
+    .design-tab-btn.is-active {
+      background: var(--text);
+      color: var(--bg);
+    }
+    .design-phone-frame {
+      position: relative;
+      width: 100%;
+      max-width: 280px;
+      aspect-ratio: 9 / 19.5;
+      border-radius: 32px;
+      overflow: hidden;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+    }
+    .design-phone-frame img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 250ms ease;
+    }
+    .design-phone-frame img.is-active {
+      opacity: 1;
+    }
+    .design-annotation {
+      max-width: 640px;
+      margin: 20px 0 0;
+      color: var(--text2);
+    }
+    .design-tag--visual-terra { color: #D4956A; }
+
+    /* Scrollable phone + scroll-linked annotations */
+    .design-scroll-stage {
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+      margin: 32px 0 16px;
+    }
+    .design-scroll-phone {
+      flex: 0 0 45%;
+      max-width: 45%;
+      position: relative;
+      max-height: 520px;
+      height: 520px;
+      border-radius: 16px;
+      overflow: visible;
+      background: transparent;
+    }
+    .design-scroll-phone .design-scroll-phone-inner {
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--bg2);
+    }
+    /* Reuse .spectrum-scroll-hint from case.css, but anchor to the LEFT
+       side of our phone (shared rule assumes a centered spectrum phone). */
+    .design-scroll-phone .spectrum-scroll-hint {
+      left: auto;
+      right: calc(100% + 12px);
+    }
+    @media (max-width: 768px) {
+      .design-scroll-phone .spectrum-scroll-hint {
+        right: auto;
+      }
+    }
+    .design-scroll-phone-inner {
+      position: absolute;
+      inset: 0;
+      overflow-y: scroll;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .design-scroll-phone-inner::-webkit-scrollbar { display: none; }
+    .design-scroll-phone-inner img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .design-scroll-annotations {
+      flex: 0 0 45%;
+      max-width: 45%;
+      position: relative;
+      min-height: 520px;
+    }
+    .design-scroll-annotation {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 200ms ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .design-scroll-annotation.is-active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .design-scroll-annotation .design-tag {
+      margin-bottom: 10px;
+    }
+    .design-scroll-annotation-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      line-height: 1.3;
+      margin: 0 0 10px;
+      color: var(--text);
+    }
+    .design-scroll-annotation p {
+      margin: 0;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+    .design-scroll-hint {
+      font-style: italic;
+      font-size: 0.85rem;
+      color: var(--text3);
+      margin: 12px 0 0;
+      opacity: 0.8;
+    }
+    @media (max-width: 768px) {
+      .design-scroll-stage {
+        flex-direction: column;
+        gap: 20px;
+      }
+      /* In a column flex container, flex-basis:100% refers to MAIN-axis
+         (height) and collapses because the parent has no fixed height.
+         Use flex:0 0 auto + explicit width/height so the phone renders
+         at its full size on mobile. */
+      .design-scroll-phone {
+        flex: 0 0 auto;
+        width: 100%;
+        max-width: 280px;
+        margin-left: auto;
+        margin-right: auto;
+        height: 560px;
+        max-height: 560px;
+      }
+      .design-scroll-annotations {
+        flex: 0 0 auto;
+        width: 100%;
+        max-width: 100%;
+        min-height: 0;
+      }
+      .design-scroll-annotation {
+        position: relative;
+        inset: auto;
+        opacity: 1;
+        margin-bottom: 20px;
+      }
+    }
   </style>
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body class="minimal is-paywalled">
+
   <div class="case-page is-visible" id="case-page">
 
     <button class="m-lang-toggle case-lang-toggle" aria-label="Toggle language">JA</button>
@@ -935,8 +1442,7 @@
 
     </article>
 
-    <!-- Medium-style paywall card. Visible only when body.is-paywalled.
-         IDs preserved so the unlock JS continues to bind unchanged. -->
+    <!-- Medium-style paywall card. Visible only when body.is-paywalled. -->
     <aside class="pw-paywall" id="pw-wall" aria-label="Password gate">
       <svg class="pw-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
         <rect x="3" y="11" width="18" height="11" rx="2"/>
@@ -956,7 +1462,6 @@
       <a href="/" class="pw-back" data-en="← Back to home" data-ja="← 戻る">← Back to home</a>
     </aside>
 
-
   </div>
 
   <script src="/js/case.js?v=11"></script>
@@ -964,6 +1469,7 @@
   <script>
   // Medium-style paywall — fades the card out and removes it on
   // correct password; un-clips .case-content via body.is-paywalled.
+  // Swap HASH for a different password by computing a new sha256 hex digest.
   (function() {
     var HASH = '2a917d6683f3d37aedf1324e823f40191342271096a1291d9e4f88b90ea527d9';
     var wall = document.getElementById('pw-wall');
