@@ -39,6 +39,30 @@
 
   sections.forEach((section) => observer.observe(section));
 
+  // When the Medium-style paywall is unlocked, the body loses
+  // `is-paywalled` and the article un-clips. The sections themselves
+  // never moved (overflow:hidden only hid them visually), so
+  // IntersectionObserver doesn't re-fire — the sidebar would stay
+  // pinned to whichever section was active at unlock time until the
+  // reader manually scrolls. Watch for the class removal and re-bind
+  // observers so the IO callback runs against the un-clipped layout.
+  if (document.body.classList.contains('is-paywalled') &&
+      typeof MutationObserver !== 'undefined') {
+    const bodyWatcher = new MutationObserver(() => {
+      if (document.body.classList.contains('is-paywalled')) return;
+      bodyWatcher.disconnect();
+      // Clear current active so the next IO entry definitively wins.
+      navLinks.forEach((l) => l.classList.remove('active'));
+      // Force IO to re-evaluate: unobserve + observe makes it fire
+      // entries against the new (un-clipped) geometry.
+      sections.forEach((s) => {
+        observer.unobserve(s);
+        observer.observe(s);
+      });
+    });
+    bodyWatcher.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  }
+
   // ---- Rubber-band line indicator ----
   // A 2px vertical line on the left of the nav that tracks the active
   // section link. Three phases:
@@ -96,6 +120,12 @@
     }
 
     function isAtBottom() {
+      // While the Medium-style paywall is on, `.case-content` is clipped
+      // with max-height + overflow:hidden, which dramatically shortens
+      // the page. Without this guard, scrollY=0 already counts as "at
+      // bottom" and the sidebar is force-pinned to the LAST section
+      // (Results & Reflection) before the reader has scrolled anywhere.
+      if (document.body.classList.contains('is-paywalled')) return false;
       const docH = document.documentElement.scrollHeight;
       const winH = window.innerHeight;
       // Only trust "at bottom" when the page is actually scrollable.
