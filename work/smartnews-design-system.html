@@ -119,6 +119,7 @@
     .pw-title {
       font-size: 18px;
       font-weight: 600;
+      line-height: 1.4;
       color: var(--text);
       letter-spacing: -0.01em;
       margin: 0 0 8px;
@@ -131,6 +132,12 @@
       margin: 0 0 20px;
       text-wrap: pretty;
     }
+    /* Reset paragraph line-height inherited from .case-content — those
+       p's get ~2x for body copy; the paywall card sits outside that
+       column but inherits via the cascade and the gap looks broken. */
+    .pw-paywall p { line-height: 1.5; }
+    .pw-paywall .pw-title { line-height: 1.4; }
+    .pw-paywall .pw-desc { line-height: 1.6; }
 
     .pw-form {
       display: flex;
@@ -725,8 +732,22 @@
               grid-template-columns: 1fr;
               gap: 36px;
             }
+            /* Asymmetric gutters — pills exit OUTWARD from each card
+               (D1 pills on left, D2 pills on right). Label inherits the
+               same content-box center as the card, so they stay vertically
+               aligned even though both drift toward the inner edge. */
             .spot-diff-col[data-side="left"]  { padding-left: 26%; }
             .spot-diff-col[data-side="right"] { padding-right: 26%; }
+            /* Tighter pills + slightly nudged --ax keep the bottom row
+               from overlapping itself or pushing past the viewport. */
+            .spot-diff-anno {
+              font-size: 10px;
+              padding: 3px 8px;
+            }
+            .spot-diff-col[data-side="right"] [data-pos="tag"]     { --ax: 17%; }
+            .spot-diff-col[data-side="right"] [data-pos="caption"] { --ax: 45%; }
+            .spot-diff-col[data-side="left"]  [data-pos="caption"] { --ax: 42%; }
+            .spot-diff-col[data-side="left"]  [data-pos="cta"]     { --ax: 80%; }
             /* On mobile the button still drives the reveal — keeps the
                interaction model consistent across breakpoints. */
           }
