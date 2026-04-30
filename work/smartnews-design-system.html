@@ -263,8 +263,8 @@
     <article class="case-content">
 
       <header class="case-header">
-        <p class="case-meta">SmartNews · 2025 · 4 months (phase 1)</p>
-        <h1 class="case-title">Building SmartNews' design system foundations from scratch.</h1>
+        <p class="case-meta">SmartNews · 4 months · Shipped across Figma, Android, iOS</p>
+        <h1 class="case-title">Making Engineer and Designer Speak the Same Language</h1>
         <p class="case-role">Lead Product Designer</p>
         <!-- TODO: replace with the design system cover (image or video) -->
       </header>
@@ -732,22 +732,28 @@
               grid-template-columns: 1fr;
               gap: 36px;
             }
-            /* Asymmetric gutters — pills exit OUTWARD from each card
-               (D1 pills on left, D2 pills on right). Label inherits the
-               same content-box center as the card, so they stay vertically
-               aligned even though both drift toward the inner edge. */
-            .spot-diff-col[data-side="left"]  { padding-left: 26%; }
-            .spot-diff-col[data-side="right"] { padding-right: 26%; }
-            /* Tighter pills + slightly nudged --ax keep the bottom row
-               from overlapping itself or pushing past the viewport. */
+            /* Symmetric gutters on mobile so BOTH cards center under
+               their labels. The side gutters (~50px each at 375vw) leave
+               just enough room for the outer pills (Radius / body hex)
+               to sit in the negative space without clipping. */
+            .spot-diff-col[data-side="left"],
+            .spot-diff-col[data-side="right"]  {
+              padding-left: 15%;
+              padding-right: 15%;
+            }
+            /* Tighter pills on mobile so the bottom row spreads across
+               the narrower card without colliding. */
             .spot-diff-anno {
               font-size: 10px;
               padding: 3px 8px;
             }
-            .spot-diff-col[data-side="right"] [data-pos="tag"]     { --ax: 17%; }
-            .spot-diff-col[data-side="right"] [data-pos="caption"] { --ax: 45%; }
-            .spot-diff-col[data-side="left"]  [data-pos="caption"] { --ax: 42%; }
-            .spot-diff-col[data-side="left"]  [data-pos="cta"]     { --ax: 80%; }
+            /* With cards now centered (symmetric padding) the bottom-row
+               --ax positions spread evenly across the card. Widening
+               the spread (15 / 50 / 85) keeps adjacent pills from
+               overlapping after the side-padding shrink. */
+            .spot-diff [data-pos="tag"]     { --ax: 15%; }
+            .spot-diff [data-pos="caption"] { --ax: 50%; }
+            .spot-diff [data-pos="cta"]     { --ax: 85%; }
             /* On mobile the button still drives the reveal — keeps the
                interaction model consistent across breakpoints. */
           }
@@ -4331,6 +4337,20 @@
               .sn-tokens-diff-stage { height: 280px; }
               .sn-tokens-diff-code { font-size: 10px; padding: 14px; }
               .sn-tokens-diff-tagline { font-size: 15px; }
+              /* Stack the toggle + counter vertically and center both —
+                 on narrow viewports `space-between` parks the counter at
+                 the right edge which reads as misaligned. */
+              .sn-tokens-diff-controls {
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 10px;
+              }
+              .sn-tokens-diff-counter { justify-items: center; }
+              /* Win chips default to flex-end (right-anchored next to
+                 the toggle on desktop). With the column stacked + centered
+                 on mobile, center them so the wrap row reads symmetric. */
+              .sn-tokens-diff-counter-wins { justify-content: center; }
             }
             @media (prefers-reduced-motion: reduce) {
               .sn-tokens-diff-code,

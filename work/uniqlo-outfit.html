@@ -25,10 +25,14 @@
       max-height: 1450px;
       overflow: hidden;
       position: relative;
+      /* Tighter mask — content stays opaque almost all the way down,
+         only the very bottom edge fades into the paywall card. The card
+         itself covers the post-cut paragraph on its own (no need to
+         lean on a long fade). */
       -webkit-mask-image: linear-gradient(to bottom,
-        black 0%, black 60%, transparent 100%);
+        black 0%, black 85%, transparent 100%);
               mask-image: linear-gradient(to bottom,
-        black 0%, black 60%, transparent 100%);
+        black 0%, black 85%, transparent 100%);
     }
     body.is-paywalled .case-nav-link:not(.active),
     body.is-paywalled .case-mobile-menu-link:not(.active) {
@@ -737,7 +741,8 @@
 
         <p data-en="During the first month I joined Uniqlo, I reflected on my own relationship with the app, I realized I only open it at the register to show my membership barcode and collect points." data-ja="ユニクロにデザイナーとして入社しました。でも、自分自身とアプリの関係を振り返ってみると——レジでメンバーシップのバーコードを見せてポイントを貯めるときにしか、アプリを開いていないことに気づきました。">During the first month I joined Uniqlo, I reflected on my own relationship with the app, I realized I only open it at the register to show my membership barcode and collect points.</p>
 
-        <p data-en-html='So I looked closer. At myself first, then at what customers were saying. Two things became clear: <span class="m-highlight">I shop with outfits in mind, not individual items</span>. And the Voice of Customer data confirmed I wasn&apos;t alone.' data-ja-html='だから、もっと近くで見てみることにしました。まずは自分自身を、次にお客様の声を。見えてきたのは二つのこと——<span class="m-highlight">自分は「アイテム単位」ではなく「アウトフィット単位」で買い物をしている</span>ということ。そして Voice of Customer のデータは、そう感じているのが自分だけではないことを裏付けていました。'>So I looked closer. At myself first, then at what customers were saying. Two things became clear: <span class="m-highlight">I shop with outfits in mind, not individual items</span>. And the Voice of Customer data confirmed I wasn't alone.</p>
+        <p data-paywall-cut data-en-html='So I looked closer. At myself first, then at what customers were saying. Two things became clear: <span class="m-highlight">I shop with outfits in mind, not individual items.</span>' data-ja-html='だから、もっと近くで見てみることにしました。まずは自分自身を、次にお客様の声を。見えてきたのは二つのこと——<span class="m-highlight">自分は「アイテム単位」ではなく「アウトフィット単位」で買い物をしている</span>ということ。'>So I looked closer. At myself first, then at what customers were saying. Two things became clear: <span class="m-highlight">I shop with outfits in mind, not individual items.</span></p>
+        <p data-en="And the Voice of Customer data confirmed I wasn't alone." data-ja="そして Voice of Customer のデータは、そう感じているのが自分だけではないことを裏付けていました。">And the Voice of Customer data confirmed I wasn't alone.</p>
       </section>
 
       <!-- ============ 4. The Framework ============ -->
@@ -1478,6 +1483,35 @@
     var error = document.getElementById('pw-error');
     if (!wall || !form) return;
 
+    // Dynamic paywall clip — anchor on the punchline paragraph
+    // ([data-paywall-cut]) so the cut lands at a precise sentence
+    // break instead of a static pixel value. Re-applies on resize
+    // and after fonts load (both can shift the anchor's position).
+    function applyPaywallCut() {
+      if (!document.body.classList.contains('is-paywalled')) return;
+      var cut = document.querySelector('[data-paywall-cut]');
+      var content = document.querySelector('.case-content');
+      if (!cut || !content) return;
+      // Anchor the clip on the NEXT paragraph's top edge: the card has
+      // margin-top: -140 so card-top (article-relative) = maxHeight - 140.
+      // Setting maxHeight = nextP.offsetTop + 140 lands the card flush
+      // against "And the Voice of Customer..." so it gets fully covered.
+      var next = cut.nextElementSibling;
+      var anchorTop = next ? next.offsetTop : (cut.offsetTop + cut.offsetHeight);
+      content.style.maxHeight = (anchorTop + 140) + 'px';
+      // Hide the next paragraph's text while paywalled so it can't peek
+      // through the card's rounded corners or any sub-pixel gap.
+      // visibility (not display) keeps the offset math stable.
+      if (next) next.style.visibility = 'hidden';
+    }
+    applyPaywallCut();
+    window.addEventListener('resize', applyPaywallCut);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(applyPaywallCut);
+    }
+    // Re-apply when the language toggle swaps content (data-en/data-ja).
+    document.addEventListener('lang:changed', applyPaywallCut);
+
     async function sha256(str) {
       var buf = await crypto.subtle.digest('SHA-256',
         new TextEncoder().encode(str));
@@ -1489,6 +1523,13 @@
     function unlock() {
       wall.classList.add('is-unlocked');
       document.body.classList.remove('is-paywalled');
+      // Restore the article's natural height + reveal the paragraph
+      // we hid behind the card while paywalled.
+      var content = document.querySelector('.case-content');
+      if (content) content.style.maxHeight = '';
+      var cut = document.querySelector('[data-paywall-cut]');
+      var next = cut && cut.nextElementSibling;
+      if (next) next.style.visibility = '';
       setTimeout(function() {
         if (wall.parentNode) wall.parentNode.removeChild(wall);
       }, 400);
