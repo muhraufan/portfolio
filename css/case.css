@@ -1810,6 +1810,10 @@
   filter: blur(4px);
 }
 
+.sn-ds-pain {
+  margin-bottom: 0px !important;
+}
+
 .spectrum-annotation-badge {
   display: inline-block;
   font-size: 14px;
