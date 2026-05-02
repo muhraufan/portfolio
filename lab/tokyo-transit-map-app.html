@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tokyo Transit Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden}
+body{background:#FFFFFF;font-family:'Plus Jakarta Sans',sans-serif;transition:background 600ms ease}
+body.night{background:#0A0E1A}
+svg#map{display:block;width:100%;height:100%;cursor:grab}
+svg#map:active{cursor:grabbing}
+.station-group{cursor:pointer}
+.station-label{transition:opacity .15s ease}
+.station-label text{paint-order:stroke;stroke:#FFFFFF;stroke-linejoin:round;stroke-linecap:round}
+.station-group:hover .station-label{opacity:1!important}
+.station-group:hover .station-marker{stroke:#222222!important}
+
+#legend{
+  position:fixed;bottom:24px;left:24px;
+  background:rgba(255,255,255,0.92);border:1px solid #EAEAE4;border-radius:10px;
+  padding:18px 22px;box-shadow:0 4px 20px rgba(0,0,0,0.04);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  z-index:10;min-width:210px;user-select:none;
+}
+.legend-title{font-size:16px;font-weight:700;color:#333;line-height:1}
+.legend-subtitle{font-size:11px;font-weight:300;color:#AAA;margin-top:3px;margin-bottom:14px}
+.legend-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.legend-bar{width:20px;height:4px;border-radius:1.5px;flex-shrink:0}
+.legend-name{font-size:11px;font-weight:500;color:#666;flex:1}
+.legend-count{font-size:11px;font-weight:600;color:#333}
+.legend-footer{font-size:10px;color:#BBB;margin-top:12px;padding-top:10px;border-top:1px solid #F0F0F0}
+
+#info-panel{
+  position:fixed;bottom:24px;left:24px;
+  background:rgba(255,255,255,0.95);border:1px solid #EAEAE4;border-radius:10px;
+  padding:18px 22px;min-width:220px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.06);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  z-index:12;user-select:none;
+}
+#info-panel .info-close{position:absolute;top:10px;right:12px;background:none;border:none;cursor:pointer;font-size:14px;color:#CCC;padding:6px;line-height:1}
+#info-panel .info-close:hover{color:#666}
+#info-panel .station-en{font-size:17px;font-weight:700;color:#222;padding-right:24px}
+#info-panel .station-ja{font-size:13px;font-weight:300;color:#AAA;margin-top:2px}
+#info-panel .line-badges{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:500;color:#666;background:#F5F4F2;padding:4px 10px;border-radius:5px}
+.badge-sq{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+#toolbar{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:4px;z-index:10;
+  user-select:none;
+}
+#toolbar button{
+  width:34px;height:34px;border:1px solid #E4E2DE;background:#fff;border-radius:7px;
+  color:#888;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:0;margin:0;line-height:0;-webkit-appearance:none;appearance:none;
+  box-shadow:0 2px 8px rgba(0,0,0,0.04);
+  transition:background 120ms cubic-bezier(0.23,1,0.32,1),transform 100ms cubic-bezier(0.23,1,0.32,1),color 120ms;
+}
+#toolbar button > svg{display:block;width:14px;height:14px;flex-shrink:0}
+#toolbar button:hover{background:rgba(0,0,0,0.05);color:#555}
+#toolbar button:active{transform:scale(0.93)}
+#toolbar .tb-sep{width:1px;height:20px;background:#E4E2DE;margin:0 2px;flex-shrink:0}
+#toolbar .tb-coffee{font-size:15px;position:relative}
+#toolbar .tb-coffee.active{background:rgba(111,78,55,0.1);color:#6F4E37}
+#toolbar .tb-coffee .tb-badge{
+  position:absolute;top:2px;right:2px;width:7px;height:7px;
+  background:#6F4E37;border-radius:50%;opacity:0;
+  transition:opacity 200ms;
+}
+#toolbar .tb-coffee.active .tb-badge{opacity:1}
+
+#line-info{
+  position:fixed;bottom:24px;left:24px;
+  background:rgba(255,255,255,0.95);border:1px solid #EAEAE4;border-radius:10px;
+  padding:18px 22px;min-width:240px;max-width:280px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.06);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  z-index:12;user-select:none;
+}
+#line-info .info-close{position:absolute;top:10px;right:12px;background:none;border:none;cursor:pointer;font-size:14px;color:#CCC;padding:6px;line-height:1}
+#line-info .info-close:hover{color:#666}
+#line-info .line-info-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+#line-info .line-info-bar{width:28px;height:6px;border-radius:3px;flex-shrink:0}
+#line-info .line-info-en{font-size:17px;font-weight:700;color:#222}
+#line-info .line-info-ja{font-size:12px;font-weight:300;color:#AAA;margin-top:1px}
+#line-info .line-info-stats{font-size:10px;color:#BBB;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #F0F0F0}
+#line-info .station-list{max-height:320px;overflow-y:auto;padding-right:4px}
+#line-info .station-list::-webkit-scrollbar{width:3px}
+#line-info .station-list::-webkit-scrollbar-thumb{background:#DDD;border-radius:2px}
+#line-info .stn-row{display:flex;align-items:center;gap:8px;padding:4px 0;position:relative}
+#line-info .stn-dot{width:8px;height:8px;border-radius:1.5px;border:1.5px solid;flex-shrink:0;background:#fff}
+#line-info .stn-connector{position:absolute;left:3.5px;top:-4px;width:1.5px;height:calc(100% + 0px);z-index:-1}
+#line-info .stn-name{font-size:11px;font-weight:500;color:#555;flex:1}
+#line-info .stn-name-ja{font-size:9px;font-weight:300;color:#BBB}
+#line-info .stn-xch{font-size:8px;color:#AAA;font-weight:400}
+
+/* Transition on base elements so both enter AND exit animate */
+.line-path{cursor:pointer;transition:opacity 400ms cubic-bezier(0.23,1,0.32,1)}
+.station-group{transition:opacity 400ms cubic-bezier(0.23,1,0.32,1)}
+
+/* Dimmed states */
+.line-dimmed{opacity:0.12!important}
+.station-dimmed{opacity:0.12!important}
+.train-dimmed{opacity:0.06!important;transition:opacity 500ms cubic-bezier(0.23,1,0.32,1)}
+
+/* Line info panel — always rendered, animated via opacity+transform */
+#line-info{
+  display:block!important;opacity:0;transform:translateY(8px) scale(0.98);
+  pointer-events:none;
+  transition:opacity 280ms cubic-bezier(0.23,1,0.32,1),transform 280ms cubic-bezier(0.23,1,0.32,1);
+}
+#line-info.visible{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+
+/* Station info panel — same treatment */
+#info-panel{
+  display:block!important;opacity:0;transform:translateY(8px) scale(0.98);
+  pointer-events:none;
+  transition:opacity 280ms cubic-bezier(0.23,1,0.32,1),transform 280ms cubic-bezier(0.23,1,0.32,1);
+}
+#info-panel.visible{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+
+/* Station list stagger animation */
+@keyframes stnFadeIn{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+#line-info .stn-row{opacity:0;animation:stnFadeIn 250ms cubic-bezier(0.23,1,0.32,1) forwards}
+
+/* Legend fade */
+#legend{transition:opacity 250ms cubic-bezier(0.23,1,0.32,1)}
+#legend.legend-hidden{opacity:0;pointer-events:none}
+
+/* Coffee layer */
+.coffee-group{cursor:pointer;transition:opacity 400ms cubic-bezier(0.23,1,0.32,1)}
+.coffee-group:hover .coffee-label{opacity:1!important}
+.coffee-group:hover .coffee-marker{stroke:#4A3320!important}
+.coffee-connector{transition:opacity 400ms cubic-bezier(0.23,1,0.32,1)}
+.coffee-layer-hidden{opacity:0!important;pointer-events:none!important;transition:opacity 350ms cubic-bezier(0.23,1,0.32,1)}
+
+/* Coffee info panel */
+#coffee-info{
+  position:fixed;bottom:24px;left:24px;
+  background:rgba(255,255,255,0.95);border:1px solid #EAEAE4;border-radius:10px;
+  padding:18px 22px;min-width:250px;max-width:290px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.06);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  z-index:12;user-select:none;
+  display:block;opacity:0;transform:translateY(8px) scale(0.98);
+  pointer-events:none;
+  transition:opacity 280ms cubic-bezier(0.23,1,0.32,1),transform 280ms cubic-bezier(0.23,1,0.32,1);
+}
+#coffee-info.visible{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+#coffee-info .info-close{position:absolute;top:10px;right:12px;background:none;border:none;cursor:pointer;font-size:14px;color:#CCC;padding:6px;line-height:1}
+#coffee-info .info-close:hover{color:#666}
+#coffee-info .coffee-header{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+#coffee-info .coffee-icon-lg{font-size:22px}
+#coffee-info .coffee-name{font-size:16px;font-weight:700;color:#222}
+#coffee-info .coffee-name-ja{font-size:11px;font-weight:300;color:#AAA;margin-top:1px}
+#coffee-info .coffee-meta{font-size:10px;color:#999;margin-bottom:10px}
+#coffee-info .coffee-station{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;
+  background:#F8F7F5;border-radius:7px;margin-bottom:8px;
+}
+#coffee-info .coffee-station .cs-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+#coffee-info .coffee-station .cs-line{font-size:10px;font-weight:500;color:#888}
+#coffee-info .coffee-station .cs-name{font-size:12px;font-weight:600;color:#444}
+#coffee-info .coffee-station .cs-dist{font-size:10px;color:#AAA;margin-left:auto}
+#coffee-info .coffee-desc{font-size:11px;color:#777;line-height:1.5;margin-top:10px;padding-top:10px;border-top:1px solid #F0F0F0}
+#coffee-info .coffee-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+#coffee-info .coffee-tag{font-size:9px;color:#999;background:#F5F4F2;padding:3px 8px;border-radius:4px}
+
+/* Dev Tools */
+#dev-panel{
+  position:fixed;top:16px;right:16px;width:280px;
+  background:rgba(20,20,25,0.95);border:1px solid #333;border-radius:10px;
+  padding:16px;color:#ddd;font-size:12px;z-index:100;user-select:none;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);display:none;
+  font-family:'Plus Jakarta Sans',monospace;
+}
+#dev-panel.active{display:block}
+#dev-panel .dp-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+#dev-panel .dp-title span{opacity:0.4;font-size:10px;font-weight:400}
+#dev-panel .dp-section{margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #333}
+#dev-panel .dp-label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px}
+#dev-panel .dp-station-name{font-size:15px;font-weight:600;color:#fff}
+#dev-panel .dp-station-ja{font-size:11px;color:#666;margin-top:1px}
+#dev-panel .dp-coords{display:flex;gap:12px;align-items:center;margin-top:6px}
+#dev-panel .dp-coord{font-size:13px;font-weight:600;color:#7df}
+#dev-panel .dp-arrows{display:grid;grid-template-columns:32px 32px 32px;grid-template-rows:32px 32px 32px;gap:2px;justify-content:center;margin:8px 0}
+#dev-panel .dp-arrows button{
+  background:#2a2a30;border:1px solid #444;border-radius:5px;color:#ccc;font-size:14px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background 80ms,transform 80ms;
+}
+#dev-panel .dp-arrows button:hover{background:#3a3a44;color:#fff}
+#dev-panel .dp-arrows button:active{transform:scale(0.9);background:#4a4a55}
+#dev-panel .dp-orient{display:flex;gap:4px;margin-top:6px}
+#dev-panel .dp-orient button{
+  flex:1;padding:6px;border:1px solid #444;border-radius:5px;background:#2a2a30;
+  color:#aaa;font-size:11px;font-weight:600;cursor:pointer;transition:all 80ms;
+}
+#dev-panel .dp-orient button.sel{background:#335;border-color:#57a;color:#7df}
+#dev-panel .dp-orient button:hover{background:#3a3a44}
+#dev-panel .dp-step{display:flex;align-items:center;gap:8px;margin-top:8px}
+#dev-panel .dp-step label{font-size:10px;color:#888;flex-shrink:0}
+#dev-panel .dp-step input{width:50px;background:#2a2a30;border:1px solid #444;border-radius:4px;color:#7df;padding:3px 6px;font-size:12px;text-align:center}
+#dev-panel .dp-changes{font-size:10px;color:#888;margin-top:4px}
+#dev-panel .dp-actions{display:flex;gap:6px;margin-top:10px}
+#dev-panel .dp-actions button{
+  flex:1;padding:7px;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;
+  transition:all 80ms;
+}
+#dev-panel .dp-actions button:active{transform:scale(0.96)}
+#dev-panel .dp-btn-export{background:#2563eb;color:#fff}
+#dev-panel .dp-btn-export:hover{background:#3b82f6}
+#dev-panel .dp-btn-reset{background:#333;color:#aaa}
+#dev-panel .dp-btn-reset:hover{background:#444;color:#fff}
+#dev-panel .dp-empty{color:#666;font-style:italic;text-align:center;padding:20px 0}
+#dev-panel .dp-badge{display:inline-block;padding:2px 6px;border-radius:3px;font-size:9px;font-weight:600;margin-left:6px}
+.dev-selected .station-marker{stroke:#00ff88!important;stroke-width:2.5px!important}
+.dev-highlight{pointer-events:none}
+
+/* ═══════════════════════════════════════════════════════════
+   NIGHT MODE
+   ═══════════════════════════════════════════════════════════ */
+#legend, #info-panel, #line-info, #toolbar button, #coffee-info {
+  transition: background 600ms ease, border-color 600ms ease, color 600ms ease, box-shadow 600ms ease;
+}
+.legend-title, .legend-subtitle, .legend-name, .legend-count, .legend-footer,
+#info-panel .station-en, #info-panel .station-ja,
+#line-info .line-info-en, #line-info .line-info-ja, #line-info .line-info-stats,
+#line-info .stn-name, #line-info .stn-name-ja, #line-info .stn-xch,
+.badge { transition: color 600ms ease, background 600ms ease; }
+
+/* Legend */
+body.night #legend{background:rgba(10,14,26,0.92);border-color:rgba(255,255,255,0.08);box-shadow:0 4px 20px rgba(0,0,0,0.4)}
+body.night .legend-title{color:#DDD}
+body.night .legend-subtitle{color:#777}
+body.night .legend-name{color:#AAA}
+body.night .legend-count{color:#DDD}
+body.night .legend-footer{color:#555;border-top-color:rgba(255,255,255,0.06)}
+
+/* Info panel */
+body.night #info-panel{background:rgba(10,14,26,0.95);border-color:rgba(255,255,255,0.08);box-shadow:0 4px 20px rgba(0,0,0,0.5)}
+body.night #info-panel .station-en{color:#EEE}
+body.night #info-panel .station-ja{color:#777}
+body.night #info-panel .info-close{color:#555}
+body.night #info-panel .info-close:hover{color:#AAA}
+body.night .badge{background:rgba(255,255,255,0.06);color:#BBB}
+
+/* Line info panel */
+body.night #line-info{background:rgba(10,14,26,0.95);border-color:rgba(255,255,255,0.08);box-shadow:0 4px 20px rgba(0,0,0,0.5)}
+body.night #line-info .line-info-en{color:#EEE}
+body.night #line-info .line-info-ja{color:#777}
+body.night #line-info .line-info-stats{color:#666;border-bottom-color:rgba(255,255,255,0.06)}
+body.night #line-info .stn-name{color:#BBB}
+body.night #line-info .stn-name-ja{color:#666}
+body.night #line-info .stn-xch{color:#666}
+body.night #line-info .info-close{color:#555}
+body.night #line-info .info-close:hover{color:#AAA}
+
+/* Toolbar buttons */
+body.night #toolbar button{background:rgba(10,14,26,0.92);border-color:rgba(255,255,255,0.12);color:#AAA;box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+body.night #toolbar button:hover{background:rgba(255,255,255,0.06);color:#DDD}
+
+/* Coffee info panel */
+body.night #coffee-info{background:rgba(10,14,26,0.95);border-color:rgba(255,255,255,0.08)}
+body.night #coffee-info .coffee-name{color:#EEE}
+body.night #coffee-info .coffee-name-ja{color:#777}
+
+/* Station labels — text stroke (halo) needs to flip too so labels stay readable on dark bg */
+body.night .station-label text{stroke:#0A0E1A}
+
+/* Day-only / night-only icon visibility on toggle button */
+#toggle-mode .icon-moon{display:block}
+#toggle-mode .icon-sun{display:none}
+body.night #toggle-mode .icon-moon{display:none}
+body.night #toggle-mode .icon-sun{display:block}
+
+/* Smooth transitions for SVG elements that take CSS-compatible attributes */
+.line-path, .train-car rect, .train-headlamp, .station-marker, .station-label text {
+  transition: opacity 600ms ease, fill 600ms ease, stroke 600ms ease;
+}
+/* Night-only glow layers — invisible by default */
+.station-warm, .station-ambient {
+  opacity: 0;
+  transition: opacity 600ms ease;
+  pointer-events: none;
+}
+/* Subtle interior-light flicker for train windows at night */
+@keyframes winFlicker { 0%,100%{opacity:0.85} 50%{opacity:0.95} }
+body.night .train-window { animation: winFlicker 3s ease-in-out infinite; }
+#dev-export{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:520px;max-height:80vh;
+  background:#1a1a20;border:1px solid #444;border-radius:12px;padding:20px;z-index:200;
+  display:none;color:#ddd;font-family:monospace;
+  box-shadow:0 16px 64px rgba(0,0,0,0.6);
+}
+#dev-export.active{display:block}
+#dev-export .de-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:12px;display:flex;justify-content:space-between}
+#dev-export textarea{width:100%;height:300px;background:#111;border:1px solid #333;border-radius:6px;color:#7df;font-size:11px;padding:10px;resize:vertical;font-family:'Courier New',monospace}
+#dev-export .de-actions{margin-top:10px;display:flex;gap:8px;justify-content:flex-end}
+#dev-export .de-actions button{padding:7px 16px;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer}
+#dev-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:199;display:none}
+#dev-overlay.active{display:block}
+</style>
+</head>
+<body>
+<svg id="map"></svg>
+
+<div id="legend">
+  <div class="legend-title">Tokyo Transit</div>
+  <div class="legend-subtitle">東京路線図</div>
+  <div class="legend-lines">
+    <div class="legend-row"><span class="legend-bar" style="background:#6BB04D"></span><span class="legend-name">JR Yamanote</span><span class="legend-count">30</span></div>
+    <div class="legend-row"><span class="legend-bar" style="background:#F39700"></span><span class="legend-name">Ginza</span><span class="legend-count">19</span></div>
+    <div class="legend-row"><span class="legend-bar" style="background:#E60012"></span><span class="legend-name">Marunouchi</span><span class="legend-count">25</span></div>
+    <div class="legend-row"><span class="legend-bar" style="background:#8B76C1"></span><span class="legend-name">Hanzomon</span><span class="legend-count">6</span></div>
+    <div class="legend-row"><span class="legend-bar" style="background:#9CAEB7"></span><span class="legend-name">Hibiya</span><span class="legend-count">8</span></div>
+    <div class="legend-row"><span class="legend-bar" style="background:#00A7DB"></span><span class="legend-name">Tozai</span><span class="legend-count">6</span></div>
+  </div>
+  <div class="legend-footer">84 stn · 12 xch · ~145 km</div>
+</div>
+
+<div id="info-panel">
+  <button class="info-close" title="Close">&#x2715;</button>
+  <div class="station-en"></div>
+  <div class="station-ja"></div>
+  <div class="line-badges"></div>
+</div>
+
+<div id="line-info">
+  <button class="info-close" title="Close">&#x2715;</button>
+  <div class="line-info-header">
+    <span class="line-info-bar"></span>
+    <div>
+      <div class="line-info-en"></div>
+      <div class="line-info-ja"></div>
+    </div>
+  </div>
+  <div class="line-info-stats"></div>
+  <div class="station-list"></div>
+</div>
+
+<div id="coffee-info">
+  <button class="info-close" title="Close">&#x2715;</button>
+  <div class="coffee-header">
+    <span class="coffee-icon-lg">☕</span>
+    <div>
+      <div class="coffee-name"></div>
+      <div class="coffee-name-ja"></div>
+    </div>
+  </div>
+  <div class="coffee-meta"></div>
+  <div class="coffee-stations"></div>
+  <div class="coffee-desc"></div>
+  <div class="coffee-tags"></div>
+</div>
+
+<div id="toolbar">
+  <button id="toggle-mode" title="Toggle day/night">
+    <svg class="icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <svg class="icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>
+  </button>
+  <button id="zoom-in" title="Zoom in">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+  <button id="zoom-out" title="Zoom out">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+  <button id="zoom-reset" title="Reset view">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><polyline points="3 3 3 8 8 8"/></svg>
+  </button>
+  <!-- Coffee toggle hidden for now
+  <div class="tb-sep"></div>
+  <button id="toggle-coffee" class="tb-coffee" title="Coffee shops">☕<span class="tb-badge"></span></button>
+  -->
+</div>
+
+<div id="dev-panel">
+  <div class="dp-title">Station Editor <span>Ctrl+Shift+D to toggle</span></div>
+  <div id="dp-content">
+    <div class="dp-empty">Click any station to edit</div>
+  </div>
+  <div id="dp-controls" style="display:none">
+    <div class="dp-section">
+      <div class="dp-label">Selected Station</div>
+      <div class="dp-station-name" id="dp-name"></div>
+      <div class="dp-station-ja" id="dp-station-ja"></div>
+      <div class="dp-coords">
+        <span>x: <span class="dp-coord" id="dp-x"></span></span>
+        <span>y: <span class="dp-coord" id="dp-y"></span></span>
+        <span id="dp-orient-badge"></span>
+      </div>
+    </div>
+    <div class="dp-section">
+      <div class="dp-label">Position (arrow keys)</div>
+      <div class="dp-arrows">
+        <div></div><button id="dp-up">↑</button><div></div>
+        <button id="dp-left">←</button><button id="dp-center">·</button><button id="dp-right">→</button>
+        <div></div><button id="dp-down">↓</button><div></div>
+      </div>
+      <div class="dp-step">
+        <label>Step:</label>
+        <input type="number" id="dp-step" value="1" min="1" max="50">
+        <label style="font-size:9px;color:#666">px (hold Shift=10x)</label>
+      </div>
+    </div>
+    <div class="dp-section" id="dp-orient-section">
+      <div class="dp-label">Pill Orientation</div>
+      <div class="dp-orient">
+        <button id="dp-h" data-orient="H">Horizontal</button>
+        <button id="dp-v" data-orient="V">Vertical</button>
+      </div>
+    </div>
+    <div class="dp-section">
+      <div class="dp-label">Label Position</div>
+      <div class="dp-orient" id="dp-label-dir">
+        <button data-dir="left">←</button>
+        <button data-dir="top">↑</button>
+        <button data-dir="bottom">↓</button>
+        <button data-dir="right">→</button>
+      </div>
+    </div>
+    <div class="dp-section">
+      <div class="dp-label">Station Name</div>
+      <input type="text" id="dp-en" placeholder="English name" style="width:100%;background:#2a2a30;border:1px solid #444;border-radius:4px;color:#ddd;padding:5px 8px;font-size:12px;margin-bottom:4px;font-family:inherit">
+      <input type="text" id="dp-ja" placeholder="日本語名" style="width:100%;background:#2a2a30;border:1px solid #444;border-radius:4px;color:#888;padding:5px 8px;font-size:12px;font-family:inherit">
+    </div>
+    <div class="dp-changes" id="dp-changes">No changes</div>
+    <div class="dp-actions">
+      <button class="dp-btn-reset" id="dp-reset">Reset</button>
+      <button class="dp-btn-export" id="dp-save">Save</button>
+      <button class="dp-btn-prompt" id="dp-copy-prompt" style="background:#7c3aed;color:#fff">Copy Prompt</button>
+    </div>
+    <div id="dp-saved-msg" style="display:none;text-align:center;margin-top:6px;font-size:10px;color:#4ade80">✓ Saved — persists on reload</div>
+    <div id="dp-prompt-msg" style="display:none;text-align:center;margin-top:6px;font-size:10px;color:#a78bfa">✓ Prompt copied — paste into Claude</div>
+  </div>
+</div>
+
+<script type="module">
+import{select}from'https://cdn.jsdelivr.net/npm/d3@7/+esm';
+import{zoom,zoomIdentity}from'https://cdn.jsdelivr.net/npm/d3@7/+esm';
+
+const LINES = [
+  { id:'yamanote',   name:{en:'JR Yamanote',ja:'山手線'},  color:'#6BB04D', strokeWidth:6, loop:true,  trainCount:4, duration:140 },
+  { id:'ginza',      name:{en:'Ginza',ja:'銀座線'},        color:'#F39700', strokeWidth:6, loop:false, trainCount:3, duration:140 },
+  { id:'marunouchi', name:{en:'Marunouchi',ja:'丸ノ内線'}, color:'#E60012', strokeWidth:6, loop:false, trainCount:4, duration:140 },
+  { id:'hanzomon',   name:{en:'Hanzomon',ja:'半蔵門線'},   color:'#8B76C1', strokeWidth:6, loop:false, trainCount:2, duration:90 },
+  { id:'hibiya',     name:{en:'Hibiya',ja:'日比谷線'},     color:'#9CAEB7', strokeWidth:6, loop:false, trainCount:2, duration:100 },
+  { id:'tozai',      name:{en:'Tozai',ja:'東西線'},        color:'#00A7DB', strokeWidth:6, loop:false, trainCount:2, duration:85 },
+];
+const LINE_MAP = Object.fromEntries(LINES.map(l=>[l.id,l]));
+const APPROACH_DIST = 80;
+
+// ═══════════════════════════════════════════════════════════
+// YAMANOTE — 30 stations, expanded octagon
+// left=160 right=820 top=40 bottom=800 chamfer=110
+// ═══════════════════════════════════════════════════════════
+
+const yamanoteStations = [
+  { id:'mejiro',        en:'Mejiro',           ja:'目白',             x:270, y:40,   label:'top'    },
+  { id:'ikebukuro',     en:'Ikebukuro',        ja:'池袋',             x:358, y:40,   label:'top'    },
+  { id:'otsuka',        en:'Otsuka',           ja:'大塚',             x:446, y:40,   label:'top'    },
+  { id:'sugamo',        en:'Sugamo',           ja:'巣鴨',             x:534, y:40,   label:'top'    },
+  { id:'komagome',      en:'Komagome',         ja:'駒込',             x:622, y:40,   label:'top'    },
+  { id:'tabata',        en:'Tabata',           ja:'田端',             x:710, y:40,   label:'top'    },
+  { id:'nishi-nippori', en:'Nishi-Nippori',    ja:'西日暮里',         x:765, y:95,   label:'right'  },
+  { id:'nippori',       en:'Nippori',          ja:'日暮里',           x:820, y:150,  label:'right'  },
+  { id:'uguisudani',    en:'Uguisudani',       ja:'鶯谷',             x:820, y:227,  label:'right'  },
+  { id:'ueno',          en:'Ueno',             ja:'上野',             x:824, y:303,  label:'right'  },
+  { id:'okachimachi',   en:'Okachimachi',      ja:'御徒町',           x:820, y:381,  label:'right'  },
+  { id:'akihabara',     en:'Akihabara',        ja:'秋葉原',           x:825, y:458,  label:'bottom' },
+  { id:'kanda',         en:'Kanda',            ja:'神田',             x:820, y:535,  label:'right'  },
+  { id:'tokyo',         en:'Tokyo',            ja:'東京',             x:824, y:612,  label:'right'  },
+  { id:'yurakucho',     en:'Yurakucho',        ja:'有楽町',           x:765, y:745,  label:'right'  },
+  { id:'shimbashi',     en:'Shimbashi',        ja:'新橋',             x:710, y:800,  label:'bottom' },
+  { id:'hamamatsucho',  en:'Hamamatsucho',     ja:'浜松町',           x:600, y:800,  label:'bottom' },
+  { id:'tamachi',       en:'Tamachi',          ja:'田町',             x:490, y:800,  label:'bottom' },
+  { id:'takanawa-gw',   en:'Takanawa Gateway', ja:'高輪ゲートウェイ', x:380, y:800,  label:'bottom', enLines:['Takanawa','Gateway'] },
+  { id:'shinagawa',     en:'Shinagawa',        ja:'品川',             x:270, y:800,  label:'bottom' },
+  { id:'osaki',         en:'Osaki',            ja:'大崎',             x:215, y:745,  label:'left'   },
+  { id:'gotanda',       en:'Gotanda',          ja:'五反田',           x:160, y:690,  label:'left'   },
+  { id:'meguro',        en:'Meguro',           ja:'目黒',             x:160, y:630,  label:'left'   },
+  { id:'ebisu',         en:'Ebisu',            ja:'恵比寿',           x:160, y:568,  label:'left'   },
+  { id:'shibuya',       en:'Shibuya',          ja:'渋谷',             x:160, y:504,  label:'left'   },
+  { id:'harajuku',      en:'Harajuku',         ja:'原宿',             x:160, y:450,  label:'left'   },
+  { id:'yoyogi',        en:'Yoyogi',           ja:'代々木',           x:160, y:390,  label:'left'   },
+  { id:'shinjuku',      en:'Shinjuku',         ja:'新宿',             x:160, y:329,  label:'top'    },
+  { id:'shin-okubo',    en:'Shin-Okubo',       ja:'新大久保',         x:160, y:150,  label:'left'   },
+  { id:'takadanobaba',  en:'Takadanobaba',     ja:'高田馬場',         x:215, y:95,   label:'right'  },
+];
+
+// Yamanote: east edge x=820 (stations sit ON the line)
+// Hibiya x=832, Marunouchi x=832 (offset outward)
+const yamanotePoints = [
+  [270,40],[358,40],[446,40],[534,40],[622,40],[710,40],
+  [765,95],
+  [820,150],[820,227],[820,304],[820,381],[820,458],[820,535],[820,612],
+  [820,690],[765,745],
+  [710,800],[600,800],[490,800],[380,800],[270,800],
+  [215,745],[160,690],[160,630],[160,570],[160,510],[160,450],[160,390],[160,330],
+  [160,150],[215,95],
+];
+
+// ═══════════════════════════════════════════════════════════
+// GINZA — 19 stations: Shibuya → Asakusa
+// H east at y=510 inside loop → 45° NE diagonal → H east
+// Express stations show labels; local stations marker-only
+// ═══════════════════════════════════════════════════════════
+
+const ginzaStations = [
+  { id:'shibuya',         en:'Shibuya',          ja:'渋谷',          x:160,  y:510, label:'left'   },
+  { id:'omotesando',      en:'Omotesando',       ja:'表参道',        x:260,  y:504, label:'top'    },
+  { id:'gaiemmae',        en:'Gaiemmae',         ja:'外苑前',        x:332,  y:500, label:'bottom', local:true },
+  { id:'aoyama-itchome',  en:'Aoyama-itchome',   ja:'青山一丁目',    x:410,  y:500, label:'top',    local:true },
+  { id:'akasaka-mitsuke', en:'Akasaka-mitsuke',  ja:'赤坂見附',      x:484,  y:500, label:'top'    },
+  { id:'tameike-sanno',   en:'Tameike-sanno',    ja:'溜池山王',      x:570,  y:500, label:'top',    local:true },
+  { id:'toranomon',       en:'Toranomon',        ja:'虎ノ門',        x:650,  y:500, label:'bottom', local:true },
+  { id:'shimbashi-g',     en:'Shimbashi',        ja:'新橋',          x:700,  y:500, label:'top'    },
+  // 45° NE diagonal (70px steps)
+  { id:'ginza',           en:'Ginza',            ja:'銀座',          x:770,  y:440, label:'top'    },
+  { id:'kyobashi',        en:'Kyobashi',         ja:'京橋',          x:840,  y:370, label:'left',   local:true },
+  { id:'nihombashi',      en:'Nihombashi',       ja:'日本橋',        x:910,  y:300, label:'top'    },
+  { id:'mitsukoshimae',   en:'Mitsukoshimae',    ja:'三越前',        x:980,  y:230, label:'left',   local:true },
+  { id:'kanda-g',         en:'Kanda',            ja:'神田',          x:1050, y:160, label:'right',  local:true },
+  // H east at y=160
+  { id:'suehirocho',      en:'Suehirocho',       ja:'末広町',        x:1120, y:160, label:'bottom', local:true },
+  { id:'ueno-hirokoji',   en:'Ueno-hirokoji',    ja:'上野広小路',    x:1190, y:160, label:'bottom', local:true },
+  { id:'ueno-g',          en:'Ueno',             ja:'上野',          x:1260, y:160, label:'top',    local:true },
+  { id:'inaricho',        en:'Inaricho',         ja:'稲荷町',        x:1330, y:160, label:'bottom', local:true },
+  { id:'tawaramachi',     en:'Tawaramachi',      ja:'田原町',        x:1400, y:160, label:'bottom', local:true },
+  { id:'asakusa',         en:'Asakusa',          ja:'浅草',          x:1470, y:160, label:'right'  },
+];
+
+// Ginza offset: H at y=500 (Hanzomon y=510, Hibiya y=522) — 10px gaps
+const ginzaPoints = [
+  [160,500],[260,500],[332,500],[410,500],[490,500],[570,500],[650,500],[700,500],
+  [710,500],[770,440],[840,370],[910,300],[980,230],[1050,160],
+  [1120,160],[1190,160],[1260,160],[1330,160],[1400,160],[1470,160],
+];
+
+// ═══════════════════════════════════════════════════════════
+// MARUNOUCHI — 25 stations: Ogikubo → Ikebukuro
+// H west → Shinjuku → H east inside → 45° SE → V → Tokyo
+// → 45° NW → V north → Ikebukuro
+// Express stations show labels; local stations marker-only
+// ═══════════════════════════════════════════════════════════
+
+const marunouchiStations = [
+  // West extension H at y=330
+  { id:'ogikubo',           en:'Ogikubo',          ja:'荻窪',         x:-260, y:330, label:'top'    },
+  { id:'minami-asagaya',    en:'Minami-Asagaya',   ja:'南阿佐ヶ谷',   x:-200, y:330, label:'bottom', local:true },
+  { id:'shin-koenji',       en:'Shin-Koenji',      ja:'新高円寺',     x:-140, y:330, label:'top',    local:true },
+  { id:'higashi-koenji',    en:'Higashi-Koenji',   ja:'東高円寺',     x:-80,  y:330, label:'bottom', local:true },
+  { id:'shin-nakano',       en:'Shin-Nakano',      ja:'新中野',       x:-20,  y:330, label:'top',    local:true },
+  { id:'nakano-sakaue',     en:'Nakano-Sakaue',    ja:'中野坂上',     x:40,   y:330, label:'bottom', local:true },
+  { id:'nishi-shinjuku',    en:'Nishi-Shinjuku',   ja:'西新宿',       x:100,  y:330, label:'top',    local:true },
+  // Yamanote interchange
+  { id:'shinjuku',          en:'Shinjuku',         ja:'新宿',         x:160,  y:330, label:'left'   },
+  // H east inside loop at y=330
+  { id:'shinjuku-sanchome', en:'Shinjuku-sanchome',ja:'新宿三丁目',   x:280,  y:330, label:'bottom', local:true },
+  { id:'shinjuku-gyoenmae', en:'Shinjuku-gyoenmae',ja:'新宿御苑前',   x:360,  y:330, label:'top',    local:true },
+  { id:'yotsuya-sanchome',  en:'Yotsuya-sanchome', ja:'四谷三丁目',   x:420,  y:330, label:'bottom', local:true },
+  { id:'yotsuya',           en:'Yotsuya',          ja:'四ツ谷',       x:500,  y:330, label:'bottom' },
+  // 45° SE diagonal (down-leg, 70px steps)
+  { id:'akasaka-mitsuke-m', en:'Akasaka-mitsuke',  ja:'赤坂見附',     x:570,  y:400, label:'left',   local:true },
+  { id:'kokkai-gijidomae',  en:'Kokkai-gijidomae', ja:'国会議事堂前', x:640,  y:470, label:'left',   local:true },
+  { id:'kasumigaseki',      en:'Kasumigaseki',     ja:'霞ヶ関',       x:705,  y:523, label:'left'   },
+  // Turn + V to Tokyo
+  { id:'ginza-m',           en:'Ginza',            ja:'銀座',         x:828,  y:580, label:'left',   local:true },
+  { id:'tokyo',             en:'Tokyo',            ja:'東京',         x:828,  y:612, label:'right'  },
+  // 45° NW (up-leg, 70px steps)
+  { id:'otemachi',          en:'Otemachi',         ja:'大手町',       x:730,  y:540, label:'right'  },
+  { id:'awajicho',          en:'Awajicho',         ja:'淡路町',       x:660,  y:470, label:'right',  local:true },
+  { id:'ochanomizu',        en:'Ochanomizu',       ja:'御茶ノ水',     x:590,  y:400, label:'top'    },
+  { id:'hongo-sanchome',    en:'Hongo-sanchome',   ja:'本郷三丁目',   x:520,  y:330, label:'right',  local:true },
+  { id:'korakuen',          en:'Korakuen',         ja:'後楽園',       x:450,  y:260, label:'right'  },
+  // V north to Ikebukuro
+  { id:'myogadani',         en:'Myogadani',        ja:'茗荷谷',       x:450,  y:180, label:'right',  local:true },
+  { id:'shin-otsuka',       en:'Shin-Otsuka',      ja:'新大塚',       x:450,  y:110, label:'right',  local:true },
+  { id:'ikebukuro',         en:'Ikebukuro',        ja:'池袋',         x:358,  y:40,  label:'top'    },
+];
+
+// Marunouchi offset: east-edge V at x=828 (Yamanote x=820, 8px gap)
+const marunouchiPoints = [
+  [-260,330],[-200,330],[-140,330],[-80,330],[-20,330],[40,330],[100,330],[160,330],
+  [280,330],[360,330],[420,330],[500,330],
+  [570,400],[640,470],[710,540],
+  [750,580],[828,580],
+  [828,612],
+  [756,540],[730,540],[660,470],[590,400],[520,330],[450,260],
+  [450,180],[450,110],[380,40],[358,40],
+];
+
+// ═══════════════════════════════════════════════════════════
+// HANZOMON — 6 stations: Shibuya → Oshiage
+// H east → 45° NE → H east → 45° SE → V south → H east
+// ═══════════════════════════════════════════════════════════
+
+const hanzomonStations = [
+  { id:'shibuya',     en:'Shibuya',     ja:'渋谷',     x:160,  y:510, label:'left'  },
+  { id:'omotesando',  en:'Omotesando',  ja:'表参道',    x:260,  y:510, label:'top'   },
+  { id:'nagatacho',   en:'Nagatacho',   ja:'永田町',    x:472,  y:298, label:'left'  },
+  { id:'kudanshita',  en:'Kudanshita',  ja:'九段下',    x:543,  y:304, label:'top'   },
+  { id:'otemachi',    en:'Otemachi',    ja:'大手町',    x:730,  y:540, label:'bottom'},
+  { id:'oshiage',     en:'Oshiage',     ja:'押上',      x:1000, y:540, label:'bottom'},
+];
+
+// Hanzomon offset: H at y=510 (center), Kudanshita y=298
+const hanzomonPoints = [
+  [160,510],[260,510],
+  [472,298],[543,298],
+  [730,485],[730,540],
+  [1000,540],
+];
+
+// ═══════════════════════════════════════════════════════════
+// HIBIYA — 8 stations: Naka-Meguro → Ueno
+// H east → 45° NE → H east → V north → 45° NE → H east
+// → V south → H west → V north
+// ═══════════════════════════════════════════════════════════
+
+const hibiyaStations = [
+  { id:'naka-meguro',  en:'Naka-Meguro',  ja:'中目黒',    x:20,   y:570, label:'top'    },
+  { id:'ebisu',        en:'Ebisu',        ja:'恵比寿',    x:160,  y:570, label:'left'   },
+  { id:'roppongi',     en:'Roppongi',     ja:'六本木',    x:450,  y:522, label:'bottom', local:true },
+  { id:'kasumigaseki', en:'Kasumigaseki', ja:'霞ヶ関',    x:710,  y:540, label:'bottom' },
+  { id:'ginza',        en:'Ginza',        ja:'銀座',      x:770,  y:440, label:'right'  },
+  { id:'tsukiji',      en:'Tsukiji',      ja:'築地',      x:900,  y:440, label:'top',   local:true },
+  { id:'akihabara',    en:'Akihabara',    ja:'秋葉原',    x:828,  y:458, label:'right'  },
+  { id:'ueno',         en:'Ueno',         ja:'上野',      x:828,  y:304, label:'right'  },
+];
+
+// Hibiya offset: H at y=522 (Ginza y=500, Hanzomon y=510), east-edge x=828 (8px outside Yamanote)
+const hibiyaPoints = [
+  [20,570],[160,570],
+  [208,522],[450,522],[710,522],
+  [710,474],[744,440],[770,440],[900,440],
+  [900,458],[828,458],
+  [828,304],
+];
+
+// ═══════════════════════════════════════════════════════════
+// TOZAI — 6 stations: Nakano → Monzen-nakacho
+// H east → 45° SE → H east → V south → 45° SE → 45° NE
+// → V north → H east
+// ═══════════════════════════════════════════════════════════
+
+const tozaiStations = [
+  { id:'nakano',          en:'Nakano',          ja:'中野',      x:20,   y:95,  label:'left'  },
+  { id:'takadanobaba',    en:'Takadanobaba',    ja:'高田馬場',  x:215,  y:95,  label:'left'  },
+  { id:'kudanshita',      en:'Kudanshita',      ja:'九段下',    x:543,  y:298, label:'top'   },
+  { id:'otemachi',        en:'Otemachi',        ja:'大手町',    x:730,  y:540, label:'right' },
+  { id:'nihombashi',      en:'Nihombashi',      ja:'日本橋',    x:910,  y:300, label:'right' },
+  { id:'monzen-nakacho',  en:'Monzen-nakacho',  ja:'門前仲町',  x:1100, y:300, label:'right' },
+];
+
+// Tozai offset: Kudanshita H at y=310 (Hanzomon y=298, 12px gap)
+// Diagonal to Otemachi offset from Marunouchi/Hanzomon
+const tozaiPoints = [
+  [20,95],[215,95],
+  [430,310],[543,310],
+  [543,522],[712,522],[730,540],
+  [910,360],[910,300],
+  [1100,300],
+];
+
+// ═══════════════════════════════════════════════════════════
+// STATION REGISTRY
+// ═══════════════════════════════════════════════════════════
+
+const stationMap = new Map();
+function reg(lineId, arr) {
+  arr.forEach(s => {
+    if (stationMap.has(s.id)) {
+      const existing = stationMap.get(s.id);
+      existing.lines.add(lineId);
+      // Promote to express if any line has it as express
+      if (!s.local) existing.local = false;
+    } else {
+      stationMap.set(s.id, { ...s, lines: new Set([lineId]) });
+    }
+  });
+}
+reg('yamanote', yamanoteStations);
+reg('ginza', ginzaStations);
+reg('marunouchi', marunouchiStations);
+reg('hanzomon', hanzomonStations);
+reg('hibiya', hibiyaStations);
+reg('tozai', tozaiStations);
+const allStations = [...stationMap.values()];
+
+// Migration: ids whose Station-Editor overrides have been baked into the source above.
+// Prune them from localStorage so the new canonical values aren't shadowed by a stale browser cache.
+(() => {
+  const BAKED = new Set([
+    'ueno','shibuya','shinjuku','akihabara','takadanobaba','tokyo','ebisu',
+    'omotesando','nihombashi','akasaka-mitsuke','ginza','shimbashi-g',
+    'kudanshita','yotsuya','kasumigaseki',
+  ]);
+  for (const key of ['dev-station-overrides','dev-orient-overrides','dev-label-overrides','dev-name-overrides']) {
+    const data = JSON.parse(localStorage.getItem(key) || '{}');
+    let dirty = false;
+    for (const id of Object.keys(data)) {
+      if (BAKED.has(id)) { delete data[id]; dirty = true; }
+    }
+    if (dirty) localStorage.setItem(key, JSON.stringify(data));
+  }
+})();
+
+// Apply saved dev overrides from localStorage
+const _savedOverrides = JSON.parse(localStorage.getItem('dev-station-overrides') || '{}');
+Object.entries(_savedOverrides).forEach(([id, ov]) => {
+  const s = stationMap.get(id);
+  if (s) { s.x = ov.x; s.y = ov.y; }
+});
+const _savedLabels = JSON.parse(localStorage.getItem('dev-label-overrides') || '{}');
+Object.entries(_savedLabels).forEach(([id, dir]) => {
+  const s = stationMap.get(id);
+  if (s) { s.label = dir; }
+});
+const _savedNames = JSON.parse(localStorage.getItem('dev-name-overrides') || '{}');
+Object.entries(_savedNames).forEach(([id, nm]) => {
+  const s = stationMap.get(id);
+  if (s) {
+    if (nm.en) { s.en = nm.en; s.enLines = [nm.en]; }
+    if (nm.ja) { s.ja = nm.ja; }
+  }
+});
+
+const _savedOrients = JSON.parse(localStorage.getItem('dev-orient-overrides') || '{}');
+// devChanges defined later in dev tools section, but referenced here — use late binding
+let devChanges = new Map();
+function getOrient(s) {
+  // Baked-in interchange orientations (canonical defaults from Station Editor exports)
+  const orientOverride = {
+    ueno:'H', shibuya:'V', shinjuku:'V', akihabara:'H', takadanobaba:'V',
+    tokyo:'H', ebisu:'V', omotesando:'V', nihombashi:'H', 'akasaka-mitsuke':'H',
+    ginza:'H', 'shimbashi-g':'H', kudanshita:'V', yotsuya:'H', kasumigaseki:'H',
+  };
+  if (devChanges.has(s.id) && devChanges.get(s.id).orient) return devChanges.get(s.id).orient;
+  if (_savedOrients[s.id]) return _savedOrients[s.id];
+  return orientOverride[s.id] || ((s.label==='left'||s.label==='right') ? 'V' : 'H');
+}
+
+function isInterchange(s) { return s.lines.size > 1; }
+
+// ═══════════════════════════════════════════════════════════
+// PATH GEOMETRY
+// ═══════════════════════════════════════════════════════════
+
+function buildGeometry(pts, isLoop) {
+  const segs = []; let total = 0;
+  const n = pts.length, count = isLoop ? n : n - 1;
+  for (let i = 0; i < count; i++) {
+    const a = pts[i], b = pts[(i+1)%n];
+    const dx = b[0]-a[0], dy = b[1]-a[1], len = Math.hypot(dx,dy);
+    segs.push({ ax:a[0], ay:a[1], dx, dy, len, angle:Math.atan2(dy,dx)*180/Math.PI, cum:total });
+    total += len;
+  }
+  function posAt(d) {
+    d = ((d%total)+total)%total;
+    for (const s of segs) {
+      if (d <= s.len+0.01) { const t = s.len>0?d/s.len:0; return {x:s.ax+t*s.dx, y:s.ay+t*s.dy, angle:s.angle}; }
+      d -= s.len;
+    }
+    return {x:segs[0].ax, y:segs[0].ay, angle:segs[0].angle};
+  }
+  function mapDists(stations) {
+    stations.forEach(s => {
+      for (let i=0;i<pts.length;i++) {
+        if (pts[i][0]===s.x && pts[i][1]===s.y) {
+          s.pathDist = segs[Math.min(i,segs.length-1)].cum; return;
+        }
+      }
+    });
+  }
+  const pathD = isLoop
+    ? `M ${pts[0].join(',')} ${pts.slice(1).map(p=>`L ${p.join(',')}`).join(' ')} Z`
+    : `M ${pts[0].join(',')} ${pts.slice(1).map(p=>`L ${p.join(',')}`).join(' ')}`;
+  return { segs, total, posAt, mapDists, pathD };
+}
+
+const yamanoteGeo = buildGeometry(yamanotePoints, true);
+const ginzaGeo = buildGeometry(ginzaPoints, false);
+const marunouchiGeo = buildGeometry(marunouchiPoints, false);
+const hanzomonGeo = buildGeometry(hanzomonPoints, false);
+const hibiyaGeo = buildGeometry(hibiyaPoints, false);
+const tozaiGeo = buildGeometry(tozaiPoints, false);
+yamanoteGeo.mapDists(yamanoteStations);
+ginzaGeo.mapDists(ginzaStations);
+marunouchiGeo.mapDists(marunouchiStations);
+hanzomonGeo.mapDists(hanzomonStations);
+hibiyaGeo.mapDists(hibiyaStations);
+tozaiGeo.mapDists(tozaiStations);
+
+// ═══════════════════════════════════════════════════════════
+// SVG
+// ═══════════════════════════════════════════════════════════
+
+const svgEl = document.getElementById('map');
+const svg = select(svgEl);
+const defs = svg.append('defs');
+const pat = defs.append('pattern').attr('id','dot-grid').attr('width',20).attr('height',20).attr('patternUnits','userSpaceOnUse');
+const dotEls = [];
+[[0,0],[20,0],[0,20],[20,20]].forEach(([cx,cy])=>{
+  const c = pat.append('circle').attr('cx',cx).attr('cy',cy).attr('r',0.6).attr('fill','#E0E0E0');
+  dotEls.push(c.node());
+});
+// Headlamp gradient
+const headGrad = defs.append('linearGradient').attr('id','headlamp-gradient').attr('x1','0').attr('y1','0').attr('x2','1').attr('y2','0');
+headGrad.append('stop').attr('offset','0%').attr('stop-color','#FFF8E1').attr('stop-opacity','0.5');
+headGrad.append('stop').attr('offset','100%').attr('stop-color','#FFF8E1').attr('stop-opacity','0');
+// Station ambient ground glow (radial falloff)
+const stnGlowGrad = defs.append('radialGradient').attr('id','station-glow');
+stnGlowGrad.append('stop').attr('offset','0%').attr('stop-color','#FFEEBB').attr('stop-opacity','1');
+stnGlowGrad.append('stop').attr('offset','100%').attr('stop-color','#FFEEBB').attr('stop-opacity','0');
+
+const bgRect = svg.append('rect').attr('width','100%').attr('height','100%').attr('fill','#FFFFFF');
+bgRect.style('transition','fill 600ms ease');
+svg.append('rect').attr('width','100%').attr('height','100%').attr('fill','url(#dot-grid)');
+const g = svg.append('g').attr('id','zoom-group');
+// Bottom-most layer: station ambient ground glow (sits below line glow + line paths)
+const ambientLayer = g.append('g').attr('class','ambient-layer');
+
+const lineData = [
+  { cfg:LINES[0], geo:yamanoteGeo,    stations:yamanoteStations },
+  { cfg:LINES[1], geo:ginzaGeo,       stations:ginzaStations },
+  { cfg:LINES[2], geo:marunouchiGeo,  stations:marunouchiStations },
+  { cfg:LINES[3], geo:hanzomonGeo,    stations:hanzomonStations },
+  { cfg:LINES[4], geo:hibiyaGeo,      stations:hibiyaStations },
+  { cfg:LINES[5], geo:tozaiGeo,       stations:tozaiStations },
+];
+
+const linePaths = [];
+const lineGlowPaths = [];
+lineData.forEach((ld, li) => {
+  // Wider invisible hit area for easier clicking
+  g.append('path').attr('d',ld.geo.pathD).attr('fill','none')
+    .attr('stroke','transparent').attr('stroke-width',20)
+    .attr('class','line-path').attr('data-line-idx',li)
+    .on('click', event=>{ event.stopPropagation(); focusLine(li); });
+  // Night-mode glow duplicate (rendered behind, hidden in day)
+  const glow = g.append('path').attr('d',ld.geo.pathD).attr('fill','none')
+    .attr('stroke',ld.cfg.color).attr('stroke-width',ld.cfg.strokeWidth + 8)
+    .attr('stroke-linecap','round').attr('stroke-linejoin','round')
+    .attr('class','line-glow').attr('opacity',0)
+    .style('pointer-events','none')
+    .style('transition','opacity 600ms ease');
+  lineGlowPaths.push(glow);
+  // Visible line
+  const p = g.append('path').attr('d',ld.geo.pathD).attr('fill','none')
+    .attr('stroke',ld.cfg.color).attr('stroke-width',ld.cfg.strokeWidth)
+    .attr('stroke-linecap','round').attr('stroke-linejoin','round')
+    .attr('class','line-path').attr('data-line-idx',li)
+    .on('click', event=>{ event.stopPropagation(); focusLine(li); });
+  p.style('transition','opacity 600ms ease');
+  linePaths.push(p);
+});
+
+// ── Train cars (pill shape, top-down view) ────────────────
+const NS = 'http://www.w3.org/2000/svg';
+const allTrainSets = lineData.map(ld => {
+  const trains = [];
+  for (let i=0; i<ld.cfg.trainCount; i++) {
+    const tg = document.createElementNS(NS,'g');
+    tg.setAttribute('class','train-car');
+    tg.style.transition = 'opacity 500ms cubic-bezier(0.23,1,0.32,1)';
+    g.node().appendChild(tg);
+    // Headlamp cone (rendered first so it's behind everything; only visible at night)
+    const headlamp = document.createElementNS(NS,'polygon');
+    headlamp.setAttribute('points','11,-3 50,-10 50,10 11,3');
+    headlamp.setAttribute('fill','url(#headlamp-gradient)');
+    headlamp.setAttribute('opacity','0');
+    headlamp.setAttribute('class','train-headlamp');
+    tg.appendChild(headlamp);
+    // Glow
+    const glow = document.createElementNS(NS,'rect');
+    [['x','-14'],['y','-7'],['width','28'],['height','14'],['rx','5'],['fill',ld.cfg.color],['opacity','0.08'],['class','train-glow']].forEach(([k,v])=>glow.setAttribute(k,v));
+    tg.appendChild(glow);
+    // Body
+    const body = document.createElementNS(NS,'rect');
+    [['x','-11'],['y','-4'],['width','22'],['height','8'],['rx','3.5'],['fill',ld.cfg.color],['opacity','0.85']].forEach(([k,v])=>body.setAttribute(k,v));
+    tg.appendChild(body);
+    // Window stripe
+    const win = document.createElementNS(NS,'rect');
+    [['x','-7'],['y','-1.5'],['width','14'],['height','3'],['rx','1.5'],['fill','white'],['opacity','0.45'],['class','train-window']].forEach(([k,v])=>win.setAttribute(k,v));
+    tg.appendChild(win);
+    trains.push({ el:tg, offset:i*ld.cfg.duration/ld.cfg.trainCount, dist:0, headlamp, glow, win, body });
+  }
+  return trains;
+});
+
+// ── Dashed approach indicators ───────────────────────────
+// Pill-sized for interchanges, square for regular, multicolor dashes, animated rotation
+const approachCache = new Map(); // stationId → [rect nodes]
+function getApproachEls(stationId) {
+  if (approachCache.has(stationId)) return approachCache.get(stationId);
+  const s = stationMap.get(stationId);
+  if (!s) return [];
+  const ic = isInterchange(s);
+  const lineColors = [...s.lines].map(lid => LINE_MAP[lid].color);
+  const n = lineColors.length;
+  const gap = 2;
+  let hx, hy, hw, hh, hrx;
+  if (ic) {
+    const cSp = 9, orient = getOrient(s);
+    let pw, ph;
+    if (orient === 'V') { pw = 13; ph = (n-1)*cSp + 7 + 6; }
+    else { pw = (n-1)*cSp + 7 + 10; ph = 13; }
+    const pillRx = Math.min(pw, ph) / 2;
+    hx = s.x - pw/2 - gap; hy = s.y - ph/2 - gap;
+    hw = pw + gap*2; hh = ph + gap*2;
+    hrx = pillRx + gap;
+  } else {
+    hx = s.x - 9; hy = s.y - 9;
+    hw = 18; hh = 18;
+    hrx = 1.5;
+  }
+  let els;
+  if (n === 1) {
+    // Single line: original style — simple '4 3' dashes
+    els = [g.append('rect').attr('x', hx).attr('y', hy).attr('width', hw).attr('height', hh)
+      .attr('rx', hrx).attr('fill', 'none').attr('stroke', lineColors[0])
+      .attr('stroke-width', 1.2).attr('stroke-dasharray', '4 3')
+      .attr('data-base-offset', 0).attr('opacity', 0).node()];
+  } else {
+    // Multicolor: each color gets evenly spaced dash segments
+    const straightH = Math.max(0, hw - 2 * hrx);
+    const straightV = Math.max(0, hh - 2 * hrx);
+    const perimeter = 2 * straightH + 2 * straightV + 2 * Math.PI * hrx;
+    const segLen = perimeter / n;
+    const dashDraw = 4;
+    const dashGap = segLen - dashDraw;
+    els = lineColors.map((color, i) =>
+      g.append('rect').attr('x', hx).attr('y', hy).attr('width', hw).attr('height', hh)
+        .attr('rx', hrx).attr('fill', 'none').attr('stroke', color)
+        .attr('stroke-width', 1.2)
+        .attr('stroke-dasharray', `${dashDraw} ${dashGap}`)
+        .attr('stroke-dashoffset', -i * segLen)
+        .attr('data-base-offset', -i * segLen)
+        .attr('opacity', 0).node()
+    );
+  }
+  approachCache.set(stationId, els);
+  return els;
+}
+lineData.forEach(ld => ld.stations.forEach(s => getApproachEls(s.id)));
+const allDashSets = lineData.map(ld =>
+  ld.stations.map(s => getApproachEls(s.id))
+);
+
+// ── Station markers + labels ─────────────────────────────
+function labelOffsets(dir) {
+  switch(dir) {
+    case 'top':    return {enDx:0,enDy:-24,jaDx:0,jaDy:-13,anchor:'middle'};
+    case 'bottom': return {enDx:0,enDy:23,jaDx:0,jaDy:34,anchor:'middle'};
+    case 'right':  return {enDx:19,enDy:-2,jaDx:19,jaDy:9,anchor:'start'};
+    case 'left':   return {enDx:-19,enDy:-2,jaDx:-19,jaDy:9,anchor:'end'};
+  }
+}
+
+const legend = document.getElementById('legend');
+const infoPanel = document.getElementById('info-panel');
+const infoEN = infoPanel.querySelector('.station-en');
+const infoJA = infoPanel.querySelector('.station-ja');
+const infoBadges = infoPanel.querySelector('.line-badges');
+
+function showStationInfo(s) {
+  infoEN.textContent = s.en;
+  infoJA.textContent = s.ja;
+  infoBadges.innerHTML = [...s.lines].map(lid => {
+    const l = LINE_MAP[lid];
+    return `<span class="badge"><span class="badge-sq" style="background:${l.color}"></span>${l.name.en}</span>`;
+  }).join('');
+  infoPanel.classList.add('visible');
+  legend.classList.add('legend-hidden');
+}
+function hideStationInfo() {
+  infoPanel.classList.remove('visible');
+  legend.classList.remove('legend-hidden');
+}
+document.querySelector('#info-panel .info-close').addEventListener('click', ()=>hideStationInfo());
+
+// ── Line focus/unfocus ──────────────────────────────────
+const lineInfoPanel = document.getElementById('line-info');
+let focusedLine = -1;
+
+function focusLine(idx) {
+  hideStationInfo();
+  focusedLine = idx;
+  const ld = lineData[idx];
+  const cfg = ld.cfg;
+
+  // Dim other lines, trains, stations
+  linePaths.forEach((p, i) => {
+    p.classed('line-dimmed', i !== idx);
+    p.classed('line-focused', i === idx);
+  });
+  // Dim hit areas too
+  g.selectAll('path[data-line-idx]').each(function() {
+    const el = select(this);
+    const i = +el.attr('data-line-idx');
+    el.classed('line-dimmed', i !== idx);
+  });
+
+  // Dim trains
+  allTrainSets.forEach((trains, i) => {
+    trains.forEach(t => t.el.classList.toggle('train-dimmed', i !== idx));
+  });
+
+  // Dim stations not on this line
+  g.selectAll('.station-group').each(function() {
+    const el = select(this);
+    const sid = el.attr('data-station');
+    const s = stationMap.get(sid);
+    el.classed('station-dimmed', s && !s.lines.has(cfg.id));
+  });
+
+  // Populate line info panel
+  lineInfoPanel.querySelector('.line-info-bar').style.background = cfg.color;
+  lineInfoPanel.querySelector('.line-info-en').textContent = cfg.name.en;
+  lineInfoPanel.querySelector('.line-info-ja').textContent = cfg.name.ja;
+
+  const stns = ld.stations;
+  const xchCount = stns.filter(s => { const ms = stationMap.get(s.id); return ms && ms.lines.size > 1; }).length;
+  lineInfoPanel.querySelector('.line-info-stats').textContent =
+    `${stns.length} stations · ${xchCount} interchanges · ${cfg.loop ? 'Loop line' : 'Terminal line'}`;
+
+  const listEl = lineInfoPanel.querySelector('.station-list');
+  listEl.innerHTML = stns.map((s, i) => {
+    const ms = stationMap.get(s.id);
+    const isXch = ms && ms.lines.size > 1;
+    const otherLines = isXch ? [...ms.lines].filter(l => l !== cfg.id).map(l => LINE_MAP[l].name.en).join(', ') : '';
+    return `<div class="stn-row">
+      ${i > 0 ? `<div class="stn-connector" style="background:${cfg.color}"></div>` : ''}
+      <div class="stn-dot" style="border-color:${isXch ? '#333' : cfg.color}"></div>
+      <div style="flex:1;min-width:0">
+        <div class="stn-name">${s.en}</div>
+        <div class="stn-name-ja">${s.ja}</div>
+      </div>
+      ${isXch ? `<div class="stn-xch">${otherLines}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  // Stagger station rows
+  lineInfoPanel.querySelectorAll('.stn-row').forEach((row, i) => {
+    row.style.animationDelay = `${i * 30}ms`;
+  });
+
+  lineInfoPanel.classList.add('visible');
+  legend.classList.add('legend-hidden');
+}
+
+function unfocusLine() {
+  focusedLine = -1;
+  // Remove dim classes
+  linePaths.forEach(p => { p.classed('line-dimmed', false); p.classed('line-focused', false); });
+  g.selectAll('path[data-line-idx]').each(function() {
+    select(this).classed('line-dimmed', false);
+  });
+  allTrainSets.forEach(trains => trains.forEach(t => t.el.classList.remove('train-dimmed')));
+  g.selectAll('.station-group').each(function() { select(this).classed('station-dimmed', false); });
+  lineInfoPanel.classList.remove('visible');
+  legend.classList.remove('legend-hidden');
+}
+
+lineInfoPanel.querySelector('.info-close').addEventListener('click', () => unfocusLine());
+
+allStations.forEach(s => {
+  const ic = isInterchange(s);
+  const isLocal = s.local && !ic; // interchanges always show labels
+
+  const grp = g.append('g').attr('class','station-group').attr('data-station',s.id)
+    .on('click', event=>{ event.stopPropagation(); unfocusLine(); showStationInfo(s); });
+
+  // LAYER 1: ambient ground glow on bottom-most layer (under line paths)
+  // Larger + brighter for interchanges (bigger station = more light pooling)
+  const ambR = ic ? 24 : 18;
+  ambientLayer.append('circle')
+    .attr('class','station-ambient')
+    .attr('data-station',s.id)
+    .attr('cx',s.x).attr('cy',s.y).attr('r',ambR)
+    .attr('fill','url(#station-glow)');
+
+  if (ic) {
+    // Interchange pill — orientation adapts to line direction
+    const lineColors = [...s.lines].map(lid => LINE_MAP[lid].color);
+    const n = lineColors.length;
+    const cR = 3.5, cSp = 9;
+    // Orientation: uses getOrient() which checks localStorage overrides
+    const orient = getOrient(s);
+
+    let pw, ph;
+    if (orient === 'V') {
+      pw = 13; ph = (n-1)*cSp + 7 + 6;
+    } else {
+      pw = (n-1)*cSp + 7 + 10; ph = 13;
+    }
+    const px = s.x - pw/2, py = s.y - ph/2;
+    const pillRx = Math.min(pw,ph)/2;
+    // White mask (same rounded shape, slightly larger to cleanly hide lines)
+    grp.append('rect').attr('x',px-2).attr('y',py-2)
+      .attr('width',pw+4).attr('height',ph+4)
+      .attr('rx',pillRx+2).attr('fill','#FFFFFF');
+    // Pill background
+    grp.append('rect').attr('class','station-marker')
+      .attr('x',px).attr('y',py).attr('width',pw).attr('height',ph)
+      .attr('rx',pillRx).attr('fill','#FFFFFF')
+      .attr('stroke','#333333').attr('stroke-width',1.5);
+    // Warm interior tint (only visible in night mode)
+    grp.append('rect').attr('class','station-warm')
+      .attr('x',px).attr('y',py).attr('width',pw).attr('height',ph)
+      .attr('rx',pillRx).attr('fill','#FFEEBB');
+    // Colored circles
+    lineColors.forEach((c, i) => {
+      const cx = orient==='V' ? s.x : s.x - (n-1)*cSp/2 + i*cSp;
+      const cy = orient==='V' ? s.y - (n-1)*cSp/2 + i*cSp : s.y;
+      grp.append('circle').attr('cx',cx).attr('cy',cy).attr('r',cR).attr('fill',c);
+    });
+  } else {
+    // Regular station: line-colored square
+    const sz = 5, sw = 1.5;
+    const sc = [...s.lines].map(lid=>LINE_MAP[lid].color)[0];
+    grp.append('rect').attr('x',s.x-sz-2).attr('y',s.y-sz-2)
+      .attr('width',(sz+2)*2).attr('height',(sz+2)*2).attr('fill','#FFFFFF').attr('rx',1.5);
+    grp.append('rect').attr('class','station-marker')
+      .attr('x',s.x-sz).attr('y',s.y-sz).attr('width',sz*2).attr('height',sz*2)
+      .attr('fill','#FFFFFF').attr('stroke',sc).attr('stroke-width',sw).attr('rx',0.8);
+    // Warm interior fill (only visible in night mode) — 7×7 inside the 10×10 marker
+    grp.append('rect').attr('class','station-warm')
+      .attr('x',s.x-3.5).attr('y',s.y-3.5).attr('width',7).attr('height',7)
+      .attr('rx',0.5).attr('fill','#FFEEBB');
+  }
+
+  // Hit area
+  grp.append('rect').attr('x',s.x-20).attr('y',s.y-20).attr('width',40).attr('height',40)
+    .attr('fill','transparent').style('pointer-events','all');
+
+  // Label — hidden for local stations, shown on hover/click
+  const off = labelOffsets(s.label);
+  const lbl = grp.append('g').attr('class','station-label')
+    .style('opacity', isLocal ? '0' : '0.65');
+
+  // Multi-line English name support (e.g. Takanawa Gateway)
+  const enLines = s.enLines || [s.en];
+  enLines.forEach((line, li) => {
+    lbl.append('text').attr('x',s.x+off.enDx).attr('y',s.y+off.enDy + li*13)
+      .attr('text-anchor',off.anchor)
+      .attr('font-family',"'Plus Jakarta Sans',sans-serif")
+      .attr('font-size','11px').attr('font-weight','600').attr('letter-spacing','0.01em')
+      .attr('fill','#444444').attr('stroke-width','3px').text(line);
+  });
+  const jaYExtra = (enLines.length - 1) * 13;
+
+  lbl.append('text').attr('x',s.x+off.jaDx).attr('y',s.y+off.jaDy + jaYExtra)
+    .attr('text-anchor',off.anchor)
+    .attr('font-family',"'Plus Jakarta Sans',sans-serif")
+    .attr('font-size','8px').attr('font-weight','300')
+    .attr('fill','#AAAAAA').attr('stroke-width','2px').text(s.ja);
+});
+
+// ═══════════════════════════════════════════════════════════
+// ZOOM
+// ═══════════════════════════════════════════════════════════
+
+const MAP_CX = 490, MAP_CY = 420;
+const zoomBehavior = zoom().scaleExtent([0.3,5])
+  .filter(event=>{ if(event.target.closest('.station-group'))return false; return(!event.ctrlKey||event.type==='wheel')&&!event.button; })
+  .on('zoom',({transform})=>g.attr('transform',transform));
+svg.call(zoomBehavior);
+function homeTransform() { return zoomIdentity.translate(window.innerWidth/2-MAP_CX, window.innerHeight/2-MAP_CY); }
+svg.call(zoomBehavior.transform, homeTransform());
+
+document.getElementById('zoom-in').onclick=()=>svg.transition().duration(250).call(zoomBehavior.scaleBy,1.5);
+document.getElementById('zoom-out').onclick=()=>svg.transition().duration(250).call(zoomBehavior.scaleBy,1/1.5);
+document.getElementById('zoom-reset').onclick=()=>svg.transition().duration(400).call(zoomBehavior.transform,homeTransform());
+
+// ── Day/Night toggle ─────────────────────────────────────
+let isNight = false;
+function applyMode() {
+  document.body.classList.toggle('night', isNight);
+  // Background fill
+  bgRect.attr('fill', isNight ? '#0A0E1A' : '#FFFFFF');
+  // Dot grid color
+  dotEls.forEach(d => d.setAttribute('fill', isNight ? '#1A1F2E' : '#E0E0E0'));
+  // Lines: opacity + glow visibility
+  linePaths.forEach(p => p.attr('opacity', isNight ? 0.45 : 1));
+  lineGlowPaths.forEach(p => p.attr('opacity', isNight ? 0.06 : 0));
+  // Station labels — colors
+  g.selectAll('.station-label text').each(function() {
+    const t = this;
+    const sz = t.getAttribute('font-size');
+    if (sz === '11px') t.setAttribute('fill', isNight ? '#C8C4BE' : '#444444');
+    else if (sz === '8px') t.setAttribute('fill', isNight ? '#5A574F' : '#AAAAAA');
+  });
+  // Station markers + pills
+  g.selectAll('.station-group').each(function() {
+    const grp = select(this);
+    const sid = grp.attr('data-station');
+    const s = stationMap.get(sid);
+    if (!s) return;
+    const ic = s.lines.size > 1;
+    grp.selectAll('rect.station-marker').each(function() {
+      const r = this;
+      if (ic) {
+        r.setAttribute('stroke', isNight ? '#888888' : '#333333');
+        r.setAttribute('fill', isNight ? '#0A0E1A' : '#FFFFFF');
+      } else {
+        // Single-line square: keep line color but adjust opacity
+        r.setAttribute('fill', isNight ? '#0A0E1A' : '#FFFFFF');
+        r.setAttribute('opacity', isNight ? 0.85 : 1);
+      }
+    });
+    // White mask rects behind markers — match background
+    grp.selectAll('rect:not(.station-marker):not([fill="transparent"]):not(.dev-highlight)').each(function() {
+      if (this.getAttribute('fill') === '#FFFFFF' || this.getAttribute('fill') === '#0A0E1A') {
+        this.setAttribute('fill', isNight ? '#0A0E1A' : '#FFFFFF');
+      }
+    });
+  });
+  // Train glows + windows
+  allTrainSets.forEach(trains => trains.forEach(tr => {
+    if (tr.glow) tr.glow.setAttribute('opacity', isNight ? '0.2' : '0.08');
+    if (tr.win) {
+      tr.win.setAttribute('fill', isNight ? '#FFF4D6' : '#FFFFFF');
+      tr.win.setAttribute('opacity', isNight ? '0.85' : '0.45');
+    }
+    if (tr.headlamp) tr.headlamp.setAttribute('opacity', isNight ? '0.35' : '0');
+  }));
+  // Station warm interior fills
+  g.selectAll('.station-group').each(function() {
+    const grp = select(this);
+    const sid = grp.attr('data-station');
+    const s = stationMap.get(sid);
+    if (!s) return;
+    const ic = s.lines.size > 1;
+    grp.selectAll('.station-warm').each(function() {
+      this.style.opacity = isNight ? (ic ? '0.12' : '0.2') : '0';
+    });
+  });
+  // Station ambient ground glows
+  ambientLayer.selectAll('.station-ambient').each(function() {
+    const sid = this.getAttribute('data-station');
+    const s = stationMap.get(sid);
+    if (!s) return;
+    const ic = s.lines.size > 1;
+    this.style.opacity = isNight ? (ic ? '0.06' : '0.04') : '0';
+  });
+}
+document.getElementById('toggle-mode').onclick = () => { isNight = !isNight; applyMode(); };
+svg.on('click',event=>{ if(!event.target.closest('.station-group')&&!event.target.closest('.line-path')&&!event.target.closest('.coffee-group')){ hideStationInfo(); unfocusLine(); hideCoffeeInfo(); }});
+
+// ═══════════════════════════════════════════════════════════
+// COFFEE LAYER
+// ═══════════════════════════════════════════════════════════
+
+const COFFEE_SHOPS = [
+  {
+    id:'onibus', name:'Onibus Coffee', nameJa:'オニバスコーヒー',
+    station:'meguro', stationName:'Meguro', lineName:'JR Yamanote', lineColor:'#6BB04D',
+    walkMin:8, cx:60, cy:600, labelDir:'left',
+    area:'Nakameguro', style:'Pour-over · Single Origin',
+    desc:'Specialty roaster known for single-origin pour-overs. Cozy standing-room shop with beans sourced directly from farms.',
+    tags:['Pour-over','Roastery','Single Origin'],
+  },
+  {
+    id:'bear-pond', name:'Bear Pond Espresso', nameJa:'ベアポンド エスプレッソ',
+    station:'shibuya', stationName:'Shibuya', lineName:'JR Yamanote', lineColor:'#6BB04D',
+    walkMin:12, cx:50, cy:530, labelDir:'left',
+    area:'Shimokitazawa (via Shibuya)', style:'Espresso · Dark Roast',
+    desc:'Legendary espresso bar in Shimokitazawa. The "Angel Stain" espresso is a must-try. Limited hours — check before visiting.',
+    tags:['Espresso','Cult Favorite','Limited Hours'],
+  },
+  {
+    id:'glitch', name:'Glitch Coffee & Roasters', nameJa:'グリッチコーヒー',
+    station:'ochanomizu', stationName:'Ochanomizu', lineName:'Marunouchi', lineColor:'#E60012',
+    walkMin:5, cx:650, cy:450, labelDir:'right',
+    area:'Jinbocho', style:'Light Roast · Specialty',
+    desc:'Award-winning light roast specialist near Jinbocho. Rotating single-origin menu with detailed tasting notes.',
+    tags:['Light Roast','Award-winning','Specialty'],
+  },
+  {
+    id:'kopi-kalyan', name:'Kopi Kalyan', nameJa:'コピカリャン',
+    station:'asakusa', stationName:'Asakusa', lineName:'Ginza', lineColor:'#F39700',
+    walkMin:6, cx:1510, cy:216, labelDir:'right',
+    area:'Asakusa', style:'Indonesian · Pour-over',
+    desc:'Indonesian-style coffee in the heart of Asakusa. Serves rare beans from Java, Sumatra, and Sulawesi.',
+    tags:['Indonesian','Pour-over','Rare Beans'],
+  },
+  {
+    id:'nadoya', name:'Nadoya no Katte', nameJa:'納屋のかって',
+    station:'yoyogi', stationName:'Yoyogi', lineName:'JR Yamanote', lineColor:'#6BB04D',
+    walkMin:7, cx:60, cy:420, labelDir:'left',
+    area:'Yoyogi-Uehara', style:'Craft · Neighborhood',
+    desc:'Hidden gem in a converted storehouse. Relaxed neighborhood café with house-roasted beans and homemade pastries.',
+    tags:['Craft','Hidden Gem','Pastries'],
+  },
+];
+
+// Coffee SVG layer
+const coffeeLayer = g.append('g').attr('id','coffee-layer');
+let coffeeVisible = false;
+
+// Build coffee markers
+const COFFEE_SZ = 7; // half-size of square marker
+COFFEE_SHOPS.forEach(shop => {
+  const stn = stationMap.get(shop.station);
+  if(!stn) return;
+  const cx = shop.cx, cy = shop.cy;
+  shop._sx = stn.x; shop._sy = stn.y;
+
+  // Connector line from station to coffee shop
+  coffeeLayer.append('line')
+    .attr('class','coffee-connector')
+    .attr('x1',stn.x).attr('y1',stn.y).attr('x2',cx).attr('y2',cy)
+    .attr('stroke','#6F4E37').attr('stroke-width',1.2)
+    .attr('stroke-dasharray','4 4').attr('opacity',0.35);
+
+  // Coffee marker group
+  const cg = coffeeLayer.append('g').attr('class','coffee-group').attr('data-coffee',shop.id)
+    .on('click', event => { event.stopPropagation(); showCoffeeInfo(shop); });
+
+  // White mask behind marker
+  cg.append('rect')
+    .attr('x',cx-COFFEE_SZ-3).attr('y',cy-COFFEE_SZ-3)
+    .attr('width',(COFFEE_SZ+3)*2).attr('height',(COFFEE_SZ+3)*2)
+    .attr('fill','#FFFFFF').attr('rx',1);
+
+  // Square marker (same style as station markers)
+  cg.append('rect').attr('class','coffee-marker')
+    .attr('x',cx-COFFEE_SZ).attr('y',cy-COFFEE_SZ)
+    .attr('width',COFFEE_SZ*2).attr('height',COFFEE_SZ*2)
+    .attr('fill','#FFFFFF').attr('stroke','#6F4E37').attr('stroke-width',1.8).attr('rx',0.8);
+
+  // Coffee emoji inside the square
+  cg.append('text')
+    .attr('x',cx).attr('y',cy+1)
+    .attr('text-anchor','middle').attr('dominant-baseline','central')
+    .attr('font-size','8px').text('☕');
+
+  // Hit area
+  cg.append('rect')
+    .attr('x',cx-18).attr('y',cy-18).attr('width',36).attr('height',36)
+    .attr('fill','transparent').style('pointer-events','all');
+
+  // Label
+  const isLeft = shop.labelDir === 'left';
+  const anchor = isLeft ? 'end' : 'start';
+  const labelDx = isLeft ? -14 : 14;
+
+  const lbl = cg.append('g').attr('class','coffee-label').attr('opacity',0.7);
+
+  lbl.append('text')
+    .attr('x',cx+labelDx).attr('y',cy-2)
+    .attr('text-anchor',anchor)
+    .attr('font-family',"'Plus Jakarta Sans',sans-serif")
+    .attr('font-size','9px').attr('font-weight','600')
+    .attr('fill','#6F4E37')
+    .attr('paint-order','stroke').attr('stroke','#FFFFFF')
+    .attr('stroke-width','2.5px').attr('stroke-linejoin','round')
+    .text(shop.name);
+
+  lbl.append('text')
+    .attr('x',cx+labelDx).attr('y',cy+9)
+    .attr('text-anchor',anchor)
+    .attr('font-family',"'Plus Jakarta Sans',sans-serif")
+    .attr('font-size','7px').attr('font-weight','400')
+    .attr('fill','#A08060')
+    .attr('paint-order','stroke').attr('stroke','#FFFFFF')
+    .attr('stroke-width','2px').attr('stroke-linejoin','round')
+    .text(`~${shop.walkMin} min from ${shop.stationName}`);
+});
+
+// Start hidden
+coffeeLayer.classed('coffee-layer-hidden', true);
+
+// Coffee info panel
+const coffeeInfoPanel = document.getElementById('coffee-info');
+function showCoffeeInfo(shop) {
+  hideStationInfo(); unfocusLine();
+  coffeeInfoPanel.querySelector('.coffee-name').textContent = shop.name;
+  coffeeInfoPanel.querySelector('.coffee-name-ja').textContent = shop.nameJa;
+  coffeeInfoPanel.querySelector('.coffee-meta').textContent = `${shop.area} · ${shop.style}`;
+  coffeeInfoPanel.querySelector('.coffee-stations').innerHTML =
+    `<div class="coffee-station">
+      <div class="cs-dot" style="background:${shop.lineColor}"></div>
+      <div>
+        <div class="cs-name">${shop.stationName}</div>
+        <div class="cs-line">${shop.lineName}</div>
+      </div>
+      <div class="cs-dist">~${shop.walkMin} min walk</div>
+    </div>`;
+  coffeeInfoPanel.querySelector('.coffee-desc').textContent = shop.desc;
+  coffeeInfoPanel.querySelector('.coffee-tags').innerHTML =
+    shop.tags.map(t => `<span class="coffee-tag">${t}</span>`).join('');
+  coffeeInfoPanel.classList.add('visible');
+  legend.classList.add('legend-hidden');
+}
+function hideCoffeeInfo() {
+  coffeeInfoPanel.classList.remove('visible');
+  legend.classList.remove('legend-hidden');
+}
+coffeeInfoPanel.querySelector('.info-close').addEventListener('click', () => hideCoffeeInfo());
+
+// Toggle coffee layer
+const coffeeBtn = document.getElementById('toggle-coffee');
+if(coffeeBtn) coffeeBtn.addEventListener('click', () => {
+  coffeeVisible = !coffeeVisible;
+  coffeeLayer.classed('coffee-layer-hidden', !coffeeVisible);
+  coffeeBtn.classList.toggle('active', coffeeVisible);
+  if(!coffeeVisible) hideCoffeeInfo();
+});
+
+// ═══════════════════════════════════════════════════════════
+// ANIMATION
+// ═══════════════════════════════════════════════════════════
+
+function animate(now) {
+  const t = now/1000;
+  lineData.forEach((ld,li) => {
+    const trains = allTrainSets[li], dashEls = allDashSets[li];
+    const {total,posAt} = ld.geo;
+    const dur = ld.cfg.duration, isLoop = ld.cfg.loop;
+
+    trains.forEach(train => {
+      const elapsed = t+train.offset;
+      let dist, angleOff=0;
+      if(isLoop) { dist=((elapsed/dur)*total)%total; }
+      else {
+        const frac=((elapsed/dur)%1+1)%1, travel=frac*2;
+        if(travel<=1){dist=travel*total;}else{dist=(2-travel)*total;angleOff=180;}
+      }
+      train.dist = dist;
+      const pt = posAt(dist);
+      train.el.setAttribute('transform',`translate(${pt.x},${pt.y}) rotate(${pt.angle + angleOff})`);
+    });
+
+    ld.stations.forEach((s,i) => {
+      if(s.pathDist===undefined) return;
+      let maxP=0;
+      trains.forEach(train => {
+        let d;
+        if(isLoop){d=Math.abs(s.pathDist-train.dist);if(d>total/2)d=total-d;}
+        else{d=Math.abs(s.pathDist-train.dist);}
+        if(d<APPROACH_DIST) maxP=Math.max(maxP,1-d/APPROACH_DIST);
+      });
+      const els = dashEls[i];
+      els.forEach(el => {
+        el.setAttribute('opacity', maxP * 0.6);
+        const base = parseFloat(el.getAttribute('data-base-offset')) || 0;
+        el.setAttribute('stroke-dashoffset', base - t * 12);
+      });
+    });
+  });
+  requestAnimationFrame(animate);
+}
+requestAnimationFrame(animate);
+
+// ═══════════════════════════════════════════════════════════
+// DEV TOOLS — Ctrl+Shift+D to toggle
+// ═══════════════════════════════════════════════════════════
+
+const devPanel = document.getElementById('dev-panel');
+const dpContent = document.getElementById('dp-content');
+const dpControls = document.getElementById('dp-controls');
+let devMode = false;
+let devSelected = null; // { id, origX, origY, origOrient }
+// devChanges already declared above (near getOrient)
+
+// Toggle dev mode
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+    e.preventDefault();
+    devMode = !devMode;
+    devPanel.classList.toggle('active', devMode);
+    if (!devMode) { deselectDev(); }
+  }
+  if (!devMode || !devSelected) return;
+  // Skip arrow keys when typing in inputs
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  // Arrow key nudging
+  const arrows = { ArrowUp:[0,-1], ArrowDown:[0,1], ArrowLeft:[-1,0], ArrowRight:[1,0] };
+  if (arrows[e.key]) {
+    e.preventDefault();
+    const step = parseInt(document.getElementById('dp-step').value) || 1;
+    const mult = e.shiftKey ? 10 : 1;
+    const [dx, dy] = arrows[e.key];
+    nudgeDev(dx * step * mult, dy * step * mult);
+  }
+});
+
+// Intercept station clicks in dev mode
+function devStationClick(s) {
+  if (!devMode) return false;
+  selectDev(s);
+  return true; // consumed
+}
+
+// Patch station click handlers to check dev mode first — ALL stations
+g.selectAll('.station-group').each(function() {
+  const el = this;
+  const sid = el.getAttribute('data-station');
+  const s = stationMap.get(sid);
+  if (!s) return;
+  el.addEventListener('click', e => {
+    if (devMode) { e.stopPropagation(); e.stopImmediatePropagation(); selectDev(s); }
+  }, true); // capture phase to beat d3 handler
+});
+
+function selectDev(s) {
+  // Deselect previous
+  if (devSelected) {
+    const prev = g.select(`[data-station="${devSelected.id}"]`);
+    prev.classed('dev-selected', false);
+  }
+  devSelected = {
+    id: s.id, en: s.en, ja: s.ja, origX: s.x, origY: s.y,
+    origOrient: getOrient(s), origLabel: s.label,
+  };
+  // Highlight
+  g.select(`[data-station="${s.id}"]`).classed('dev-selected', true);
+  // Update panel
+  dpContent.style.display = 'none';
+  dpControls.style.display = 'block';
+  document.getElementById('dp-name').textContent = s.en;
+  document.getElementById('dp-station-ja').textContent = s.ja;
+  // Show/hide orient section based on interchange
+  document.getElementById('dp-orient-section').style.display = isInterchange(s) ? 'block' : 'none';
+  // Populate label direction
+  updateLabelDirBtns();
+  // Populate name fields
+  document.getElementById('dp-en').value = s.en;
+  document.getElementById('dp-ja').value = s.ja;
+  updateDevCoords();
+  updateOrientBtns();
+}
+
+function deselectDev() {
+  if (devSelected) {
+    g.select(`[data-station="${devSelected.id}"]`).classed('dev-selected', false);
+  }
+  devSelected = null;
+  dpControls.style.display = 'none';
+  dpContent.style.display = 'block';
+}
+
+// getOrient moved above rendering loop
+
+function updateDevCoords() {
+  if (!devSelected) return;
+  const s = stationMap.get(devSelected.id);
+  document.getElementById('dp-x').textContent = s.x;
+  document.getElementById('dp-y').textContent = s.y;
+  const orient = getOrient(s);
+  document.getElementById('dp-orient-badge').innerHTML =
+    `<span class="dp-badge" style="background:${orient==='V'?'#335':'#353'};color:${orient==='V'?'#7df':'#7fb'}">${orient==='V'?'VERT':'HORIZ'}</span>`;
+  // Update changes count
+  const unsaved = devChanges.size;
+  const saved = Object.keys(_savedOverrides).length;
+  let statusText = '';
+  if (unsaved > 0) statusText = `${unsaved} unsaved change${unsaved>1?'s':''}`;
+  else if (saved > 0) statusText = `${saved} saved override${saved>1?'s':''}`;
+  else statusText = 'No changes';
+  document.getElementById('dp-changes').textContent = statusText;
+}
+
+function updateOrientBtns() {
+  if (!devSelected) return;
+  const s = stationMap.get(devSelected.id);
+  const orient = getOrient(s);
+  document.getElementById('dp-h').classList.toggle('sel', orient === 'H');
+  document.getElementById('dp-v').classList.toggle('sel', orient === 'V');
+}
+
+function nudgeDev(dx, dy) {
+  if (!devSelected) return;
+  const s = stationMap.get(devSelected.id);
+  s.x += dx;
+  s.y += dy;
+  trackChange(s);
+  rerenderStation(s);
+  updateDevCoords();
+}
+
+function setOrient(orient) {
+  if (!devSelected) return;
+  const s = stationMap.get(devSelected.id);
+  if (!devChanges.has(s.id)) {
+    devChanges.set(s.id, { x: s.x, y: s.y, orient, label: s.label, en: s.en, ja: s.ja });
+  } else {
+    devChanges.get(s.id).orient = orient;
+  }
+  rerenderStation(s);
+  updateDevCoords();
+  updateOrientBtns();
+}
+
+function trackChange(s) {
+  const orient = getOrient(s);
+  devChanges.set(s.id, { x: s.x, y: s.y, orient, label: s.label, en: s.en, ja: s.ja });
+}
+
+function rerenderStation(s) {
+  const grpEl = g.select(`[data-station="${s.id}"]`);
+  if (grpEl.empty()) return;
+  // Remove old marker elements (keep the group, hit area, and label)
+  grpEl.selectAll('rect:not([fill="transparent"]),circle').remove();
+  const ic = isInterchange(s);
+  const lineColors = [...s.lines].map(lid => LINE_MAP[lid].color);
+  const n = lineColors.length;
+
+  if (ic) {
+    const cR = 3.5, cSp = 9;
+    const orient = getOrient(s);
+    let pw, ph;
+    if (orient === 'V') { pw = 13; ph = (n-1)*cSp + 7 + 6; }
+    else { pw = (n-1)*cSp + 7 + 10; ph = 13; }
+    const px = s.x - pw/2, py = s.y - ph/2;
+    const pillRx = Math.min(pw,ph)/2;
+    // Insert before hit area
+    const hitArea = grpEl.select('[fill="transparent"]');
+    // White mask
+    grpEl.insert('rect','[fill="transparent"]').attr('x',px-2).attr('y',py-2)
+      .attr('width',pw+4).attr('height',ph+4).attr('rx',pillRx+2).attr('fill','#FFFFFF');
+    // Pill
+    grpEl.insert('rect','[fill="transparent"]').attr('class','station-marker')
+      .attr('x',px).attr('y',py).attr('width',pw).attr('height',ph)
+      .attr('rx',pillRx).attr('fill','#FFFFFF').attr('stroke','#333333').attr('stroke-width',1.5);
+    // Circles
+    lineColors.forEach((c, i) => {
+      const cx = orient==='V' ? s.x : s.x - (n-1)*cSp/2 + i*cSp;
+      const cy = orient==='V' ? s.y - (n-1)*cSp/2 + i*cSp : s.y;
+      grpEl.insert('circle','[fill="transparent"]').attr('cx',cx).attr('cy',cy).attr('r',cR).attr('fill',c);
+    });
+  } else {
+    const sz = 5, sw = 1.5;
+    const sc = lineColors[0];
+    grpEl.insert('rect','[fill="transparent"]').attr('x',s.x-sz-2).attr('y',s.y-sz-2)
+      .attr('width',(sz+2)*2).attr('height',(sz+2)*2).attr('fill','#FFFFFF').attr('rx',1.5);
+    grpEl.insert('rect','[fill="transparent"]').attr('class','station-marker')
+      .attr('x',s.x-sz).attr('y',s.y-sz).attr('width',sz*2).attr('height',sz*2)
+      .attr('fill','#FFFFFF').attr('stroke',sc).attr('stroke-width',sw).attr('rx',0.8);
+  }
+
+  // Update hit area position
+  grpEl.select('[fill="transparent"]').attr('x',s.x-20).attr('y',s.y-20);
+
+  // Update label positions, text content, and anchor
+  const off = labelOffsets(s.label);
+  const lbl = grpEl.select('.station-label');
+  lbl.attr('text-anchor', off.anchor);
+  const enTexts = lbl.selectAll('text').nodes();
+  const enLines = s.enLines || [s.en];
+  if (enTexts[0]) {
+    enTexts[0].setAttribute('x', s.x+off.enDx);
+    enTexts[0].setAttribute('y', s.y+off.enDy);
+    enTexts[0].setAttribute('text-anchor', off.anchor);
+    enTexts[0].textContent = enLines[0];
+  }
+  if (enTexts.length > 1 && enLines.length > 1) {
+    enTexts[1].setAttribute('x', s.x+off.enDx);
+    enTexts[1].setAttribute('y', s.y+off.enDy+13);
+    enTexts[1].setAttribute('text-anchor', off.anchor);
+    enTexts[1].textContent = enLines[1];
+  }
+  // Japanese text is last
+  const jaText = enTexts[enTexts.length - 1];
+  const jaYExtra = (enLines.length - 1) * 13;
+  if (jaText && jaText.getAttribute('font-size') === '8px') {
+    jaText.setAttribute('x', s.x+off.jaDx);
+    jaText.setAttribute('y', s.y+off.jaDy+jaYExtra);
+    jaText.setAttribute('text-anchor', off.anchor);
+    jaText.textContent = s.ja;
+  }
+
+  // Re-apply dev-selected highlight
+  if (devSelected && devSelected.id === s.id) {
+    grpEl.classed('dev-selected', true);
+  }
+}
+
+
+// Arrow button handlers
+document.getElementById('dp-up').onclick = () => nudgeDev(0, -parseInt(document.getElementById('dp-step').value)||1);
+document.getElementById('dp-down').onclick = () => nudgeDev(0, parseInt(document.getElementById('dp-step').value)||1);
+document.getElementById('dp-left').onclick = () => nudgeDev(-(parseInt(document.getElementById('dp-step').value)||1), 0);
+document.getElementById('dp-right').onclick = () => nudgeDev(parseInt(document.getElementById('dp-step').value)||1, 0);
+document.getElementById('dp-center').onclick = () => { if(devSelected){const s=stationMap.get(devSelected.id);s.x=devSelected.origX;s.y=devSelected.origY;trackChange(s);rerenderStation(s);updateDevCoords();}};
+
+// Orientation buttons
+document.getElementById('dp-h').onclick = () => setOrient('H');
+document.getElementById('dp-v').onclick = () => setOrient('V');
+
+// Label direction buttons
+function updateLabelDirBtns() {
+  if (!devSelected) return;
+  const s = stationMap.get(devSelected.id);
+  const dir = s.label;
+  document.querySelectorAll('#dp-label-dir button').forEach(b => {
+    b.classList.toggle('sel', b.dataset.dir === dir);
+  });
+}
+document.querySelectorAll('#dp-label-dir button').forEach(b => {
+  b.addEventListener('click', () => {
+    if (!devSelected) return;
+    const s = stationMap.get(devSelected.id);
+    const dir = b.dataset.dir;
+    s.label = dir;
+    // Track change
+    if (!devChanges.has(s.id)) {
+      devChanges.set(s.id, { x: s.x, y: s.y, orient: getOrient(s), label: dir, en: s.en, ja: s.ja });
+    } else {
+      devChanges.get(s.id).label = dir;
+    }
+    rerenderStation(s);
+    updateLabelDirBtns();
+    updateDevCoords();
+  });
+});
+
+// Station name inputs
+document.getElementById('dp-en').addEventListener('input', function() {
+  if (!devSelected) return;
+  const s = stationMap.get(devSelected.id);
+  s.en = this.value;
+  s.enLines = [this.value]; // Reset multiline
+  document.getElementById('dp-name').textContent = this.value;
+  if (!devChanges.has(s.id)) {
+    devChanges.set(s.id, { x: s.x, y: s.y, orient: getOrient(s), label: s.label, en: s.en, ja: s.ja });
+  } else {
+    devChanges.get(s.id).en = s.en;
+  }
+  rerenderStation(s);
+  updateDevCoords();
+});
+document.getElementById('dp-ja').addEventListener('input', function() {
+  if (!devSelected) return;
+  const s = stationMap.get(devSelected.id);
+  s.ja = this.value;
+  document.getElementById('dp-station-ja').textContent = this.value;
+  if (!devChanges.has(s.id)) {
+    devChanges.set(s.id, { x: s.x, y: s.y, orient: getOrient(s), label: s.label, en: s.en, ja: s.ja });
+  } else {
+    devChanges.get(s.id).ja = s.ja;
+  }
+  rerenderStation(s);
+  updateDevCoords();
+});
+
+// Reset all — clears changes AND localStorage
+document.getElementById('dp-reset').onclick = () => {
+  // Restore original positions from line station arrays
+  devChanges.forEach((ch, id) => {
+    const s = stationMap.get(id);
+    if (s) {
+      for (const ld of lineData) {
+        const orig = ld.stations.find(st => st.id === id);
+        if (orig) { s.x = orig.x; s.y = orig.y; break; }
+      }
+      rerenderStation(s);
+    }
+  });
+  devChanges.clear();
+  localStorage.removeItem('dev-station-overrides');
+  localStorage.removeItem('dev-orient-overrides');
+  localStorage.removeItem('dev-label-overrides');
+  localStorage.removeItem('dev-name-overrides');
+  deselectDev();
+  updateDevCoords();
+  document.getElementById('dp-saved-msg').style.display = 'none';
+};
+
+// Save — persist to localStorage, auto-applies on next reload
+document.getElementById('dp-save').onclick = () => {
+  if (devChanges.size === 0) return;
+  const posData = {};
+  const orientData = {};
+  const labelData = {};
+  const nameData = {};
+  devChanges.forEach((ch, id) => {
+    posData[id] = { x: ch.x, y: ch.y };
+    if (ch.orient) orientData[id] = ch.orient;
+    if (ch.label) labelData[id] = ch.label;
+    if (ch.en || ch.ja) nameData[id] = { en: ch.en, ja: ch.ja };
+  });
+  // Merge with existing saved data
+  const existingPos = JSON.parse(localStorage.getItem('dev-station-overrides') || '{}');
+  const existingOrient = JSON.parse(localStorage.getItem('dev-orient-overrides') || '{}');
+  const existingLabel = JSON.parse(localStorage.getItem('dev-label-overrides') || '{}');
+  const existingName = JSON.parse(localStorage.getItem('dev-name-overrides') || '{}');
+  Object.assign(existingPos, posData);
+  Object.assign(existingOrient, orientData);
+  Object.assign(existingLabel, labelData);
+  Object.assign(existingName, nameData);
+  localStorage.setItem('dev-station-overrides', JSON.stringify(existingPos));
+  localStorage.setItem('dev-orient-overrides', JSON.stringify(existingOrient));
+  localStorage.setItem('dev-label-overrides', JSON.stringify(existingLabel));
+  localStorage.setItem('dev-name-overrides', JSON.stringify(existingName));
+  // Flash confirmation
+  const msg = document.getElementById('dp-saved-msg');
+  msg.style.display = 'block';
+  setTimeout(() => msg.style.display = 'none', 2500);
+};
+
+// Copy Prompt — bundle every override (saved + in-flight) into a markdown brief
+// for Claude to bake into the source file.
+document.getElementById('dp-copy-prompt').onclick = async () => {
+  // Merge saved (localStorage) with in-flight (devChanges, not yet saved)
+  const savedPos = JSON.parse(localStorage.getItem('dev-station-overrides') || '{}');
+  const savedOri = JSON.parse(localStorage.getItem('dev-orient-overrides') || '{}');
+  const savedLab = JSON.parse(localStorage.getItem('dev-label-overrides') || '{}');
+  const savedNam = JSON.parse(localStorage.getItem('dev-name-overrides') || '{}');
+
+  const ids = new Set([
+    ...Object.keys(savedPos), ...Object.keys(savedOri),
+    ...Object.keys(savedLab), ...Object.keys(savedNam),
+    ...devChanges.keys(),
+  ]);
+
+  if (ids.size === 0) {
+    alert('No overrides to export. Make some edits first.');
+    return;
+  }
+
+  // Lookup original (source-of-truth) values from lineData arrays
+  const originals = new Map();
+  for (const ld of lineData) {
+    for (const st of ld.stations) {
+      if (ids.has(st.id) && !originals.has(st.id)) {
+        originals.set(st.id, { lineId: ld.cfg.id, x: st.x, y: st.y, label: st.label, en: st.en, ja: st.ja });
+      }
+    }
+  }
+
+  const lines = [];
+  lines.push('Bake the following Station Editor overrides into the source file at `/Users/muhammadraufan/tokyo-transit-map.html`. For each station, locate its entry inside the matching `<lineId>Stations` array and update the listed fields in place. Do NOT alter unlisted fields. After applying, no further runtime override is needed — these become the new defaults.');
+  lines.push('');
+  lines.push(`Total stations changed: **${ids.size}**`);
+  lines.push('');
+
+  // Group by line for readability
+  const byLine = new Map();
+  for (const id of ids) {
+    const o = originals.get(id);
+    if (!o) continue;
+    if (!byLine.has(o.lineId)) byLine.set(o.lineId, []);
+    byLine.get(o.lineId).push(id);
+  }
+
+  for (const [lineId, sids] of byLine) {
+    lines.push(`## ${lineId}Stations`);
+    lines.push('');
+    for (const id of sids) {
+      const o = originals.get(id);
+      // Resolve final values: in-flight devChanges win over saved localStorage
+      const ch = devChanges.get(id) || {};
+      const finalX = (ch.x ?? savedPos[id]?.x ?? o.x);
+      const finalY = (ch.y ?? savedPos[id]?.y ?? o.y);
+      const finalOri = (ch.orient ?? savedOri[id] ?? null);
+      const finalLab = (ch.label ?? savedLab[id] ?? o.label);
+      const finalEn  = (ch.en ?? savedNam[id]?.en ?? o.en);
+      const finalJa  = (ch.ja ?? savedNam[id]?.ja ?? o.ja);
+
+      const diffs = [];
+      if (finalX !== o.x || finalY !== o.y) diffs.push(`- **position**: \`{x:${o.x}, y:${o.y}}\` → \`{x:${finalX}, y:${finalY}}\``);
+      if (finalLab !== o.label) diffs.push(`- **label direction**: \`'${o.label}'\` → \`'${finalLab}'\``);
+      if (finalEn !== o.en) diffs.push(`- **en**: \`'${o.en}'\` → \`'${finalEn}'\``);
+      if (finalJa !== o.ja) diffs.push(`- **ja**: \`'${o.ja}'\` → \`'${finalJa}'\``);
+      if (finalOri) diffs.push(`- **interchange orientation**: set to \`'${finalOri}'\` _(add to the \`orientOverride\` map inside the \`getOrient\` function, replacing any existing entry for this id)_`);
+
+      if (diffs.length === 0) continue;
+      lines.push(`### \`${id}\``);
+      lines.push(...diffs);
+      lines.push('');
+    }
+  }
+
+  lines.push('---');
+  lines.push('After baking, please also remove these keys from any seeded localStorage and clear the in-memory `_savedOverrides`/`_savedOrients`/`_savedLabels`/`_savedNames` reads — the values will already live in the station definitions, so the override layer becomes dead weight for these ids.');
+
+  const text = lines.join('\n');
+
+  try {
+    await navigator.clipboard.writeText(text);
+    const m = document.getElementById('dp-prompt-msg');
+    m.style.display = 'block';
+    setTimeout(() => m.style.display = 'none', 2500);
+  } catch (e) {
+    // Fallback — open the existing dev-export modal with the text
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:520px;height:400px;z-index:300;background:#111;color:#7df;border:1px solid #444;border-radius:8px;padding:12px;font-family:monospace;font-size:11px';
+    document.body.appendChild(ta);
+    ta.select();
+    setTimeout(() => ta.remove(), 30000);
+  }
+};
+
+requestAnimationFrame(animate);
+</script>
+</body>
+</html>
