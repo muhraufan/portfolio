@@ -149,7 +149,7 @@ body.minimal {
   font-size: 13px;
   line-height: 2;
   letter-spacing: 1px;
-  color: #050505;
+  color: var(--text);
 }
 
 body.minimal ::selection {
@@ -295,13 +295,13 @@ body.minimal footer:not(.m-footer) {
   line-height: 2;
   font-weight: 500;
   letter-spacing: 0;
-  color: #050505;
+  color: var(--text);
 }
 
 .m-bio {
   font-size: 13px;
   line-height: 2;
-  color: #050505;
+  color: var(--text);
   margin-bottom: 0;
 }
 
@@ -448,7 +448,7 @@ body.minimal footer:not(.m-footer) {
   font-size: 13px;
   line-height: 2;
   font-weight: 500;
-  color: #050505;
+  color: var(--text);
   margin-bottom: 12px;
 }
 
@@ -483,7 +483,7 @@ body.minimal footer:not(.m-footer) {
 .m-list-soon {
   font-size: 13px;
   line-height: 2;
-  color: #050505;
+  color: var(--text);
 }
 
 .m-badge-soon {
@@ -500,7 +500,7 @@ body.minimal footer:not(.m-footer) {
 .m-list a {
   font-size: 13px;
   line-height: 2;
-  color: #050505;
+  color: var(--text);
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-color: var(--border2);
