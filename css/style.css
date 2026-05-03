@@ -146,9 +146,10 @@ html[data-lang="ja"] body.minimal {
 
 body.minimal {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  font-size: 14px;
-  line-height: 2.4rem;
+  font-size: 13px;
+  line-height: 2;
   letter-spacing: 1px;
+  color: #050505;
 }
 
 body.minimal ::selection {
@@ -290,16 +291,18 @@ body.minimal footer:not(.m-footer) {
 }
 
 .m-name {
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 2;
   font-weight: 500;
   letter-spacing: 0;
+  color: #050505;
 }
 
 .m-bio {
-  font-size: 14px;
-  line-height: 1.7;
-  color: var(--text2);
-  margin-bottom: 16px;
+  font-size: 13px;
+  line-height: 2;
+  color: #050505;
+  margin-bottom: 0;
 }
 
 .m-medium {
@@ -312,7 +315,7 @@ body.minimal footer:not(.m-footer) {
 }
 
 .m-spacer-sm {
-  height: 16px;
+  height: 0;
 }
 
 /* ---- Underlined links ---- */
@@ -442,15 +445,17 @@ body.minimal footer:not(.m-footer) {
 }
 
 .m-section-title {
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 2;
   font-weight: 500;
+  color: #050505;
   margin-bottom: 12px;
 }
 
 .m-list {
   list-style: none;
   padding: 0;
-  margin: 0 0 32px;
+  margin: 16px 0 32px;
 }
 
 .m-list li {
@@ -476,8 +481,9 @@ body.minimal footer:not(.m-footer) {
 }
 
 .m-list-soon {
-  font-size: 14px;
-  color: var(--text2);
+  font-size: 13px;
+  line-height: 2;
+  color: #050505;
 }
 
 .m-badge-soon {
@@ -492,8 +498,9 @@ body.minimal footer:not(.m-footer) {
 }
 
 .m-list a {
-  font-size: 14px;
-  color: var(--text2);
+  font-size: 13px;
+  line-height: 2;
+  color: #050505;
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-color: var(--border2);
@@ -506,7 +513,7 @@ body.minimal footer:not(.m-footer) {
 }
 
 .m-footer {
-  font-size: 14px;
+  font-size: 13px;
   margin-bottom: 12px;
   display: flex;
   align-items: center;
