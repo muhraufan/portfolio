@@ -1,0 +1,2000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>Tokyo Transit — Case Study · Raufan Yusup</title>
+  <meta name="description" content="An exercise in uncommon care — a hand-tuned Tokyo transit map built with code, directed by taste.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       TOKYO TRANSIT — case study
+       Single-column scrolling article. No sidebar, no TOC, no
+       sticky nav. Editorial register: lots of whitespace, sparse
+       text, the live map and demos do the heavy lifting.
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: #FFFFFF;
+      color: #555;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    /* ---------- Reveal-on-scroll primitives ----------
+       Each [data-reveal] element starts opacity:0/translateY 20px
+       and animates to 1/0 when 15% intersects. Children with
+       [data-reveal-stagger] inherit the trigger but delay their
+       own transition so the section reads in beats. */
+    /* Reveal-on-scroll disabled — sections show immediately, no fade. */
+    [data-reveal],
+    [data-reveal].is-in,
+    [data-reveal].is-in-instant {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      [data-reveal],
+      [data-reveal].is-in {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+    }
+
+    /* ============================================================
+       HERO
+       ============================================================ */
+    .hero {
+      padding: 80px 0 0;
+    }
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      color: #BBB;
+      text-transform: uppercase;
+      margin: 0 0 20px;
+    }
+    .hero-title {
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      color: #111;
+      margin: 0;
+    }
+    .hero-subtitle {
+      font-size: 18px;
+      font-weight: 300;
+      letter-spacing: 4px;
+      color: #CCC;
+      margin: 4px 0 0;
+    }
+    .hero-lede {
+      font-size: 16px;
+      line-height: 1.7;
+      color: #666;
+      margin: 24px 0 0;
+    }
+    .hero-meta {
+      font-size: 12px;
+      font-weight: 400;
+      color: #BBB;
+      margin: 16px 0 0;
+      letter-spacing: 0.2px;
+    }
+
+    /* ============================================================
+       SECTION RHYTHM
+       120px between major sections; tighter on mobile.
+       ============================================================ */
+    .section {
+      margin-top: 72px;
+    }
+
+    /* ============================================================
+       CTA — preview block linking to the live map
+       Faint Yamanote schematic as background texture.
+       ============================================================ */
+    .cta {
+      display: block;
+      position: relative;
+      width: 100%;
+      height: 200px;
+      border: 1px solid #F0F0F0;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      background: #FFFFFF;
+      text-decoration: none;
+      color: inherit;
+    }
+    /* Smaller variant — used for the FIRST CTA, since the page now
+       opens with the live map demo and the proof-of-product is already
+       on screen. The Yamanote schematic SVG is hidden in this variant. */
+    .cta.cta--small { height: 140px; }
+    .cta.cta--small .cta-bg { display: none; }
+    .cta-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.08;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    .cta:hover .cta-bg { opacity: 0.15; }
+
+    .cta-inner {
+      position: relative;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 8px;
+    }
+    .cta-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      color: #BBB;
+      text-transform: uppercase;
+      margin: 0;
+    }
+    .cta-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #222;
+      margin: 0;
+      letter-spacing: -0.2px;
+      position: relative;
+      display: inline-block;
+    }
+    .cta-arrow {
+      display: inline-block;
+      transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+      margin-left: 4px;
+    }
+    .cta:hover .cta-arrow { transform: translateX(4px); }
+    /* Underline that slides in from the left on hover */
+    .cta-title::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -3px;
+      height: 1px;
+      background: #222;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.35s ease;
+    }
+    .cta:hover .cta-title::after { transform: scaleX(1); }
+    .cta-meta {
+      font-size: 12px;
+      font-weight: 400;
+      color: #BBB;
+      letter-spacing: 0.5px;
+      margin: 0;
+    }
+
+    /* ============================================================
+       FOOTER
+       ============================================================ */
+    .foot {
+      padding: 80px 0 40px;
+      text-align: center;
+    }
+    .foot-rule {
+      width: 40px;
+      height: 1px;
+      background: #EEE;
+      margin: 0 auto 24px;
+      border: 0;
+    }
+    .foot-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #AAA;
+      margin: 0 0 6px;
+    }
+    .foot-link {
+      font-size: 13px;
+      font-weight: 400;
+      color: #BBB;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .foot-link:hover { color: #666; }
+    .foot-year {
+      font-size: 12px;
+      font-weight: 300;
+      color: #DDD;
+      margin: 20px 0 0;
+    }
+
+    /* ============================================================
+       DEMO BLOCKS — shared chrome for the four interactive demos
+       ============================================================ */
+    /* Section "title" — same size as body, just bold. The interactive
+       demos carry the visual hierarchy; the headers stay quiet. */
+    .demo-h {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111;
+      letter-spacing: 0;
+      line-height: 1.5;
+      margin: 0 0 12px;
+    }
+    .demo-text {
+      font-size: 16px;
+      line-height: 1.7;
+      color: #555;
+      margin: 0 0 20px;
+    }
+    .demo-box {
+      width: 100%;
+      background: #FFFFFF;
+      border: 1px solid #F0F0F0;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+    .demo-box svg { display: block; width: 100%; height: 100%; }
+
+    /* ---------- Demo 1: Train detail (day/night divider) ---------- */
+    .demo-1 .demo-box { height: 320px; }
+    .demo-1 .d1-handle {
+      cursor: ew-resize;
+      touch-action: none;
+    }
+    .demo-1 .d1-handle:active { cursor: grabbing; }
+    .demo-1 .d1-label {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.4px;
+      pointer-events: none;
+    }
+
+    /* ---------- Demo 2: Approaching station (proximity ring) ---------- */
+    .demo-2 .demo-box { height: 300px; }
+    .demo-2 .d2-ring { transition: opacity 80ms linear; }
+    .demo-2 text {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      pointer-events: none;
+    }
+
+    /* ---------- Demo 4: Station editor (the dev tool I built) ---------- */
+    /* Box height sized to fit the panel's tallest state (expanded after
+       a station is selected ≈ 380px) with comfortable breathing room.
+       The SVG's viewBox height matches so slice-cropping stays minimal
+       (≤ 32px each side) — otherwise stations near x=80 get cut off. */
+    .demo-4 .demo-box { height: 500px; position: relative; }
+    .demo-4 text {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      pointer-events: none;
+    }
+    .demo-4 .d4-station { cursor: pointer; }
+    .demo-4 .d4-station-marker {
+      transition: stroke-width 160ms ease;
+    }
+    .demo-4 .d4-station.is-selected .d4-station-marker {
+      stroke-width: 2;
+    }
+    /* Selection ring — dashed rectangle around the selected marker. */
+    .demo-4 .d4-selection-ring {
+      fill: none;
+      stroke: #00A7DB;
+      stroke-width: 1;
+      stroke-dasharray: 3 2;
+      pointer-events: none;
+    }
+    .demo-4 .d4-station-label {
+      transition: x 0.2s ease, y 0.2s ease;
+    }
+
+    /* ---------- Editor Panel (mirrors the live app's #dev-panel) ---------- */
+    .demo-4 .d4-panel {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 220px;
+      background: #1f1f24;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 12px;
+      color: #ddd;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.18), 0 1px 2px rgba(0,0,0,0.04);
+      z-index: 5;
+      user-select: none;
+    }
+    .demo-4 .d4p-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .demo-4 .d4p-title span {
+      opacity: 0.4;
+      font-size: 9px;
+      font-weight: 400;
+    }
+    .demo-4 .d4p-section {
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #2c2c33;
+    }
+    .demo-4 .d4p-section:last-child { border-bottom: 0; padding-bottom: 0; }
+    .demo-4 .d4p-label {
+      font-size: 9px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+    .demo-4 .d4p-name { font-size: 14px; font-weight: 600; color: #fff; }
+    .demo-4 .d4p-ja   { font-size: 10px; color: #666; margin-top: 1px; }
+    .demo-4 .d4p-coords {
+      display: flex;
+      gap: 12px;
+      margin-top: 6px;
+      font-size: 11px;
+      color: #888;
+    }
+    .demo-4 .d4p-coord {
+      font-size: 12px;
+      font-weight: 600;
+      color: #7dd3fc;
+      font-variant-numeric: tabular-nums;
+    }
+    .demo-4 .d4p-arrows {
+      display: grid;
+      grid-template-columns: 30px 30px 30px;
+      grid-template-rows: 30px 30px 30px;
+      gap: 2px;
+      justify-content: center;
+      margin: 6px 0;
+    }
+    .demo-4 .d4p-arrows button {
+      background: #2a2a30;
+      border: 1px solid #3a3a44;
+      border-radius: 4px;
+      color: #ccc;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 0;
+      transition: background 120ms ease, color 120ms ease, transform 120ms ease;
+    }
+    .demo-4 .d4p-arrows button:hover { background: #3a3a44; color: #fff; }
+    .demo-4 .d4p-arrows button:active { transform: scale(0.92); background: #4a4a55; }
+    .demo-4 .d4p-arrows .d4p-spacer { background: transparent; border: 0; cursor: default; }
+    .demo-4 .d4p-step {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 10px;
+      color: #888;
+    }
+    .demo-4 .d4p-step input {
+      width: 44px;
+      background: #2a2a30;
+      border: 1px solid #444;
+      border-radius: 4px;
+      color: #7dd3fc;
+      padding: 3px 6px;
+      font-size: 11px;
+      text-align: center;
+      font-family: inherit;
+    }
+    .demo-4 .d4p-label-row {
+      display: flex;
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .demo-4 .d4p-label-row button {
+      flex: 1;
+      background: #2a2a30;
+      border: 1px solid #3a3a44;
+      border-radius: 4px;
+      color: #ccc;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 4px 0;
+      transition: background 120ms ease, color 120ms ease;
+    }
+    .demo-4 .d4p-label-row button:hover { background: #3a3a44; color: #fff; }
+    .demo-4 .d4p-label-row button.is-on {
+      background: #1d4d6b;
+      border-color: #2d7eb0;
+      color: #7dd3fc;
+    }
+    .demo-4 .d4p-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .demo-4 .d4p-actions button {
+      flex: 1;
+      background: #7c3aed;
+      border: 0;
+      border-radius: 5px;
+      color: #fff;
+      padding: 7px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 120ms ease, transform 120ms ease;
+      font-family: inherit;
+    }
+    .demo-4 .d4p-actions button:hover { background: #8b5cf6; }
+    .demo-4 .d4p-actions button:active { transform: scale(0.97); }
+    .demo-4 .d4p-empty {
+      color: #666;
+      font-style: italic;
+      text-align: center;
+      padding: 14px 0;
+      font-size: 11px;
+    }
+    .demo-4 .d4p-toast {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      background: #1f1f24;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: #a78bfa;
+      font-size: 11px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      opacity: 0;
+      transform: translateY(4px);
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 6;
+    }
+    .demo-4 .d4p-toast.is-on {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* Responsive: panel goes below the map on narrow screens. */
+    @media (max-width: 640px) {
+      .demo-4 .d4-panel {
+        position: static;
+        width: 100%;
+        margin-top: 12px;
+        right: auto;
+        top: auto;
+      }
+      .demo-4 .demo-box { height: auto; }
+      .demo-4 .d4-svg-host { height: 280px; }
+    }
+
+    /* ---------- Demo 3: Line focus (click-to-isolate) ---------- */
+    .demo-3 .demo-box { height: 380px; }
+    .demo-3 text {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      pointer-events: none;
+    }
+    /* Every per-line element fades in/out with a uniform 0.3s ease. */
+    .demo-3 .d3-track,
+    .demo-3 .d3-train,
+    .demo-3 .d3-station-marker,
+    .demo-3 .d3-station-halo,
+    .demo-3 .d3-station-label,
+    .demo-3 .d3-pill,
+    .demo-3 .d3-pill-dot {
+      transition: opacity 0.3s ease;
+    }
+    /* Focus state — applied to .demo-3 when a line is selected.
+       Lines NOT marked .is-focus get their children dimmed. */
+    .demo-3.has-focus .d3-line-grp:not(.is-focus) .d3-track          { opacity: 0.1; }
+    .demo-3.has-focus .d3-line-grp:not(.is-focus) .d3-train          { opacity: 0.1; }
+    .demo-3.has-focus .d3-line-grp:not(.is-focus) .d3-station-marker { opacity: 0.12; }
+    .demo-3.has-focus .d3-line-grp:not(.is-focus) .d3-station-halo   { opacity: 0.12; }
+    .demo-3.has-focus .d3-line-grp:not(.is-focus) .d3-station-label  { opacity: 0.08; }
+    /* Pill dots that don't belong to the focused line dim individually. */
+    .demo-3 .d3-pill-dot.is-dim { opacity: 0.2; }
+    /* Wider, transparent click-target overlay on each track so tracks
+       are easy to hit even though the visible line is only 6px wide. */
+    .demo-3 .d3-track-hit { cursor: pointer; }
+    .demo-3 .d3-svg-wrap  { cursor: default; position: relative; }
+    /* Approach rings — same recipe as Demo 2. Per-frame opacity tween
+       is small (80ms) so the ring fades in/out without smearing. */
+    .demo-3 .d3-ring { transition: opacity 80ms linear; }
+
+    /* ---------- Day / night toggle ---------- */
+    .demo-3 .d3-mode-toggle {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid #EAEAEA;
+      background: #FFFFFF;
+      color: #888;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
+      transition:
+        background 0.4s ease, border-color 0.4s ease, color 0.4s ease,
+        box-shadow 220ms ease, transform 140ms ease;
+    }
+    .demo-3 .d3-mode-toggle:hover {
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 6px 18px rgba(0,0,0,0.08);
+    }
+    .demo-3 .d3-mode-toggle:active { transform: scale(0.96); }
+    .demo-3 .d3-mode-toggle svg { width: 16px; height: 16px; display: block; }
+    .demo-3 .d3-mode-toggle .d3-icon-sun { display: none; }
+
+    /* ---------- Night-mode overrides ---------- */
+    /* Background swap: stack a dark rect above the light one, fade it in. */
+    .demo-3 .d3-bg-night { opacity: 0; transition: opacity 0.5s ease; }
+    .demo-3.is-night .d3-bg-night { opacity: 1; }
+    .demo-3 .d3-grid-day, .demo-3 .d3-grid-night { transition: opacity 0.5s ease; }
+    .demo-3 .d3-grid-night { opacity: 0; }
+    .demo-3.is-night .d3-grid-day { opacity: 0; }
+    .demo-3.is-night .d3-grid-night { opacity: 1; }
+    /* Wider track shadow visible only at night — ambient glow under tracks. */
+    .demo-3 .d3-track-glow { opacity: 0; transition: opacity 0.5s ease; }
+    .demo-3.is-night .d3-track-glow { opacity: 0.08; }
+    /* Headlamp cones — invisible by day, warm at night. Matches live app. */
+    .demo-3 .d3-headlamp { opacity: 0; transition: opacity 0.5s ease; }
+    .demo-3.is-night .d3-headlamp { opacity: 0.35; }
+    /* Train glow halos brighten at night (matches live: 0.08 → 0.2). */
+    .demo-3 .d3-train-halo { transition: opacity 0.5s ease; }
+    .demo-3.is-night .d3-train-halo { opacity: 0.2; }
+    /* Window stripe goes warm cream at night, much more opaque — reads
+       as interior light spilling out of the train windows. */
+    .demo-3 .d3-train-window { transition: fill 0.5s ease, opacity 0.5s ease; }
+    .demo-3.is-night .d3-train-window { fill: #FFF4D6; opacity: 0.85; }
+    /* Station markers + halos: invert at night so the line-colored
+       outline sits on the dark canvas, matching the live map. */
+    .demo-3 .d3-station-marker { transition: fill 0.5s ease, opacity 0.5s ease; }
+    .demo-3.is-night .d3-station-marker { fill: #0A0E1A; opacity: 0.85; }
+    .demo-3 .d3-station-halo { transition: fill 0.5s ease; }
+    .demo-3.is-night .d3-station-halo { fill: #0A0E1A; }
+    /* Interchange pills: same treatment — dark fill, lighter stroke. */
+    .demo-3 .d3-pill-bg, .demo-3 .d3-pill-halo { transition: fill 0.5s ease, stroke 0.5s ease; }
+    .demo-3.is-night .d3-pill-bg   { fill: #0A0E1A; stroke: #888; }
+    .demo-3.is-night .d3-pill-halo { fill: #0A0E1A; }
+    /* Labels — warm light gray at night (live uses #C8C4BE). */
+    .demo-3 .d3-station-label { transition: fill 0.5s ease, opacity 0.3s ease; }
+    .demo-3.is-night .d3-station-label { fill: #C8C4BE; }
+    /* Toggle button itself swaps theme — sun shows in night mode. */
+    .demo-3.is-night .d3-mode-toggle {
+      background: #1A1F2E;
+      border-color: rgba(255,255,255,0.12);
+      color: #E0E0E0;
+    }
+    .demo-3.is-night .d3-mode-toggle .d3-icon-sun  { display: block; }
+    .demo-3.is-night .d3-mode-toggle .d3-icon-moon { display: none; }
+
+    /* ============================================================
+       HERO MAP — iframed live map in preview mode. Full-bleed,
+       overflow:hidden so the cropped frame implies "more out there".
+       No borders, no chrome — the gradient fade does the only
+       transition into the page below.
+       ============================================================ */
+    .hero-map {
+      position: relative;
+      width: 100vw;
+      /* 42vh keeps title + intro above the fold; floor at 320px so
+         very short windows still get a usable preview height. */
+      height: 42vh;
+      min-height: 320px;
+      background: #FFFFFF;
+      overflow: hidden;
+    }
+    .hero-iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      pointer-events: none; /* purely visual — no pan, no clicks */
+    }
+    /* Tall gradient eats roughly the bottom half of the map so the
+       transit lines visibly dissolve into white — like mist, not a
+       seam. Crisp at top → softens through the middle → pure white
+       at the page join. */
+    .hero-fade {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 200px;
+      background: linear-gradient(to bottom,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,1) 100%);
+      pointer-events: none;
+      z-index: 2;
+    }
+    /* Link sits just above the gradient so it stays fully readable. */
+    .hero-link {
+      position: absolute;
+      bottom: 24px;
+      right: 500px;
+      z-index: 3;
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #E5E5E5;
+      background: #FFFFFF;
+      color: #111;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      padding: 10px 20px;
+      border-radius: 999px;
+      cursor: pointer;
+      min-height: 40px;
+      text-decoration: none;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
+      transition: transform 140ms cubic-bezier(0.2, 0, 0, 1),
+                  box-shadow 220ms cubic-bezier(0.2, 0, 0, 1),
+                  background 220ms cubic-bezier(0.2, 0, 0, 1),
+                  color 220ms cubic-bezier(0.2, 0, 0, 1),
+                  border-color 220ms cubic-bezier(0.2, 0, 0, 1);
+    }
+    .hero-link:hover {
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 8px 20px rgba(0,0,0,0.08);
+    }
+    .hero-link:active { transform: scale(0.97); }
+    .hero-link:focus-visible {
+      outline: 2px solid #111;
+      outline-offset: 2px;
+    }
+
+    /* Back button — same pill style as .hero-link, pinned top-left
+       above the hero map so it sits over the artwork without chrome. */
+    .back-link {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      z-index: 10;
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #E5E5E5;
+      background: #FFFFFF;
+      color: #111;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      padding: 10px 20px;
+      border-radius: 999px;
+      cursor: pointer;
+      min-height: 40px;
+      text-decoration: none;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
+      transition: transform 140ms cubic-bezier(0.2, 0, 0, 1),
+                  box-shadow 220ms cubic-bezier(0.2, 0, 0, 1),
+                  background 220ms cubic-bezier(0.2, 0, 0, 1),
+                  color 220ms cubic-bezier(0.2, 0, 0, 1),
+                  border-color 220ms cubic-bezier(0.2, 0, 0, 1);
+    }
+    .back-link:hover {
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 8px 20px rgba(0,0,0,0.08);
+    }
+    .back-link:active { transform: scale(0.97); }
+    .back-link:focus-visible {
+      outline: 2px solid #111;
+      outline-offset: 2px;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+    @media (max-width: 768px) {
+      .page { padding: 0 20px; }
+      .hero { padding-top: 56px; }
+      .hero-title { font-size: 36px; letter-spacing: -0.5px; }
+      .hero-subtitle { font-size: 16px; letter-spacing: 3px; }
+      .hero-lede { font-size: 15px; max-width: 100%; }
+      .section { margin-top: 80px; }
+      .cta { height: 180px; }
+      .cta.cta--small { height: 130px; }
+      .cta-title { font-size: 18px; }
+      .foot { padding: 60px 0 32px; }
+      .demo-1 .demo-box { height: 280px; }
+      .demo-2 .demo-box { height: 260px; }
+      .demo-3 .demo-box { height: 340px; }
+      .hero-map { height: 42vh; min-height: 280px; }
+      .hero-link { bottom: 0px; right: 20px; font-size: 12px; padding: 8px 16px; min-height: 36px; }
+      .back-link { top: 16px; left: 16px; font-size: 12px; padding: 8px 16px; min-height: 36px; }
+    }
+  </style>
+</head>
+<body>
+
+  <a class="back-link" href="/">← Back</a>
+
+  <!-- ============================================================
+       HERO MAP — the actual live transit map, iframed in preview
+       mode. Same data, same animations, framed cinematically.
+       Pointer events disabled at the iframe wrapper so the map
+       stays a "living poster", not a tool.
+       ============================================================ -->
+  <section class="hero-map" id="hero-map">
+    <iframe class="hero-iframe" src="/lab/tokyo-transit-map-app.html?preview=1"
+            title="Tokyo Transit map preview" aria-hidden="true" loading="eager"></iframe>
+    <a class="hero-link" href="/lab/tokyo-transit-map-app.html">Open full map →</a>
+    <div class="hero-fade"></div>
+  </section>
+
+  <main class="page">
+
+    <!-- ============================================================
+         HERO
+         ============================================================ -->
+    <section class="hero" data-reveal>
+      <p class="hero-eyebrow" data-reveal data-reveal-delay="0">Design Engineering Practice</p>
+      <h1 class="hero-title" data-reveal data-reveal-delay="0">Tokyo Transit Map</h1>
+      <p class="hero-lede" data-reveal data-reveal-delay="1">
+        In the age of AI-generated everything, this project is a practice for me to do hand-directed design, giving an uncommon care and details, as well as do code again after a decade. Every interchange pill, station glow, and headlamp cone placed with intention. Built with code (with the help of Claude), shaped by taste.
+      </p>
+    </section>
+
+    <!-- ============================================================
+         DEMO 1 — Train detail (day vs night, draggable divider)
+         ============================================================ -->
+    <section class="section demo-1" data-reveal>
+      <h2 class="demo-h" data-reveal data-reveal-delay="0">Train detail</h2>
+      <p class="demo-text" data-reveal data-reveal-delay="1">
+        Each train is more than a moving dot. At night, a warm headlamp cone
+        cuts forward, windows brighten from inside, and the track lights
+        softly with ambient glow.
+      </p>
+      <div class="demo-box" id="d1-box" data-reveal data-reveal-delay="2">
+        <!-- Single SVG. Day and night layers are clipped by two
+             rects whose widths track the divider position. The same
+             train is rendered in both layers; clipping decides which
+             treatment shows on each side. -->
+        <svg id="d1-svg" viewBox="0 0 720 320" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <!-- Day-side dot grid -->
+            <pattern id="d1-grid-day" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+              <circle cx="10" cy="10" r="0.6" fill="#E0E0E0"/>
+            </pattern>
+            <!-- Night-side dot grid -->
+            <pattern id="d1-grid-night" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+              <circle cx="10" cy="10" r="0.6" fill="#1A1F2E"/>
+            </pattern>
+            <!-- Headlamp cone — warm, fades forward -->
+            <linearGradient id="d1-headlamp" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stop-color="#FFF8E1" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#FFF8E1" stop-opacity="0"/>
+            </linearGradient>
+            <!-- Soft drop-shadow for the handle so it lifts off the rule -->
+            <filter id="d1-handle-shadow" x="-50%" y="-50%" width="200%" height="200%">
+              <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="rgba(0,0,0,0.12)"/>
+              <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="rgba(0,0,0,0.10)"/>
+            </filter>
+            <!-- Clip rects — JS resizes both as the divider moves -->
+            <clipPath id="d1-clip-day"><rect id="d1-clip-day-rect" x="0" y="0" width="360" height="320"/></clipPath>
+            <clipPath id="d1-clip-night"><rect id="d1-clip-night-rect" x="360" y="0" width="360" height="320"/></clipPath>
+          </defs>
+
+          <!-- ===== DAY LAYER ===== -->
+          <g clip-path="url(#d1-clip-day)">
+            <rect x="0" y="0" width="720" height="320" fill="#FFFFFF"/>
+            <rect x="0" y="0" width="720" height="320" fill="url(#d1-grid-day)"/>
+            <line x1="80" y1="160" x2="640" y2="160"
+                  stroke="#6BB04D" stroke-width="6" stroke-linecap="round"/>
+            <g id="d1-train-day" transform="translate(80, 160)">
+              <rect x="-14" y="-7" width="28" height="14" rx="4"
+                    fill="#6BB04D" opacity="0.08"/>
+              <rect x="-11" y="-4" width="22" height="8" rx="3.5"
+                    fill="#6BB04D" opacity="0.85"/>
+              <rect x="-7" y="-1.5" width="14" height="3" rx="1.5"
+                    fill="#FFFFFF" opacity="0.45"/>
+            </g>
+            <!-- Sun glyph — top-left of the day layer. Sized + positioned
+                 to mirror the Moon glyph in the night layer. -->
+            <g transform="translate(56, 40)" opacity="0.55"
+               stroke="#999" stroke-width="1.4" stroke-linecap="round" fill="none">
+              <circle r="3.5"/>
+              <line x1="0"    y1="-5.5" x2="0"    y2="-7.5"/>
+              <line x1="0"    y1="5.5"  x2="0"    y2="7.5"/>
+              <line x1="-5.5" y1="0"    x2="-7.5" y2="0"/>
+              <line x1="5.5"  y1="0"    x2="7.5"  y2="0"/>
+              <line x1="-3.9" y1="-3.9" x2="-5.3" y2="-5.3"/>
+              <line x1="3.9"  y1="-3.9" x2="5.3"  y2="-5.3"/>
+              <line x1="-3.9" y1="3.9"  x2="-5.3" y2="5.3"/>
+              <line x1="3.9"  y1="3.9"  x2="5.3"  y2="5.3"/>
+            </g>
+          </g>
+
+          <!-- ===== NIGHT LAYER ===== -->
+          <g clip-path="url(#d1-clip-night)">
+            <rect x="0" y="0" width="720" height="320" fill="#0A0E1A"/>
+            <rect x="0" y="0" width="720" height="320" fill="url(#d1-grid-night)"/>
+            <!-- Track + ambient glow underneath -->
+            <line x1="80" y1="160" x2="640" y2="160"
+                  stroke="#6BB04D" stroke-width="14" opacity="0.06" stroke-linecap="round"/>
+            <line x1="80" y1="160" x2="640" y2="160"
+                  stroke="#6BB04D" stroke-width="6" opacity="0.45" stroke-linecap="round"/>
+            <g id="d1-train-night" transform="translate(80, 160)">
+              <!-- Glow halo — brighter than day -->
+              <rect x="-14" y="-7" width="28" height="14" rx="4"
+                    fill="#6BB04D" opacity="0.2"/>
+              <!-- Train body -->
+              <rect x="-11" y="-4" width="22" height="8" rx="3.5"
+                    fill="#6BB04D" opacity="0.85"/>
+              <!-- Window stripe — same white as day, just more opaque at night -->
+              <rect x="-7" y="-1.5" width="14" height="3" rx="1.5"
+                    fill="#FFFFFF" opacity="0.9"/>
+              <!-- Headlamp cone — fans 6→20px forward of the train -->
+              <polygon points="11,-3 11,3 51,10 51,-10"
+                       fill="url(#d1-headlamp)" opacity="0.35"/>
+            </g>
+            <!-- Moon glyph — top-right of the night layer. Same visual
+                 footprint (~15px) and same y as the Sun glyph opposite. -->
+            <g transform="translate(664, 40)" opacity="0.55">
+              <circle r="7" fill="#9DA9C4"/>
+              <circle cx="2.5" cy="-2" r="5.8" fill="#0A0E1A"/>
+            </g>
+          </g>
+
+          <!-- ===== DIVIDER + HANDLE (rendered on top, draggable) ===== -->
+          <g id="d1-divider" transform="translate(360, 0)">
+            <!-- Two-tone vertical line: lighter on day side, darker on night -->
+            <line x1="-0.75" y1="0" x2="-0.75" y2="320" stroke="#DDD" stroke-width="1.5"/>
+            <line x1="0.75"  y1="0" x2="0.75"  y2="320" stroke="#333" stroke-width="1.5"/>
+            <!-- Handle: larger circle with soft drop-shadow + stroke chevrons.
+                 Hit area is 22px; visible disc is 14px. Chevrons are SVG paths
+                 (not text) so they stay pixel-aligned at every zoom level. -->
+            <g class="d1-handle" id="d1-handle">
+              <circle cx="0" cy="160" r="22" fill="rgba(0,0,0,0)"/><!-- hit area -->
+              <circle cx="0" cy="160" r="14" fill="#FFFFFF" stroke="#DDD" stroke-width="1"
+                      filter="url(#d1-handle-shadow)"/>
+              <g stroke="#777" stroke-width="1.5" stroke-linecap="round"
+                 stroke-linejoin="round" fill="none">
+                <path d="M -3.5 156.5 L -6 160 L -3.5 163.5"/>
+                <path d="M  3.5 156.5 L  6 160 L  3.5 163.5"/>
+              </g>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </section>
+    <!-- ============================================================
+         DEMO 2 — Approaching station (proximity ring)
+         ============================================================ -->
+    <section class="section demo-2" data-reveal>
+      <h2 class="demo-h" data-reveal data-reveal-delay="0">Approaching station</h2>
+      <p class="demo-text" data-reveal data-reveal-delay="1">
+        When a train nears or just leaving a station, a dashed ring pulses around the marker.
+        It fades in proportionally to distance. A subtle sense of arrival and departure.
+      </p>
+      <div class="demo-box" id="d2-box" data-reveal data-reveal-delay="2">
+        <svg id="d2-svg" viewBox="0 0 720 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <pattern id="d2-grid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+              <circle cx="10" cy="10" r="0.6" fill="#E0E0E0"/>
+            </pattern>
+          </defs>
+
+          <rect x="0" y="0" width="720" height="300" fill="#FFFFFF"/>
+          <rect x="0" y="0" width="720" height="300" fill="url(#d2-grid)"/>
+
+          <!-- Track -->
+          <line x1="80" y1="150" x2="640" y2="150"
+                stroke="#6BB04D" stroke-width="6" stroke-linecap="round"/>
+
+          <!-- Stations. Each station carries its own approach ring;
+               JS toggles opacity + dashoffset based on train proximity.
+               data-x is the canonical x coordinate for distance math. -->
+          <!-- Station structure mirrors the live app: 14×14 white halo,
+               10×10 line-colored marker (rx 0.8), 18×18 dashed approach
+               ring (rx 1.5). data-x is the canonical x for distance math. -->
+          <g class="d2-station" data-x="180">
+            <rect class="d2-ring" x="171" y="141" width="18" height="18" rx="1.5"
+                  fill="none" stroke="#6BB04D" stroke-width="1.2"
+                  stroke-dasharray="4 3" opacity="0"/>
+            <rect x="173" y="143" width="14" height="14" rx="1.5" fill="#FFFFFF"/>
+            <rect x="175" y="145" width="10" height="10" rx="0.8"
+                  fill="#FFFFFF" stroke="#6BB04D" stroke-width="1.5"/>
+            <text x="180" y="180" text-anchor="middle"
+                  font-size="11" font-weight="500" fill="#444">Station A</text>
+            <text x="180" y="192" text-anchor="middle"
+                  font-size="8"  font-weight="300" fill="#AAA">駅A</text>
+          </g>
+          <g class="d2-station" data-x="360">
+            <rect class="d2-ring" x="351" y="141" width="18" height="18" rx="1.5"
+                  fill="none" stroke="#6BB04D" stroke-width="1.2"
+                  stroke-dasharray="4 3" opacity="0"/>
+            <rect x="353" y="143" width="14" height="14" rx="1.5" fill="#FFFFFF"/>
+            <rect x="355" y="145" width="10" height="10" rx="0.8"
+                  fill="#FFFFFF" stroke="#6BB04D" stroke-width="1.5"/>
+            <text x="360" y="180" text-anchor="middle"
+                  font-size="11" font-weight="500" fill="#444">Station B</text>
+            <text x="360" y="192" text-anchor="middle"
+                  font-size="8"  font-weight="300" fill="#AAA">駅B</text>
+          </g>
+          <g class="d2-station" data-x="540">
+            <rect class="d2-ring" x="531" y="141" width="18" height="18" rx="1.5"
+                  fill="none" stroke="#6BB04D" stroke-width="1.2"
+                  stroke-dasharray="4 3" opacity="0"/>
+            <rect x="533" y="143" width="14" height="14" rx="1.5" fill="#FFFFFF"/>
+            <rect x="535" y="145" width="10" height="10" rx="0.8"
+                  fill="#FFFFFF" stroke="#6BB04D" stroke-width="1.5"/>
+            <text x="540" y="180" text-anchor="middle"
+                  font-size="11" font-weight="500" fill="#444">Station C</text>
+            <text x="540" y="192" text-anchor="middle"
+                  font-size="8"  font-weight="300" fill="#AAA">駅C</text>
+          </g>
+
+          <!-- Train (same body recipe as Demo 1, day mode) -->
+          <g id="d2-train" transform="translate(80, 150)">
+            <rect x="-14" y="-7" width="28" height="14" rx="4"
+                  fill="#6BB04D" opacity="0.08"/>
+            <rect x="-11" y="-4" width="22" height="8" rx="3.5"
+                  fill="#6BB04D" opacity="0.85"/>
+            <rect x="-7" y="-1.5" width="14" height="3" rx="1.5"
+                  fill="#FFFFFF" opacity="0.45"/>
+          </g>
+        </svg>
+      </div>
+    </section>
+    <!-- ============================================================
+         DEMO 3 — Line focus (click to isolate)
+         ============================================================ -->
+    <section class="section demo-3" data-reveal>
+      <h2 class="demo-h" data-reveal data-reveal-delay="0">Line focus</h2>
+      <p class="demo-text" data-reveal data-reveal-delay="1">
+        Click any line to dim everything else. The selected route stays vivid
+        while the rest recedes. Tokyo has many lines, and without focus,
+        a map is noise.
+      </p>
+      <div class="demo-box d3-svg-wrap" id="d3-box" data-reveal data-reveal-delay="2">
+        <!-- Day / night toggle. Sits above the SVG, doesn't bubble into the
+             SVG's background-clear handler so it can't accidentally clear focus. -->
+        <button class="d3-mode-toggle" id="d3-mode-toggle" type="button"
+                aria-label="Toggle day or night mode">
+          <!-- Moon shown in day mode (click → switch to night) -->
+          <svg class="d3-icon-moon" viewBox="0 0 16 16" fill="none"
+               stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 9.5A6 6 0 1 1 6.5 2a4.6 4.6 0 0 0 7.5 7.5z"/>
+          </svg>
+          <!-- Sun shown in night mode (click → switch to day) -->
+          <svg class="d3-icon-sun" viewBox="0 0 16 16" fill="none"
+               stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+            <circle cx="8" cy="8" r="3"/>
+            <line x1="8" y1="1" x2="8" y2="2.6"/>
+            <line x1="8" y1="13.4" x2="8" y2="15"/>
+            <line x1="1" y1="8" x2="2.6" y2="8"/>
+            <line x1="13.4" y1="8" x2="15" y2="8"/>
+            <line x1="3.05" y1="3.05" x2="4.2" y2="4.2"/>
+            <line x1="11.8" y1="11.8" x2="12.95" y2="12.95"/>
+            <line x1="3.05" y1="12.95" x2="4.2" y2="11.8"/>
+            <line x1="11.8" y1="4.2" x2="12.95" y2="3.05"/>
+          </svg>
+        </button>
+
+        <svg id="d3-svg" viewBox="0 0 720 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <pattern id="d3-grid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+              <circle cx="10" cy="10" r="0.6" fill="#E0E0E0"/>
+            </pattern>
+            <pattern id="d3-grid-night" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+              <circle cx="10" cy="10" r="0.6" fill="#1A1F2E"/>
+            </pattern>
+            <!-- Local headlamp gradient — duplicated from Demo 1 so cross-SVG
+                 URL refs don't fail silently in some render orders.
+                 Peak stop 0.5 + class opacity 0.35 matches the live map. -->
+            <linearGradient id="d3-headlamp" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stop-color="#FFF8E1" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#FFF8E1" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Backgrounds — day rect always present, night rect overlays at .is-night -->
+          <rect x="0" y="0" width="720" height="380" fill="#FFFFFF"/>
+          <rect class="d3-bg-night" x="0" y="0" width="720" height="380" fill="#0A0E1A"/>
+          <rect class="d3-grid-day"   x="0" y="0" width="720" height="380" fill="url(#d3-grid)"/>
+          <rect class="d3-grid-night" x="0" y="0" width="720" height="380" fill="url(#d3-grid-night)"/>
+
+          <!-- ===== GREEN LINE (horizontal, y=190) ===== -->
+          <g class="d3-line-grp" data-line="green">
+            <!-- Ambient glow (visible only at night) -->
+            <line class="d3-track-glow" x1="80" y1="190" x2="560" y2="190"
+                  stroke="#6BB04D" stroke-width="14" stroke-linecap="round"
+                  pointer-events="none"/>
+            <!-- Visible track (no pointer events, hit overlay handles clicks) -->
+            <line class="d3-track" x1="80" y1="190" x2="560" y2="190"
+                  stroke="#6BB04D" stroke-width="6" stroke-linecap="round"
+                  pointer-events="none"/>
+            <!-- Wider transparent hit-target -->
+            <line class="d3-track-hit" x1="80" y1="190" x2="560" y2="190"
+                  stroke="transparent" stroke-width="20" stroke-linecap="round"/>
+
+            <!-- Per-station approach rings, plus regular markers + halos.
+                 Interchange spots get a wider pill-shaped ring (22×14, rx 7)
+                 in this line's color; the actual pill marker is drawn later
+                 in the .d3-interchanges group on top. -->
+            <!-- Yoyogi (80, 190) -->
+            <g>
+              <rect class="d3-ring" x="71" y="181" width="18" height="18" rx="1.5"
+                    fill="none" stroke="#6BB04D" stroke-width="1.2"
+                    stroke-dasharray="4 3" data-base-offset="0" opacity="0"/>
+              <rect class="d3-station-halo" x="73" y="183" width="14" height="14" rx="1.5" fill="#FFFFFF"/>
+              <rect class="d3-station-marker" x="75" y="185" width="10" height="10" rx="0.8"
+                    fill="#FFFFFF" stroke="#6BB04D" stroke-width="1.5"/>
+              <text class="d3-station-label" x="80" y="212" text-anchor="middle"
+                    font-size="10" font-weight="500" fill="#444">Yoyogi</text>
+            </g>
+            <!-- Shinjuku (200, 190) -->
+            <g>
+              <rect class="d3-ring" x="191" y="181" width="18" height="18" rx="1.5"
+                    fill="none" stroke="#6BB04D" stroke-width="1.2"
+                    stroke-dasharray="4 3" data-base-offset="0" opacity="0"/>
+              <rect class="d3-station-halo" x="193" y="183" width="14" height="14" rx="1.5" fill="#FFFFFF"/>
+              <rect class="d3-station-marker" x="195" y="185" width="10" height="10" rx="0.8"
+                    fill="#FFFFFF" stroke="#6BB04D" stroke-width="1.5"/>
+              <text class="d3-station-label" x="200" y="212" text-anchor="middle"
+                    font-size="10" font-weight="500" fill="#444">Shinjuku</text>
+            </g>
+            <!-- Yotsuya (320, 190) — INTERCHANGE pill ring (green half) -->
+            <rect class="d3-ring" x="309" y="183" width="22" height="14" rx="7"
+                  fill="none" stroke="#6BB04D" stroke-width="1.2"
+                  stroke-dasharray="4 3" data-base-offset="0"
+                  data-station-x="320" data-station-y="190" opacity="0"/>
+            <!-- Otemachi (440, 190) — INTERCHANGE pill ring (green half) -->
+            <rect class="d3-ring" x="429" y="183" width="22" height="14" rx="7"
+                  fill="none" stroke="#6BB04D" stroke-width="1.2"
+                  stroke-dasharray="4 3" data-base-offset="0"
+                  data-station-x="440" data-station-y="190" opacity="0"/>
+            <!-- Ueno (560, 190) -->
+            <g>
+              <rect class="d3-ring" x="551" y="181" width="18" height="18" rx="1.5"
+                    fill="none" stroke="#6BB04D" stroke-width="1.2"
+                    stroke-dasharray="4 3" data-base-offset="0" opacity="0"/>
+              <rect class="d3-station-halo" x="553" y="183" width="14" height="14" rx="1.5" fill="#FFFFFF"/>
+              <rect class="d3-station-marker" x="555" y="185" width="10" height="10" rx="0.8"
+                    fill="#FFFFFF" stroke="#6BB04D" stroke-width="1.5"/>
+              <text class="d3-station-label" x="560" y="212" text-anchor="middle"
+                    font-size="10" font-weight="500" fill="#444">Ueno</text>
+            </g>
+
+            <!-- Train (rotation = 0, horizontal motion). Headlamp invisible
+                 by day; CSS reveals it at .is-night. -->
+            <g class="d3-train" data-line="green" transform="translate(80, 190)">
+              <rect class="d3-train-halo" x="-14" y="-7" width="28" height="14" rx="4" fill="#6BB04D" opacity="0.08"/>
+              <rect x="-11" y="-4" width="22" height="8" rx="3.5" fill="#6BB04D" opacity="0.85"/>
+              <rect class="d3-train-window" x="-7" y="-1.5" width="14" height="3" rx="1.5" fill="#FFFFFF" opacity="0.45"/>
+              <polygon class="d3-headlamp" points="11,-3 11,3 51,10 51,-10" fill="url(#d3-headlamp)"/>
+            </g>
+          </g>
+
+          <!-- ===== ORANGE LINE (diagonal, slope 0.5: 120,90 → 480,270) =====
+               Adjusted from PRD so all 4 stations are colinear AND the
+               interchange falls exactly on green's Yotsuya at (320,190). -->
+          <g class="d3-line-grp" data-line="orange">
+            <line class="d3-track-glow" x1="120" y1="90" x2="480" y2="270"
+                  stroke="#F39700" stroke-width="14" stroke-linecap="round"
+                  pointer-events="none"/>
+            <line class="d3-track" x1="120" y1="90" x2="480" y2="270"
+                  stroke="#F39700" stroke-width="6" stroke-linecap="round"
+                  pointer-events="none"/>
+            <line class="d3-track-hit" x1="120" y1="90" x2="480" y2="270"
+                  stroke="transparent" stroke-width="20" stroke-linecap="round"/>
+
+            <!-- Mejiro (120, 90) -->
+            <g>
+              <rect class="d3-ring" x="111" y="81" width="18" height="18" rx="1.5"
+                    fill="none" stroke="#F39700" stroke-width="1.2"
+                    stroke-dasharray="4 3" data-base-offset="3.5" opacity="0"/>
+              <rect class="d3-station-halo" x="113" y="83" width="14" height="14" rx="1.5" fill="#FFFFFF"/>
+              <rect class="d3-station-marker" x="115" y="85" width="10" height="10" rx="0.8"
+                    fill="#FFFFFF" stroke="#F39700" stroke-width="1.5"/>
+              <text class="d3-station-label" x="120" y="74" text-anchor="middle"
+                    font-size="10" font-weight="500" fill="#444">Mejiro</text>
+            </g>
+            <!-- Ikebukuro (240, 150) -->
+            <g>
+              <rect class="d3-ring" x="231" y="141" width="18" height="18" rx="1.5"
+                    fill="none" stroke="#F39700" stroke-width="1.2"
+                    stroke-dasharray="4 3" data-base-offset="3.5" opacity="0"/>
+              <rect class="d3-station-halo" x="233" y="143" width="14" height="14" rx="1.5" fill="#FFFFFF"/>
+              <rect class="d3-station-marker" x="235" y="145" width="10" height="10" rx="0.8"
+                    fill="#FFFFFF" stroke="#F39700" stroke-width="1.5"/>
+              <text class="d3-station-label" x="225" y="139" text-anchor="end"
+                    font-size="10" font-weight="500" fill="#444">Ikebukuro</text>
+            </g>
+            <!-- Korakuen (320, 190) — INTERCHANGE pill ring (orange half) -->
+            <rect class="d3-ring" x="309" y="183" width="22" height="14" rx="7"
+                  fill="none" stroke="#F39700" stroke-width="1.2"
+                  stroke-dasharray="4 3" data-base-offset="3.5"
+                  data-station-x="320" data-station-y="190" opacity="0"/>
+            <!-- Akihabara (480, 270) -->
+            <g>
+              <rect class="d3-ring" x="471" y="261" width="18" height="18" rx="1.5"
+                    fill="none" stroke="#F39700" stroke-width="1.2"
+                    stroke-dasharray="4 3" data-base-offset="3.5" opacity="0"/>
+              <rect class="d3-station-halo" x="473" y="263" width="14" height="14" rx="1.5" fill="#FFFFFF"/>
+              <rect class="d3-station-marker" x="475" y="265" width="10" height="10" rx="0.8"
+                    fill="#FFFFFF" stroke="#F39700" stroke-width="1.5"/>
+              <text class="d3-station-label" x="490" y="277" text-anchor="start"
+                    font-size="10" font-weight="500" fill="#444">Akihabara</text>
+            </g>
+
+            <!-- Train (rotated to follow diagonal: atan2(180,360) ≈ 26.57°) -->
+            <g class="d3-train" data-line="orange" transform="translate(120, 90) rotate(26.5651)">
+              <rect class="d3-train-halo" x="-14" y="-7" width="28" height="14" rx="4" fill="#F39700" opacity="0.08"/>
+              <rect x="-11" y="-4" width="22" height="8" rx="3.5" fill="#F39700" opacity="0.85"/>
+              <rect class="d3-train-window" x="-7" y="-1.5" width="14" height="3" rx="1.5" fill="#FFFFFF" opacity="0.45"/>
+              <polygon class="d3-headlamp" points="11,-3 11,3 51,10 51,-10" fill="url(#d3-headlamp)"/>
+            </g>
+          </g>
+
+          <!-- ===== RED LINE (vertical, x=440) =====
+               5 stations: PRD's 4 + Otemachi inserted at y=190 to
+               serve as the interchange node with green. -->
+          <g class="d3-line-grp" data-line="red">
+            <line class="d3-track-glow" x1="440" y1="80" x2="440" y2="320"
+                  stroke="#E60012" stroke-width="14" stroke-linecap="round"
+                  pointer-events="none"/>
+            <line class="d3-track" x1="440" y1="80" x2="440" y2="320"
+                  stroke="#E60012" stroke-width="6" stroke-linecap="round"
+                  pointer-events="none"/>
+            <line class="d3-track-hit" x1="440" y1="80" x2="440" y2="320"
+                  stroke="transparent" stroke-width="20" stroke-linecap="round"/>
+
+            <!-- Tabata (440, 80) -->
+            <g>
+              <rect class="d3-ring" x="431" y="71" width="18" height="18" rx="1.5"
+                    fill="none" stroke="#E60012" stroke-width="1.2"
+                    stroke-dasharray="4 3" data-base-offset="3.5" opacity="0"/>
+              <rect class="d3-station-halo" x="433" y="73" width="14" height="14" rx="1.5" fill="#FFFFFF"/>
+              <rect class="d3-station-marker" x="435" y="75" width="10" height="10" rx="0.8"
+                    fill="#FFFFFF" stroke="#E60012" stroke-width="1.5"/>
+              <text class="d3-station-label" x="453" y="83" text-anchor="start"
+                    font-size="10" font-weight="500" fill="#444">Tabata</text>
+            </g>
+            <!-- Nippori (440, 150) -->
+            <g>
+              <rect class="d3-ring" x="431" y="141" width="18" height="18" rx="1.5"
+                    fill="none" stroke="#E60012" stroke-width="1.2"
+                    stroke-dasharray="4 3" data-base-offset="3.5" opacity="0"/>
+              <rect class="d3-station-halo" x="433" y="143" width="14" height="14" rx="1.5" fill="#FFFFFF"/>
+              <rect class="d3-station-marker" x="435" y="145" width="10" height="10" rx="0.8"
+                    fill="#FFFFFF" stroke="#E60012" stroke-width="1.5"/>
+              <text class="d3-station-label" x="453" y="153" text-anchor="start"
+                    font-size="10" font-weight="500" fill="#444">Nippori</text>
+            </g>
+            <!-- Otemachi (440, 190) — INTERCHANGE pill ring (red half) -->
+            <rect class="d3-ring" x="429" y="183" width="22" height="14" rx="7"
+                  fill="none" stroke="#E60012" stroke-width="1.2"
+                  stroke-dasharray="4 3" data-base-offset="3.5"
+                  data-station-x="440" data-station-y="190" opacity="0"/>
+            <!-- Kanda (440, 250) -->
+            <g>
+              <rect class="d3-ring" x="431" y="241" width="18" height="18" rx="1.5"
+                    fill="none" stroke="#E60012" stroke-width="1.2"
+                    stroke-dasharray="4 3" data-base-offset="3.5" opacity="0"/>
+              <rect class="d3-station-halo" x="433" y="243" width="14" height="14" rx="1.5" fill="#FFFFFF"/>
+              <rect class="d3-station-marker" x="435" y="245" width="10" height="10" rx="0.8"
+                    fill="#FFFFFF" stroke="#E60012" stroke-width="1.5"/>
+              <text class="d3-station-label" x="453" y="253" text-anchor="start"
+                    font-size="10" font-weight="500" fill="#444">Kanda</text>
+            </g>
+            <!-- Tokyo (440, 320) -->
+            <g>
+              <rect class="d3-ring" x="431" y="311" width="18" height="18" rx="1.5"
+                    fill="none" stroke="#E60012" stroke-width="1.2"
+                    stroke-dasharray="4 3" data-base-offset="3.5" opacity="0"/>
+              <rect class="d3-station-halo" x="433" y="313" width="14" height="14" rx="1.5" fill="#FFFFFF"/>
+              <rect class="d3-station-marker" x="435" y="315" width="10" height="10" rx="0.8"
+                    fill="#FFFFFF" stroke="#E60012" stroke-width="1.5"/>
+              <text class="d3-station-label" x="453" y="323" text-anchor="start"
+                    font-size="10" font-weight="500" fill="#444">Tokyo</text>
+            </g>
+
+            <!-- Train (rotated 90°, vertical motion) -->
+            <g class="d3-train" data-line="red" transform="translate(440, 80) rotate(90)">
+              <rect class="d3-train-halo" x="-14" y="-7" width="28" height="14" rx="4" fill="#E60012" opacity="0.08"/>
+              <rect x="-11" y="-4" width="22" height="8" rx="3.5" fill="#E60012" opacity="0.85"/>
+              <rect class="d3-train-window" x="-7" y="-1.5" width="14" height="3" rx="1.5" fill="#FFFFFF" opacity="0.45"/>
+              <polygon class="d3-headlamp" points="11,-3 11,3 51,10 51,-10" fill="url(#d3-headlamp)"/>
+            </g>
+          </g>
+
+          <!-- ===== INTERCHANGE PILLS =====
+               Drawn ON TOP so they cover the line tracks at the shared
+               nodes. Each pill carries colored dots tagged with data-line
+               so JS can dim non-focused dots independently. -->
+          <g class="d3-interchanges">
+            <!-- Yotsuya / Korakuen — green + orange at (320, 190) -->
+            <g class="d3-pill" transform="translate(320, 190)">
+              <!-- White outer halo to lift the pill off the tracks -->
+              <rect class="d3-pill-halo" x="-11" y="-7" width="22" height="14" rx="7" fill="#FFFFFF"/>
+              <rect class="d3-pill-bg" x="-9"  y="-5" width="18" height="10" rx="5"
+                    fill="#FFFFFF" stroke="#333" stroke-width="1.2"/>
+              <!-- Warm interior tint (visible only at night) -->
+              <circle class="d3-pill-dot" data-line="green"  cx="-4" cy="0" r="2.4" fill="#6BB04D"/>
+              <circle class="d3-pill-dot" data-line="orange" cx="4"  cy="0" r="2.4" fill="#F39700"/>
+              <text class="d3-station-label" x="0" y="22" text-anchor="middle"
+                    font-size="10" font-weight="500" fill="#444">Yotsuya</text>
+            </g>
+            <!-- Otemachi — green + red at (440, 190) -->
+            <g class="d3-pill" transform="translate(440, 190)">
+              <rect class="d3-pill-halo" x="-11" y="-7" width="22" height="14" rx="7" fill="#FFFFFF"/>
+              <rect class="d3-pill-bg" x="-9"  y="-5" width="18" height="10" rx="5"
+                    fill="#FFFFFF" stroke="#333" stroke-width="1.2"/>
+              <circle class="d3-pill-dot" data-line="green" cx="-4" cy="0" r="2.4" fill="#6BB04D"/>
+              <circle class="d3-pill-dot" data-line="red"   cx="4"  cy="0" r="2.4" fill="#E60012"/>
+              <text class="d3-station-label" x="-15" y="-10" text-anchor="end"
+                    font-size="10" font-weight="500" fill="#444">Otemachi</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </section>
+    <!-- ============================================================
+         DEMO 4 — Station editor (the dev tool I built into the map)
+         ============================================================ -->
+    <section class="section demo-4" data-reveal>
+      <h2 class="demo-h" data-reveal data-reveal-delay="0">Station editor</h2>
+      <p class="demo-text" data-reveal data-reveal-delay="1">
+        Pixel precision starts somewhere. I built a Station Editor for myself when building, toggleable in the live map with <em>Ctrl+Shift+D</em> — that
+        turns the canvas into a workshop. Click any station, nudge it
+        with the arrow keys, then copy a Claude-ready prompt that bakes
+        the changes back into the source.
+      </p>
+      <div class="demo-box" id="d4-box" data-reveal data-reveal-delay="2">
+        <svg id="d4-svg" class="d4-svg-host" viewBox="0 0 720 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <pattern id="d4-grid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+              <circle cx="10" cy="10" r="0.6" fill="#E0E0E0"/>
+            </pattern>
+          </defs>
+
+          <rect x="0" y="0" width="720" height="500" fill="#FFFFFF"/>
+          <rect x="0" y="0" width="720" height="500" fill="url(#d4-grid)"/>
+
+          <!-- Track polyline — re-derived from current station positions -->
+          <polyline id="d4-track"
+                    points="80,250 200,250 320,250 440,250"
+                    fill="none" stroke="#00A7DB" stroke-width="6"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    pointer-events="none"/>
+
+          <!-- Selection ring (rendered above station, beneath label) -->
+          <rect id="d4-selection" class="d4-selection-ring" style="display:none;"/>
+
+          <!-- Stations — populated by JS so position/label updates stay cheap. -->
+          <g id="d4-stations"></g>
+        </svg>
+
+        <!-- Editor panel — mirrors the live app's #dev-panel UI in
+             miniature. Lives outside the SVG so HTML form controls
+             behave normally. -->
+        <div class="d4-panel" id="d4-panel">
+          <div class="d4p-title">Station Editor <span>Ctrl+Shift+D · live map</span></div>
+
+          <div class="d4p-empty" id="d4p-empty">Click any station to edit</div>
+
+          <div class="d4p-content" id="d4p-content" hidden>
+            <div class="d4p-section">
+              <div class="d4p-label">Selected Station</div>
+              <div class="d4p-name" id="d4p-name">—</div>
+              <div class="d4p-ja"   id="d4p-ja">—</div>
+              <div class="d4p-coords">
+                <span>x: <span class="d4p-coord" id="d4p-x">0</span></span>
+                <span>y: <span class="d4p-coord" id="d4p-y">0</span></span>
+              </div>
+            </div>
+
+            <div class="d4p-section">
+              <div class="d4p-label">Position (arrow keys)</div>
+              <div class="d4p-arrows">
+                <span class="d4p-spacer"></span>
+                <button data-nudge="up"    aria-label="Nudge up">↑</button>
+                <span class="d4p-spacer"></span>
+                <button data-nudge="left"  aria-label="Nudge left">←</button>
+                <span class="d4p-spacer">·</span>
+                <button data-nudge="right" aria-label="Nudge right">→</button>
+                <span class="d4p-spacer"></span>
+                <button data-nudge="down"  aria-label="Nudge down">↓</button>
+                <span class="d4p-spacer"></span>
+              </div>
+              <div class="d4p-step">
+                <label>Step:</label>
+                <input type="number" id="d4p-step" value="1" min="1" max="50">
+                <label>px (Shift = 10×)</label>
+              </div>
+            </div>
+
+            <div class="d4p-section">
+              <div class="d4p-label">Label Position</div>
+              <div class="d4p-label-row" id="d4p-label-row">
+                <button data-lp="left"   aria-label="Label left">←</button>
+                <button data-lp="top"    aria-label="Label top">↑</button>
+                <button data-lp="bottom" aria-label="Label bottom">↓</button>
+                <button data-lp="right"  aria-label="Label right">→</button>
+              </div>
+            </div>
+
+            <div class="d4p-actions">
+              <button id="d4p-copy">Copy Prompt</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toast for the simulated "Copy Prompt" action -->
+        <div class="d4p-toast" id="d4p-toast">✓ Prompt copied — paste into Claude</div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         FOOTER
+         ============================================================ -->
+    <footer class="foot" data-reveal>
+    </footer>
+
+  </main>
+
+  <script>
+    /* ============================================================
+       REVEAL-ON-SCROLL
+       Single IntersectionObserver hands off [data-reveal] elements
+       to .is-in once 15% of them clears the viewport. One-shot per
+       element so repeated scroll-back doesn't re-trigger.
+       ============================================================ */
+    (function () {
+      var els = document.querySelectorAll('[data-reveal]');
+      if (!('IntersectionObserver' in window) || !els.length) {
+        // No IO support → just show everything.
+        els.forEach(function (el) { el.classList.add('is-in'); });
+        return;
+      }
+      // First-load pass: anything already in viewport gets shown
+      // instantly (no fade-in). Only off-screen elements animate as
+      // the user scrolls down.
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      var pending = [];
+      els.forEach(function (el) {
+        var r = el.getBoundingClientRect();
+        if (r.top < vh && r.bottom > 0) {
+          el.classList.add('is-in', 'is-in-instant');
+        } else {
+          pending.push(el);
+        }
+      });
+      if (!pending.length) return;
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-in');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      pending.forEach(function (el) { io.observe(el); });
+    })();
+
+    /* The hero map is iframed from /lab/tokyo-transit-map-app.html?preview=1
+       so train animation, station rendering, and theming all come from
+       the actual map source — no duplication, always in sync. */
+  </script>
+
+  <script>
+    /* ============================================================
+       DEMO 1 — Train detail
+       Continuous left-to-right train animation, rendered twice
+       (day / night) and clipped by a draggable vertical divider.
+       Animation loop pauses when the demo scrolls out of view.
+       ============================================================ */
+    (function () {
+      var box     = document.getElementById('d1-box');
+      var svg     = document.getElementById('d1-svg');
+      var trainD  = document.getElementById('d1-train-day');
+      var trainN  = document.getElementById('d1-train-night');
+      var divider = document.getElementById('d1-divider');
+      var handle  = document.getElementById('d1-handle');
+      var clipDay = document.getElementById('d1-clip-day-rect');
+      var clipNgt = document.getElementById('d1-clip-night-rect');
+      if (!box || !svg) return;
+
+      var VB_W = 720, VB_H = 320;
+      var TRACK_X1 = 80, TRACK_X2 = 640;
+      var TRACK_Y  = 160;
+      var PERIOD_MS = 12000; // ~12s across the track — slow, deliberate
+
+      // ---------- Divider position (in viewBox units) ----------
+      var dividerX = 360;
+      var dragging = false;
+      var dragOffsetX = 0;
+
+      function updateDivider() {
+        divider.setAttribute('transform', 'translate(' + dividerX + ', 0)');
+        clipDay.setAttribute('width', dividerX);
+        clipNgt.setAttribute('x', dividerX);
+        clipNgt.setAttribute('width', VB_W - dividerX);
+      }
+
+      // Convert a pointer event's clientX into the SVG's viewBox X.
+      function clientToViewboxX(clientX) {
+        var rect = svg.getBoundingClientRect();
+        var ratio = VB_W / rect.width;
+        return (clientX - rect.left) * ratio;
+      }
+
+      handle.addEventListener('pointerdown', function (e) {
+        dragging = true;
+        var hitX = clientToViewboxX(e.clientX);
+        dragOffsetX = hitX - dividerX;
+        handle.setPointerCapture(e.pointerId);
+        e.preventDefault();
+      });
+      handle.addEventListener('pointermove', function (e) {
+        if (!dragging) return;
+        var x = clientToViewboxX(e.clientX) - dragOffsetX;
+        // Keep the divider inside the track area + a little padding
+        dividerX = Math.max(40, Math.min(VB_W - 40, x));
+        updateDivider();
+      });
+      function endDrag(e) {
+        if (!dragging) return;
+        dragging = false;
+        try { handle.releasePointerCapture(e.pointerId); } catch (_) {}
+      }
+      handle.addEventListener('pointerup', endDrag);
+      handle.addEventListener('pointercancel', endDrag);
+
+      // ---------- Train animation ----------
+      var startTs = 0;
+      var running = false;
+      var rafId = 0;
+
+      function frame(ts) {
+        if (!running) return;
+        if (!startTs) startTs = ts;
+        var t = ((ts - startTs) % PERIOD_MS) / PERIOD_MS; // 0..1
+        var x = TRACK_X1 + (TRACK_X2 - TRACK_X1) * t;
+        var transform = 'translate(' + x + ', ' + TRACK_Y + ')';
+        trainD.setAttribute('transform', transform);
+        trainN.setAttribute('transform', transform);
+        rafId = requestAnimationFrame(frame);
+      }
+
+      function start() {
+        if (running) return;
+        running = true;
+        startTs = 0;
+        rafId = requestAnimationFrame(frame);
+      }
+      function stop() {
+        running = false;
+        if (rafId) cancelAnimationFrame(rafId);
+      }
+
+      // Pause the rAF loop while the demo is offscreen — saves work
+      // and keeps battery happy on long scrolls.
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) start();
+            else stop();
+          });
+        }, { threshold: 0 });
+        io.observe(box);
+      } else {
+        start();
+      }
+
+      updateDivider();
+    })();
+
+    /* ============================================================
+       DEMO 2 — Approaching station
+       Train bounces left/right along the track. For each station,
+       per-frame: opacity = (1 − dist/80) × 0.6 when within 80px,
+       else 0; stroke-dashoffset marches continuously while visible
+       so the ring reads as a "spinning" marker.
+       ============================================================ */
+    (function () {
+      var box   = document.getElementById('d2-box');
+      var svg   = document.getElementById('d2-svg');
+      var train = document.getElementById('d2-train');
+      if (!box || !svg || !train) return;
+
+      var TRACK_X1 = 80, TRACK_X2 = 640;
+      var TRACK_Y  = 150;
+      var SPEED    = 50;   // viewBox units/sec — matches Demo 1's pace
+      var APPROACH = 80;   // distance threshold for ring fade-in
+      var DASH_PER_S = 12; // dashoffset units per second (marching ants)
+
+      // Snapshot stations once. data-x is the canonical x for distance math.
+      var stations = Array.prototype.slice
+        .call(svg.querySelectorAll('.d2-station'))
+        .map(function (g) {
+          return {
+            x: parseFloat(g.getAttribute('data-x')),
+            ring: g.querySelector('.d2-ring')
+          };
+        });
+
+      var x = TRACK_X1;
+      var dir = 1;
+      var lastTs = 0;
+      var elapsed = 0;
+      var running = false;
+      var rafId = 0;
+
+      function frame(ts) {
+        if (!running) return;
+        if (!lastTs) lastTs = ts;
+        var dt = (ts - lastTs) / 1000;
+        // Tab-switch / first-frame protection — clamp big gaps so the
+        // train doesn't teleport when the page returns to focus.
+        if (dt > 0.1) dt = 0.016;
+        lastTs = ts;
+        elapsed += dt;
+
+        x += dir * SPEED * dt;
+        if (x >= TRACK_X2) { x = TRACK_X2; dir = -1; }
+        else if (x <= TRACK_X1) { x = TRACK_X1; dir = 1; }
+        train.setAttribute('transform', 'translate(' + x + ',' + TRACK_Y + ')');
+
+        var offset = -elapsed * DASH_PER_S;
+        for (var i = 0; i < stations.length; i++) {
+          var s = stations[i];
+          var dist = Math.abs(x - s.x);
+          var op = dist < APPROACH ? (1 - dist / APPROACH) * 0.6 : 0;
+          s.ring.setAttribute('opacity', op.toFixed(3));
+          if (op > 0) {
+            s.ring.setAttribute('stroke-dashoffset', offset.toFixed(2));
+          }
+        }
+
+        rafId = requestAnimationFrame(frame);
+      }
+
+      function start() {
+        if (running) return;
+        running = true;
+        lastTs = 0;
+        rafId = requestAnimationFrame(frame);
+      }
+      function stop() {
+        running = false;
+        if (rafId) cancelAnimationFrame(rafId);
+      }
+
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) start(); else stop();
+          });
+        }, { threshold: 0 });
+        io.observe(box);
+      } else {
+        start();
+      }
+    })();
+
+    /* ============================================================
+       DEMO 3 — Line focus
+       Three lines, three trains. Click a line track to focus it
+       (others dim); click the same line or the background to reset.
+       Train motion is shared by a single rAF loop with per-line
+       endpoints + rotations.
+       ============================================================ */
+    (function () {
+      var demo = document.querySelector('.demo-3');
+      var box  = document.getElementById('d3-box');
+      var svg  = document.getElementById('d3-svg');
+      if (!demo || !box || !svg) return;
+
+      // Per-line motion config — endpoints, rotation, period (ms),
+      // and the list of stations whose approach rings this train drives.
+      // Periods are scaled so all three trains travel at ~40 viewBox px/s,
+      // giving a calm, consistent pace across lines.
+      var TRAINS = [
+        {
+          line: 'green',  x1: 80,  y1: 190, x2: 560, y2: 190, rot: 0,       period: 24000,
+          stationXY: [[80,190],[200,190],[320,190],[440,190],[560,190]]
+        },
+        {
+          line: 'orange', x1: 120, y1: 90,  x2: 480, y2: 270, rot: 26.5651, period: 20000,
+          stationXY: [[120,90],[240,150],[320,190],[480,270]]
+        },
+        {
+          line: 'red',    x1: 440, y1: 80,  x2: 440, y2: 320, rot: 90,      period: 12000,
+          stationXY: [[440,80],[440,150],[440,190],[440,250],[440,320]]
+        }
+      ];
+
+      var APPROACH = 80;
+      var DASH_PER_S = 12;
+
+      // Bind train DOM nodes + per-line ring elements (in document order).
+      TRAINS.forEach(function (t) {
+        var grp = svg.querySelector('.d3-line-grp[data-line="' + t.line + '"]');
+        t.el = grp.querySelector('.d3-train');
+        var ringEls = grp.querySelectorAll('.d3-ring');
+        // Pair each station coord with its ring + cached base-offset.
+        t.stations = t.stationXY.map(function (xy, i) {
+          var r = ringEls[i];
+          return {
+            x: xy[0],
+            y: xy[1],
+            ring: r,
+            baseOffset: parseFloat(r.getAttribute('data-base-offset')) || 0
+          };
+        });
+      });
+
+      // ---------- Animation loop ----------
+      var startTs = 0;
+      var running = false;
+      var rafId = 0;
+
+      function frame(ts) {
+        if (!running) return;
+        if (!startTs) startTs = ts;
+        var elapsed = ts - startTs;
+        var dashOffset = -(elapsed / 1000) * DASH_PER_S;
+
+        for (var i = 0; i < TRAINS.length; i++) {
+          var t = TRAINS[i];
+          // Sawtooth → bounce: 0..1..0..1 over each period.
+          // First half = traveling x1→x2 (forward); second half = x2→x1 (reverse).
+          // Flip the train 180° on the reverse leg so the headlamp always leads.
+          var u = (elapsed % t.period) / t.period;
+          var p, forward;
+          if (u < 0.5) { p = u * 2;       forward = true;  }
+          else         { p = (1 - u) * 2; forward = false; }
+          var x = t.x1 + (t.x2 - t.x1) * p;
+          var y = t.y1 + (t.y2 - t.y1) * p;
+          var rot = forward ? t.rot : t.rot + 180;
+          t.el.setAttribute('transform',
+            'translate(' + x.toFixed(2) + ',' + y.toFixed(2) + ') rotate(' + rot + ')');
+
+          // Per-station approach ring fade — Euclidean distance, since
+          // orange's path runs diagonally rather than along an axis.
+          for (var j = 0; j < t.stations.length; j++) {
+            var s = t.stations[j];
+            var dx = x - s.x, dy = y - s.y;
+            var dist = Math.sqrt(dx * dx + dy * dy);
+            var op = dist < APPROACH ? (1 - dist / APPROACH) * 0.6 : 0;
+            s.ring.setAttribute('opacity', op.toFixed(3));
+            if (op > 0) {
+              s.ring.setAttribute('stroke-dashoffset', (s.baseOffset + dashOffset).toFixed(2));
+            }
+          }
+        }
+        rafId = requestAnimationFrame(frame);
+      }
+      function start() {
+        if (running) return;
+        running = true;
+        startTs = 0;
+        rafId = requestAnimationFrame(frame);
+      }
+      function stop() {
+        running = false;
+        if (rafId) cancelAnimationFrame(rafId);
+      }
+      if ('IntersectionObserver' in window) {
+        var io3 = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) start(); else stop();
+          });
+        }, { threshold: 0 });
+        io3.observe(box);
+      } else {
+        start();
+      }
+
+      // ---------- Focus / dim logic ----------
+      var lineGrps = svg.querySelectorAll('.d3-line-grp');
+      var pillDots = svg.querySelectorAll('.d3-pill-dot');
+      var current  = null;
+
+      function focusLine(line) {
+        current = line;
+        demo.classList.add('has-focus');
+        lineGrps.forEach(function (g) {
+          g.classList.toggle('is-focus', g.getAttribute('data-line') === line);
+        });
+        pillDots.forEach(function (d) {
+          d.classList.toggle('is-dim', d.getAttribute('data-line') !== line);
+        });
+      }
+      function clearFocus() {
+        if (!current) return;
+        current = null;
+        demo.classList.remove('has-focus');
+        lineGrps.forEach(function (g) { g.classList.remove('is-focus'); });
+        pillDots.forEach(function (d) { d.classList.remove('is-dim'); });
+      }
+
+      svg.querySelectorAll('.d3-track-hit').forEach(function (hit) {
+        hit.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var grp = hit.closest('[data-line]');
+          if (!grp) return;
+          var line = grp.getAttribute('data-line');
+          if (current === line) clearFocus();
+          else focusLine(line);
+        });
+      });
+      // Background click → reset. Bound on the SVG so anything that
+      // isn't a track-hit (or doesn't stop propagation) clears focus.
+      svg.addEventListener('click', function () { clearFocus(); });
+
+      // ---------- Day / night toggle ----------
+      var toggle = document.getElementById('d3-mode-toggle');
+      if (toggle) {
+        toggle.addEventListener('click', function () {
+          demo.classList.toggle('is-night');
+          toggle.setAttribute('aria-pressed', demo.classList.contains('is-night') ? 'true' : 'false');
+        });
+      }
+    })();
+
+    /* ============================================================
+       DEMO 4 — Station editor (showcase of the real dev tool)
+       Click a station to select; nudge it with the panel arrows or
+       arrow keys (Shift = 10×). Cycle the label position. The Copy
+       Prompt button mocks the live app's "export changes as a Claude
+       prompt" flow.
+       ============================================================ */
+    (function () {
+      var SVG_NS = 'http://www.w3.org/2000/svg';
+      var box       = document.getElementById('d4-box');
+      var svg       = document.getElementById('d4-svg');
+      var stnLayer  = document.getElementById('d4-stations');
+      var trackEl   = document.getElementById('d4-track');
+      var selRing   = document.getElementById('d4-selection');
+      // Panel refs
+      var pEmpty    = document.getElementById('d4p-empty');
+      var pContent  = document.getElementById('d4p-content');
+      var pName     = document.getElementById('d4p-name');
+      var pJa       = document.getElementById('d4p-ja');
+      var pX        = document.getElementById('d4p-x');
+      var pY        = document.getElementById('d4p-y');
+      var pStep     = document.getElementById('d4p-step');
+      var pLabelRow = document.getElementById('d4p-label-row');
+      var pCopy     = document.getElementById('d4p-copy');
+      var toast     = document.getElementById('d4p-toast');
+      if (!box || !svg) return;
+
+      var VB_W = 720, VB_H = 500;
+      var EDGE = 16; // keep stations a touch inside the canvas
+
+      var STATIONS = [
+        { name: 'Shibuya',  ja: '渋谷', x:  80, y: 250, labelPos: 'top' },
+        { name: 'Shinjuku', ja: '新宿', x: 200, y: 250, labelPos: 'top' },
+        { name: 'Tokyo',    ja: '東京', x: 320, y: 250, labelPos: 'top' },
+        { name: 'Ueno',     ja: '上野', x: 440, y: 250, labelPos: 'top' }
+      ];
+
+      // 4 label-position recipes — left/top/right/bottom only,
+      // matching the live app's label dir buttons.
+      var LABEL_POS = {
+        'top':    { dx:  0,  dy: -12, anchor: 'middle' },
+        'right':  { dx: 13,  dy:   4, anchor: 'start'  },
+        'bottom': { dx:  0,  dy:  22, anchor: 'middle' },
+        'left':   { dx:-13,  dy:   4, anchor: 'end'    }
+      };
+
+      function el(tag, attrs) {
+        var n = document.createElementNS(SVG_NS, tag);
+        for (var k in attrs) n.setAttribute(k, attrs[k]);
+        return n;
+      }
+
+      // Build station nodes
+      STATIONS.forEach(function (s, i) {
+        var grp = el('g', { 'class': 'd4-station', 'data-id': i });
+        var halo = el('rect', {
+          'class': 'd4-station-halo', width: 14, height: 14, rx: 1.5,
+          fill: '#FFFFFF'
+        });
+        var marker = el('rect', {
+          'class': 'd4-station-marker', width: 10, height: 10, rx: 0.8,
+          fill: '#FFFFFF', stroke: '#00A7DB', 'stroke-width': 1.5
+        });
+        var label = el('text', {
+          'class': 'd4-station-label',
+          'font-size': 11, 'font-weight': 500, fill: '#444'
+        });
+        label.textContent = s.name;
+        grp.appendChild(halo);
+        grp.appendChild(marker);
+        grp.appendChild(label);
+        stnLayer.appendChild(grp);
+        s.grpEl = grp;
+        s.haloEl = halo;
+        s.markerEl = marker;
+        s.labelEl = label;
+      });
+
+      function renderStation(s) {
+        s.haloEl.setAttribute('x', s.x - 7);
+        s.haloEl.setAttribute('y', s.y - 7);
+        s.markerEl.setAttribute('x', s.x - 5);
+        s.markerEl.setAttribute('y', s.y - 5);
+        var lp = LABEL_POS[s.labelPos] || LABEL_POS.top;
+        s.labelEl.setAttribute('x', s.x + lp.dx);
+        s.labelEl.setAttribute('y', s.y + lp.dy);
+        s.labelEl.setAttribute('text-anchor', lp.anchor);
+      }
+      function renderTrack() {
+        trackEl.setAttribute('points',
+          STATIONS.map(function (s) { return s.x + ',' + s.y; }).join(' '));
+      }
+      function renderSelectionRing() {
+        if (!selected) { selRing.style.display = 'none'; return; }
+        selRing.style.display = 'block';
+        selRing.setAttribute('x', selected.x - 11);
+        selRing.setAttribute('y', selected.y - 11);
+        selRing.setAttribute('width', 22);
+        selRing.setAttribute('height', 22);
+        selRing.setAttribute('rx', 2);
+      }
+
+      // Initial paint
+      STATIONS.forEach(renderStation);
+      renderTrack();
+
+      // ---------- Selection ----------
+      var selected = null;
+
+      function select(s) {
+        // Clear previous selection class
+        STATIONS.forEach(function (st) { st.grpEl.classList.remove('is-selected'); });
+        selected = s;
+        if (!s) {
+          pEmpty.hidden = false;
+          pContent.hidden = true;
+          renderSelectionRing();
+          return;
+        }
+        s.grpEl.classList.add('is-selected');
+        pEmpty.hidden = true;
+        pContent.hidden = false;
+        pName.textContent = s.name;
+        pJa.textContent = s.ja;
+        pX.textContent = s.x;
+        pY.textContent = s.y;
+        // Sync label-pos buttons
+        Array.prototype.forEach.call(pLabelRow.querySelectorAll('button'), function (b) {
+          b.classList.toggle('is-on', b.dataset.lp === s.labelPos);
+        });
+        renderSelectionRing();
+      }
+
+      // Click-to-select on each station group
+      STATIONS.forEach(function (s) {
+        s.grpEl.addEventListener('click', function (e) {
+          e.stopPropagation();
+          select(s);
+        });
+      });
+      // Click outside any station deselects (but not when clicking the panel)
+      svg.addEventListener('click', function (e) {
+        if (!e.target.closest('.d4-station')) select(null);
+      });
+
+      // ---------- Nudge ----------
+      function nudge(dx, dy) {
+        if (!selected) return;
+        var step = parseInt(pStep.value, 10) || 1;
+        // Multiplied by Shift via callers (pass a `mult`)
+        selected.x = Math.max(EDGE, Math.min(VB_W - EDGE, selected.x + dx * step));
+        selected.y = Math.max(EDGE, Math.min(VB_H - EDGE, selected.y + dy * step));
+        pX.textContent = selected.x;
+        pY.textContent = selected.y;
+        renderStation(selected);
+        renderTrack();
+        renderSelectionRing();
+      }
+
+      // Panel arrow buttons
+      Array.prototype.forEach.call(
+        document.querySelectorAll('.demo-4 .d4p-arrows button'),
+        function (btn) {
+          btn.addEventListener('click', function () {
+            var d = btn.dataset.nudge;
+            if (d === 'up')    nudge(0, -1);
+            else if (d === 'down')  nudge(0, 1);
+            else if (d === 'left')  nudge(-1, 0);
+            else if (d === 'right') nudge(1, 0);
+          });
+        }
+      );
+
+      // Arrow keys when a station is selected and the demo is in view
+      var demoInView = false;
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) { demoInView = e.isIntersecting; });
+        }, { threshold: 0.4 }).observe(box);
+      } else {
+        demoInView = true;
+      }
+      window.addEventListener('keydown', function (e) {
+        if (!selected || !demoInView) return;
+        // Don't fight the page when focus is in a text input outside the demo
+        var tgt = e.target;
+        if (tgt && tgt !== document.body && tgt.closest && tgt.closest('input, textarea')) return;
+        var mult = e.shiftKey ? 10 : 1;
+        var prevStep = pStep.value;
+        // Borrow the step input by temporarily multiplying — simpler than
+        // refactoring nudge() to accept an explicit mult.
+        if (mult !== 1) pStep.value = (parseInt(prevStep, 10) || 1) * mult;
+        var handled = true;
+        switch (e.key) {
+          case 'ArrowUp':    nudge(0, -1); break;
+          case 'ArrowDown':  nudge(0, 1);  break;
+          case 'ArrowLeft':  nudge(-1, 0); break;
+          case 'ArrowRight': nudge(1, 0);  break;
+          default: handled = false;
+        }
+        pStep.value = prevStep;
+        if (handled) e.preventDefault();
+      });
+
+      // ---------- Label position buttons ----------
+      Array.prototype.forEach.call(pLabelRow.querySelectorAll('button'), function (b) {
+        b.addEventListener('click', function () {
+          if (!selected) return;
+          selected.labelPos = b.dataset.lp;
+          renderStation(selected);
+          // Update active state
+          Array.prototype.forEach.call(pLabelRow.querySelectorAll('button'), function (bb) {
+            bb.classList.toggle('is-on', bb === b);
+          });
+        });
+      });
+
+      // ---------- Copy Prompt (mocked toast) ----------
+      pCopy.addEventListener('click', function () {
+        toast.classList.add('is-on');
+        clearTimeout(pCopy._t);
+        pCopy._t = setTimeout(function () {
+          toast.classList.remove('is-on');
+        }, 1800);
+      });
+    })();
+  </script>
+
+  <script src="/live-polish.js?v=3"></script>
+</body>
+</html>

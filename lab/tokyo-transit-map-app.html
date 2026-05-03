@@ -285,6 +285,57 @@ body.night .station-label text{stroke:#0A0E1A}
 body.night #toggle-mode .icon-moon{display:none}
 body.night #toggle-mode .icon-sun{display:block}
 
+/* Preview mode — entered when the URL has ?preview=1. Strips all
+   chrome so the map can be embedded as a "living poster" inside
+   the case study iframe. Pointer interaction is also blocked. */
+body.preview-mode #toolbar,
+body.preview-mode #legend,
+body.preview-mode #info-panel,
+body.preview-mode #line-info,
+body.preview-mode #dev-panel,
+body.preview-mode #coffee-info,
+body.preview-mode #dev-export,
+body.preview-mode #back-link {
+  display: none !important;
+}
+
+/* Back-to-case-study button — same pill style as the case study's
+   .hero-link / .back-link so the two pages feel connected. Hidden
+   in preview mode (handled above). */
+#back-link {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #E5E5E5;
+  background: #FFFFFF;
+  color: #111;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  min-height: 40px;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
+  transition: transform 140ms cubic-bezier(0.2, 0, 0, 1),
+              box-shadow 220ms cubic-bezier(0.2, 0, 0, 1);
+}
+#back-link:hover {
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 8px 20px rgba(0,0,0,0.08);
+}
+#back-link:active { transform: scale(0.97); }
+#back-link:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 2px;
+}
+body.preview-mode { cursor: default !important; overflow: hidden; }
+body.preview-mode svg { pointer-events: none !important; }
+
 /* Smooth transitions for SVG elements that take CSS-compatible attributes */
 .line-path, .train-car rect, .train-headlamp, .station-marker, .station-label text {
   transition: opacity 600ms ease, fill 600ms ease, stroke 600ms ease;
@@ -314,6 +365,7 @@ body.night .train-window { animation: winFlicker 3s ease-in-out infinite; }
 </style>
 </head>
 <body>
+<a id="back-link" href="/lab/tokyo-transit-map.html">← Back to case study</a>
 <svg id="map"></svg>
 
 <div id="legend">
@@ -1174,12 +1226,32 @@ allStations.forEach(s => {
 // ═══════════════════════════════════════════════════════════
 
 const MAP_CX = 490, MAP_CY = 420;
+// Preview-mode flag — set when this page is iframed by the case
+// study with ?preview=1. Disables zoom interactions, hides chrome,
+// and frames a cropped view of the network.
+const IS_PREVIEW = new URLSearchParams(location.search).get('preview') === '1';
+if (IS_PREVIEW) document.body.classList.add('preview-mode');
+
 const zoomBehavior = zoom().scaleExtent([0.3,5])
-  .filter(event=>{ if(event.target.closest('.station-group'))return false; return(!event.ctrlKey||event.type==='wheel')&&!event.button; })
+  .filter(event=>{
+    if (IS_PREVIEW) return false;            // no pan, no zoom in preview
+    if (event.target.closest('.station-group')) return false;
+    return (!event.ctrlKey || event.type === 'wheel') && !event.button;
+  })
   .on('zoom',({transform})=>g.attr('transform',transform));
 svg.call(zoomBehavior);
 function homeTransform() { return zoomIdentity.translate(window.innerWidth/2-MAP_CX, window.innerHeight/2-MAP_CY); }
-svg.call(zoomBehavior.transform, homeTransform());
+// Preview frame — center on the Shibuya / Shinjuku / Ginza area.
+// Scale 0.85 shows more of the network at smaller per-element size
+// so the hero reads as "a slice of a system" rather than a cropped
+// closeup. Center anchored on (480, 480) — Yamanote's middle.
+function previewTransform() {
+  const PCX = 540, PCY = 417, PSCALE = 0.85;
+  return zoomIdentity
+    .translate(window.innerWidth/2 - PCX*PSCALE, window.innerHeight/2 - PCY*PSCALE)
+    .scale(PSCALE);
+}
+svg.call(zoomBehavior.transform, IS_PREVIEW ? previewTransform() : homeTransform());
 
 document.getElementById('zoom-in').onclick=()=>svg.transition().duration(250).call(zoomBehavior.scaleBy,1.5);
 document.getElementById('zoom-out').onclick=()=>svg.transition().duration(250).call(zoomBehavior.scaleBy,1/1.5);
