@@ -301,7 +301,8 @@ body.minimal footer:not(.m-footer) {
 .m-bio {
   font-size: 13px;
   line-height: 2;
-  color: var(--text);
+  font-weight: 400;
+  color: #6F6F6F;
   margin-bottom: 0;
 }
 
