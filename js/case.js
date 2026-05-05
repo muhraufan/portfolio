@@ -503,6 +503,10 @@
       el.style.minWidth = '';
       el.style.height = '';
       el.style.width = '';
+      // Skip min-height reservation for opt-out elements — useful when an
+      // element collapses/expands and a locked min-height would hold the
+      // collapsed state open (e.g. .choose-reveal-body).
+      if (el.classList.contains('choose-reveal-body')) return;
       items.push({ el: el, enVal: enVal, jaVal: jaVal, isHtml: isHtml, savedHTML: el.innerHTML });
     });
 
