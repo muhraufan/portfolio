@@ -414,18 +414,18 @@
              ============================================================ */
 
           /* Designer 1 — labels exit LEFT */
-          .spot-diff-col[data-side="left"]  [data-pos="hero"] { --dot-x:  2; --dot-y: 36; --tip-x: -15; --tip-y: 38; --ay: 18%; }
-          .spot-diff-col[data-side="left"]  [data-pos="body"] { --dot-x:  1; --dot-y: 75; --tip-x: -15; --tip-y: 68; --ay: 56%; }
+          .spot-diff-col[data-side="left"]  [data-pos="hero"] { --dot-x:  2; --dot-y: 36; --tip-x: -15; --tip-y: 38; --ay: 36%; }
+          .spot-diff-col[data-side="left"]  [data-pos="body"] { --dot-x:  1; --dot-y: 75; --tip-x: -15; --tip-y: 68; --ay: 75%; }
 
           /* Designer 2 — labels exit RIGHT (mirror of D1) */
-          .spot-diff-col[data-side="right"] [data-pos="hero"] { --dot-x: 98; --dot-y: 36; --tip-x: 117; --tip-y: 38; --ay: 17%; }
-          .spot-diff-col[data-side="right"] [data-pos="body"] { --dot-x: 93; --dot-y: 75; --tip-x: 117; --tip-y: 68; --ay: 56%; }
+          .spot-diff-col[data-side="right"] [data-pos="hero"] { --dot-x: 98; --dot-y: 36; --tip-x: 117; --tip-y: 38; --ay: 36%; }
+          .spot-diff-col[data-side="right"] [data-pos="body"] { --dot-x: 93; --dot-y: 75; --tip-x: 117; --tip-y: 68; --ay: 75%; }
 
           /* Bottom row — same in both designs. tip-y > 100 pulls the line
              past the card edge so the pill sits in the negative space. */
-          [data-pos="tag"]     { --dot-x:  6; --dot-y: 98; --tip-x:   8; --tip-y: 116; --ax: 13%; }
-          [data-pos="caption"] { --dot-x: 27; --dot-y: 93; --bend-x: 30; --tip-y: 116; --ax: 37%; }
-          [data-pos="cta"]     { --dot-x: 77; --dot-y: 99; --tip-x:  77; --tip-y: 116; --ax: 84%; }
+          [data-pos="tag"]     { --dot-x:  6; --dot-y: 98; --tip-x:   8; --tip-y: 115; --ax: 6%; }
+          [data-pos="caption"] { --dot-x: 27; --dot-y: 93; --bend-x: 30; --tip-y: 115; --ax: 30%; }
+          [data-pos="cta"]     { --dot-x: 77; --dot-y: 99; --tip-x:  77; --tip-y: 115; --ax: 77%; }
 
           /* Wire vars → on-screen positions. Lines are simple absolutely
              positioned spans (axis-aligned), dots are 7px circles centered
@@ -649,10 +649,10 @@
           }
           .spot-diff.is-revealed .spot-diff-anno--side-left,
           .spot-diff.is-revealed .spot-diff-anno--side-right {
-            transform: translateY(80%) scale(1);
+            transform: translateY(-50%) scale(1);
           }
           .spot-diff.is-revealed .spot-diff-anno--bottom {
-            transform: translateX(-90%) scale(1);
+            transform: translateX(-50%) scale(1);
           }
 
           /* Stagger — only applied during enter (scoped to .is-revealed).
