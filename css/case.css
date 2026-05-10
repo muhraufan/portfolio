@@ -2328,11 +2328,20 @@
   margin-bottom: 24px;
 }
 
-/* ---- Lightbox ---- */
+/* ---- Lightbox ----
+   Animation strategy: the `transition` on the BASE state runs on close
+   (when .is-open is removed), the `transition` on .is-open runs on open.
+   This lets us use a springy ease for opening and a clean ease-in for
+   closing without keyframes. backdrop-filter is intentionally not
+   transitioned — it's expensive on the GPU and the opacity fade hides
+   the discontinuity for free. visibility flips after opacity finishes
+   so the layer doesn't disappear mid-fade. */
 .lightbox {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.10), rgba(0, 0, 0, 0.15));
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
   z-index: 10000;
   display: flex;
   align-items: center;
@@ -2340,24 +2349,41 @@
   cursor: zoom-out;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  /* CLOSE transition (base state): smooth ease-in, slightly faster. */
+  transition:
+    opacity 220ms cubic-bezier(0.4, 0, 1, 1),
+    visibility 0s linear 220ms;
 }
 
 .lightbox.is-open {
   opacity: 1;
   visibility: visible;
+  /* OPEN transition: gentler ease-out, no bounce on the backdrop. */
+  transition:
+    opacity 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0s linear 0s;
 }
 
 .lightbox-img {
   max-width: 90vw;
   max-height: 90vh;
   object-fit: contain;
-  transform: scale(0.95);
-  transition: transform 0.3s ease;
+  transform: scale(0.96) translateY(6px);
+  opacity: 0;
+  /* CLOSE: clean ease-in, runs together with backdrop. */
+  transition:
+    transform 220ms cubic-bezier(0.4, 0, 1, 1),
+    opacity 200ms cubic-bezier(0.4, 0, 1, 1);
+  will-change: transform, opacity;
 }
 
 .lightbox.is-open .lightbox-img {
-  transform: scale(1);
+  transform: scale(1) translateY(0);
+  opacity: 1;
+  /* OPEN: a touch of overshoot, but gentle enough to not feel cartoonish. */
+  transition:
+    transform 360ms cubic-bezier(0.22, 1.18, 0.36, 1),
+    opacity 280ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ---- Footer ---- */
@@ -2386,25 +2412,36 @@
     display: none;
   }
 
-  /* Lang + theme toggles sit inside the mobile header row. Switch to
-     position:fixed so they stay pinned when the user scrolls (absolute
-     positioning would let them scroll out of view behind the sticky header).
-     Align their vertical center to the hamburger (which centers at ~31px)
-     by giving them an explicit 32px tall target and centering the content. */
+  /* Lang + theme + hamburger sit on the same baseline in the mobile
+     header. The header is padding: 12px 24px so its content row starts
+     at top: 12px and the trailing edge is 24px from the viewport right.
+     Hamburger lives inside the header (right-aligned via flex). Lang
+     and theme are position:fixed at the same top so they stay pinned
+     while scrolling, and right values are spaced in even 8px gaps
+     against 32×32 buttons:
+
+       [ lang  ][ theme ][ hamb ]   gap 8px between each
+        right:104     64       24
+
+     padding:0 is forced over the global #case-page polish tweak so the
+     icons sit dead-center in the 32×32 box and align with the hamburger
+     SVG which is also 18px centered in 32×32. */
   .case-lang-toggle,
   .case-theme-toggle {
     position: fixed;
     z-index: 1001;
-    top: 15px;
+    top: 12px;
+    width: 32px;
     height: 32px;
+    min-width: 32px;
     min-height: 32px;
-    padding: 0;
+    padding: 0 !important;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  .case-lang-toggle { right: 100px; width: 36px; font-size: 13px; }
-  .case-theme-toggle { right: 64px; width: 32px; }
+  .case-lang-toggle { right: 104px; font-size: 13px; }
+  .case-theme-toggle { right: 64px; }
 
   /* Direction chart — stack top-to-bottom on mobile (absolute positioning
      at fixed %-coords collides on narrow viewports).
@@ -2469,40 +2506,74 @@
     color: var(--text);
   }
 
-  /* Hamburger */
+  /* Hamburger — uses Transitions.dev "Icon swap" pattern: menu and
+     close icons cross-fade with blur + scale. State is driven by the
+     existing .is-open class on the button. */
   .case-mobile-hamburger {
-    display: flex;
-    flex-direction: column;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    gap: 4px;
     width: 32px;
     height: 32px;
     padding: 6px;
     background: none;
     border: none;
     cursor: pointer;
+    color: var(--text);
     -webkit-tap-highlight-color: transparent;
   }
 
-  .case-mobile-hamburger span {
-    display: block;
+  .case-mobile-hamburger .t-icon-swap {
+    position: relative;
+    display: inline-grid;
+    width: 18px;
+    height: 18px;
+  }
+
+  .case-mobile-hamburger .t-icon {
+    grid-area: 1 / 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      opacity 200ms ease-in-out,
+      filter 200ms ease-in-out,
+      transform 200ms ease-in-out;
+    will-change: opacity, filter, transform;
+  }
+
+  .case-mobile-hamburger .t-icon svg {
     width: 100%;
-    height: 1.5px;
-    background: var(--text);
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    transform-origin: center;
+    height: 100%;
+    display: block;
   }
 
-  .case-mobile-hamburger.is-open span:nth-child(1) {
-    transform: translateY(5.5px) rotate(45deg);
+  /* Default (closed) state: show menu icon. */
+  .case-mobile-hamburger .t-icon[data-icon="a"] {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
   }
-
-  .case-mobile-hamburger.is-open span:nth-child(2) {
+  .case-mobile-hamburger .t-icon[data-icon="b"] {
     opacity: 0;
+    filter: blur(2px);
+    transform: scale(0.25);
   }
 
-  .case-mobile-hamburger.is-open span:nth-child(3) {
-    transform: translateY(-5.5px) rotate(-45deg);
+  /* Open state: show close icon. */
+  .case-mobile-hamburger.is-open .t-icon[data-icon="a"] {
+    opacity: 0;
+    filter: blur(2px);
+    transform: scale(0.25);
+  }
+  .case-mobile-hamburger.is-open .t-icon[data-icon="b"] {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .case-mobile-hamburger .t-icon { transition: none !important; }
   }
 
   /* Menu overlay */
@@ -3393,7 +3464,10 @@ button.choose-expand-icon svg {
 }
 
 /* Fullscreen popup — FLIP animation driven by JS, so the background
-   and close button fade independently of the image transform. */
+   and close button fade independently of the image transform.
+   Animating backdrop-filter is expensive on most GPUs — keep the blur
+   constant on the visible state and only fade the *opacity* of the
+   overlay layer. Much smoother than transitioning blur. */
 .choose-fs-overlay {
   position: fixed;
   inset: 0;
@@ -3401,18 +3475,22 @@ button.choose-expand-icon svg {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0);
-  backdrop-filter: blur(0px);
-  -webkit-backdrop-filter: blur(0px);
-  transition:
-    background 450ms cubic-bezier(0.22, 1, 0.36, 1),
-    backdrop-filter 450ms cubic-bezier(0.22, 1, 0.36, 1),
-    -webkit-backdrop-filter 450ms cubic-bezier(0.22, 1, 0.36, 1);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.10), rgba(0, 0, 0, 0.15));
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  opacity: 0;
+  /* CLOSE: clean ease-in. */
+  transition: opacity 280ms cubic-bezier(0.4, 0, 1, 1);
 }
 .choose-fs-overlay.is-visible {
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  opacity: 1;
+  /* OPEN: smooth ease-out. */
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.choose-fs-overlay.is-closing {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 280ms cubic-bezier(0.4, 0, 1, 1);
 }
 .choose-fs-content {
   position: relative;
@@ -3431,7 +3509,9 @@ button.choose-expand-icon svg {
   will-change: transform;
   backface-visibility: hidden;
 }
-/* Floating close button top-right of the viewport, with a soft glass look. */
+/* Floating close button top-right of the viewport, with a soft glass look.
+   Higher contrast vs. the page behind a 10–15% tint, so it reads clearly
+   without fighting the image. */
 .choose-fs-close {
   position: absolute;
   top: 24px;
@@ -3439,23 +3519,27 @@ button.choose-expand-icon svg {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(20, 20, 20, 0.55);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.18),
+    0 8px 24px rgba(0, 0, 0, 0.18);
   font-size: 22px;
   line-height: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.92);
+  color: #FFFFFF;
   opacity: 0;
   transform: scale(0.85);
   transition:
     opacity 250ms ease-out 180ms,
     transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1) 180ms,
-    background 200ms ease;
+    background 200ms ease,
+    box-shadow 200ms ease;
 }
 .choose-fs-overlay.is-visible .choose-fs-close {
   opacity: 1;
@@ -3465,12 +3549,16 @@ button.choose-expand-icon svg {
   opacity: 0;
   transform: scale(0.85);
   transition:
-    opacity 150ms ease-out,
-    transform 150ms ease-out;
+    opacity 180ms ease-out,
+    transform 180ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .choose-fs-close:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(20, 20, 20, 0.72);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.22),
+    0 12px 32px rgba(0, 0, 0, 0.28);
 }
+.choose-fs-close:active { transform: scale(0.94); }
 
 /* Reveal panel */
 /* Reveal animates its real height so the section below ("The Ending")
@@ -3765,7 +3853,9 @@ button.choose-expand-icon svg {
 .prototype-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.88);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.10), rgba(0, 0, 0, 0.15));
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
   z-index: 10000;
   display: flex;
   align-items: center;
@@ -3773,11 +3863,21 @@ button.choose-expand-icon svg {
   padding: 32px;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.25s ease, visibility 0.25s ease;
+  /* CLOSE transition (base): clean ease-in. visibility flips after
+     opacity finishes so the layer doesn't disappear mid-fade.
+     backdrop-filter is intentionally NOT transitioned — opacity hides
+     the change for free and animating it stutters on most GPUs. */
+  transition:
+    opacity 220ms cubic-bezier(0.4, 0, 1, 1),
+    visibility 0s linear 220ms;
 }
 .prototype-modal.is-open {
   opacity: 1;
   visibility: visible;
+  /* OPEN: smooth ease-out. */
+  transition:
+    opacity 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0s linear 0s;
 }
 .prototype-modal-inner {
   position: relative;
@@ -3787,11 +3887,23 @@ button.choose-expand-icon svg {
   display: flex;
   align-items: center;
   justify-content: center;
-  transform: scale(0.96);
-  transition: transform 0.25s ease;
+  transform: scale(0.96) translateY(6px);
+  opacity: 0;
+  transform-origin: center;
+  /* CLOSE: shrink-and-sink with a clean ease-in. No overshoot — the
+     element is leaving, it shouldn't bounce. */
+  transition:
+    transform 220ms cubic-bezier(0.4, 0, 1, 1),
+    opacity 200ms cubic-bezier(0.4, 0, 1, 1);
+  will-change: transform, opacity;
 }
 .prototype-modal.is-open .prototype-modal-inner {
-  transform: scale(1);
+  transform: scale(1) translateY(0);
+  opacity: 1;
+  /* OPEN: gentle overshoot via custom ease, no harsh spring. */
+  transition:
+    transform 360ms cubic-bezier(0.22, 1.18, 0.36, 1),
+    opacity 280ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .prototype-modal video {
   max-width: 100%;
@@ -3804,23 +3916,35 @@ button.choose-expand-icon svg {
 }
 .prototype-modal-close {
   position: absolute;
-  top: -44px;
+  top: -52px;
   right: 0;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  border: none;
-  color: #fff;
+  background: rgba(20, 20, 20, 0.55);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.18),
+    0 8px 24px rgba(0, 0, 0, 0.18);
+  color: #FFFFFF;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s ease;
+  transition:
+    background 180ms ease,
+    transform 140ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 200ms ease;
 }
 .prototype-modal-close:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(20, 20, 20, 0.72);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.22),
+    0 12px 32px rgba(0, 0, 0, 0.28);
 }
+.prototype-modal-close:active { transform: scale(0.94); }
 .prototype-modal-close svg {
   width: 18px;
   height: 18px;
@@ -3830,7 +3954,7 @@ button.choose-expand-icon svg {
     padding: 16px;
   }
   .prototype-modal-close {
-    top: -40px;
+    top: -48px;
   }
 }
 
