@@ -1,0 +1,47 @@
+/* ════════════════════════════════════════════════════════════════════
+   Fly-By Surprise — pixel-art plane + banner that crosses the
+   viewport once when the visitor has actively read into a case study.
+   Tier 3 adds the click → crash → parachute → sign → run-off sequence,
+   so the canvas now covers the full viewport (the parachute pilot
+   needs vertical room to drift down to the ground).
+
+   Press Start 2P is only used inside the banner/sign <canvas>, never
+   on page text. Pointer-events are off on the canvas itself; the
+   plane and sign hit targets are separate absolutely-positioned
+   overlay elements (see flyby.js).
+   ════════════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+#flyby-surprise {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Plane click target and sign mailto link — overlays that follow the
+   sprites frame-by-frame via transform updates from flyby.js. */
+#flyby-plane-hit,
+#flyby-sign-link {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: auto;
+  z-index: 10000;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: none;
+}
+#flyby-plane-hit:focus-visible,
+#flyby-sign-link:focus-visible {
+  outline: 2px dashed #1a1a1a;
+  outline-offset: 4px;
+}

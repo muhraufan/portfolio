@@ -460,13 +460,17 @@ body.minimal footer:not(.m-footer) {
 }
 
 .m-list li {
-  margin-bottom: 16px;
+  /* Use padding instead of margin so the gap between items belongs
+     to the <li>'s hover area — eliminates the dead zone that made the
+     spotlight flash off-and-on when sweeping between projects. */
+  padding-bottom: 16px;
   /* Staggered enter on first paint — 60ms between items gives a subtle
      cascade without making the list feel slow to interact with. */
   opacity: 0;
   transform: translateY(6px);
   animation: m-list-enter 400ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
 }
+.m-list li:last-child { padding-bottom: 0; }
 .m-list li:nth-child(1) { animation-delay: 40ms; }
 .m-list li:nth-child(2) { animation-delay: 100ms; }
 .m-list li:nth-child(3) { animation-delay: 160ms; }
@@ -511,6 +515,64 @@ body.minimal footer:not(.m-footer) {
 .m-list a:hover {
   color: var(--text);
   text-decoration-color: #C8DDD4;
+}
+
+/* ---- Spotlight hover ----
+   JS-driven: a `is-spotlight` class lands on <body> when the visitor
+   enters any list link, and a `data-spotlight` data-id on the link
+   itself marks the one to keep bright. CSS handles the rest.
+
+   Why JS instead of :has(): :has() recalculates the whole match graph
+   on every hover event and was producing inconsistent results across
+   browsers. A two-class toggle is unambiguous.
+
+   Mechanics:
+   - body.is-spotlight → page dims via opacity on .m-page > *
+   - .m-list a.is-active → escapes the dim by raising itself into
+     a sibling stacking context above the overlay area */
+
+body.minimal .m-page > *,
+body.minimal .m-list > li {
+  /* Same duration + ease across both selectors so dimming page-level
+     content (e.g. the case-studies list when Tokyo is hovered) stays
+     in sync with the in-list <li> dim (Live Polish in that case). */
+  transition: opacity 220ms cubic-bezier(0.2, 0, 0, 1) !important;
+}
+body.minimal .m-list a {
+  transition: color 180ms cubic-bezier(0.2, 0, 0, 1),
+              text-decoration-color 220ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* When spotlight mode is on, dim every direct .m-page child. */
+body.minimal.is-spotlight .m-page > *:not(script) {
+  opacity: 0.3;
+}
+/* …except the <ul> that holds the active link — keep its opacity at 1
+   so the active link inside it doesn't multiply-dim. The
+   `.is-active-list` class is added by JS alongside `.is-active` on
+   the link itself. */
+body.minimal.is-spotlight .m-list.is-active-list {
+  opacity: 1;
+}
+/* Inside the active list, dim every <li> that isn't the one
+   containing the active link — covers both real links AND "soon"
+   entries that have no <a> (like Live Polish). Opacity is fine here
+   because each <li> is a sibling with its own paint, not an ancestor
+   of the active item. !important defeats the animation-fill-mode:
+   forwards from the list-enter animation. */
+body.minimal.is-spotlight .m-list.is-active-list > li:not(.is-active-li) {
+  opacity: 0.3 !important;
+}
+/* Promote every <li> to its own compositor layer up-front so opacity
+   changes don't trigger a new layer mid-transition (which would
+   re-snap font rendering and shift text by a sub-pixel). */
+body.minimal .m-list > li {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+/* Keep underline visible only on the active link. */
+body.minimal.is-spotlight .m-list.is-active-list a:not(.is-active) {
+  text-decoration-color: transparent;
 }
 
 .m-footer {

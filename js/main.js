@@ -615,3 +615,48 @@ document.querySelectorAll('.nav-links a').forEach(link => {
   sync();
   new MutationObserver(sync).observe(label, { childList: true, characterData: true, subtree: true });
 })();
+
+// Spotlight hover on the homepage list links — DISABLED for now.
+// Re-enable by un-commenting the IIFE below. CSS hooks remain in
+// css/style.css (look for `.is-spotlight` / `.is-active-list` /
+// `.is-active-li`) so toggling JS back on is enough to restore it.
+//
+// (function spotlightListHover() {
+//   const links = document.querySelectorAll('body.minimal .m-list a');
+//   if (!links.length) return;
+//   const body = document.body;
+//   const lists = document.querySelectorAll('body.minimal .m-list');
+//   const items = document.querySelectorAll('body.minimal .m-list li');
+//   let leaveTimer = null;
+//
+//   function clearActive() {
+//     links.forEach(a => a.classList.remove('is-active'));
+//     lists.forEach(ul => ul.classList.remove('is-active-list'));
+//     items.forEach(li => li.classList.remove('is-active-li'));
+//   }
+//   function activate(link) {
+//     if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
+//     clearActive();
+//     link.classList.add('is-active');
+//     const parentLi = link.closest('li');
+//     if (parentLi) parentLi.classList.add('is-active-li');
+//     const parentList = link.closest('.m-list');
+//     if (parentList) parentList.classList.add('is-active-list');
+//     body.classList.add('is-spotlight');
+//   }
+//   function scheduleDeactivate() {
+//     if (leaveTimer) clearTimeout(leaveTimer);
+//     leaveTimer = setTimeout(() => {
+//       clearActive();
+//       body.classList.remove('is-spotlight');
+//       leaveTimer = null;
+//     }, 120);
+//   }
+//
+//   links.forEach(link => {
+//     link.addEventListener('mouseenter', () => activate(link));
+//     link.addEventListener('mouseleave', scheduleDeactivate);
+//     link.addEventListener('focus', () => activate(link));
+//     link.addEventListener('blur', scheduleDeactivate);
+//   });
+// })();
