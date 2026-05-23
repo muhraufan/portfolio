@@ -1,0 +1,54 @@
+/* ════════════════════════════════════════════════════════════════════
+   Stabilo — real-marker text selection highlighter
+   ────────────────────────────────────────────────────────────────────
+   Native ::selection is too limited to look like a real marker (only
+   accepts a flat color, no filter / gradient / blend). So we hide the
+   native highlight here and let stabilo.js draw an SVG overlay on top
+   of the visible text on every `selectionchange`.
+
+   The JS adds `body.stabilo-ready` once it boots — only then do we
+   suppress the native selection. That way touch devices and any other
+   no-JS scenario get a real (if flat) yellow selection from the
+   `body:not(.stabilo-ready)` fallback below, instead of an invisible
+   selection that breaks copy/paste affordance.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Hide native selection ONLY when the JS overlay is alive. */
+body.stabilo-ready ::selection      { background: transparent; color: inherit; }
+body.stabilo-ready ::-moz-selection { background: transparent; color: inherit; }
+
+/* Fallback: when stabilo isn't running (touch device, JS failure),
+   show a flat Stabilo-yellow native selection so the visitor still
+   sees their highlight. */
+body:not(.stabilo-ready) ::selection      { background: rgba(255, 249, 93, 0.55); color: inherit; }
+body:not(.stabilo-ready) ::-moz-selection { background: rgba(255, 249, 93, 0.55); color: inherit; }
+
+/* The overlay SVG itself — fixed to the viewport so rect coords from
+   getClientRects() map 1:1 without scroll math.
+   mix-blend-mode: multiply makes the yellow combine with the text
+   below like real marker ink: yellow on white stays yellow, yellow on
+   black text stays dark — text contrast is preserved. */
+#stabilo-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9998;
+  mix-blend-mode: multiply;
+  overflow: visible;
+}
+
+/* In dark mode, multiply would darken yellow onto dark page → muddy
+   brown. Switch to `screen` (inverse multiply) so the dark page
+   *brightens* where highlighted, like a marker glowing on dark paper.
+   The dark-mode yellow is also nudged slightly more saturated so it
+   reads as marker, not vellum. */
+[data-theme="dark"] #stabilo-overlay {
+  mix-blend-mode: screen;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) #stabilo-overlay {
+    mix-blend-mode: screen;
+  }
+}
