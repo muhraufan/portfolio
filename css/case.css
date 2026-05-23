@@ -244,26 +244,37 @@
   width: 100%;
   display: block;
   margin-top: 32px;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
 }
 
 /* ---- AI role callout ---- */
 .ai-role-callout {
   margin: 0 0 48px;
   padding: 20px 24px;
-  border: 1px dashed #C8DDD4;
+  border: 1px solid #C8DDD4;
   border-radius: 8px;
   background: rgba(200, 221, 212, 0.06);
+  box-shadow: rgba(21, 101, 192, 0.04) 0px 1px 1px 0px,
+              rgba(255, 255, 255, 0.75) 0px 1px 1px 0px inset;
 }
 
 .ai-role-callout p.ai-role-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #4a6b5c;
-  letter-spacing: 0.5px;
-  margin: 0 0 12px;
-  display: flex;
+  /* Capsule-badge treatment — same shape across all three callout
+     families. Background uses the border color of the parent
+     callout; text stays in the darker shade of that same hue. */
+  display: inline-flex;
   align-items: center;
   gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #5a9072;
+  background: #e9f7f1;
+  letter-spacing: 0.4px;
+  padding: 4px 12px;
+  margin: 0 0 20px;
+  border-radius: 999px;
+  box-shadow: rgb(0 131 75 / 22%) 0px 0.225px 0px 0px, rgb(0 131 75 / 24%) 0px 0px 0px 1px, rgba(255, 255, 255, 0.75) 0px 1px 1px 0px inset, rgb(0 131 75 / 8%) 0px -1px 1px 0px inset;
 }
 
 .ai-role-icon {
@@ -799,9 +810,11 @@
 .callout-box {
   margin: 24px 0;
   padding: 20px 24px;
-  border: 1px dashed #C8DDD4;
+  border: 1px solid #C8DDD4;
   border-radius: 8px;
   background: rgba(200, 221, 212, 0.06);
+  box-shadow: rgba(21, 101, 192, 0.04) 0px 1px 1px 0px,
+              rgba(255, 255, 255, 0.75) 0px 1px 1px 0px inset;
 }
 
 .callout-box p {
@@ -813,11 +826,83 @@
 }
 
 .callout-box p.callout-box-title {
-  font-size: 13px;
+  /* Capsule-badge — green family (matches the parent border color). */
+  display: inline-block;
+  font-size: 12px;
   font-weight: 600;
-  color: #4a6b5c;
-  letter-spacing: 0.5px;
+  color: #5a9072;
+  background: #e9f7f1;
+  letter-spacing: 0.4px;
+  padding: 4px 12px;
   margin: 0 0 12px;
+  border-radius: 999px;
+  box-shadow: rgb(0 131 75 / 22%) 0px 0.225px 0px 0px, rgb(0 131 75 / 24%) 0px 0px 0px 1px, rgba(255, 255, 255, 0.75) 0px 1px 1px 0px inset, rgb(0 131 75 / 8%) 0px -1px 1px 0px inset;
+}
+
+/* Dark-mode shadow override for all three callout families.
+   The light-mode shadow uses a 75% white inset highlight — too punchy
+   in dark mode. Swap to a darker drop + much subtler white inset so
+   the top edge still catches light without lighting up the room. */
+[data-theme="dark"] .callout-box,
+[data-theme="dark"] .ai-role-callout,
+[data-theme="dark"] .choose-highlight-box {
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 1px 1px 0px,
+              rgba(255, 255, 255, 0.06) 0px 1px 1px 0px inset;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .callout-box,
+  :root:not([data-theme="light"]) .ai-role-callout,
+  :root:not([data-theme="light"]) .choose-highlight-box {
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 1px 1px 0px,
+                rgba(255, 255, 255, 0.06) 0px 1px 1px 0px inset;
+  }
+}
+
+/* Dark-mode BADGE override (the title pills inside each callout family).
+   In light mode the badges are a soft minty/peach pill with darker text
+   in the same hue family — gentle, low-glare against light surfaces.
+   In dark mode we INVERT the hue pairing so the badge becomes a darker
+   pill with light text in the same family — same "calm" feeling, but
+   the right side of the contrast curve for a dark page. The white-inset
+   highlight is also cut from 75% → 10% so the top edge stops glaring. */
+[data-theme="dark"] .callout-box p.callout-box-title,
+[data-theme="dark"] .ai-role-callout p.ai-role-title,
+[data-theme="dark"] .choose-highlight-box .choose-reveal-label {
+  background: #2D4A3A;
+  color: #C8DDD4;
+  box-shadow: 0 0 0 1px rgba(200, 221, 212, 0.14),
+              inset 0 1px rgba(255, 255, 255, 0.10),
+              inset 0 -.5px 2px rgba(0, 0, 0, 0.30),
+              0 1px 2px rgba(0, 0, 0, 0.25);
+}
+[data-theme="dark"] .choose-highlight-box.is-pain-point .choose-reveal-label {
+  background: #5B3110;
+  color: #E8B993;
+}
+[data-theme="dark"] .choose-highlight-box.is-muted .choose-reveal-label {
+  background: var(--bg3);
+  color: var(--text);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .callout-box p.callout-box-title,
+  :root:not([data-theme="light"]) .ai-role-callout p.ai-role-title,
+  :root:not([data-theme="light"]) .choose-highlight-box .choose-reveal-label {
+    background: #2D4A3A;
+    color: #C8DDD4;
+    box-shadow: 0 0 0 1px rgba(200, 221, 212, 0.14),
+                inset 0 1px rgba(255, 255, 255, 0.10),
+                inset 0 -.5px 2px rgba(0, 0, 0, 0.30),
+                0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+  :root:not([data-theme="light"]) .choose-highlight-box.is-pain-point .choose-reveal-label {
+    background: #5B3110;
+    color: #E8B993;
+  }
+  :root:not([data-theme="light"]) .choose-highlight-box.is-muted .choose-reveal-label {
+    background: var(--bg3);
+    color: var(--text);
+  }
 }
 
 /* ---- Annotated Phone (Scroll-driven) ---- */
@@ -2229,6 +2314,8 @@
   max-width: 100%;
   border-radius: 20px;
   background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 20px;
 }
 
 .showcase-video figcaption {
@@ -2703,7 +2790,7 @@
     }
     .ai-role-callout p.ai-role-title,
     .callout-box p.callout-box-title {
-      color: #b5ccc3;
+      color: #e9f7f1;
     }
 
     /* Annotated scroll */
@@ -3629,20 +3716,29 @@ button.choose-expand-icon svg {
    mixed-case title in the brand green. */
 .choose-highlight-box {
   background: rgba(200, 221, 212, 0.06);
-  border: 1px dashed #C8DDD4;
+  border: 1px solid #C8DDD4;
   border-radius: 8px;
   padding: 20px 24px;
   margin-top: 16px;
   margin-bottom: 16px;
+  box-shadow: rgba(21, 101, 192, 0.04) 0px 1px 1px 0px,
+              rgba(255, 255, 255, 0.75) 0px 1px 1px 0px inset;
 }
 .choose-highlight-box .choose-reveal-label {
-  font-size: 13px;
+  /* Capsule-badge — green family. .is-pain-point + .is-muted below
+     override just the colors. */
+  display: inline-block;
+  font-size: 12px;
   font-weight: 600;
-  color: #4a6b5c;
-  letter-spacing: 0.5px;
+  color: #5a9072;
+  background: #e9f7f1;
+  letter-spacing: 0.4px;
+  padding: 4px 12px;
+  margin: 0 0 20px;
   text-transform: none;
   line-height: 1.4;
-  margin: 0 0 12px;
+  border-radius: 999px;
+  box-shadow: rgb(0 131 75 / 22%) 0px 0.225px 0px 0px, rgb(0 131 75 / 24%) 0px 0px 0px 1px, rgba(255, 255, 255, 0.75) 0px 1px 1px 0px inset, rgb(0 131 75 / 8%) 0px -1px 1px 0px inset;
 }
 .choose-highlight-box .choose-reveal-body {
   font-size: 13px;
@@ -3658,26 +3754,26 @@ button.choose-expand-icon svg {
   border-color: var(--border);
 }
 .choose-highlight-box.is-muted .choose-reveal-label {
-  color: var(--text2);
+  color: var(--text);
+  background: var(--bg3);
 }
 
 /* Soft-orange variant — peer of the green (is-muted is neutral, this is
    warm). Used to mark "Pain point addressed" within design sub-sections. */
 .choose-highlight-box.is-pain-point {
   background: rgba(212, 149, 106, 0.06);
-  border-color: #E8B993;
+  border-color: #ffebda;
 }
 .choose-highlight-box.is-pain-point .choose-reveal-label {
-  color: #8B5A2B;
+  color: #b15e1e;
+  background: #ffebda;
+  box-shadow: rgb(195 120 0 / 22%) 0px 0.225px 0px 0px, rgb(195 120 0 / 24%) 0px 0px 0px 1px, rgba(255, 255, 255, 0.75) 0px 1px 1px 0px inset, rgb(173 107 0 / 8%) 0px -1px 1px 0px inset;
 }
-[data-theme="dark"] .choose-highlight-box.is-pain-point .choose-reveal-label {
-  color: #D4A47A;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .choose-highlight-box.is-pain-point .choose-reveal-label {
-    color: #D4A47A;
-  }
-}
+/* is-pain-point dark mode — handled by the global dark-mode badge
+   override block earlier in this file (search "Dark-mode BADGE override").
+   These rules used to keep the light-peach pill in dark mode, which
+   read as a bright glare against the dark page. Replaced with the
+   inverted dark-warm treatment for the "same feeling" goal. */
 
 /* Compact collapsible pain-point — same visual family as is-pain-point, but
    collapsed by default with a button toggle. Used in the summary version of

@@ -172,19 +172,70 @@
     }
     .pw-submit {
       padding: 11px 20px;
-      background: var(--text);
-      color: var(--bg);
-      border: none;
+      color: #fff;
+      background: linear-gradient(#2020201a 0% 100%),
+                  linear-gradient(#4f4f4f 0%, #202020d9 100%);
+      border: 1px solid #383838;
       border-radius: 8px;
+      box-shadow: 0 0 0 1px #4040401f,
+                  inset 0 2px #ffffff3d,
+                  inset 0 -.5px 2px #00000040,
+                  0 2px 8px #00000008,
+                  0 3px 4px #00000029;
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 14px;
       font-weight: 600;
       letter-spacing: 0.2px;
       cursor: pointer;
-      transition: opacity 0.2s, transform 140ms ease-out;
+      transition: filter 0.2s, transform 140ms ease-out, box-shadow 0.2s;
     }
-    .pw-submit:hover { opacity: 0.9; }
+    .pw-submit:hover {
+      filter: brightness(1.08);
+      box-shadow: 0 0 0 1px #4040402e,
+                  inset 0 2px #ffffff52,
+                  inset 0 -.5px 2px #00000040,
+                  0 4px 10px #00000010,
+                  0 4px 6px #00000033;
+    }
     .pw-submit:active { transform: scale(0.96); }
+
+    /* Dark-mode variant — see SN FTUX for the rationale. */
+    [data-theme="dark"] .pw-submit {
+      background: linear-gradient(#0a0a0a40 0% 100%),
+                  linear-gradient(#3a3a3a 0%, #161616 100%);
+      border-color: #2a2a2a;
+      box-shadow: 0 0 0 1px #ffffff0d,
+                  inset 0 1px #ffffff1f,
+                  inset 0 -.5px 2px #00000040,
+                  0 2px 8px #00000050,
+                  0 3px 4px #00000040;
+    }
+    [data-theme="dark"] .pw-submit:hover {
+      box-shadow: 0 0 0 1px #ffffff14,
+                  inset 0 1px #ffffff2e,
+                  inset 0 -.5px 2px #00000040,
+                  0 4px 10px #00000070,
+                  0 4px 6px #00000050;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .pw-submit {
+        background: linear-gradient(#0a0a0a40 0% 100%),
+                    linear-gradient(#3a3a3a 0%, #161616 100%);
+        border-color: #2a2a2a;
+        box-shadow: 0 0 0 1px #ffffff0d,
+                    inset 0 1px #ffffff1f,
+                    inset 0 -.5px 2px #00000040,
+                    0 2px 8px #00000050,
+                    0 3px 4px #00000040;
+      }
+      :root:not([data-theme="light"]) .pw-submit:hover {
+        box-shadow: 0 0 0 1px #ffffff14,
+                    inset 0 1px #ffffff2e,
+                    inset 0 -.5px 2px #00000040,
+                    0 4px 10px #00000070,
+                    0 4px 6px #00000050;
+      }
+    }
 
     .pw-email {
       color: var(--text);
