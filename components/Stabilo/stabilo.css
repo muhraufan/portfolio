@@ -39,16 +39,33 @@ body:not(.stabilo-ready) ::-moz-selection { background: rgba(255, 249, 93, 0.55)
   overflow: visible;
 }
 
-/* In dark mode, multiply would darken yellow onto dark page → muddy
-   brown. Switch to `screen` (inverse multiply) so the dark page
-   *brightens* where highlighted, like a marker glowing on dark paper.
-   The dark-mode yellow is also nudged slightly more saturated so it
-   reads as marker, not vellum. */
-[data-theme="dark"] #stabilo-overlay {
-  mix-blend-mode: screen;
+/* In dark mode, `screen` and `multiply` both fail: screen washes the
+   highlight area AND the light text to near-white (no contrast), and
+   multiply tints dark text onto dark page (the highlight disappears).
+   Switch to plain `normal` blend and let the SVG rect just sit on top
+   with alpha — the area picks up a soft mint tint without changing
+   the text colour at all.
+
+   The rect's own `fill`/`opacity` are set inline by stabilo.js for
+   light mode. The two rules below override both via CSS specificity
+   so the dark-mode marker uses a slightly more saturated mid-mint at
+   lower opacity — visible as a band, never bright enough to bleach
+   the text inside it. */
+[data-theme="dark"] #stabilo-overlay,
+[data-theme="dark"] #stabilo-overlay rect {
+  mix-blend-mode: normal;
+}
+[data-theme="dark"] #stabilo-overlay rect {
+  fill: #6FBFA0;
+  opacity: 0.32;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) #stabilo-overlay {
-    mix-blend-mode: screen;
+  :root:not([data-theme="light"]) #stabilo-overlay,
+  :root:not([data-theme="light"]) #stabilo-overlay rect {
+    mix-blend-mode: normal;
+  }
+  :root:not([data-theme="light"]) #stabilo-overlay rect {
+    fill: #6FBFA0;
+    opacity: 0.32;
   }
 }
