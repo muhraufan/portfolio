@@ -3782,6 +3782,7 @@ button.choose-expand-icon svg {
 .choose-highlight-box.is-pain-point.is-compact {
   padding: 10px 14px;
   margin-top: 12px;
+  margin-bottom: 0;
 }
 .pain-point-toggle {
   all: unset;
@@ -3921,29 +3922,82 @@ button.choose-expand-icon svg {
 .prototype-play-wrap + .choose-highlight-box {
   margin-top: 8px;
 }
+/* Prototype play button — same dark-pill family as .pw-submit and
+   .case-cta. Keeps inline-flex + icon gap so the play triangle SVG
+   sits left of the label. */
 .prototype-play-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 14px 7px 12px;
-  background: transparent;
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  font: inherit;
+  gap: 8px;
+  padding: 10px 18px;
+  color: #fff;
+  background: linear-gradient(#2020201a 0% 100%),
+              linear-gradient(#4f4f4f 0%, #202020d9 100%);
+  border: 1px solid #383838;
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px #4040401f,
+              inset 0 2px #ffffff3d,
+              inset 0 -.5px 2px #00000040,
+              0 2px 8px #00000008,
+              0 3px 4px #00000029;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.2px;
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  transition: filter 0.2s, transform 140ms ease-out, box-shadow 0.2s;
 }
 .prototype-play-btn:hover {
-  border-color: var(--text);
-  background: var(--bg2);
+  filter: brightness(1.08);
+  box-shadow: 0 0 0 1px #4040402e,
+              inset 0 2px #ffffff52,
+              inset 0 -.5px 2px #00000040,
+              0 4px 10px #00000010,
+              0 4px 6px #00000033;
 }
+.prototype-play-btn:active { transform: scale(0.96); }
 .prototype-play-btn svg {
-  width: 13px;
-  height: 13px;
+  width: 12px;
+  height: 12px;
   flex: none;
+  color: #fff;
+}
+/* Dark-mode override — matches .pw-submit / .case-cta. */
+[data-theme="dark"] .prototype-play-btn {
+  background: linear-gradient(#0a0a0a40 0% 100%),
+              linear-gradient(#3a3a3a 0%, #161616 100%);
+  border-color: #2a2a2a;
+  box-shadow: 0 0 0 1px #ffffff0d,
+              inset 0 1px #ffffff1f,
+              inset 0 -.5px 2px #00000040,
+              0 2px 8px #00000050,
+              0 3px 4px #00000040;
+}
+[data-theme="dark"] .prototype-play-btn:hover {
+  box-shadow: 0 0 0 1px #ffffff14,
+              inset 0 1px #ffffff2e,
+              inset 0 -.5px 2px #00000040,
+              0 4px 10px #00000070,
+              0 4px 6px #00000050;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .prototype-play-btn {
+    background: linear-gradient(#0a0a0a40 0% 100%),
+                linear-gradient(#3a3a3a 0%, #161616 100%);
+    border-color: #2a2a2a;
+    box-shadow: 0 0 0 1px #ffffff0d,
+                inset 0 1px #ffffff1f,
+                inset 0 -.5px 2px #00000040,
+                0 2px 8px #00000050,
+                0 3px 4px #00000040;
+  }
+  :root:not([data-theme="light"]) .prototype-play-btn:hover {
+    box-shadow: 0 0 0 1px #ffffff14,
+                inset 0 1px #ffffff2e,
+                inset 0 -.5px 2px #00000040,
+                0 4px 10px #00000070,
+                0 4px 6px #00000050;
+  }
 }
 
 .prototype-modal {
