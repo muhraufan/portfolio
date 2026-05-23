@@ -2290,12 +2290,13 @@
   border-radius: 20px;
   overflow: hidden;
   background: var(--bg);
+  box-shadow: rgba(21, 101, 192, 0.04) 0px 1px 1px 0px, rgba(255, 255, 255, 0.75) 0px 1px 1px 0px inset;
 }
 .showcase-video-frame video {
   position: absolute;
   inset: 0;
   width: 100%;
-  height: 100%;
+  height: 101%;
   object-fit: cover;
   object-position: center top;
   display: block;
@@ -2316,6 +2317,7 @@
   background: transparent;
   border: 1px solid var(--border2);
   border-radius: 20px;
+  box-shadow: rgba(21, 101, 192, 0.04) 0px 1px 1px 0px, rgba(255, 255, 255, 0.75) 0px 1px 1px 0px inset;
 }
 
 .showcase-video figcaption {
@@ -3452,6 +3454,7 @@
   border-radius: 16px;
   border: 1px solid var(--border);
   transition: border-color 200ms ease;
+  box-shadow: rgba(21, 101, 192, 0.04) 0px 1px 1px 0px, rgba(255, 255, 255, 0.75) 0px 1px 1px 0px inset;
 }
 /* All four solution PNGs are now flush-cropped (~590x1311, no drop-shadow
    bleed). Add consistent vertical breathing room inside every frame so
@@ -3756,6 +3759,7 @@ button.choose-expand-icon svg {
 .choose-highlight-box.is-muted .choose-reveal-label {
   color: var(--text);
   background: var(--bg3);
+  box-shadow: rgb(154 154 154 / 22%) 0px 0.225px 0px 0px, rgb(168 168 168 / 24%) 0px 0px 0px 1px, rgba(255, 255, 255, 0.75) 0px 1px 1px 0px inset, rgb(40 40 40 / 8%) 0px -1px 1px 0px inset;
 }
 
 /* Soft-orange variant — peer of the green (is-muted is neutral, this is
