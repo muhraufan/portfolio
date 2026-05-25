@@ -212,16 +212,15 @@
        NUDGE markers. -->
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
-    /* Canvas spans the upper third of the viewport so the bird's
-       flight path crosses where the visitor's eyes already are —
-       reading the bio. Pointer-events off so links underneath still
-       work. */
+    /* Canvas covers the full viewport so the bird can perch on any
+       text in the page (we measure the text's bounding rect with
+       Range.getBoundingClientRect and convert to canvas coords).
+       pointer-events: none keeps links underneath clickable. */
     #homepage-bird {
       position: fixed;
-      left: 0;
-      top: 18vh;
+      inset: 0;
       width: 100vw;
-      height: 120px;
+      height: 100vh;
       pointer-events: none;
       z-index: 9996;
       image-rendering: pixelated;
@@ -254,10 +253,9 @@
       if (!canvas) return;
       var ctx = canvas.getContext('2d');
       var PS  = 3;          // pixel scale — 1 sprite-px = 3 canvas-px
-      var CANVAS_H = 120;   // logical canvas height
       function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = CANVAS_H;
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
         ctx.imageSmoothingEnabled = false;
       }
       resize();
@@ -349,7 +347,7 @@
         px(ox + 8, oy + 8, 1, 1, C.leg);
       }
 
-      // ─── Banner (pre-rendered offscreen, same recipe as FlyBy) ───
+      // ─── Banner (single-line "Pick one!" — same recipe as FlyBy) ─
       var bannerCanvas = document.createElement('canvas');
       var bctx = bannerCanvas.getContext('2d');
       var bannerDims = { width: 0, height: 0 };
@@ -357,7 +355,7 @@
       var BANNER_TEXT = 'Pick one!';
 
       function buildBanner() {
-        var FONT = 7;   // sprite-px tall
+        var FONT = 7;
         var PADX = 4;
         var PADY = 3;
         var HSP  = FONT + PADY * 2;
@@ -369,13 +367,10 @@
         bannerCanvas.width = WSP * PS;
         bannerCanvas.height = HSP * PS;
         bctx.imageSmoothingEnabled = false;
-        // Background
         bctx.fillStyle = C.banner;
         bctx.fillRect(0, 0, bannerCanvas.width, bannerCanvas.height);
-        // Bottom shading band
         bctx.fillStyle = C.bannerLo;
         bctx.fillRect(0, (HSP - 2) * PS, bannerCanvas.width, 2 * PS);
-        // Dark outline (top, bottom, right edge attached to rope)
         bctx.fillStyle = C.bannerEdge;
         bctx.fillRect(0, 0, bannerCanvas.width, PS);
         bctx.fillRect(0, (HSP - 1) * PS, bannerCanvas.width, PS);
@@ -402,7 +397,6 @@
         }
         bctx.fillStyle = C.bannerLo;
         bctx.fillRect(0, (HSP - 2) * PS, NOTCH * PS, PS);
-        // Text
         bctx.fillStyle = C.bannerText;
         bctx.font = (FONT * PS) + 'px "Press Start 2P", monospace';
         bctx.textBaseline = 'middle';
@@ -446,65 +440,234 @@
         }
       }
 
-      // ─── Animation ───────────────────────────────────────────────
-      // Bird flies left→right across the upper canvas, banner trails
-      // behind it. Total trajectory: bird enters from off-screen left,
-      // crosses, exits off-screen right.
-      var DURATION = 14000;  // ms to fully cross
-      var BOB_AMP  = 2.5;    // sprite-px vertical bob amplitude
+      // ─── Animation — phased ──────────────────────────────────────
+      // PHASES:
+      //   FLY_IN          (3000ms)  bird flies from off-screen left
+      //                              in a gentle arc to the perch
+      //                              position above "AI at the edge"
+      //   PERCH_QUIET     (900ms)   bird sits, wings folded
+      //   RAISE_FLAG      (450ms)   pole + banner grow up above bird
+      //   PERCH_WITH_FLAG (2000ms)  bird holds the raised flag
+      //   FLY_OUT         (2800ms)  bird takes off, flies to upper-
+      //                              right, flag trails behind
+      var PH = { FLY_IN: 0, PERCH_QUIET: 1, RAISE_FLAG: 2, PERCH_WITH_FLAG: 3, FLY_OUT: 4, DONE: 5 };
+      var TIMING = {
+        FLY_IN:           3000,
+        PERCH_QUIET:      900,
+        RAISE_FLAG:       450,
+        PERCH_WITH_FLAG:  2000,
+        FLY_OUT:          2800,
+      };
       var BIRD_W_SP = 16;
-      var state = { active: false, startTime: 0, rafId: 0 };
+      var BIRD_H_SP = 10;
+      var BOB_AMP   = 2.5;   // sprite-px during flight
+      var POLE_H_SP = 9;     // height of the pole holding the flag up
 
+      var state = { active: false, rafId: 0 };
+      var phase, phaseStart, perchX, perchY, flyInStart;
+
+      // ease-out cubic for the fly-in path (decelerates as bird arrives)
+      function ease(t) { return 1 - Math.pow(1 - t, 3); }
+
+      // ─── Perch target ────────────────────────────────────────────
+      // Find the phrase the bird should land on top of. Returns
+      // {x, y} = viewport pixel coords of the centre-top of the
+      // target text, or null if not found.
+      function findPerchTarget() {
+        var phrases = ['AI at the edge', 'AI', '境目'];
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+        var node;
+        while ((node = walker.nextNode())) {
+          for (var i = 0; i < phrases.length; i++) {
+            var idx = node.textContent.indexOf(phrases[i]);
+            if (idx >= 0) {
+              var range = document.createRange();
+              range.setStart(node, idx);
+              range.setEnd(node, idx + phrases[i].length);
+              var r = range.getBoundingClientRect();
+              if (r && r.width > 0 && r.height > 0) {
+                return {
+                  x: r.left + r.width / 2,
+                  y: r.top,
+                  rect: r,
+                };
+              }
+            }
+          }
+        }
+        return null;
+      }
+
+      // ─── Phase draws ─────────────────────────────────────────────
+      function drawBirdAt(birdNoseX, birdTopY, wingFrame) {
+        var birdW = BIRD_W_SP * PS;
+        var birdOX = (birdNoseX - birdW) / PS;
+        var birdOY = birdTopY / PS;
+        drawBird(birdOX, birdOY, wingFrame);
+      }
+      // Draw the pole + flag held UP above the bird. poleProgress
+      // 0→1 controls the raise animation (pole grows from 0 to full
+      // height, flag scales in at the end).
+      function drawRaisedFlag(birdNoseX, birdTopY, poleProgress, t) {
+        var birdW = BIRD_W_SP * PS;
+        // Pole bottom is at the bird's back (top of body)
+        var poleBottomX = birdNoseX - birdW + 5 * PS;
+        var poleBottomY = birdTopY + 2 * PS;
+        var fullH = POLE_H_SP * PS;
+        var poleH = Math.round(fullH * poleProgress);
+        // Pole — vertical brown line
+        ctx.fillStyle = C.rope;
+        ctx.fillRect(Math.round(poleBottomX), Math.round(poleBottomY - poleH), PS, poleH);
+        // Flag at top of pole — only show once pole is mostly grown
+        if (poleProgress > 0.6 && bannerDims.width) {
+          var flagScale = Math.min((poleProgress - 0.6) / 0.4, 1);
+          var bw = bannerCanvas.width;
+          var bh = bannerCanvas.height;
+          var scaledW = Math.round(bw * flagScale);
+          var scaledH = Math.round(bh * flagScale);
+          // Anchor flag at top-right of pole, flag extends LEFT from pole.
+          var flagRight = poleBottomX + PS;
+          var flagTopY = poleBottomY - poleH - scaledH / 2;
+          // Wave the flag (cheaper variant of drawBanner — at this
+          // small scale, slicing isn't worth it).
+          ctx.drawImage(bannerCanvas,
+            Math.round(flagRight - scaledW),
+            Math.round(flagTopY),
+            scaledW, scaledH);
+        }
+      }
+      // Trailing flag during FLY_OUT. Banner trails BEHIND the bird,
+      // slightly below, attached via a curved rope.
+      function drawTrailingFlag(birdNoseX, birdTopY, t) {
+        if (!bannerDims.width) return;
+        var birdW = BIRD_W_SP * PS;
+        var bw = bannerCanvas.width;
+        var bh = bannerCanvas.height;
+        var horizontalGap = 8 * PS;
+        var birdTailX = birdNoseX - birdW + 2 * PS;
+        var bannerRightX = birdTailX - horizontalGap;
+        var bannerLeftX  = bannerRightX - bw;
+        var birdBellyY   = birdTopY + 6 * PS;
+        var bannerTopY   = birdBellyY + 4 * PS;
+        var bannerCY     = bannerTopY + bh / 2;
+        drawBanner(bannerLeftX, bannerCY, t);
+        drawRope(bannerRightX, bannerTopY, birdTailX, birdBellyY, t);
+      }
+
+      // ─── Phase controller ────────────────────────────────────────
       function frame(now) {
         if (!state.active) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        var elapsed = now - state.startTime;
-        var progress = Math.min(elapsed / DURATION, 1);
-
-        var birdW   = BIRD_W_SP * PS;
-        var bannerW = bannerCanvas.width;
-        var ropeLen = 10 * PS;
-        var chainLen = birdW + ropeLen + bannerW;
-        var buffer  = 40;
-        var startNoseX = -buffer;
-        var endNoseX   = canvas.width + chainLen + buffer;
-        var noseX = startNoseX + (endNoseX - startNoseX) * progress;
-
-        // Vertical bob (sin wave). Centre the bird mid-canvas.
-        var bob = Math.sin(now * 0.004) * BOB_AMP * PS;
-        var birdTopY = (CANVAS_H / 2) - (5 * PS) + bob;
-
-        // Wing flap — 6 frames/sec
+        var pe = now - phaseStart;     // phase elapsed
         var wingFrame = Math.floor(now / 110) % 3;
+        var birdW = BIRD_W_SP * PS;
+        var birdH = BIRD_H_SP * PS;
 
-        // Sprite origin (top-left of bird sprite)
-        var birdOX = (noseX - birdW) / PS;
-        var birdOY = birdTopY / PS;
+        // Helper: advance to next phase
+        function advance(nextPhase) {
+          phase = nextPhase;
+          phaseStart = now;
+        }
 
-        // Banner trails behind bird's tail
-        var birdTailX = noseX - birdW + 2 * PS;
-        var bannerRightX = birdTailX - ropeLen;
-        var bannerLeftX  = bannerRightX - bannerW;
-        var bannerCY     = birdTopY + 7 * PS;
-        drawBanner(bannerLeftX, bannerCY, now);
-        // Rope attaches at bird's belly (centre of body, slightly down)
-        drawRope(bannerRightX, bannerCY, birdTailX, birdTopY + 7 * PS, now);
-        // Bird on top
-        drawBird(birdOX, birdOY, wingFrame);
-
-        if (progress >= 1) {
-          state.active = false;
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          return;
+        if (phase === PH.FLY_IN) {
+          var t = Math.min(pe / TIMING.FLY_IN, 1);
+          var eased = ease(t);
+          // Start position: off-screen left + slightly above perch
+          var startX = -birdW - 30;
+          var startY = perchY - birdH - 60;
+          // End position: bird's NOSE x = perch x + half bird width;
+          // bird's BOTTOM = perchY (feet on perch).
+          var endX = perchX + birdW / 2;
+          var endY = perchY - birdH;
+          // Linear interpolation in X; ease-out in both
+          var noseX = startX + (endX - startX) * eased;
+          var topY  = startY + (endY  - startY) * eased;
+          // Add gentle bob during flight (fades to 0 as we arrive)
+          var bob = Math.sin(now * 0.008) * BOB_AMP * PS * (1 - eased);
+          drawBirdAt(noseX, topY + bob, wingFrame);
+          if (t >= 1) advance(PH.PERCH_QUIET);
+        }
+        else if (phase === PH.PERCH_QUIET) {
+          var noseX = perchX + birdW / 2;
+          var topY  = perchY - birdH;
+          // Tiny settling motion (small vertical bounce on landing)
+          var settle = pe < 200 ? Math.sin(pe / 200 * Math.PI) * 2 : 0;
+          drawBirdAt(noseX, topY - settle, 1); // wing mid frame (folded look)
+          if (pe >= TIMING.PERCH_QUIET) advance(PH.RAISE_FLAG);
+        }
+        else if (phase === PH.RAISE_FLAG) {
+          var noseX = perchX + birdW / 2;
+          var topY  = perchY - birdH;
+          var t = Math.min(pe / TIMING.RAISE_FLAG, 1);
+          drawRaisedFlag(noseX, topY, ease(t), now);
+          drawBirdAt(noseX, topY, 1);
+          if (t >= 1) advance(PH.PERCH_WITH_FLAG);
+        }
+        else if (phase === PH.PERCH_WITH_FLAG) {
+          var noseX = perchX + birdW / 2;
+          var topY  = perchY - birdH;
+          drawRaisedFlag(noseX, topY, 1, now);
+          drawBirdAt(noseX, topY, 1);
+          if (pe >= TIMING.PERCH_WITH_FLAG) advance(PH.FLY_OUT);
+        }
+        else if (phase === PH.FLY_OUT) {
+          var t = Math.min(pe / TIMING.FLY_OUT, 1);
+          var startNoseX = perchX + birdW / 2;
+          var startTopY  = perchY - birdH;
+          // Exit upper-right: noseX → canvas.width + bird width + buffer
+          var endNoseX = canvas.width + birdW + 80;
+          var endTopY  = startTopY - 80;  // climb 80px as it leaves
+          var eased = ease(t);
+          var noseX = startNoseX + (endNoseX - startNoseX) * eased;
+          var topY  = startTopY  + (endTopY  - startTopY)  * eased;
+          var bob = Math.sin(now * 0.008) * BOB_AMP * PS * eased;
+          drawTrailingFlag(noseX, topY + bob, now);
+          drawBirdAt(noseX, topY + bob, wingFrame);
+          if (t >= 1) {
+            state.active = false;
+            phase = PH.DONE;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            return;
+          }
         }
         state.rafId = requestAnimationFrame(frame);
       }
 
+      // ─── Fallback (no perch target found) ────────────────────────
+      // If we can't find "AI at the edge" / "AI" / "境目" in the page,
+      // fall back to a simple fly-across so the visitor still gets
+      // something.
+      function runBirdFallback() {
+        var DURATION = 11000;
+        var fallbackStart = performance.now();
+        state.active = true;
+        function fbFrame(now) {
+          if (!state.active) return;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          var t = Math.min((now - fallbackStart) / DURATION, 1);
+          var birdW = BIRD_W_SP * PS;
+          var bannerW = bannerCanvas.width;
+          var chainLen = birdW + 8 * PS + bannerW;
+          var noseX = (-40) + (canvas.width + chainLen + 80) * t;
+          var topY = window.innerHeight * 0.2;
+          var bob = Math.sin(now * 0.004) * BOB_AMP * PS;
+          drawTrailingFlag(noseX, topY + bob, now);
+          drawBirdAt(noseX, topY + bob, Math.floor(now / 110) % 3);
+          if (t >= 1) { state.active = false; ctx.clearRect(0, 0, canvas.width, canvas.height); return; }
+          state.rafId = requestAnimationFrame(fbFrame);
+        }
+        state.rafId = requestAnimationFrame(fbFrame);
+      }
+
       function runBird() {
         cancelAnimationFrame(state.rafId);
+        var target = findPerchTarget();
+        if (!target) { runBirdFallback(); return; }
+        perchX = target.x;
+        perchY = target.y;
+        phase = PH.FLY_IN;
+        phaseStart = performance.now();
         state.active = true;
-        state.startTime = performance.now();
         state.rafId = requestAnimationFrame(frame);
       }
 
@@ -547,7 +710,12 @@
 
       // DEV/TEST triggers
       window.__showBird = runBird;
-      window.__birdText = function (t) { BANNER_TEXT = t; buildBanner(); };
+      // Swap either line on the fly. Pass null/empty for line 2 to
+      // make it single-line for testing variants.
+      window.__birdText = function (t) {
+        if (t != null) BANNER_TEXT = t;
+        buildBanner();
+      };
     })();
   </script>
   <!-- HOMEPAGE BIRD NUDGE END -->
