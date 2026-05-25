@@ -298,19 +298,6 @@ body.minimal footer:not(.m-footer) {
   color: var(--text);
 }
 
-/* HOMEPAGE POLISH — Pitch line. One-line "what kind of designer am I"
-   under the name. Larger than body so the eye lands here after reading
-   the name. Revertible by removing this block + the .m-pitch element
-   from index.html. */
-.m-pitch {
-  font-size: 18px;
-  line-height: 1.4;
-  font-weight: 500;
-  letter-spacing: 0;
-  color: var(--text);
-  margin: 8px 0 24px;
-}
-
 .m-bio {
   font-size: 13px;
   line-height: 2;
@@ -472,44 +459,6 @@ body.minimal footer:not(.m-footer) {
   margin: 16px 0 32px;
 }
 
-/* HOMEPAGE POLISH — Lab list differentiator. The ↗ glyph signals
-   "playable / opens something" so visitors know Lab items are
-   immediately interactive vs Case Studies which are long-form reads.
-   Revertible by removing this block + the .m-list--lab modifier from
-   index.html. */
-.m-list--lab li {
-  padding-left: 18px;
-  position: relative;
-}
-.m-list--lab li::before {
-  content: '↗';
-  position: absolute;
-  left: 0;
-  top: 0;
-  font-size: 13px;
-  color: #5a9072;
-  font-weight: 500;
-  line-height: 2;
-}
-
-/* HOMEPAGE POLISH — Case study descriptors. One-sentence scent
-   under each case study link so the visitor knows what they'd be
-   reading before committing 5 minutes. Muted so it doesn't compete
-   with the link above. Revertible by removing this block + the
-   <p class="m-list-desc"> tags from index.html. */
-.m-list--cases li {
-  margin-bottom: 8px;
-}
-.m-list-desc {
-  font-size: 12px;
-  line-height: 1.55;
-  font-weight: 400;
-  color: var(--text2);
-  letter-spacing: 0.2px;
-  margin: 2px 0 0;
-  /* Pull descriptors closer than the default .m-bio rhythm. */
-}
-
 .m-list li {
   /* Use padding instead of margin so the gap between items belongs
      to the <li>'s hover area — eliminates the dead zone that made the
@@ -635,17 +584,6 @@ body.minimal.is-spotlight .m-list.is-active-list a:not(.is-active) {
   gap: 16px;
   flex-wrap: wrap;
 }
-
-/* HOMEPAGE POLISH — Live Tokyo clock in footer. tabular-nums so the
-   digits don't shift width as they tick. Empty by default so it
-   doesn't reserve space until JS fills it. */
-.m-jst-clock {
-  font-size: 12px;
-  color: var(--text3);
-  letter-spacing: 0.3px;
-  font-variant-numeric: tabular-nums;
-}
-.m-jst-clock:empty { display: none; }
 
 /* ---- Visitor Gallery CTA ----
    A gentle looping shimmer catches the eye without being flashy. Built as a

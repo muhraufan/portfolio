@@ -43,34 +43,6 @@
 
     <header class="m-header">
       <h1 class="m-name" data-en-html='Hey, I&apos;m <a href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener" class="m-name-hover m-highlight"><span class="m-name-prefix">Muhammad </span>Raufan<span class="m-name-suffix"> Yusup</span></a>.' data-ja-html='ヤホー、<a href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener" class="m-name-hover m-highlight"><span class="m-name-prefix">ムハンマド</span>ラウファン<span class="m-name-suffix">ユスップ</span></a>です。'>Hey, I'm <a href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener" class="m-name-hover m-highlight"><span class="m-name-prefix">Muhammad </span>Raufan<span class="m-name-suffix"> Yusup</span></a>.</h1>
-      <!-- HOMEPAGE POLISH — Pitch line. Single revertible commit. -->
-      <p class="m-pitch" data-en="Software that feels patient." data-ja="急がないソフトウェア。">Software that feels patient.</p>
-      <!-- HOMEPAGE POLISH — Time-aware greeting. Patches the prefix of
-           m-name's data-en-html / data-ja-html BEFORE main.js renders,
-           so the language switcher picks up the time-adjusted version.
-           Revertible by deleting this <script> block. -->
-      <script>
-        (function timeAwareGreeting() {
-          var h1 = document.currentScript && document.currentScript.previousElementSibling;
-          // Walk back to find the .m-name h1 (skip the m-pitch <p>)
-          while (h1 && !h1.classList.contains('m-name')) h1 = h1.previousElementSibling;
-          if (!h1) return;
-          var hour = new Date().getHours();
-          var en, ja;
-          if (hour >= 5 && hour < 12)       { en = 'Morning. I&apos;m ';   ja = 'おはよう、'; }
-          else if (hour >= 12 && hour < 17) { en = 'Hi. I&apos;m ';        ja = 'こんにちは、'; }
-          else if (hour >= 17 && hour < 22) { en = 'Evening. I&apos;m ';   ja = 'こんばんは、'; }
-          else                              { en = 'Up late? I&apos;m ';   ja = '夜更かしですね、'; }
-          var enHtml = h1.getAttribute('data-en-html');
-          var jaHtml = h1.getAttribute('data-ja-html');
-          if (enHtml) h1.setAttribute('data-en-html', enHtml.replace(/^Hey,\s*I&apos;m\s+/, en));
-          if (jaHtml) h1.setAttribute('data-ja-html', jaHtml.replace(/^ヤホー、/, ja));
-          // Reflect the change in the currently-rendered innerHTML so
-          // it's correct before any language pass runs.
-          var currentLang = document.documentElement.getAttribute('data-lang') || 'en';
-          h1.innerHTML = h1.getAttribute(currentLang === 'ja' ? 'data-ja-html' : 'data-en-html');
-        })();
-      </script>
     </header>
 
     <p class="m-bio" data-en-html='I&apos;m a Tokyo-based product designer with 12+ years of designing products across cultures. Currently designing at <a href="https://apps.apple.com/jp/app/uniqlo%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%A6%E3%83%8B%E3%82%AF%E3%83%AD%E3%82%A2%E3%83%97%E3%83%AA/id460989014" target="_blank" rel="noopener" class="m-highlight">Uniqlo</a>. Before, I designed for <a href="https://apps.apple.com/jp/app/%E3%82%B9%E3%83%9E%E3%83%BC%E3%83%88%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9-%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%9D%E3%82%A4%E6%B4%BB-%E3%82%AF%E3%83%BC%E3%83%9D%E3%83%B3-%E5%A4%A9%E6%B0%97/id579581125" target="_blank" rel="noopener" class="m-highlight-muted">SmartNews</a>, <a href="https://apps.apple.com/us/app/tiket-com-flight-hotel-deals/id890405921" target="_blank" rel="noopener" class="m-highlight-muted">tiket.com</a>, <a href="https://apps.apple.com/id/app/tokopedia/id1001394201" target="_blank" rel="noopener" class="m-highlight-muted">Tokopedia</a>, and more.' data-ja-html='東京を拠点に、12年以上にわたって異文化をまたいでプロダクトをデザインしてきました。現在は<a href="https://apps.apple.com/jp/app/uniqlo%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%A6%E3%83%8B%E3%82%AF%E3%83%AD%E3%82%A2%E3%83%97%E3%83%AA/id460989014" target="_blank" rel="noopener" class="m-highlight">ユニクロ</a>でデザインしています。以前は<a href="https://apps.apple.com/jp/app/%E3%82%B9%E3%83%9E%E3%83%BC%E3%83%88%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9-%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%9D%E3%82%A4%E6%B4%BB-%E3%82%AF%E3%83%BC%E3%83%9D%E3%83%B3-%E5%A4%A9%E6%B0%97/id579581125" target="_blank" rel="noopener" class="m-highlight-muted">SmartNews</a>、<a href="https://apps.apple.com/us/app/tiket-com-flight-hotel-deals/id890405921" target="_blank" rel="noopener" class="m-highlight-muted">tiket.com</a>、<a href="https://apps.apple.com/id/app/tokopedia/id1001394201" target="_blank" rel="noopener" class="m-highlight-muted">Tokopedia</a>などのデザインを手がけてきました。'>
@@ -83,7 +55,7 @@
       Lately, I'm experimenting and building with AI at the edge of design and engineering:
     </p>
 
-    <ul class="m-list m-list--lab">
+    <ul class="m-list">
       <li><a href="/lab/tokyo-transit-map.html">Tokyo Transit Map — Cartography and an uncommon care</a></li>
       <li><a href="/lab/live-polish.html">Live Polish — Tweak the web like a Figma file</a></li>
     </ul>
@@ -92,23 +64,11 @@
       And the longer stories, the work that shaped <span class="m-highlight-muted">how I think</span> about design:
     </p>
 
-    <ul class="m-list m-list--cases">
-      <li>
-        <a href="/work/smartnews-design-system.html">SmartNews Design System Foundations</a>
-        <p class="m-list-desc" data-en="Foundations for 50M+ readers across two platforms." data-ja="二つのプラットフォームで5,000万人の読者を支える基盤づくり。">Foundations for 50M+ readers across two platforms.</p>
-      </li>
-      <li>
-        <a href="/work/uniqlo-outfit.html">Uniqlo Outfit &amp; Purpose Driven Shopping</a>
-        <p class="m-list-desc" data-en="Helping people shop with outfits in mind, not just items." data-ja="アイテム単位ではなく、アウトフィット単位の買い物体験。">Helping people shop with outfits in mind, not just items.</p>
-      </li>
-      <li>
-        <a href="/work/tiket-discover.html">tiket.com Discover — Travel Discovery</a>
-        <p class="m-list-desc" data-en="A booking app that knows where you want to go before you do." data-ja="目的地が決まる前から始まる、旅のためのアプリ。">A booking app that knows where you want to go before you do.</p>
-      </li>
-      <li>
-        <a href="/work/smartnews-ftux.html">SmartNews FTUX — Rethinking Onboarding</a>
-        <p class="m-list-desc" data-en="Less decision fatigue in the first 60 seconds of the app." data-ja="アプリ最初の60秒の判断疲れを減らす。">Less decision fatigue in the first 60 seconds of the app.</p>
-      </li>
+    <ul class="m-list">
+      <li><a href="/work/smartnews-design-system.html">SmartNews Design System Foundations</a></li>
+      <li><a href="/work/uniqlo-outfit.html">Uniqlo Outfit &amp; Purpose Driven Shopping</a></li>
+      <li><a href="/work/tiket-discover.html">tiket.com Discover — Travel Discovery</a></li>
+      <li><a href="/work/smartnews-ftux.html">SmartNews FTUX — Rethinking Onboarding</a></li>
     </ul>
 
     <p class="m-bio" data-en-html='Good design begins with curiosity. Outside design, I make films and content on <a href="https://www.youtube.com/@notmegapixels" target="_blank" rel="noopener" class="m-link">YouTube</a>, write on <a href="https://notmegapixels.substack.com/" target="_blank" rel="noopener" class="m-link">Substack</a>, and share my love for analog photography on <a href="https://shootitwithfilm.com/tag/raufan-yusup/" target="_blank" rel="noopener" class="m-link">Shoot It With Film</a> and <a href="https://www.instagram.com/notmegapixels/" target="_blank" rel="noopener" class="m-link">Notmegapixels</a>.' data-ja-html='良いデザインは、好奇心から始まると思っています。デザインの外では、<a href="https://www.youtube.com/@notmegapixels" target="_blank" rel="noopener" class="m-link">YouTube</a>で映像コンテンツを制作し、<a href="https://notmegapixels.substack.com/" target="_blank" rel="noopener" class="m-link">Substack</a>で文章を書き、<a href="https://shootitwithfilm.com/tag/raufan-yusup/" target="_blank" rel="noopener" class="m-link">Shoot It With Film</a>と<a href="https://www.instagram.com/notmegapixels/" target="_blank" rel="noopener" class="m-link">Notmegapixels</a>でフィルム写真への愛を綴っています。'>
@@ -123,10 +83,6 @@
         <span class="m-dot">&middot;</span>
         <a href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener" class="m-link">LinkedIn</a>
       </span>
-      <!-- HOMEPAGE POLISH — Live Tokyo clock. Ticks every minute.
-           Revertible by removing this <span> + the JS at end of file
-           + the .m-jst-clock CSS in style.css. -->
-      <span class="m-jst-clock" aria-label="Current time in Tokyo"></span>
       <a href="cards.html" class="m-link m-gallery-cta">
         <span class="m-gallery-cta-label" data-shimmer="View Visitor Gallery" data-en="View Visitor Gallery" data-ja="来訪者ギャラリーを見る">View Visitor Gallery</span>
       </a>
@@ -137,149 +93,6 @@
   <canvas id="confetti-canvas"></canvas>
   <script src="/js/main.js?v=14"></script>
   <script src="/components/Stabilo/stabilo.js?v=5" defer></script>
-
-  <!-- HOMEPAGE POLISH — Auto-Stabilo demo. On first visit, animates
-       a marker stroke across the phrase "uncommon care" in the Tokyo
-       Transit lab item, then fades out. Teaches that the Stabilo
-       feature exists. localStorage-gated to once per visitor; skipped
-       if reduced-motion is preferred. Self-contained inline script
-       so revert = delete this <script> block. -->
-  <script>
-    (function autoStabiloDemo() {
-      try {
-        if (localStorage.getItem('stabilo-demo-v1') === '1') return;
-      } catch (e) { /* private mode */ }
-      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-      // Phrase to highlight. Picked because "uncommon care" embodies
-      // the editorial voice. If you want to change it, just edit the
-      // string.
-      var PHRASE = 'uncommon care';
-      var DELAY_BEFORE = 1600;     // ms after load before the stroke starts
-      var DRAW_DURATION = 700;     // ms the marker takes to draw across
-      var HOLD_DURATION = 2400;    // ms the highlight stays at full opacity
-      var FADE_DURATION = 800;     // ms to fade out
-
-      function findRange(text) {
-        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
-        var node;
-        while ((node = walker.nextNode())) {
-          var idx = node.textContent.indexOf(text);
-          if (idx >= 0) {
-            var r = document.createRange();
-            r.setStart(node, idx);
-            r.setEnd(node, idx + text.length);
-            return r;
-          }
-        }
-        return null;
-      }
-
-      function run() {
-        var range = findRange(PHRASE);
-        if (!range) return;
-        var rect = range.getBoundingClientRect();
-        if (!rect || !rect.width || !rect.height) return;
-
-        var svgNS = 'http://www.w3.org/2000/svg';
-        var svg = document.createElementNS(svgNS, 'svg');
-        svg.setAttribute('aria-hidden', 'true');
-        svg.style.cssText =
-          'position:fixed;top:0;left:0;width:100vw;height:100vh;' +
-          'pointer-events:none;z-index:9997;overflow:visible;' +
-          'transition:opacity ' + FADE_DURATION + 'ms ease;';
-
-        // Match Stabilo's blend per theme so the colours feel like
-        // they came from the same family of highlighters.
-        var isDark = document.documentElement.getAttribute('data-theme') === 'dark'
-          || (document.documentElement.getAttribute('data-theme') !== 'light'
-              && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        svg.style.mixBlendMode = isDark ? 'normal' : 'multiply';
-
-        var fill = isDark ? '#6FBFA0' : '#C8DDD4';
-        var opacity = isDark ? '0.32' : '0.78';
-        var heightInset = rect.height * 0.15;
-        var x = rect.left - 3;
-        var y = rect.top + heightInset;
-        var fullW = rect.width + 6;
-        var h = rect.height - heightInset * 2;
-
-        var r2 = document.createElementNS(svgNS, 'rect');
-        r2.setAttribute('x', x);
-        r2.setAttribute('y', y);
-        r2.setAttribute('width', 0);
-        r2.setAttribute('height', h);
-        r2.setAttribute('rx', 4);
-        r2.setAttribute('ry', 4);
-        r2.setAttribute('fill', fill);
-        r2.setAttribute('opacity', opacity);
-        r2.style.transition = 'width ' + DRAW_DURATION + 'ms cubic-bezier(0.2, 0, 0, 1)';
-
-        svg.appendChild(r2);
-        document.body.appendChild(svg);
-
-        // Force layout, then animate the marker drawing across.
-        requestAnimationFrame(function () {
-          requestAnimationFrame(function () {
-            r2.setAttribute('width', fullW);
-          });
-        });
-
-        // Hold, then fade overlay opacity, then remove.
-        setTimeout(function () {
-          svg.style.opacity = '0';
-          setTimeout(function () { svg.remove(); }, FADE_DURATION + 50);
-        }, DRAW_DURATION + HOLD_DURATION);
-
-        try { localStorage.setItem('stabilo-demo-v1', '1'); } catch (e) {}
-      }
-
-      // Wait until both DOM and fonts are ready so the rect we measure
-      // matches what the visitor sees.
-      function start() {
-        if (document.fonts && document.fonts.ready) {
-          document.fonts.ready.then(function () { setTimeout(run, DELAY_BEFORE); });
-        } else {
-          setTimeout(run, DELAY_BEFORE);
-        }
-      }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', start, { once: true });
-      } else {
-        start();
-      }
-    })();
-  </script>
-
-  <!-- HOMEPAGE POLISH — Live Tokyo clock. Reads document lang every
-       tick so it follows the JA/EN toggle automatically. -->
-  <script>
-    (function jstClock() {
-      var el = document.querySelector('.m-jst-clock');
-      if (!el) return;
-      function tick() {
-        var lang = document.documentElement.getAttribute('data-lang') || 'en';
-        try {
-          if (lang === 'ja') {
-            var t = new Intl.DateTimeFormat('ja-JP', {
-              timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit', hour12: false
-            }).format(new Date());
-            el.textContent = t + ' 東京';
-          } else {
-            var t2 = new Intl.DateTimeFormat('en-US', {
-              timeZone: 'Asia/Tokyo', hour: 'numeric', minute: '2-digit', hour12: true
-            }).format(new Date());
-            el.textContent = t2 + ' Tokyo';
-          }
-        } catch (e) {
-          // Old browser / missing Intl support — just hide.
-          el.remove();
-        }
-      }
-      tick();
-      setInterval(tick, 60000);
-    })();
-  </script>
   <script type="module">
     import { GuestbookCard } from '/components/Guestbook/GuestbookCard.js?v=4';
     import { addEntry } from '/components/Guestbook/guestbookService.js?v=2';
