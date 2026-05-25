@@ -543,11 +543,11 @@
       //                              right, flag trails behind
       var PH = { FLY_IN: 0, PERCH_QUIET: 1, RAISE_FLAG: 2, PERCH_WITH_FLAG: 3, FLY_OUT: 4, DONE: 5 };
       var TIMING = {
-        FLY_IN:           3000,
+        FLY_IN:           5500,   // was 3000 — entrance was rushed
         PERCH_QUIET:      900,
         RAISE_FLAG:       450,
         PERCH_WITH_FLAG:  2000,
-        FLY_OUT:          2800,
+        FLY_OUT:          5500,   // was 2800 — exit was rushed
       };
       var BIRD_W_SP = 16;
       var BIRD_H_SP = 10;
@@ -679,17 +679,20 @@
         if (phase === PH.FLY_IN) {
           var t = Math.min(pe / TIMING.FLY_IN, 1);
           var eased = ease(t);
-          // Start position: off-screen left + slightly above perch
-          var startX = -birdW - 30;
-          var startY = perchY - birdH - 60;
-          // End position: bird's NOSE x = perch x + half bird width;
-          // bird's BOTTOM = perchY (feet on perch).
+          // Start position: bird + banner must BOTH be off-screen
+          // left when t=0 so nothing pops in. Banner is ~bannerBig.width
+          // behind the bird, so push the start nose far enough left
+          // that the banner's left edge is also < 0.
+          var horizontalGap = 8 * PS;
+          var bannerW = bannerBig.width || 200;
+          var startX = -(birdW + horizontalGap + bannerW + 40);
+          // Higher start so descent into perch is visible.
+          var startY = perchY - birdH - 220;
           var endX = perchX + birdW / 2;
           var endY = perchY - birdH;
           var noseX = startX + (endX - startX) * eased;
           var topY  = startY + (endY  - startY) * eased;
           var bob = Math.sin(now * 0.008) * BOB_AMP * PS * (1 - eased);
-          // Big trailing banner is carried the whole flight.
           drawTrailingBanner(noseX, topY + bob, now, 2.5);
           drawBirdAt(noseX, topY + bob, wingFrame);
           if (t >= 1) advance(PH.PERCH_QUIET);
@@ -728,8 +731,15 @@
           var t = Math.min(pe / TIMING.FLY_OUT, 1);
           var startNoseX = perchX + birdW / 2;
           var startTopY  = perchY - birdH;
-          var endNoseX = canvas.width + birdW + 80;
-          var endTopY  = startTopY - 80;
+          // End position must push the bird far enough right that the
+          // ENTIRE trailing banner is also off-screen, not just the
+          // bird. Banner sits roughly birdW + ropeGap + bannerW behind
+          // the bird, so add all of that + a buffer.
+          var horizontalGap = 8 * PS;
+          var endNoseX = canvas.width + birdW + horizontalGap
+                       + (bannerBig.width || 200) + 60;
+          // Climb higher on the way out (was -80 → looked truncated).
+          var endTopY  = startTopY - 220;
           var eased = ease(t);
           var noseX = startNoseX + (endNoseX - startNoseX) * eased;
           var topY  = startTopY  + (endTopY  - startTopY)  * eased;
