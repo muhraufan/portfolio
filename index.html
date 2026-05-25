@@ -557,8 +557,11 @@
       var state = { active: false, rafId: 0 };
       var phase, phaseStart, perchX, perchY, flyInStart;
 
-      // ease-out cubic for the fly-in path (decelerates as bird arrives)
-      function ease(t) { return 1 - Math.pow(1 - t, 3); }
+      // Mild ease-out for the fly-in / fly-out paths. Power 1.5 keeps
+      // most of the flight at near-constant speed and only softens
+      // the very end — bird carries momentum into the perch instead
+      // of crawling the final 30%. Cubic (power 3) was too aggressive.
+      function ease(t) { return 1 - Math.pow(1 - t, 1.5); }
 
       // ─── Perch target ────────────────────────────────────────────
       // Find the phrase the bird should land on top of. Returns
