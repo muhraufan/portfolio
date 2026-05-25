@@ -199,6 +199,283 @@
     document.body.appendChild(card.el);
   </script>
 
+  <!-- HOMEPAGE CAT NUDGE — Pixel-art cat that walks in along the
+       bottom of the viewport after 15s of active reading without a
+       case-study click. Sits down, looks at the visitor, "meows" a
+       speech bubble, then walks off. Different character from the
+       FlyBy plane so the case-study FlyBy stays a surprise.
+
+       All in one block: <style>, <canvas>, <script>. Revert by
+       deleting everything between the two HOMEPAGE CAT NUDGE
+       markers. -->
+  <style>
+    #homepage-cat {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 80px;
+      pointer-events: none;
+      z-index: 9996;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    .cat-bubble {
+      position: fixed;
+      z-index: 9997;
+      padding: 10px 14px;
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 8px 20px rgba(0, 0, 0, 0.10);
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a1a1a;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px) scale(0.96);
+      transition: opacity 240ms ease, transform 240ms cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+    .cat-bubble.is-shown {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    /* Tail of the speech bubble pointing down-left toward the cat. */
+    .cat-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 18px;
+      width: 12px;
+      height: 12px;
+      background: #fff;
+      border-right: 1px solid rgba(0, 0, 0, 0.08);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      transform: rotate(45deg);
+    }
+    [data-theme="dark"] .cat-bubble {
+      background: #1f1f1f;
+      border-color: rgba(255, 255, 255, 0.10);
+      color: #f0f0f0;
+    }
+    [data-theme="dark"] .cat-bubble::after {
+      background: #1f1f1f;
+      border-right-color: rgba(255, 255, 255, 0.10);
+      border-bottom-color: rgba(255, 255, 255, 0.10);
+    }
+    @media (max-width: 600px) {
+      #homepage-cat, .cat-bubble { display: none; }
+    }
+  </style>
+  <canvas id="homepage-cat" aria-hidden="true"></canvas>
+  <div id="cat-bubble" class="cat-bubble" role="note">psst — pick one already.</div>
+  <script>
+    /* HOMEPAGE CAT NUDGE — controller.
+       - 15s active-reading timer, paused on hidden/idle (same scheme
+         as Stabilo and FlyBy)
+       - Cancelled if visitor clicks a list link before 15s
+       - Cat walks in from right, sits in lower-right area, tail
+         twitches, speech bubble fades in, holds 5s, fades out, cat
+         stands and walks off-screen right
+       - Once per visitor via localStorage 'cat-shown-v1'
+       - prefers-reduced-motion → skip
+       - <600px viewport → skip */
+    (function homepageCatNudge() {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (window.innerWidth < 600) return;
+      try { if (localStorage.getItem('cat-shown-v1') === '1') return; } catch (e) {}
+
+      var canvas = document.getElementById('homepage-cat');
+      var bubble = document.getElementById('cat-bubble');
+      if (!canvas || !bubble) return;
+      var ctx = canvas.getContext('2d');
+      var PS  = 3;   // pixel scale — 1 sprite-px = 3 canvas-px
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = 80;
+        ctx.imageSmoothingEnabled = false;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      // ─── Active-reading gate ─────────────────────────────────────
+      var activeMs = 0, lastTick = performance.now();
+      var visible = !document.hidden, idle = false, idleTimer = null;
+      var cancelled = false, triggered = false;
+
+      document.querySelectorAll('.m-list a').forEach(function (a) {
+        a.addEventListener('click', function () { cancelled = true; }, { once: true });
+      });
+      document.addEventListener('visibilitychange', function () {
+        visible = !document.hidden;
+        lastTick = performance.now();
+      });
+      function resetIdle() {
+        idle = false;
+        lastTick = performance.now();
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(function () { idle = true; }, 30000);
+      }
+      ['scroll', 'mousemove', 'touchstart', 'keydown'].forEach(function (evt) {
+        window.addEventListener(evt, resetIdle, { passive: true });
+      });
+      resetIdle();
+
+      function gateLoop(now) {
+        if (triggered || cancelled) return;
+        if (visible && !idle) activeMs += now - lastTick;
+        lastTick = now;
+        if (activeMs >= 15000) {
+          triggered = true;
+          try { localStorage.setItem('cat-shown-v1', '1'); } catch (e) {}
+          runCat();
+          return;
+        }
+        requestAnimationFrame(gateLoop);
+      }
+      requestAnimationFrame(gateLoop);
+
+      // ─── Pixel-art cat (silhouette, ~14w × 10h sprite-px) ────────
+      // Drawn facing left so the tail (right side) flicks toward the
+      // visitor's reading direction. Solid dark-grey silhouette so it
+      // reads against both light and dark themes.
+      function isDark() {
+        return document.documentElement.getAttribute('data-theme') === 'dark'
+          || (document.documentElement.getAttribute('data-theme') !== 'light'
+              && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      }
+      function px(x, y, w, h, c) {
+        ctx.fillStyle = c;
+        ctx.fillRect(Math.round(x * PS), Math.round(y * PS), w * PS, h * PS);
+      }
+      function drawCat(ox, oy, frame, tailWag) {
+        // frame: 0=sitting, 1=walking-A, 2=walking-B
+        var dark = isDark();
+        var BODY = dark ? '#dcdcdc' : '#2a2a2a';
+        var EYE  = dark ? '#1a1a1a' : '#f5f5dc';
+
+        // Head (left side, facing left)
+        // Ears (two triangles)
+        px(ox + 1, oy + 0, 1, 1, BODY);
+        px(ox + 0, oy + 1, 1, 1, BODY);
+        px(ox + 1, oy + 1, 1, 1, BODY);
+        px(ox + 3, oy + 0, 1, 1, BODY);
+        px(ox + 3, oy + 1, 1, 1, BODY);
+        px(ox + 4, oy + 1, 1, 1, BODY);
+        // Head body
+        px(ox + 0, oy + 2, 5, 2, BODY);
+        // Eye (single dot facing forward)
+        px(ox + 1, oy + 2, 1, 1, EYE);
+        // Chin/jaw
+        px(ox + 0, oy + 4, 5, 1, BODY);
+
+        // Body — extends right from head
+        if (frame === 0) {
+          // Sitting — body is more vertical/upright
+          px(ox + 1, oy + 4, 6, 1, BODY);
+          px(ox + 1, oy + 5, 7, 2, BODY);
+          px(ox + 2, oy + 7, 6, 1, BODY);
+          // Legs tucked
+          px(ox + 2, oy + 8, 2, 1, BODY);
+          px(ox + 6, oy + 8, 2, 1, BODY);
+        } else {
+          // Walking — body horizontal
+          px(ox + 1, oy + 4, 8, 1, BODY);
+          px(ox + 1, oy + 5, 9, 2, BODY);
+          px(ox + 2, oy + 7, 8, 1, BODY);
+          // Legs in two-frame cycle
+          if (frame === 1) {
+            px(ox + 2, oy + 8, 1, 2, BODY);  // front leg forward
+            px(ox + 4, oy + 8, 1, 1, BODY);
+            px(ox + 7, oy + 8, 1, 1, BODY);
+            px(ox + 9, oy + 8, 1, 2, BODY);  // back leg forward
+          } else {
+            px(ox + 3, oy + 8, 1, 2, BODY);
+            px(ox + 5, oy + 8, 1, 1, BODY);
+            px(ox + 8, oy + 8, 1, 1, BODY);
+            px(ox + 9, oy + 8, 1, 1, BODY);
+          }
+        }
+
+        // Tail — curls up on the right. tailWag is -1..1 to flick.
+        var t = tailWag || 0;
+        var tx = ox + 9 + (frame === 0 ? 0 : 1);
+        px(tx + 0, oy + 3, 1, 1, BODY);
+        px(tx + 1, oy + 2 + Math.round(t * 0.5), 1, 1, BODY);
+        px(tx + 2, oy + 1 + Math.round(t), 1, 1, BODY);
+        px(tx + 3, oy + 0 + Math.round(t), 1, 1, BODY);
+      }
+
+      // ─── Animation ───────────────────────────────────────────────
+      // Phases:
+      //   walk-in  → cat walks from right edge to a sit-spot
+      //   sitting  → tail flicks, bubble shows
+      //   walk-out → bubble hides, cat walks off right
+      var SIT_X = window.innerWidth - 200; // canvas-px where cat sits
+      var phase = 'walk-in';
+      var phaseStart = 0;
+      var animStart = 0;
+      var catX = window.innerWidth + 40; // start off-screen right
+      var catY = 80 - 12 * PS;            // sit just above bottom edge
+
+      function frame(now) {
+        if (phase === 'done') return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        var elapsed = now - animStart;
+
+        if (phase === 'walk-in') {
+          // Move left at ~50 canvas-px/s
+          var dt = (now - (phaseStart || (phaseStart = now))) / 1000;
+          catX = (window.innerWidth + 40) - 60 * dt;
+          var legFrame = Math.floor(now / 180) % 2 ? 1 : 2;
+          drawCat(catX / PS, catY / PS, legFrame, 0);
+          if (catX <= SIT_X) {
+            phase = 'sitting';
+            phaseStart = now;
+            // Position the bubble above the sit spot.
+            var b = bubble;
+            b.style.left = (SIT_X - 30) + 'px';
+            b.style.bottom = (60 + 14 * PS) + 'px';
+            // Fade in after a short delay so the cat "settles".
+            setTimeout(function () { b.classList.add('is-shown'); }, 250);
+          }
+        } else if (phase === 'sitting') {
+          var sitElapsed = now - phaseStart;
+          // Tail flick — gentle sine
+          var tail = Math.sin(now * 0.005) * 1;
+          drawCat(catX / PS, catY / PS, 0, tail);
+          // Hide bubble + start walk-out after ~4.5s
+          if (sitElapsed > 4500) {
+            bubble.classList.remove('is-shown');
+            phase = 'walk-out';
+            phaseStart = now;
+          }
+        } else if (phase === 'walk-out') {
+          var dt2 = (now - phaseStart) / 1000;
+          catX = SIT_X + 60 * dt2;
+          var legFrame2 = Math.floor(now / 180) % 2 ? 1 : 2;
+          drawCat(catX / PS, catY / PS, legFrame2, 0);
+          if (catX > window.innerWidth + 40) {
+            phase = 'done';
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            return;
+          }
+        }
+        requestAnimationFrame(frame);
+      }
+      function runCat() {
+        animStart = performance.now();
+        phaseStart = 0;
+        catX = window.innerWidth + 40;
+        requestAnimationFrame(frame);
+      }
+    })();
+  </script>
+  <!-- HOMEPAGE CAT NUDGE END -->
+
   <!-- HOMEPAGE NUDGE — Post-it markup. -->
   <aside id="homepage-postit" class="postit" role="note" aria-label="Note from Raufan" hidden>
     <span class="postit-tape" aria-hidden="true"></span>
