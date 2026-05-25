@@ -14,6 +14,94 @@
   <link rel="stylesheet" href="/css/style.css?v=14">
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
   <link id="gb-stylesheet" rel="stylesheet" href="/components/Guestbook/guestbook.css?v=4">
+  <!-- HOMEPAGE NUDGE (sticky note) — handwriting font. Trivially
+       revertible by deleting this <link> + the <style>+<aside>+<script>
+       below marked HOMEPAGE NUDGE. -->
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* HOMEPAGE NUDGE — sticky-note Post-it that fades in after 15s of
+       active reading without a case-study click. */
+    .postit {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      width: 220px;
+      padding: 22px 20px 18px;
+      background: linear-gradient(180deg, #FFF7A8 0%, #FFEC72 100%);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      border-radius: 2px;
+      font-family: 'Caveat', 'Marker Felt', 'Bradley Hand', cursive;
+      font-size: 18px;
+      font-weight: 500;
+      line-height: 1.35;
+      color: #2a2a1a;
+      transform: rotate(-2.5deg);
+      transform-origin: top right;
+      box-shadow:
+        0 1px 1px rgba(0, 0, 0, 0.08),
+        0 8px 18px rgba(0, 0, 0, 0.10),
+        0 16px 32px -8px rgba(0, 0, 0, 0.12);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 360ms ease, transform 360ms cubic-bezier(0.34, 1.4, 0.64, 1);
+      z-index: 9996;
+    }
+    .postit.is-shown {
+      opacity: 1;
+      transform: rotate(-2.5deg) translateY(0);
+      pointer-events: auto;
+    }
+    .postit-tape {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      width: 56px;
+      height: 18px;
+      transform: translateX(-50%) rotate(-1deg);
+      background: rgba(255, 255, 255, 0.55);
+      border-left: 1px dashed rgba(0, 0, 0, 0.08);
+      border-right: 1px dashed rgba(0, 0, 0, 0.08);
+      pointer-events: none;
+    }
+    .postit p {
+      margin: 0;
+      font: inherit;
+    }
+    .postit a {
+      color: inherit;
+      text-decoration: underline;
+      text-decoration-color: rgba(0, 0, 0, 0.35);
+      text-underline-offset: 2px;
+    }
+    .postit a:hover {
+      text-decoration-color: rgba(0, 0, 0, 0.7);
+    }
+    .postit-sig {
+      display: block;
+      margin-top: 6px;
+      text-align: right;
+      font-size: 16px;
+      opacity: 0.75;
+    }
+    .postit-close {
+      position: absolute;
+      top: 2px;
+      right: 4px;
+      background: transparent;
+      border: 0;
+      font: inherit;
+      font-size: 16px;
+      color: rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      padding: 4px 8px;
+      line-height: 1;
+      border-radius: 50%;
+    }
+    .postit-close:hover { color: rgba(0, 0, 0, 0.85); }
+    @media (max-width: 600px) {
+      .postit { display: none; }
+    }
+  </style>
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body class="minimal">
@@ -109,6 +197,84 @@
       }
     });
     document.body.appendChild(card.el);
+  </script>
+
+  <!-- HOMEPAGE NUDGE — Post-it markup. -->
+  <aside id="homepage-postit" class="postit" role="note" aria-label="Note from Raufan" hidden>
+    <span class="postit-tape" aria-hidden="true"></span>
+    <button class="postit-close" type="button" aria-label="Dismiss">×</button>
+    <p>
+      P.S. — I'd start with
+      <a href="/work/smartnews-design-system.html">SN Design System</a>.
+    </p>
+    <span class="postit-sig">— R</span>
+  </aside>
+  <script>
+    /* HOMEPAGE NUDGE — Sticky-note trigger.
+       Fades the Post-it in once the visitor has been actively reading
+       for 15s without clicking any case-study / lab link. Once per
+       visitor via localStorage. Cancelled if the visitor clicks a
+       list link before the timer fires (they're already engaged, no
+       nudge needed). */
+    (function postitNudge() {
+      var KEY = 'postit-shown-v1';
+      try { if (localStorage.getItem(KEY) === '1') return; } catch (e) {}
+      if (window.innerWidth < 600) return;
+
+      var el = document.getElementById('homepage-postit');
+      if (!el) return;
+
+      var activeMs = 0;
+      var lastTick = performance.now();
+      var visible  = !document.hidden;
+      var idle     = false;
+      var idleTimer = null;
+      var shown    = false;
+      var cancelled = false;
+
+      // If visitor clicks any list link before 15s, cancel — they're
+      // already deciding.
+      document.querySelectorAll('.m-list a').forEach(function (a) {
+        a.addEventListener('click', function () { cancelled = true; }, { once: true });
+      });
+
+      document.addEventListener('visibilitychange', function () {
+        visible = !document.hidden;
+        lastTick = performance.now();
+      });
+      function resetIdle() {
+        idle = false;
+        lastTick = performance.now();
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(function () { idle = true; }, 30000);
+      }
+      ['scroll', 'mousemove', 'touchstart', 'keydown'].forEach(function (evt) {
+        window.addEventListener(evt, resetIdle, { passive: true });
+      });
+      resetIdle();
+
+      function loop(now) {
+        if (shown || cancelled) return;
+        if (visible && !idle) activeMs += now - lastTick;
+        lastTick = now;
+        if (activeMs >= 15000) {
+          shown = true;
+          try { localStorage.setItem(KEY, '1'); } catch (e) {}
+          el.hidden = false;
+          // Force layout so the fade-in transition runs.
+          void el.offsetHeight;
+          el.classList.add('is-shown');
+          return;
+        }
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+
+      el.querySelector('.postit-close').addEventListener('click', function () {
+        el.classList.remove('is-shown');
+        setTimeout(function () { el.hidden = true; }, 380);
+      });
+    })();
   </script>
 </body>
 </html>
