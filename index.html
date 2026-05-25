@@ -845,7 +845,7 @@
         if (triggered || cancelled) return;
         if (visible && !idle) activeMs += now - lastTick;
         lastTick = now;
-        if (activeMs >= 15000) {
+        if (activeMs >= 10000) {
           triggered = true;
           try { localStorage.setItem('bird-shown-v1', '1'); } catch (e) {}
           runBird();
