@@ -472,6 +472,26 @@ body.minimal footer:not(.m-footer) {
   margin: 16px 0 32px;
 }
 
+/* HOMEPAGE POLISH — Lab list differentiator. The ↗ glyph signals
+   "playable / opens something" so visitors know Lab items are
+   immediately interactive vs Case Studies which are long-form reads.
+   Revertible by removing this block + the .m-list--lab modifier from
+   index.html. */
+.m-list--lab li {
+  padding-left: 18px;
+  position: relative;
+}
+.m-list--lab li::before {
+  content: '↗';
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 13px;
+  color: #5a9072;
+  font-weight: 500;
+  line-height: 2;
+}
+
 .m-list li {
   /* Use padding instead of margin so the gap between items belongs
      to the <li>'s hover area — eliminates the dead zone that made the
