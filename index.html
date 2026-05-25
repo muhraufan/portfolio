@@ -123,6 +123,10 @@
         <span class="m-dot">&middot;</span>
         <a href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener" class="m-link">LinkedIn</a>
       </span>
+      <!-- HOMEPAGE POLISH — Live Tokyo clock. Ticks every minute.
+           Revertible by removing this <span> + the JS at end of file
+           + the .m-jst-clock CSS in style.css. -->
+      <span class="m-jst-clock" aria-label="Current time in Tokyo"></span>
       <a href="cards.html" class="m-link m-gallery-cta">
         <span class="m-gallery-cta-label" data-shimmer="View Visitor Gallery" data-en="View Visitor Gallery" data-ja="来訪者ギャラリーを見る">View Visitor Gallery</span>
       </a>
@@ -133,6 +137,36 @@
   <canvas id="confetti-canvas"></canvas>
   <script src="/js/main.js?v=14"></script>
   <script src="/components/Stabilo/stabilo.js?v=5" defer></script>
+
+  <!-- HOMEPAGE POLISH — Live Tokyo clock. Reads document lang every
+       tick so it follows the JA/EN toggle automatically. -->
+  <script>
+    (function jstClock() {
+      var el = document.querySelector('.m-jst-clock');
+      if (!el) return;
+      function tick() {
+        var lang = document.documentElement.getAttribute('data-lang') || 'en';
+        try {
+          if (lang === 'ja') {
+            var t = new Intl.DateTimeFormat('ja-JP', {
+              timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit', hour12: false
+            }).format(new Date());
+            el.textContent = t + ' 東京';
+          } else {
+            var t2 = new Intl.DateTimeFormat('en-US', {
+              timeZone: 'Asia/Tokyo', hour: 'numeric', minute: '2-digit', hour12: true
+            }).format(new Date());
+            el.textContent = t2 + ' Tokyo';
+          }
+        } catch (e) {
+          // Old browser / missing Intl support — just hide.
+          el.remove();
+        }
+      }
+      tick();
+      setInterval(tick, 60000);
+    })();
+  </script>
   <script type="module">
     import { GuestbookCard } from '/components/Guestbook/GuestbookCard.js?v=4';
     import { addEntry } from '/components/Guestbook/guestbookService.js?v=2';

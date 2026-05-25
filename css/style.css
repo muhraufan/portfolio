@@ -636,6 +636,17 @@ body.minimal.is-spotlight .m-list.is-active-list a:not(.is-active) {
   flex-wrap: wrap;
 }
 
+/* HOMEPAGE POLISH — Live Tokyo clock in footer. tabular-nums so the
+   digits don't shift width as they tick. Empty by default so it
+   doesn't reserve space until JS fills it. */
+.m-jst-clock {
+  font-size: 12px;
+  color: var(--text3);
+  letter-spacing: 0.3px;
+  font-variant-numeric: tabular-nums;
+}
+.m-jst-clock:empty { display: none; }
+
 /* ---- Visitor Gallery CTA ----
    A gentle looping shimmer catches the eye without being flashy. Built as a
    moving linear-gradient clipped to the text via background-clip: text.
