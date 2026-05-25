@@ -298,6 +298,19 @@ body.minimal footer:not(.m-footer) {
   color: var(--text);
 }
 
+/* HOMEPAGE POLISH — Pitch line. One-line "what kind of designer am I"
+   under the name. Larger than body so the eye lands here after reading
+   the name. Revertible by removing this block + the .m-pitch element
+   from index.html. */
+.m-pitch {
+  font-size: 18px;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--text);
+  margin: 8px 0 24px;
+}
+
 .m-bio {
   font-size: 13px;
   line-height: 2;
