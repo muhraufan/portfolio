@@ -199,107 +199,314 @@
     document.body.appendChild(card.el);
   </script>
 
-  <!-- HOMEPAGE CAT NUDGE — Pixel-art cat that walks in along the
-       bottom of the viewport after 15s of active reading without a
-       case-study click. Sits down, looks at the visitor, "meows" a
-       speech bubble, then walks off. Different character from the
-       FlyBy plane so the case-study FlyBy stays a surprise.
+  <!-- HOMEPAGE BIRD NUDGE — Pixel-art yellow finch carries a banner
+       across the upper area of the viewport after 15s of active
+       reading without a case-study click. Same visual idiom as the
+       case-study FlyBy plane (colored sprite, pixel-art banner,
+       Press Start 2P, waving flag, trailing rope) so it feels like
+       the same craft family — just a different character at a
+       different altitude.
 
-       All in one block: <style>, <canvas>, <script>. Revert by
-       deleting everything between the two HOMEPAGE CAT NUDGE
-       markers. -->
+       Self-contained block: font <link>, <style>, <canvas>, <script>.
+       Revert by deleting everything between the two HOMEPAGE BIRD
+       NUDGE markers. -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
-    #homepage-cat {
+    /* Canvas spans the upper third of the viewport so the bird's
+       flight path crosses where the visitor's eyes already are —
+       reading the bio. Pointer-events off so links underneath still
+       work. */
+    #homepage-bird {
       position: fixed;
       left: 0;
-      bottom: 0;
+      top: 18vh;
       width: 100vw;
-      height: 80px;
+      height: 120px;
       pointer-events: none;
       z-index: 9996;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
     }
-    .cat-bubble {
-      position: fixed;
-      z-index: 9997;
-      padding: 10px 14px;
-      background: #fff;
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      border-radius: 12px;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 8px 20px rgba(0, 0, 0, 0.10);
-      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      color: #1a1a1a;
-      letter-spacing: 0.2px;
-      white-space: nowrap;
-      pointer-events: none;
-      opacity: 0;
-      transform: translateY(4px) scale(0.96);
-      transition: opacity 240ms ease, transform 240ms cubic-bezier(0.34, 1.4, 0.64, 1);
-    }
-    .cat-bubble.is-shown {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-    /* Tail of the speech bubble pointing down-left toward the cat. */
-    .cat-bubble::after {
-      content: '';
-      position: absolute;
-      bottom: -6px;
-      left: 18px;
-      width: 12px;
-      height: 12px;
-      background: #fff;
-      border-right: 1px solid rgba(0, 0, 0, 0.08);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-      transform: rotate(45deg);
-    }
-    [data-theme="dark"] .cat-bubble {
-      background: #1f1f1f;
-      border-color: rgba(255, 255, 255, 0.10);
-      color: #f0f0f0;
-    }
-    [data-theme="dark"] .cat-bubble::after {
-      background: #1f1f1f;
-      border-right-color: rgba(255, 255, 255, 0.10);
-      border-bottom-color: rgba(255, 255, 255, 0.10);
-    }
     @media (max-width: 600px) {
-      #homepage-cat, .cat-bubble { display: none; }
+      #homepage-bird { display: none; }
     }
   </style>
-  <canvas id="homepage-cat" aria-hidden="true"></canvas>
-  <div id="cat-bubble" class="cat-bubble" role="note">psst — pick one already.</div>
+  <canvas id="homepage-bird" aria-hidden="true"></canvas>
   <script>
-    /* HOMEPAGE CAT NUDGE — controller.
-       - 15s active-reading timer, paused on hidden/idle (same scheme
-         as Stabilo and FlyBy)
-       - Cancelled if visitor clicks a list link before 15s
-       - Cat walks in from right, sits in lower-right area, tail
-         twitches, speech bubble fades in, holds 5s, fades out, cat
-         stands and walks off-screen right
-       - Once per visitor via localStorage 'cat-shown-v1'
-       - prefers-reduced-motion → skip
-       - <600px viewport → skip */
-    (function homepageCatNudge() {
-      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      if (window.innerWidth < 600) return;
-      try { if (localStorage.getItem('cat-shown-v1') === '1') return; } catch (e) {}
+    /* HOMEPAGE BIRD NUDGE — controller.
+       Yellow finch carries a pixel-art banner reading "Pick one!"
+       across the upper-third of the viewport. Same craft level as the
+       case-study FlyBy plane: colored sprite (not silhouette), wings
+       flap, banner uses Press Start 2P, banner waves like a flag,
+       trailing rope.
 
-      var canvas = document.getElementById('homepage-cat');
-      var bubble = document.getElementById('cat-bubble');
-      if (!canvas || !bubble) return;
+       Gating: 15s active reading + no case-study click + first visit +
+       not prefers-reduced-motion + viewport ≥ 600px. Gates only
+       suppress the auto-trigger; window.__showBird() always available
+       from devtools for manual replay. */
+    (function homepageBirdNudge() {
+      var autoTriggerOK = true;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) autoTriggerOK = false;
+      if (window.innerWidth < 600) autoTriggerOK = false;
+      try { if (localStorage.getItem('bird-shown-v1') === '1') autoTriggerOK = false; } catch (e) {}
+
+      var canvas = document.getElementById('homepage-bird');
+      if (!canvas) return;
       var ctx = canvas.getContext('2d');
-      var PS  = 3;   // pixel scale — 1 sprite-px = 3 canvas-px
+      var PS  = 3;          // pixel scale — 1 sprite-px = 3 canvas-px
+      var CANVAS_H = 120;   // logical canvas height
       function resize() {
         canvas.width = window.innerWidth;
-        canvas.height = 80;
+        canvas.height = CANVAS_H;
         ctx.imageSmoothingEnabled = false;
       }
       resize();
       window.addEventListener('resize', resize);
+
+      // ─── Palette ─────────────────────────────────────────────────
+      // Yellow finch — distinct enough from the plane's red so the
+      // two characters read as different cast members of the same
+      // show. Banner colours match FlyBy's banner exactly.
+      var C = {
+        body:    '#F2C744',   // yellow body
+        bodyHi:  '#FFE07A',   // highlight
+        bodyLo:  '#B8911A',   // shadow
+        beak:    '#FF8A2A',   // orange beak
+        beakLo:  '#A04F10',
+        eye:     '#1A1A1A',
+        eyeHi:   '#FFFFFF',
+        wing:    '#E8B41A',   // wing — slightly darker than body
+        wingLo:  '#8E6A0F',
+        leg:     '#7E5C20',
+        banner:    '#f7f2ea',
+        bannerLo:  '#dcd4c4',
+        bannerEdge:'#1a1a1a',
+        bannerText:'#1a1a1a',
+        rope:    '#5a4028',
+      };
+
+      function px(x, y, w, h, c) {
+        ctx.fillStyle = c;
+        ctx.fillRect(Math.round(x * PS), Math.round(y * PS), w * PS, h * PS);
+      }
+      function pxRaw(x, y, c) {
+        ctx.fillStyle = c;
+        ctx.fillRect(Math.round(x), Math.round(y), PS, PS);
+      }
+
+      // ─── Bird sprite (16 wide × 11 tall, facing right) ───────────
+      // Three wing frames: 0 = up, 1 = mid, 2 = down. Bob a little
+      // each frame so the body looks like it's lifted by the wings.
+      function drawBird(ox, oy, wingFrame) {
+        // Body (oval-ish, 7 wide × 5 tall)
+        px(ox + 4, oy + 3, 6, 5, C.body);
+        // Body highlight along top
+        px(ox + 5, oy + 3, 4, 1, C.bodyHi);
+        // Body shadow along bottom
+        px(ox + 4, oy + 7, 6, 1, C.bodyLo);
+
+        // Head (3 wide × 3 tall, attached to right of body)
+        px(ox + 9, oy + 2, 3, 3, C.body);
+        px(ox + 9, oy + 2, 3, 1, C.bodyHi);
+        px(ox + 9, oy + 4, 3, 1, C.bodyLo);
+
+        // Eye
+        px(ox + 10, oy + 3, 1, 1, C.eye);
+        px(ox + 10, oy + 3, 1, 1, C.eyeHi);
+        // re-stamp the eye darker on the right half — fakes a pupil
+        ctx.fillStyle = C.eye;
+        ctx.fillRect(Math.round((ox + 10) * PS) + PS - 1, Math.round((oy + 3) * PS), 1, PS);
+
+        // Beak (orange triangle pointing right)
+        px(ox + 12, oy + 3, 2, 1, C.beak);
+        px(ox + 13, oy + 4, 1, 1, C.beak);
+        px(ox + 12, oy + 4, 1, 1, C.beakLo);
+
+        // Tail (left side, narrow fan)
+        px(ox + 2, oy + 4, 2, 3, C.body);
+        px(ox + 1, oy + 5, 1, 1, C.bodyLo);
+        px(ox + 0, oy + 6, 2, 1, C.bodyLo);
+
+        // Wings — flap above/below body depending on frame
+        if (wingFrame === 0) {
+          // Up
+          px(ox + 5, oy + 1, 4, 2, C.wing);
+          px(ox + 5, oy + 0, 4, 1, C.wing);
+          px(ox + 5, oy + 2, 4, 1, C.wingLo);
+        } else if (wingFrame === 1) {
+          // Mid (wings extended horizontally)
+          px(ox + 4, oy + 3, 5, 1, C.wing);
+          px(ox + 3, oy + 3, 1, 1, C.wingLo);
+          px(ox + 9, oy + 3, 1, 1, C.wingLo);
+        } else {
+          // Down
+          px(ox + 5, oy + 6, 4, 2, C.wing);
+          px(ox + 5, oy + 8, 4, 1, C.wingLo);
+        }
+
+        // Tiny legs tucked under (always visible)
+        px(ox + 6, oy + 8, 1, 1, C.leg);
+        px(ox + 8, oy + 8, 1, 1, C.leg);
+      }
+
+      // ─── Banner (pre-rendered offscreen, same recipe as FlyBy) ───
+      var bannerCanvas = document.createElement('canvas');
+      var bctx = bannerCanvas.getContext('2d');
+      var bannerDims = { width: 0, height: 0 };
+      // Customise via window.__birdText('Your text') for testing.
+      var BANNER_TEXT = 'Pick one!';
+
+      function buildBanner() {
+        var FONT = 7;   // sprite-px tall
+        var PADX = 4;
+        var PADY = 3;
+        var HSP  = FONT + PADY * 2;
+        bctx.font = (FONT * PS) + 'px "Press Start 2P", monospace';
+        bctx.textBaseline = 'top';
+        var textW = bctx.measureText(BANNER_TEXT).width;
+        var textWSp = Math.ceil(textW / PS);
+        var WSP = textWSp + PADX * 2;
+        bannerCanvas.width = WSP * PS;
+        bannerCanvas.height = HSP * PS;
+        bctx.imageSmoothingEnabled = false;
+        // Background
+        bctx.fillStyle = C.banner;
+        bctx.fillRect(0, 0, bannerCanvas.width, bannerCanvas.height);
+        // Bottom shading band
+        bctx.fillStyle = C.bannerLo;
+        bctx.fillRect(0, (HSP - 2) * PS, bannerCanvas.width, 2 * PS);
+        // Dark outline (top, bottom, right edge attached to rope)
+        bctx.fillStyle = C.bannerEdge;
+        bctx.fillRect(0, 0, bannerCanvas.width, PS);
+        bctx.fillRect(0, (HSP - 1) * PS, bannerCanvas.width, PS);
+        bctx.fillRect((WSP - 1) * PS, 0, PS, HSP * PS);
+        // Swallowtail V-notch on free (left) end
+        var NOTCH = 3;
+        bctx.clearRect(0, 0, NOTCH * PS, HSP * PS);
+        for (var i = 0; i < NOTCH; i++) {
+          bctx.fillStyle = C.banner;
+          bctx.fillRect(i * PS, i * PS, (NOTCH - i + 1) * PS, PS);
+          bctx.fillRect(i * PS, (HSP - 1 - i) * PS, (NOTCH - i + 1) * PS, PS);
+          bctx.fillStyle = C.bannerEdge;
+          bctx.fillRect(i * PS, i * PS, PS, PS);
+          bctx.fillRect(i * PS, (HSP - 1 - i) * PS, PS, PS);
+        }
+        bctx.fillStyle = C.banner;
+        for (var row = NOTCH + 1; row < HSP - NOTCH - 1; row++) {
+          bctx.fillRect(0, row * PS, NOTCH * PS, PS);
+        }
+        bctx.fillStyle = C.bannerEdge;
+        for (var j = 0; j < NOTCH; j++) {
+          bctx.fillRect(j * PS, (NOTCH - j) * PS, PS, PS);
+          bctx.fillRect(j * PS, (HSP - 1 - NOTCH + j) * PS, PS, PS);
+        }
+        bctx.fillStyle = C.bannerLo;
+        bctx.fillRect(0, (HSP - 2) * PS, NOTCH * PS, PS);
+        // Text
+        bctx.fillStyle = C.bannerText;
+        bctx.font = (FONT * PS) + 'px "Press Start 2P", monospace';
+        bctx.textBaseline = 'middle';
+        bctx.textAlign = 'left';
+        bctx.fillText(BANNER_TEXT, PADX * PS, Math.round(bannerCanvas.height / 2));
+        bannerDims = { width: WSP, height: HSP };
+      }
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(buildBanner);
+      } else {
+        buildBanner();
+      }
+
+      // Banner draw with wave (same recipe as FlyBy).
+      function drawBanner(leftPx, centerY, t) {
+        if (!bannerDims.width) return;
+        var W = bannerCanvas.width;
+        var H = bannerCanvas.height;
+        var yTop = centerY - H / 2;
+        for (var col = 0; col < W; col += PS) {
+          var dist = (W - col) / W;
+          var phase1 = t * 0.007 + col * 0.030;
+          var phase2 = t * 0.011 + col * 0.060 + 1.3;
+          var wave   = Math.sin(phase1) * 0.85 + Math.sin(phase2) * 0.18;
+          var amp    = Math.pow(dist, 0.75) * 2.5;
+          var offset = Math.round(wave * amp) * PS;
+          ctx.drawImage(bannerCanvas, col, 0, PS, H, leftPx + col, yTop + offset, PS, H);
+        }
+      }
+
+      // Rope from bird's belly to banner attach point.
+      function drawRope(fromX, fromY, toX, toY, t) {
+        var dx = toX - fromX;
+        var steps = Math.abs(Math.round(dx / PS));
+        for (var i = 0; i < steps; i++) {
+          var u = i / steps;
+          var x = fromX + dx * u;
+          var sag = Math.sin(t * 0.008 + u * 4) * 1.4 * PS * (1 - Math.abs(u - 0.5) * 1.6);
+          var y = fromY + (toY - fromY) * u + sag;
+          pxRaw(x, y, C.rope);
+        }
+      }
+
+      // ─── Animation ───────────────────────────────────────────────
+      // Bird flies left→right across the upper canvas, banner trails
+      // behind it. Total trajectory: bird enters from off-screen left,
+      // crosses, exits off-screen right.
+      var DURATION = 14000;  // ms to fully cross
+      var BOB_AMP  = 2.5;    // sprite-px vertical bob amplitude
+      var BIRD_W_SP = 16;
+      var state = { active: false, startTime: 0, rafId: 0 };
+
+      function frame(now) {
+        if (!state.active) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        var elapsed = now - state.startTime;
+        var progress = Math.min(elapsed / DURATION, 1);
+
+        var birdW   = BIRD_W_SP * PS;
+        var bannerW = bannerCanvas.width;
+        var ropeLen = 10 * PS;
+        var chainLen = birdW + ropeLen + bannerW;
+        var buffer  = 40;
+        var startNoseX = -buffer;
+        var endNoseX   = canvas.width + chainLen + buffer;
+        var noseX = startNoseX + (endNoseX - startNoseX) * progress;
+
+        // Vertical bob (sin wave). Centre the bird mid-canvas.
+        var bob = Math.sin(now * 0.004) * BOB_AMP * PS;
+        var birdTopY = (CANVAS_H / 2) - (5 * PS) + bob;
+
+        // Wing flap — 6 frames/sec
+        var wingFrame = Math.floor(now / 110) % 3;
+
+        // Sprite origin (top-left of bird sprite)
+        var birdOX = (noseX - birdW) / PS;
+        var birdOY = birdTopY / PS;
+
+        // Banner trails behind bird's tail
+        var birdTailX = noseX - birdW + 2 * PS;
+        var bannerRightX = birdTailX - ropeLen;
+        var bannerLeftX  = bannerRightX - bannerW;
+        var bannerCY     = birdTopY + 7 * PS;
+        drawBanner(bannerLeftX, bannerCY, now);
+        // Rope attaches at bird's belly (centre of body, slightly down)
+        drawRope(bannerRightX, bannerCY, birdTailX, birdTopY + 7 * PS, now);
+        // Bird on top
+        drawBird(birdOX, birdOY, wingFrame);
+
+        if (progress >= 1) {
+          state.active = false;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          return;
+        }
+        state.rafId = requestAnimationFrame(frame);
+      }
+
+      function runBird() {
+        cancelAnimationFrame(state.rafId);
+        state.active = true;
+        state.startTime = performance.now();
+        state.rafId = requestAnimationFrame(frame);
+      }
 
       // ─── Active-reading gate ─────────────────────────────────────
       var activeMs = 0, lastTick = performance.now();
@@ -330,151 +537,20 @@
         lastTick = now;
         if (activeMs >= 15000) {
           triggered = true;
-          try { localStorage.setItem('cat-shown-v1', '1'); } catch (e) {}
-          runCat();
+          try { localStorage.setItem('bird-shown-v1', '1'); } catch (e) {}
+          runBird();
           return;
         }
         requestAnimationFrame(gateLoop);
       }
-      requestAnimationFrame(gateLoop);
+      if (autoTriggerOK) requestAnimationFrame(gateLoop);
 
-      // ─── Pixel-art cat (silhouette, ~14w × 10h sprite-px) ────────
-      // Drawn facing left so the tail (right side) flicks toward the
-      // visitor's reading direction. Solid dark-grey silhouette so it
-      // reads against both light and dark themes.
-      function isDark() {
-        return document.documentElement.getAttribute('data-theme') === 'dark'
-          || (document.documentElement.getAttribute('data-theme') !== 'light'
-              && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      }
-      function px(x, y, w, h, c) {
-        ctx.fillStyle = c;
-        ctx.fillRect(Math.round(x * PS), Math.round(y * PS), w * PS, h * PS);
-      }
-      function drawCat(ox, oy, frame, tailWag) {
-        // frame: 0=sitting, 1=walking-A, 2=walking-B
-        var dark = isDark();
-        var BODY = dark ? '#dcdcdc' : '#2a2a2a';
-        var EYE  = dark ? '#1a1a1a' : '#f5f5dc';
-
-        // Head (left side, facing left)
-        // Ears (two triangles)
-        px(ox + 1, oy + 0, 1, 1, BODY);
-        px(ox + 0, oy + 1, 1, 1, BODY);
-        px(ox + 1, oy + 1, 1, 1, BODY);
-        px(ox + 3, oy + 0, 1, 1, BODY);
-        px(ox + 3, oy + 1, 1, 1, BODY);
-        px(ox + 4, oy + 1, 1, 1, BODY);
-        // Head body
-        px(ox + 0, oy + 2, 5, 2, BODY);
-        // Eye (single dot facing forward)
-        px(ox + 1, oy + 2, 1, 1, EYE);
-        // Chin/jaw
-        px(ox + 0, oy + 4, 5, 1, BODY);
-
-        // Body — extends right from head
-        if (frame === 0) {
-          // Sitting — body is more vertical/upright
-          px(ox + 1, oy + 4, 6, 1, BODY);
-          px(ox + 1, oy + 5, 7, 2, BODY);
-          px(ox + 2, oy + 7, 6, 1, BODY);
-          // Legs tucked
-          px(ox + 2, oy + 8, 2, 1, BODY);
-          px(ox + 6, oy + 8, 2, 1, BODY);
-        } else {
-          // Walking — body horizontal
-          px(ox + 1, oy + 4, 8, 1, BODY);
-          px(ox + 1, oy + 5, 9, 2, BODY);
-          px(ox + 2, oy + 7, 8, 1, BODY);
-          // Legs in two-frame cycle
-          if (frame === 1) {
-            px(ox + 2, oy + 8, 1, 2, BODY);  // front leg forward
-            px(ox + 4, oy + 8, 1, 1, BODY);
-            px(ox + 7, oy + 8, 1, 1, BODY);
-            px(ox + 9, oy + 8, 1, 2, BODY);  // back leg forward
-          } else {
-            px(ox + 3, oy + 8, 1, 2, BODY);
-            px(ox + 5, oy + 8, 1, 1, BODY);
-            px(ox + 8, oy + 8, 1, 1, BODY);
-            px(ox + 9, oy + 8, 1, 1, BODY);
-          }
-        }
-
-        // Tail — curls up on the right. tailWag is -1..1 to flick.
-        var t = tailWag || 0;
-        var tx = ox + 9 + (frame === 0 ? 0 : 1);
-        px(tx + 0, oy + 3, 1, 1, BODY);
-        px(tx + 1, oy + 2 + Math.round(t * 0.5), 1, 1, BODY);
-        px(tx + 2, oy + 1 + Math.round(t), 1, 1, BODY);
-        px(tx + 3, oy + 0 + Math.round(t), 1, 1, BODY);
-      }
-
-      // ─── Animation ───────────────────────────────────────────────
-      // Phases:
-      //   walk-in  → cat walks from right edge to a sit-spot
-      //   sitting  → tail flicks, bubble shows
-      //   walk-out → bubble hides, cat walks off right
-      var SIT_X = window.innerWidth - 200; // canvas-px where cat sits
-      var phase = 'walk-in';
-      var phaseStart = 0;
-      var animStart = 0;
-      var catX = window.innerWidth + 40; // start off-screen right
-      var catY = 80 - 12 * PS;            // sit just above bottom edge
-
-      function frame(now) {
-        if (phase === 'done') return;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        var elapsed = now - animStart;
-
-        if (phase === 'walk-in') {
-          // Move left at ~50 canvas-px/s
-          var dt = (now - (phaseStart || (phaseStart = now))) / 1000;
-          catX = (window.innerWidth + 40) - 60 * dt;
-          var legFrame = Math.floor(now / 180) % 2 ? 1 : 2;
-          drawCat(catX / PS, catY / PS, legFrame, 0);
-          if (catX <= SIT_X) {
-            phase = 'sitting';
-            phaseStart = now;
-            // Position the bubble above the sit spot.
-            var b = bubble;
-            b.style.left = (SIT_X - 30) + 'px';
-            b.style.bottom = (60 + 14 * PS) + 'px';
-            // Fade in after a short delay so the cat "settles".
-            setTimeout(function () { b.classList.add('is-shown'); }, 250);
-          }
-        } else if (phase === 'sitting') {
-          var sitElapsed = now - phaseStart;
-          // Tail flick — gentle sine
-          var tail = Math.sin(now * 0.005) * 1;
-          drawCat(catX / PS, catY / PS, 0, tail);
-          // Hide bubble + start walk-out after ~4.5s
-          if (sitElapsed > 4500) {
-            bubble.classList.remove('is-shown');
-            phase = 'walk-out';
-            phaseStart = now;
-          }
-        } else if (phase === 'walk-out') {
-          var dt2 = (now - phaseStart) / 1000;
-          catX = SIT_X + 60 * dt2;
-          var legFrame2 = Math.floor(now / 180) % 2 ? 1 : 2;
-          drawCat(catX / PS, catY / PS, legFrame2, 0);
-          if (catX > window.innerWidth + 40) {
-            phase = 'done';
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            return;
-          }
-        }
-        requestAnimationFrame(frame);
-      }
-      function runCat() {
-        animStart = performance.now();
-        phaseStart = 0;
-        catX = window.innerWidth + 40;
-        requestAnimationFrame(frame);
-      }
+      // DEV/TEST triggers
+      window.__showBird = runBird;
+      window.__birdText = function (t) { BANNER_TEXT = t; buildBanner(); };
     })();
   </script>
-  <!-- HOMEPAGE CAT NUDGE END -->
+  <!-- HOMEPAGE BIRD NUDGE END -->
 
   <!-- HOMEPAGE NUDGE — Post-it markup. -->
   <aside id="homepage-postit" class="postit" role="note" aria-label="Note from Raufan" hidden>
@@ -494,6 +570,9 @@
        list link before the timer fires (they're already engaged, no
        nudge needed). */
     (function postitNudge() {
+      // TEMP — disabled during bird preview. Remove this `return;`
+      // to re-enable the sticky-note nudge.
+      return;
       var KEY = 'postit-shown-v1';
       try { if (localStorage.getItem(KEY) === '1') return; } catch (e) {}
       if (window.innerWidth < 600) return;
