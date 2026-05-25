@@ -45,6 +45,32 @@
       <h1 class="m-name" data-en-html='Hey, I&apos;m <a href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener" class="m-name-hover m-highlight"><span class="m-name-prefix">Muhammad </span>Raufan<span class="m-name-suffix"> Yusup</span></a>.' data-ja-html='ヤホー、<a href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener" class="m-name-hover m-highlight"><span class="m-name-prefix">ムハンマド</span>ラウファン<span class="m-name-suffix">ユスップ</span></a>です。'>Hey, I'm <a href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener" class="m-name-hover m-highlight"><span class="m-name-prefix">Muhammad </span>Raufan<span class="m-name-suffix"> Yusup</span></a>.</h1>
       <!-- HOMEPAGE POLISH — Pitch line. Single revertible commit. -->
       <p class="m-pitch" data-en="Software that feels patient." data-ja="急がないソフトウェア。">Software that feels patient.</p>
+      <!-- HOMEPAGE POLISH — Time-aware greeting. Patches the prefix of
+           m-name's data-en-html / data-ja-html BEFORE main.js renders,
+           so the language switcher picks up the time-adjusted version.
+           Revertible by deleting this <script> block. -->
+      <script>
+        (function timeAwareGreeting() {
+          var h1 = document.currentScript && document.currentScript.previousElementSibling;
+          // Walk back to find the .m-name h1 (skip the m-pitch <p>)
+          while (h1 && !h1.classList.contains('m-name')) h1 = h1.previousElementSibling;
+          if (!h1) return;
+          var hour = new Date().getHours();
+          var en, ja;
+          if (hour >= 5 && hour < 12)       { en = 'Morning. I&apos;m ';   ja = 'おはよう、'; }
+          else if (hour >= 12 && hour < 17) { en = 'Hi. I&apos;m ';        ja = 'こんにちは、'; }
+          else if (hour >= 17 && hour < 22) { en = 'Evening. I&apos;m ';   ja = 'こんばんは、'; }
+          else                              { en = 'Up late? I&apos;m ';   ja = '夜更かしですね、'; }
+          var enHtml = h1.getAttribute('data-en-html');
+          var jaHtml = h1.getAttribute('data-ja-html');
+          if (enHtml) h1.setAttribute('data-en-html', enHtml.replace(/^Hey,\s*I&apos;m\s+/, en));
+          if (jaHtml) h1.setAttribute('data-ja-html', jaHtml.replace(/^ヤホー、/, ja));
+          // Reflect the change in the currently-rendered innerHTML so
+          // it's correct before any language pass runs.
+          var currentLang = document.documentElement.getAttribute('data-lang') || 'en';
+          h1.innerHTML = h1.getAttribute(currentLang === 'ja' ? 'data-ja-html' : 'data-en-html');
+        })();
+      </script>
     </header>
 
     <p class="m-bio" data-en-html='I&apos;m a Tokyo-based product designer with 12+ years of designing products across cultures. Currently designing at <a href="https://apps.apple.com/jp/app/uniqlo%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%A6%E3%83%8B%E3%82%AF%E3%83%AD%E3%82%A2%E3%83%97%E3%83%AA/id460989014" target="_blank" rel="noopener" class="m-highlight">Uniqlo</a>. Before, I designed for <a href="https://apps.apple.com/jp/app/%E3%82%B9%E3%83%9E%E3%83%BC%E3%83%88%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9-%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%9D%E3%82%A4%E6%B4%BB-%E3%82%AF%E3%83%BC%E3%83%9D%E3%83%B3-%E5%A4%A9%E6%B0%97/id579581125" target="_blank" rel="noopener" class="m-highlight-muted">SmartNews</a>, <a href="https://apps.apple.com/us/app/tiket-com-flight-hotel-deals/id890405921" target="_blank" rel="noopener" class="m-highlight-muted">tiket.com</a>, <a href="https://apps.apple.com/id/app/tokopedia/id1001394201" target="_blank" rel="noopener" class="m-highlight-muted">Tokopedia</a>, and more.' data-ja-html='東京を拠点に、12年以上にわたって異文化をまたいでプロダクトをデザインしてきました。現在は<a href="https://apps.apple.com/jp/app/uniqlo%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%A6%E3%83%8B%E3%82%AF%E3%83%AD%E3%82%A2%E3%83%97%E3%83%AA/id460989014" target="_blank" rel="noopener" class="m-highlight">ユニクロ</a>でデザインしています。以前は<a href="https://apps.apple.com/jp/app/%E3%82%B9%E3%83%9E%E3%83%BC%E3%83%88%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9-%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%9D%E3%82%A4%E6%B4%BB-%E3%82%AF%E3%83%BC%E3%83%9D%E3%83%B3-%E5%A4%A9%E6%B0%97/id579581125" target="_blank" rel="noopener" class="m-highlight-muted">SmartNews</a>、<a href="https://apps.apple.com/us/app/tiket-com-flight-hotel-deals/id890405921" target="_blank" rel="noopener" class="m-highlight-muted">tiket.com</a>、<a href="https://apps.apple.com/id/app/tokopedia/id1001394201" target="_blank" rel="noopener" class="m-highlight-muted">Tokopedia</a>などのデザインを手がけてきました。'>
