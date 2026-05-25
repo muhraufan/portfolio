@@ -782,12 +782,33 @@
         state.rafId = requestAnimationFrame(fbFrame);
       }
 
+      // Match the case-study FlyBy plane's pacing — that plane crosses
+      // ~1680px in 16000ms ≈ 0.105 px/ms. Compute fly-in / fly-out
+      // durations from actual distances so the bird looks like it's
+      // travelling at the same speed regardless of where the perch
+      // ends up or how wide the viewport is.
+      var BIRD_SPEED = 0.105; // px / ms
+
       function runBird() {
         cancelAnimationFrame(state.rafId);
         var target = findPerchTarget();
         if (!target) { runBirdFallback(); return; }
         perchX = target.x;
         perchY = target.y;
+
+        // Pre-compute the same start/end X positions the phase code
+        // will use, so we can derive distances → durations.
+        var birdW = BIRD_W_SP * PS;
+        var horizontalGap = 8 * PS;
+        var bannerW = bannerBig.width || 200;
+        var flyInStartX  = -(birdW + horizontalGap + bannerW + 40);
+        var flyInEndX    = perchX + birdW / 2;
+        var flyOutEndX   = canvas.width + birdW + horizontalGap + bannerW + 60;
+        TIMING.FLY_IN  = Math.max(4500, Math.min(16000,
+                                  (flyInEndX  - flyInStartX) / BIRD_SPEED));
+        TIMING.FLY_OUT = Math.max(4500, Math.min(16000,
+                                  (flyOutEndX - flyInEndX)   / BIRD_SPEED));
+
         phase = PH.FLY_IN;
         phaseStart = performance.now();
         state.active = true;
