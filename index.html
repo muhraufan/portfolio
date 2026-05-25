@@ -347,83 +347,131 @@
         px(ox + 8, oy + 8, 1, 1, C.leg);
       }
 
-      // ─── Banner (single-line "Pick one!" — same recipe as FlyBy) ─
-      var bannerCanvas = document.createElement('canvas');
-      var bctx = bannerCanvas.getContext('2d');
-      var bannerDims = { width: 0, height: 0 };
-      // Customise via window.__birdText('Your text') for testing.
-      var BANNER_TEXT = 'Pick one!';
+      // ─── Banners — two of them ──────────────────────────────────
+      // bannerBig    = two-line trailing banner the bird carries the
+      //                whole flight ("Pick one. They're all good." /
+      //                "and then hire me!")
+      // bannerSmall  = single-line "Pick one!" pop-up flag held above
+      //                the bird's head only during the perch moment
+      //
+      // Both use the same FlyBy banner recipe (cream fill, dark
+      // edge, swallowtail notch on the free end, Press Start 2P).
+      var bannerBig    = document.createElement('canvas');
+      var bannerSmall  = document.createElement('canvas');
+      var bannerBigDims   = { width: 0, height: 0 };
+      var bannerSmallDims = { width: 0, height: 0 };
 
-      function buildBanner() {
-        var FONT = 7;
-        var PADX = 4;
-        var PADY = 3;
-        var HSP  = FONT + PADY * 2;
-        bctx.font = (FONT * PS) + 'px "Press Start 2P", monospace';
-        bctx.textBaseline = 'top';
-        var textW = bctx.measureText(BANNER_TEXT).width;
-        var textWSp = Math.ceil(textW / PS);
+      var BIG_LINE1   = "Pick one. They're all good.";
+      var BIG_LINE2   = "and then hire me!";
+      var SMALL_TEXT  = "Pick one!";
+
+      // Shared banner drawer. `lines` is an array of { text, font }
+      // where font is in sprite-px. Renders cream rectangle with
+      // notch + dark border + text; writes to the given offscreen
+      // canvas and returns the sprite-px dimensions.
+      function buildBannerInto(targetCanvas, lines) {
+        var bx   = targetCanvas.getContext('2d');
+        var PADX = 4, PADY = 3, LINE_GAP = 2;
+        var HSP = PADY * 2;
+        for (var li = 0; li < lines.length; li++) {
+          if (li > 0) HSP += LINE_GAP;
+          HSP += lines[li].font;
+        }
+        // Measure widest line at its own font size
+        var maxW = 0;
+        bx.textBaseline = 'top';
+        for (var mi = 0; mi < lines.length; mi++) {
+          bx.font = (lines[mi].font * PS) + 'px "Press Start 2P", monospace';
+          var w = bx.measureText(lines[mi].text).width;
+          if (w > maxW) maxW = w;
+        }
+        var textWSp = Math.ceil(maxW / PS);
         var WSP = textWSp + PADX * 2;
-        bannerCanvas.width = WSP * PS;
-        bannerCanvas.height = HSP * PS;
-        bctx.imageSmoothingEnabled = false;
-        bctx.fillStyle = C.banner;
-        bctx.fillRect(0, 0, bannerCanvas.width, bannerCanvas.height);
-        bctx.fillStyle = C.bannerLo;
-        bctx.fillRect(0, (HSP - 2) * PS, bannerCanvas.width, 2 * PS);
-        bctx.fillStyle = C.bannerEdge;
-        bctx.fillRect(0, 0, bannerCanvas.width, PS);
-        bctx.fillRect(0, (HSP - 1) * PS, bannerCanvas.width, PS);
-        bctx.fillRect((WSP - 1) * PS, 0, PS, HSP * PS);
+
+        targetCanvas.width  = WSP * PS;
+        targetCanvas.height = HSP * PS;
+        bx.imageSmoothingEnabled = false;
+
+        // Background
+        bx.fillStyle = C.banner;
+        bx.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
+        // Bottom shading band
+        bx.fillStyle = C.bannerLo;
+        bx.fillRect(0, (HSP - 2) * PS, targetCanvas.width, 2 * PS);
+        // Dark outline (top, bottom, right edge attached to rope)
+        bx.fillStyle = C.bannerEdge;
+        bx.fillRect(0, 0, targetCanvas.width, PS);
+        bx.fillRect(0, (HSP - 1) * PS, targetCanvas.width, PS);
+        bx.fillRect((WSP - 1) * PS, 0, PS, HSP * PS);
         // Swallowtail V-notch on free (left) end
         var NOTCH = 3;
-        bctx.clearRect(0, 0, NOTCH * PS, HSP * PS);
+        bx.clearRect(0, 0, NOTCH * PS, HSP * PS);
         for (var i = 0; i < NOTCH; i++) {
-          bctx.fillStyle = C.banner;
-          bctx.fillRect(i * PS, i * PS, (NOTCH - i + 1) * PS, PS);
-          bctx.fillRect(i * PS, (HSP - 1 - i) * PS, (NOTCH - i + 1) * PS, PS);
-          bctx.fillStyle = C.bannerEdge;
-          bctx.fillRect(i * PS, i * PS, PS, PS);
-          bctx.fillRect(i * PS, (HSP - 1 - i) * PS, PS, PS);
+          bx.fillStyle = C.banner;
+          bx.fillRect(i * PS, i * PS, (NOTCH - i + 1) * PS, PS);
+          bx.fillRect(i * PS, (HSP - 1 - i) * PS, (NOTCH - i + 1) * PS, PS);
+          bx.fillStyle = C.bannerEdge;
+          bx.fillRect(i * PS, i * PS, PS, PS);
+          bx.fillRect(i * PS, (HSP - 1 - i) * PS, PS, PS);
         }
-        bctx.fillStyle = C.banner;
+        bx.fillStyle = C.banner;
         for (var row = NOTCH + 1; row < HSP - NOTCH - 1; row++) {
-          bctx.fillRect(0, row * PS, NOTCH * PS, PS);
+          bx.fillRect(0, row * PS, NOTCH * PS, PS);
         }
-        bctx.fillStyle = C.bannerEdge;
+        bx.fillStyle = C.bannerEdge;
         for (var j = 0; j < NOTCH; j++) {
-          bctx.fillRect(j * PS, (NOTCH - j) * PS, PS, PS);
-          bctx.fillRect(j * PS, (HSP - 1 - NOTCH + j) * PS, PS, PS);
+          bx.fillRect(j * PS, (NOTCH - j) * PS, PS, PS);
+          bx.fillRect(j * PS, (HSP - 1 - NOTCH + j) * PS, PS, PS);
         }
-        bctx.fillStyle = C.bannerLo;
-        bctx.fillRect(0, (HSP - 2) * PS, NOTCH * PS, PS);
-        bctx.fillStyle = C.bannerText;
-        bctx.font = (FONT * PS) + 'px "Press Start 2P", monospace';
-        bctx.textBaseline = 'middle';
-        bctx.textAlign = 'left';
-        bctx.fillText(BANNER_TEXT, PADX * PS, Math.round(bannerCanvas.height / 2));
-        bannerDims = { width: WSP, height: HSP };
+        bx.fillStyle = C.bannerLo;
+        bx.fillRect(0, (HSP - 2) * PS, NOTCH * PS, PS);
+
+        // Lines of text, top-aligned within padding
+        bx.fillStyle = C.bannerText;
+        bx.textAlign = 'left';
+        bx.textBaseline = 'top';
+        var ly = PADY;
+        for (var ti = 0; ti < lines.length; ti++) {
+          bx.font = (lines[ti].font * PS) + 'px "Press Start 2P", monospace';
+          bx.fillText(lines[ti].text, PADX * PS, ly * PS);
+          ly += lines[ti].font;
+          if (ti < lines.length - 1) ly += LINE_GAP;
+        }
+        return { width: WSP, height: HSP };
+      }
+      function buildBanners() {
+        bannerBigDims = buildBannerInto(bannerBig, [
+          { text: BIG_LINE1, font: 7 },
+          { text: BIG_LINE2, font: 5 },
+        ]);
+        bannerSmallDims = buildBannerInto(bannerSmall, [
+          { text: SMALL_TEXT, font: 6 },
+        ]);
       }
       if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(buildBanner);
+        document.fonts.ready.then(buildBanners);
       } else {
-        buildBanner();
+        buildBanners();
       }
 
-      // Banner draw with wave (same recipe as FlyBy).
-      function drawBanner(leftPx, centerY, t) {
-        if (!bannerDims.width) return;
-        var W = bannerCanvas.width;
-        var H = bannerCanvas.height;
+      // Banner draw with wave (same recipe as FlyBy). Takes the
+      // offscreen canvas + its dims so we can use it for both the
+      // big trailing banner and the small perch flag. `amp` scales
+      // the wave intensity (the small flag waves less to look held).
+      function drawBanner(srcCanvas, srcDims, leftPx, centerY, t, amp) {
+        if (!srcDims.width) return;
+        if (amp == null) amp = 2.5;
+        var W = srcCanvas.width;
+        var H = srcCanvas.height;
         var yTop = centerY - H / 2;
         for (var col = 0; col < W; col += PS) {
           var dist = (W - col) / W;
           var phase1 = t * 0.007 + col * 0.030;
           var phase2 = t * 0.011 + col * 0.060 + 1.3;
           var wave   = Math.sin(phase1) * 0.85 + Math.sin(phase2) * 0.18;
-          var amp    = Math.pow(dist, 0.75) * 2.5;
-          var offset = Math.round(wave * amp) * PS;
-          ctx.drawImage(bannerCanvas, col, 0, PS, H, leftPx + col, yTop + offset, PS, H);
+          var ampHere = Math.pow(dist, 0.75) * amp;
+          var offset  = Math.round(wave * ampHere) * PS;
+          ctx.drawImage(srcCanvas, col, 0, PS, H, leftPx + col, yTop + offset, PS, H);
         }
       }
 
@@ -505,44 +553,42 @@
         var birdOY = birdTopY / PS;
         drawBird(birdOX, birdOY, wingFrame);
       }
-      // Draw the pole + flag held UP above the bird. poleProgress
-      // 0→1 controls the raise animation (pole grows from 0 to full
-      // height, flag scales in at the end).
+      // Pole + small "Pick one!" flag held UP above the bird during
+      // the perch moment. poleProgress 0→1 controls the raise (pole
+      // grows from 0 to full height; flag fades+scales in at the
+      // tail end).
       function drawRaisedFlag(birdNoseX, birdTopY, poleProgress, t) {
         var birdW = BIRD_W_SP * PS;
-        // Pole bottom is at the bird's back (top of body)
+        // Pole bottom anchors at the bird's back (top of body).
         var poleBottomX = birdNoseX - birdW + 5 * PS;
         var poleBottomY = birdTopY + 2 * PS;
         var fullH = POLE_H_SP * PS;
         var poleH = Math.round(fullH * poleProgress);
-        // Pole — vertical brown line
         ctx.fillStyle = C.rope;
         ctx.fillRect(Math.round(poleBottomX), Math.round(poleBottomY - poleH), PS, poleH);
-        // Flag at top of pole — only show once pole is mostly grown
-        if (poleProgress > 0.6 && bannerDims.width) {
-          var flagScale = Math.min((poleProgress - 0.6) / 0.4, 1);
-          var bw = bannerCanvas.width;
-          var bh = bannerCanvas.height;
+        if (poleProgress > 0.55 && bannerSmallDims.width) {
+          var flagScale = Math.min((poleProgress - 0.55) / 0.45, 1);
+          var bw = bannerSmall.width;
+          var bh = bannerSmall.height;
           var scaledW = Math.round(bw * flagScale);
           var scaledH = Math.round(bh * flagScale);
-          // Anchor flag at top-right of pole, flag extends LEFT from pole.
           var flagRight = poleBottomX + PS;
-          var flagTopY = poleBottomY - poleH - scaledH / 2;
-          // Wave the flag (cheaper variant of drawBanner — at this
-          // small scale, slicing isn't worth it).
-          ctx.drawImage(bannerCanvas,
+          var flagTopY  = poleBottomY - poleH - scaledH / 2;
+          ctx.drawImage(bannerSmall,
             Math.round(flagRight - scaledW),
             Math.round(flagTopY),
             scaledW, scaledH);
         }
       }
-      // Trailing flag during FLY_OUT. Banner trails BEHIND the bird,
-      // slightly below, attached via a curved rope.
-      function drawTrailingFlag(birdNoseX, birdTopY, t) {
-        if (!bannerDims.width) return;
+      // Big trailing banner — present during fly-in, fly-out, AND
+      // during the perch (where it drapes naturally behind the bird,
+      // waving more gently because the bird isn't moving). amp
+      // controls wave intensity so we can dampen it while perched.
+      function drawTrailingBanner(birdNoseX, birdTopY, t, amp) {
+        if (!bannerBigDims.width) return;
         var birdW = BIRD_W_SP * PS;
-        var bw = bannerCanvas.width;
-        var bh = bannerCanvas.height;
+        var bw = bannerBig.width;
+        var bh = bannerBig.height;
         var horizontalGap = 8 * PS;
         var birdTailX = birdNoseX - birdW + 2 * PS;
         var bannerRightX = birdTailX - horizontalGap;
@@ -550,7 +596,7 @@
         var birdBellyY   = birdTopY + 6 * PS;
         var bannerTopY   = birdBellyY + 4 * PS;
         var bannerCY     = bannerTopY + bh / 2;
-        drawBanner(bannerLeftX, bannerCY, t);
+        drawBanner(bannerBig, bannerBigDims, bannerLeftX, bannerCY, t, amp);
         drawRope(bannerRightX, bannerTopY, birdTailX, birdBellyY, t);
       }
 
@@ -579,26 +625,29 @@
           // bird's BOTTOM = perchY (feet on perch).
           var endX = perchX + birdW / 2;
           var endY = perchY - birdH;
-          // Linear interpolation in X; ease-out in both
           var noseX = startX + (endX - startX) * eased;
           var topY  = startY + (endY  - startY) * eased;
-          // Add gentle bob during flight (fades to 0 as we arrive)
           var bob = Math.sin(now * 0.008) * BOB_AMP * PS * (1 - eased);
+          // Big trailing banner is carried the whole flight.
+          drawTrailingBanner(noseX, topY + bob, now, 2.5);
           drawBirdAt(noseX, topY + bob, wingFrame);
           if (t >= 1) advance(PH.PERCH_QUIET);
         }
         else if (phase === PH.PERCH_QUIET) {
           var noseX = perchX + birdW / 2;
           var topY  = perchY - birdH;
-          // Tiny settling motion (small vertical bounce on landing)
+          // Tiny settling bounce on landing
           var settle = pe < 200 ? Math.sin(pe / 200 * Math.PI) * 2 : 0;
-          drawBirdAt(noseX, topY - settle, 1); // wing mid frame (folded look)
+          // Banner drapes behind — wave gently (lower amp).
+          drawTrailingBanner(noseX, topY - settle, now, 1.0);
+          drawBirdAt(noseX, topY - settle, 1);
           if (pe >= TIMING.PERCH_QUIET) advance(PH.RAISE_FLAG);
         }
         else if (phase === PH.RAISE_FLAG) {
           var noseX = perchX + birdW / 2;
           var topY  = perchY - birdH;
           var t = Math.min(pe / TIMING.RAISE_FLAG, 1);
+          drawTrailingBanner(noseX, topY, now, 1.0);
           drawRaisedFlag(noseX, topY, ease(t), now);
           drawBirdAt(noseX, topY, 1);
           if (t >= 1) advance(PH.PERCH_WITH_FLAG);
@@ -606,6 +655,7 @@
         else if (phase === PH.PERCH_WITH_FLAG) {
           var noseX = perchX + birdW / 2;
           var topY  = perchY - birdH;
+          drawTrailingBanner(noseX, topY, now, 1.0);
           drawRaisedFlag(noseX, topY, 1, now);
           drawBirdAt(noseX, topY, 1);
           if (pe >= TIMING.PERCH_WITH_FLAG) advance(PH.FLY_OUT);
@@ -614,14 +664,13 @@
           var t = Math.min(pe / TIMING.FLY_OUT, 1);
           var startNoseX = perchX + birdW / 2;
           var startTopY  = perchY - birdH;
-          // Exit upper-right: noseX → canvas.width + bird width + buffer
           var endNoseX = canvas.width + birdW + 80;
-          var endTopY  = startTopY - 80;  // climb 80px as it leaves
+          var endTopY  = startTopY - 80;
           var eased = ease(t);
           var noseX = startNoseX + (endNoseX - startNoseX) * eased;
           var topY  = startTopY  + (endTopY  - startTopY)  * eased;
           var bob = Math.sin(now * 0.008) * BOB_AMP * PS * eased;
-          drawTrailingFlag(noseX, topY + bob, now);
+          drawTrailingBanner(noseX, topY + bob, now, 2.5);
           drawBirdAt(noseX, topY + bob, wingFrame);
           if (t >= 1) {
             state.active = false;
@@ -646,12 +695,12 @@
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           var t = Math.min((now - fallbackStart) / DURATION, 1);
           var birdW = BIRD_W_SP * PS;
-          var bannerW = bannerCanvas.width;
+          var bannerW = bannerBig.width;
           var chainLen = birdW + 8 * PS + bannerW;
           var noseX = (-40) + (canvas.width + chainLen + 80) * t;
           var topY = window.innerHeight * 0.2;
           var bob = Math.sin(now * 0.004) * BOB_AMP * PS;
-          drawTrailingFlag(noseX, topY + bob, now);
+          drawTrailingBanner(noseX, topY + bob, now, 2.5);
           drawBirdAt(noseX, topY + bob, Math.floor(now / 110) % 3);
           if (t >= 1) { state.active = false; ctx.clearRect(0, 0, canvas.width, canvas.height); return; }
           state.rafId = requestAnimationFrame(fbFrame);
@@ -712,9 +761,14 @@
       window.__showBird = runBird;
       // Swap either line on the fly. Pass null/empty for line 2 to
       // make it single-line for testing variants.
-      window.__birdText = function (t) {
-        if (t != null) BANNER_TEXT = t;
-        buildBanner();
+      // Swap the trailing big banner OR the perched small flag:
+      //   __birdText(null, null, 'Pick me!')           // small flag
+      //   __birdText('Top line.', 'sub line below.')   // big trailing
+      window.__birdText = function (line1, line2, smallText) {
+        if (line1 != null) BIG_LINE1 = line1;
+        if (line2 != null) BIG_LINE2 = line2;
+        if (smallText != null) SMALL_TEXT = smallText;
+        buildBanners();
       };
     })();
   </script>
