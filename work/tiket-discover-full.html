@@ -15,9 +15,35 @@
   <link rel="stylesheet" href="/css/case.css?v=153">
   <link rel="stylesheet" href="/components/FlyBy/flyby.css?v=4">
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
+  <!-- FLOATING NAV (experimental — single case study only) -->
+  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=1">
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
-<body class="minimal">
+<body class="minimal case-floating-nav">
+
+  <!-- FLOATING NAV (experimental) — chip + popover. Revert by
+       deleting this block, the body class, the CSS <link>, and the
+       <script> at the end of the file. -->
+  <div class="case-fn-chip" role="toolbar" aria-label="Case study navigation">
+    <a href="/" class="case-fn-back">← <span data-en="Back" data-ja="戻る">Back</span></a>
+    <button type="button" class="case-fn-menu" aria-haspopup="true" aria-expanded="false" aria-controls="case-fn-popover" data-en="Sections" data-ja="セクション">
+      Sections
+      <span class="case-fn-menu-chev" aria-hidden="true">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
+          <polyline points="3 5 6 8 9 5"/>
+        </svg>
+      </span>
+    </button>
+  </div>
+  <nav id="case-fn-popover" class="case-fn-popover" aria-label="Sections">
+    <ul class="case-fn-popover-list">
+      <li><a href="#overview"  class="case-fn-popover-link is-active">Overview</a></li>
+      <li><a href="#research"  class="case-fn-popover-link">Research</a></li>
+      <li><a href="#strategy"  class="case-fn-popover-link">Strategy</a></li>
+      <li><a href="#impact"    class="case-fn-popover-link">Impact</a></li>
+      <li><a href="#learnings" class="case-fn-popover-link">Learnings</a></li>
+    </ul>
+  </nav>
 
   <div class="case-page">
 
@@ -1131,6 +1157,8 @@
   <canvas id="flyby-surprise"></canvas>
   <script src="/components/FlyBy/flyby.js?v=4" defer></script>
   <script src="/components/Stabilo/stabilo.js?v=5" defer></script>
+  <!-- FLOATING NAV (experimental) -->
+  <script src="/components/FloatingNav/floating-nav.js?v=1" defer></script>
   <script src="/live-polish.js?v=3"></script>
 </body>
 </html>

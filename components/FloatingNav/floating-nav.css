@@ -1,0 +1,152 @@
+/* ════════════════════════════════════════════════════════════════════
+   Floating Nav — collapsible case-study sidebar
+   ────────────────────────────────────────────────────────────────────
+   Replaces the always-visible left-rail sidebar with a small chip
+   (back + sections button) anchored top-left, and a popover that
+   appears when the visitor clicks "Sections". The content column
+   then has the page to itself and can centre cleanly.
+
+   Activated by `body.case-floating-nav`. If the class isn't present
+   none of these rules apply, so the legacy sidebar still works on
+   pages that haven't opted in.
+
+   To revert from a page:
+   - Remove `case-floating-nav` from <body>
+   - Remove the <link> to this CSS
+   - Remove the .case-fn-chip + .case-fn-popover markup
+   - Remove the floating-nav.js <script>
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ─── Hide the legacy left-rail sidebar + recenter the content ──── */
+body.case-floating-nav .case-sidebar { display: none; }
+body.case-floating-nav .case-page {
+  /* legacy padding-left was 64px (room for the sidebar). With the
+     sidebar gone, content can sit centred without that offset. */
+  padding-left: 24px;
+  padding-right: 24px;
+  padding-top: 80px; /* clear of the floating chip */
+}
+
+/* ─── The floating chip (back + sections, side by side) ──────────── */
+.case-fn-chip {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 999px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 8px 22px rgba(0, 0, 0, 0.06);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+.case-fn-back,
+.case-fn-menu {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  text-decoration: none;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 160ms ease, color 160ms ease;
+}
+.case-fn-back:hover,
+.case-fn-menu:hover {
+  background: var(--bg2);
+}
+.case-fn-menu .case-fn-menu-chev {
+  width: 12px;
+  height: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text3);
+  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1), color 160ms ease;
+}
+.case-fn-menu[aria-expanded="true"] .case-fn-menu-chev {
+  transform: rotate(180deg);
+}
+.case-fn-menu:hover .case-fn-menu-chev {
+  color: var(--text);
+}
+
+/* ─── The popover ─────────────────────────────────────────────────── */
+.case-fn-popover {
+  position: fixed;
+  top: 78px;
+  left: 24px;
+  z-index: 99;
+  min-width: 220px;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 16px 36px rgba(0, 0, 0, 0.10);
+  padding: 6px;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+  transform-origin: top left;
+  pointer-events: none;
+  transition: opacity 200ms ease,
+              transform 200ms cubic-bezier(0.2, 0, 0, 1);
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+}
+.case-fn-popover.is-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.case-fn-popover-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.case-fn-popover-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  transition: background 150ms ease, color 150ms ease;
+}
+.case-fn-popover-link:hover {
+  background: var(--bg2);
+}
+.case-fn-popover-link.is-active {
+  background: rgba(200, 221, 212, 0.30);  /* mint tint */
+  color: #2D4A3A;
+}
+[data-theme="dark"] .case-fn-popover-link.is-active,
+:root:not([data-theme="light"]) .case-fn-popover-link.is-active {
+  background: rgba(200, 221, 212, 0.12);
+  color: #C8DDD4;
+}
+
+/* ─── Mobile — hide the floating chip on mobile (the existing
+       mobile hamburger menu in the case studies handles this case
+       better than a tiny floating chip would). ──────────────────── */
+@media (max-width: 768px) {
+  .case-fn-chip,
+  .case-fn-popover { display: none; }
+  body.case-floating-nav .case-page { padding-top: 0; }
+}
