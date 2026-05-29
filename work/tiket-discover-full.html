@@ -16,26 +16,43 @@
   <link rel="stylesheet" href="/components/FlyBy/flyby.css?v=4">
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
   <!-- FLOATING NAV (experimental — single case study only) -->
-  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=1">
+  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=2">
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body class="minimal case-floating-nav">
 
-  <!-- FLOATING NAV (experimental) — chip + popover. Revert by
-       deleting this block, the body class, the CSS <link>, and the
-       <script> at the end of the file. -->
-  <div class="case-fn-chip" role="toolbar" aria-label="Case study navigation">
-    <a href="/" class="case-fn-back">← <span data-en="Back" data-ja="戻る">Back</span></a>
-    <button type="button" class="case-fn-menu" aria-haspopup="true" aria-expanded="false" aria-controls="case-fn-popover" data-en="Sections" data-ja="セクション">
-      Sections
-      <span class="case-fn-menu-chev" aria-hidden="true">
-        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
-          <polyline points="3 5 6 8 9 5"/>
+  <!-- FLOATING NAV (experimental) — two independent icon buttons +
+       popover. The button label is one <span> per letter so the
+       hover-typewriter effect can stagger each letter via CSS
+       transition-delay. Change "Outline" by editing both the
+       data-label and the letter spans (helpful suggestions in the
+       comment over the .case-fn-menu button below). -->
+  <div class="case-fn-toolbar" role="toolbar" aria-label="Case study navigation">
+    <!-- Back -->
+    <a href="/" class="case-fn-btn case-fn-back" aria-label="Back">
+      <span class="case-fn-btn-icon" aria-hidden="true">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 3.5 5 8 9 12.5"/>
+          <line x1="5" y1="8" x2="13" y2="8"/>
         </svg>
       </span>
+      <span class="case-fn-btn-label" data-en="Back" data-ja="戻る"><span style="--i:0">B</span><span style="--i:1">a</span><span style="--i:2">c</span><span style="--i:3">k</span></span>
+    </a>
+    <!-- Outline — swap this label to one of:
+         Outline / Jump / Contents / Chapters / On this page
+         (and update both the visible letters AND data-en if you do). -->
+    <button type="button" class="case-fn-btn case-fn-menu" aria-haspopup="true" aria-expanded="false" aria-controls="case-fn-popover" aria-label="Outline">
+      <span class="case-fn-btn-icon" aria-hidden="true">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3"  y1="4"  x2="13" y2="4"/>
+          <line x1="6"  y1="8"  x2="13" y2="8"/>
+          <line x1="3"  y1="12" x2="13" y2="12"/>
+        </svg>
+      </span>
+      <span class="case-fn-btn-label" data-en="Outline" data-ja="目次"><span style="--i:0">O</span><span style="--i:1">u</span><span style="--i:2">t</span><span style="--i:3">l</span><span style="--i:4">i</span><span style="--i:5">n</span><span style="--i:6">e</span></span>
     </button>
   </div>
-  <nav id="case-fn-popover" class="case-fn-popover" aria-label="Sections">
+  <nav id="case-fn-popover" class="case-fn-popover" aria-label="Outline">
     <ul class="case-fn-popover-list">
       <li><a href="#overview"  class="case-fn-popover-link is-active">Overview</a></li>
       <li><a href="#research"  class="case-fn-popover-link">Research</a></li>
@@ -1158,7 +1175,7 @@
   <script src="/components/FlyBy/flyby.js?v=4" defer></script>
   <script src="/components/Stabilo/stabilo.js?v=5" defer></script>
   <!-- FLOATING NAV (experimental) -->
-  <script src="/components/FloatingNav/floating-nav.js?v=1" defer></script>
+  <script src="/components/FloatingNav/floating-nav.js?v=2" defer></script>
   <script src="/live-polish.js?v=3"></script>
 </body>
 </html>

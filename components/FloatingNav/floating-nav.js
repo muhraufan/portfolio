@@ -22,6 +22,10 @@
 
     function setOpen(yes) {
       popover.classList.toggle('is-open', yes);
+      // Keep the button visually "expanded" (label visible + hover bg)
+      // while the popover is open, even if the cursor has moved away
+      // onto the popover items.
+      menuBtn.classList.toggle('is-active', yes);
       menuBtn.setAttribute('aria-expanded', yes ? 'true' : 'false');
     }
 

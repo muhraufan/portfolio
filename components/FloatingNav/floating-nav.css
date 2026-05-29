@@ -1,34 +1,39 @@
 /* ════════════════════════════════════════════════════════════════════
    Floating Nav — collapsible case-study sidebar
    ────────────────────────────────────────────────────────────────────
-   Replaces the always-visible left-rail sidebar with a small chip
-   (back + sections button) anchored top-left, and a popover that
-   appears when the visitor clicks "Sections". The content column
-   then has the page to itself and can centre cleanly.
+   Two independent icon-only buttons anchored top-left of the
+   viewport. On hover, each expands: a hover background appears
+   (macOS-style soft pill) and the label types in letter-by-letter
+   from left to right, pushing whatever sits to its right.
 
-   Activated by `body.case-floating-nav`. If the class isn't present
-   none of these rules apply, so the legacy sidebar still works on
-   pages that haven't opted in.
+   The "Outline" button toggles a popover with the case-study's
+   section links.
+
+   Activated by `body.case-floating-nav`. Without that class, none
+   of these rules apply, so pages that haven't opted in still use
+   the legacy left-rail sidebar.
 
    To revert from a page:
    - Remove `case-floating-nav` from <body>
    - Remove the <link> to this CSS
-   - Remove the .case-fn-chip + .case-fn-popover markup
+   - Remove the .case-fn-toolbar + .case-fn-popover markup
    - Remove the floating-nav.js <script>
    ════════════════════════════════════════════════════════════════════ */
 
-/* ─── Hide the legacy left-rail sidebar + recenter the content ──── */
+/* ─── Hide the legacy left-rail sidebar + recentre the content ──── */
 body.case-floating-nav .case-sidebar { display: none; }
 body.case-floating-nav .case-page {
   /* legacy padding-left was 64px (room for the sidebar). With the
      sidebar gone, content can sit centred without that offset. */
   padding-left: 24px;
   padding-right: 24px;
-  padding-top: 80px; /* clear of the floating chip */
+  padding-top: 80px; /* clear of the floating toolbar */
 }
 
-/* ─── The floating chip (back + sections, side by side) ──────────── */
-.case-fn-chip {
+/* ─── Toolbar — invisible flex container so the buttons can push
+       each other horizontally as one expands. No background, no
+       border, no shadow — the buttons themselves are the chrome. */
+.case-fn-toolbar {
   position: fixed;
   top: 24px;
   left: 24px;
@@ -36,64 +41,117 @@ body.case-floating-nav .case-page {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px;
-  background: var(--bg);
-  border: 1px solid var(--border2);
-  border-radius: 999px;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.04),
-    0 8px 22px rgba(0, 0, 0, 0.06);
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
-.case-fn-back,
-.case-fn-menu {
+
+/* ─── Single button (back or outline) ────────────────────────────── */
+.case-fn-btn {
   appearance: none;
   border: 0;
   background: transparent;
-  padding: 8px 14px;
-  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  padding: 7px 8px;
+  border-radius: 8px;
   color: var(--text);
+  font: inherit;
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.2px;
   text-decoration: none;
   line-height: 1;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
+  /* gap + background animate together so the label sliding in feels
+     like one motion. */
+  transition: background 200ms cubic-bezier(0.2, 0, 0, 1),
+              color      200ms ease,
+              gap        200ms cubic-bezier(0.2, 0, 0, 1);
+}
+.case-fn-btn:hover,
+.case-fn-btn:focus-visible,
+.case-fn-btn.is-active {
+  background: rgba(0, 0, 0, 0.06);
+  outline: 0;
   gap: 6px;
-  transition: background 160ms ease, color 160ms ease;
 }
-.case-fn-back:hover,
-.case-fn-menu:hover {
-  background: var(--bg2);
+[data-theme="dark"] .case-fn-btn:hover,
+[data-theme="dark"] .case-fn-btn:focus-visible,
+[data-theme="dark"] .case-fn-btn.is-active {
+  background: rgba(255, 255, 255, 0.08);
 }
-.case-fn-menu .case-fn-menu-chev {
-  width: 12px;
-  height: 12px;
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .case-fn-btn:hover,
+  :root:not([data-theme="light"]) .case-fn-btn:focus-visible,
+  :root:not([data-theme="light"]) .case-fn-btn.is-active {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.case-fn-btn-icon {
+  width: 18px;
+  height: 18px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--text3);
-  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1), color 160ms ease;
+  flex-shrink: 0;
 }
-.case-fn-menu[aria-expanded="true"] .case-fn-menu-chev {
-  transform: rotate(180deg);
+.case-fn-btn-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
 }
-.case-fn-menu:hover .case-fn-menu-chev {
-  color: var(--text);
+
+/* ─── Label — typewriter expand on hover ──────────────────────────
+   Each letter is its own <span>. `--i` is the letter index (set
+   inline). On hover the wrapper's max-width grows so the row reflows
+   smoothly (pushing the next button right), and each letter fades
+   + slides in with a `--i`-scaled delay so the word types itself
+   left-to-right. */
+.case-fn-btn-label {
+  display: inline-flex;
+  overflow: hidden;
+  max-width: 0;
+  white-space: nowrap;
+  transition: max-width 360ms cubic-bezier(0.2, 0, 0, 1);
+}
+.case-fn-btn:hover .case-fn-btn-label,
+.case-fn-btn:focus-visible .case-fn-btn-label,
+.case-fn-btn.is-active .case-fn-btn-label {
+  max-width: 220px;
+}
+.case-fn-btn-label > span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateX(-3px);
+  transition:
+    opacity   200ms cubic-bezier(0.2, 0, 0, 1),
+    transform 220ms cubic-bezier(0.2, 0, 0, 1);
+}
+.case-fn-btn:hover .case-fn-btn-label > span,
+.case-fn-btn:focus-visible .case-fn-btn-label > span,
+.case-fn-btn.is-active .case-fn-btn-label > span {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: calc(var(--i, 0) * 28ms);
+}
+/* Reverse on leave: letters fade out together with no stagger so
+   the collapse feels brisk, not delayed. */
+.case-fn-btn-label > span {
+  transition-delay: 0ms;
 }
 
 /* ─── The popover ─────────────────────────────────────────────────── */
 .case-fn-popover {
   position: fixed;
-  top: 78px;
+  /* The toolbar sits at top:24, button height ~32 → popover at ~68. */
+  top: 68px;
   left: 24px;
   z-index: 99;
   min-width: 220px;
   background: var(--bg);
   border: 1px solid var(--border2);
-  border-radius: 16px;
+  border-radius: 14px;
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.04),
     0 16px 36px rgba(0, 0, 0, 0.10);
@@ -102,8 +160,9 @@ body.case-floating-nav .case-page {
   transform: translateY(-6px) scale(0.98);
   transform-origin: top left;
   pointer-events: none;
-  transition: opacity 200ms ease,
-              transform 200ms cubic-bezier(0.2, 0, 0, 1);
+  transition:
+    opacity   200ms ease,
+    transform 200ms cubic-bezier(0.2, 0, 0, 1);
   font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
 }
 .case-fn-popover.is-open {
@@ -133,7 +192,7 @@ body.case-floating-nav .case-page {
   background: var(--bg2);
 }
 .case-fn-popover-link.is-active {
-  background: rgba(200, 221, 212, 0.30);  /* mint tint */
+  background: rgba(200, 221, 212, 0.30);
   color: #2D4A3A;
 }
 [data-theme="dark"] .case-fn-popover-link.is-active,
@@ -142,11 +201,9 @@ body.case-floating-nav .case-page {
   color: #C8DDD4;
 }
 
-/* ─── Mobile — hide the floating chip on mobile (the existing
-       mobile hamburger menu in the case studies handles this case
-       better than a tiny floating chip would). ──────────────────── */
+/* ─── Mobile — hide entirely. The case-mobile hamburger handles it. */
 @media (max-width: 768px) {
-  .case-fn-chip,
+  .case-fn-toolbar,
   .case-fn-popover { display: none; }
   body.case-floating-nav .case-page { padding-top: 0; }
 }
