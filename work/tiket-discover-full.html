@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="/components/FlyBy/flyby.css?v=4">
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
   <!-- FLOATING NAV (experimental — single case study only) -->
-  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=7">
+  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=8">
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body class="minimal case-floating-nav">
@@ -47,6 +47,12 @@
           <line x1="3"  y1="4"  x2="13" y2="4"/>
           <line x1="6"  y1="8"  x2="13" y2="8"/>
           <line x1="3"  y1="12" x2="13" y2="12"/>
+        </svg>
+        <!-- Scroll-progress ring. JS sets --scroll-progress on the
+             button each scroll tick. -->
+        <svg class="case-fn-progress-ring" viewBox="0 0 26 26" aria-hidden="true">
+          <circle class="case-fn-progress-ring-track" cx="13" cy="13" r="12"/>
+          <circle class="case-fn-progress-ring-fill"  cx="13" cy="13" r="12"/>
         </svg>
       </span>
       <span class="case-fn-btn-label" data-en="Outline" data-ja="目次"><span style="--i:0">O</span><span style="--i:1">u</span><span style="--i:2">t</span><span style="--i:3">l</span><span style="--i:4">i</span><span style="--i:5">n</span><span style="--i:6">e</span></span>
@@ -1195,7 +1201,7 @@
   <script src="/components/FlyBy/flyby.js?v=4" defer></script>
   <script src="/components/Stabilo/stabilo.js?v=5" defer></script>
   <!-- FLOATING NAV (experimental) -->
-  <script src="/components/FloatingNav/floating-nav.js?v=3" defer></script>
+  <script src="/components/FloatingNav/floating-nav.js?v=4" defer></script>
   <script src="/live-polish.js?v=3"></script>
 </body>
 </html>

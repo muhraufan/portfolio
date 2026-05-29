@@ -101,11 +101,46 @@ body.case-floating-nav .case-page {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  position: relative;
 }
-.case-fn-btn-icon svg {
+.case-fn-btn-icon > svg {
   width: 16px;
   height: 16px;
   display: block;
+}
+
+/* ─── Scroll-progress ring on the Outline button (icon-only state)
+   ─────────────────────────────────────────────────────────────────
+   1.5px ring orbits the icon. Track is muted; fill (mint) sweeps
+   clockwise as the visitor scrolls down the case study. Rotation
+   starts at 12 o'clock (transform: rotate(-90deg)). */
+.case-fn-progress-ring {
+  position: absolute;
+  inset: -4px;             /* extends past the 16px icon */
+  width: 26px;
+  height: 26px;
+  pointer-events: none;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+.case-fn-progress-ring-track,
+.case-fn-progress-ring-fill {
+  fill: none;
+  stroke-width: 1.4;
+}
+.case-fn-progress-ring-track {
+  stroke: var(--border2);
+}
+.case-fn-progress-ring-fill {
+  /* Circumference for r=12 = 2π·12 ≈ 75.4 — used as both
+     stroke-dasharray and as the basis for stroke-dashoffset.
+     --scroll-progress (0..1) is set by JS. */
+  --ring-circ: 75.4;
+  stroke: #5a9072;
+  stroke-linecap: round;
+  stroke-dasharray: var(--ring-circ);
+  stroke-dashoffset: calc(var(--ring-circ) * (1 - var(--scroll-progress, 0)));
+  transition: stroke-dashoffset 80ms linear;
 }
 
 /* ─── Label — typewriter expand on hover, smooth collapse on unhover
@@ -180,10 +215,11 @@ body.case-floating-nav .case-page {
   padding: 0;
 }
 .case-fn-popover-link {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px;
+  padding: 10px 14px 10px 18px;   /* extra left padding for progress bar */
   border-radius: 10px;
   text-decoration: none;
   color: var(--text);
@@ -191,6 +227,31 @@ body.case-floating-nav .case-page {
   font-weight: 500;
   letter-spacing: 0.2px;
   transition: background 150ms ease, color 150ms ease;
+}
+
+/* ─── Per-section progress rail (left edge of each item)
+   ─────────────────────────────────────────────────────────────────
+   Vertical 2px bar inside the left padding. Visualises the
+   visitor's reading position: future sections empty (gray track),
+   the section currently in view partially filled from top down,
+   past sections fully filled (mint). --section-progress (0..1)
+   is set by JS as the visitor scrolls. */
+.case-fn-popover-link::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  border-radius: 1px;
+  background: linear-gradient(
+    to bottom,
+    #5a9072 0%,
+    #5a9072 calc(var(--section-progress, 0) * 100%),
+    var(--border2) calc(var(--section-progress, 0) * 100%),
+    var(--border2) 100%
+  );
+  transition: background 80ms linear;
 }
 .case-fn-popover-link:hover {
   background: var(--bg2);
