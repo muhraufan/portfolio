@@ -154,11 +154,11 @@ body.case-floating-nav .case-page {
   z-index: 99;
   min-width: 220px;
   background: var(--bg);
-  border: 1px solid var(--border2);
-  border-radius: 14px;
+  border: 1px solid rgb(218 218 218 / 14%);
+  border-radius: 12px;
   box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.04),
-    0 16px 36px rgba(0, 0, 0, 0.10);
+    0 1px 2px  rgb(0 0 0 / 3%),
+    0 16px 36px rgb(0 0 0 / 5%);
   padding: 6px;
   opacity: 0;
   transform: translateY(-6px) scale(0.98);
@@ -204,6 +204,25 @@ body.case-floating-nav .case-page {
   background: rgba(200, 221, 212, 0.12);
   color: #C8DDD4;
 }
+
+/* ─── Section icon — leading the link label ─────────────────────── */
+.case-fn-popover-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text3); /* muted by default */
+  transition: color 150ms ease;
+}
+.case-fn-popover-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.case-fn-popover-link:hover .case-fn-popover-icon { color: var(--text2); }
+.case-fn-popover-link.is-active .case-fn-popover-icon { color: inherit; }
 
 /* ─── Mobile — hide entirely. The case-mobile hamburger handles it. */
 @media (max-width: 768px) {
