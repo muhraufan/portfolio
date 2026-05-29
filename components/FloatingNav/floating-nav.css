@@ -27,15 +27,17 @@ body.case-floating-nav .case-page {
      sidebar gone, content can sit centred without that offset. */
   padding-left: 24px;
   padding-right: 24px;
-  padding-top: 80px; /* clear of the floating toolbar */
+  padding-top: 100px; /* clear of the floating toolbar */
 }
 
 /* ─── Toolbar — invisible flex container so the buttons can push
        each other horizontally as one expands. No background, no
-       border, no shadow — the buttons themselves are the chrome. */
+       border, no shadow — the buttons themselves are the chrome.
+       Anchored at top:48 so it lines up with the existing
+       .case-lang-toggle / .case-theme-toggle on the same row. */
 .case-fn-toolbar {
   position: fixed;
-  top: 24px;
+  top: 48px;
   left: 24px;
   z-index: 100;
   display: inline-flex;
@@ -62,11 +64,12 @@ body.case-floating-nav .case-page {
   letter-spacing: 0.2px;
   text-decoration: none;
   line-height: 1;
-  /* gap + background animate together so the label sliding in feels
-     like one motion. */
-  transition: background 200ms cubic-bezier(0.2, 0, 0, 1),
+  /* Background fade is the smoothest curve so the macOS-style hover
+     pill feels like it materialises on top of the page, not pops in.
+     Gap follows the same curve so the label slot opens in sync. */
+  transition: background 280ms cubic-bezier(0.33, 1, 0.68, 1),
               color      200ms ease,
-              gap        200ms cubic-bezier(0.2, 0, 0, 1);
+              gap        280ms cubic-bezier(0.33, 1, 0.68, 1);
 }
 .case-fn-btn:hover,
 .case-fn-btn:focus-visible,
@@ -102,50 +105,57 @@ body.case-floating-nav .case-page {
   display: block;
 }
 
-/* ─── Label — typewriter expand on hover ──────────────────────────
+/* ─── Label — typewriter expand on hover, smooth collapse on unhover
+   ─────────────────────────────────────────────────────────────────
    Each letter is its own <span>. `--i` is the letter index (set
-   inline). On hover the wrapper's max-width grows so the row reflows
-   smoothly (pushing the next button right), and each letter fades
-   + slides in with a `--i`-scaled delay so the word types itself
-   left-to-right. */
+   inline). On hover the wrapper's max-width grows AND each letter
+   fades+slides in with a `--i`-scaled delay (typewriter).
+   On UNHOVER both the wrapper and the letters use simpler
+   transitions with no delay, so the whole label fades out together
+   and the slot collapses cleanly — no "letters disappearing one by
+   one in reverse" feel that the symmetric version had. */
+
+/* ── Base / unhover state ────────────────────────────────────────── */
 .case-fn-btn-label {
   display: inline-flex;
   overflow: hidden;
   max-width: 0;
   white-space: nowrap;
-  transition: max-width 360ms cubic-bezier(0.2, 0, 0, 1);
-}
-.case-fn-btn:hover .case-fn-btn-label,
-.case-fn-btn:focus-visible .case-fn-btn-label,
-.case-fn-btn.is-active .case-fn-btn-label {
-  max-width: 220px;
+  transition: max-width 200ms cubic-bezier(0.4, 0, 1, 1);
 }
 .case-fn-btn-label > span {
   display: inline-block;
   opacity: 0;
   transform: translateX(-3px);
   transition:
-    opacity   200ms cubic-bezier(0.2, 0, 0, 1),
-    transform 220ms cubic-bezier(0.2, 0, 0, 1);
+    opacity   160ms ease-in,
+    transform 160ms ease-in;
+  transition-delay: 0ms;
+}
+
+/* ── Hover / focus / active state ────────────────────────────────── */
+.case-fn-btn:hover .case-fn-btn-label,
+.case-fn-btn:focus-visible .case-fn-btn-label,
+.case-fn-btn.is-active .case-fn-btn-label {
+  max-width: 220px;
+  transition: max-width 340ms cubic-bezier(0.2, 0, 0, 1);
 }
 .case-fn-btn:hover .case-fn-btn-label > span,
 .case-fn-btn:focus-visible .case-fn-btn-label > span,
 .case-fn-btn.is-active .case-fn-btn-label > span {
   opacity: 1;
   transform: translateX(0);
-  transition-delay: calc(var(--i, 0) * 28ms);
-}
-/* Reverse on leave: letters fade out together with no stagger so
-   the collapse feels brisk, not delayed. */
-.case-fn-btn-label > span {
-  transition-delay: 0ms;
+  transition:
+    opacity   200ms cubic-bezier(0.2, 0, 0, 1),
+    transform 240ms cubic-bezier(0.2, 0, 0, 1);
+  transition-delay: calc(var(--i, 0) * 26ms);
 }
 
 /* ─── The popover ─────────────────────────────────────────────────── */
 .case-fn-popover {
   position: fixed;
-  /* The toolbar sits at top:24, button height ~32 → popover at ~68. */
-  top: 68px;
+  /* Toolbar sits at top:48, button height ~32 → popover at ~92px. */
+  top: 92px;
   left: 24px;
   z-index: 99;
   min-width: 220px;
