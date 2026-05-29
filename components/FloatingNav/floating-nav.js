@@ -89,41 +89,18 @@
     }
 
     // ─── Scroll progress ──────────────────────────────────────────
-    // Two indicators driven by visitor scroll position:
-    //
-    //   1. --scroll-progress on the Outline button — drives the
-    //      progress ring around the icon (0..1 of total page scroll).
-    //   2. --section-progress on each popover-link — drives the
-    //      per-item left-edge bar (0..1 of that section's height).
-    //
-    // Throttled with requestAnimationFrame so rapid scroll events
-    // collapse into one repaint per frame.
+    // Drives the single bottom progress strip inside the popover via
+    // the --scroll-progress custom property (0..1 of total page
+    // scroll). RAF-throttled so rapid scroll events collapse into
+    // one repaint per frame.
     var ticking = false;
     function updateProgress() {
       ticking = false;
-
       var scrollY = window.scrollY || window.pageYOffset;
-
-      // Total page progress for the ring.
       var docH = Math.max(0,
         document.documentElement.scrollHeight - window.innerHeight);
       var total = docH > 0 ? Math.max(0, Math.min(1, scrollY / docH)) : 0;
-      if (menuBtn) menuBtn.style.setProperty('--scroll-progress', total);
-
-      // Per-section progress for the bars. Reference point is the
-      // viewport TOP — section starts filling when the viewport's
-      // top crosses the section's top, and is full when the top
-      // crosses the section's bottom.
-      for (var i = 0; i < sections.length; i++) {
-        var section = sections[i];
-        if (!section) continue;
-        var rect = section.getBoundingClientRect();
-        var sectionTop = scrollY + rect.top;
-        var sectionH = section.offsetHeight || 1;
-        var raw = (scrollY - sectionTop) / sectionH;
-        var progress = Math.max(0, Math.min(1, raw));
-        links[i].style.setProperty('--section-progress', progress);
-      }
+      popover.style.setProperty('--scroll-progress', total);
     }
     function schedule() {
       if (ticking) return;
