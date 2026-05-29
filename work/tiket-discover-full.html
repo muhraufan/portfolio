@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="/components/FlyBy/flyby.css?v=4">
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
   <!-- FLOATING NAV (experimental — single case study only) -->
-  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=9">
+  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=10">
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body class="minimal case-floating-nav">
@@ -80,11 +80,11 @@
         Learnings
       </a></li>
     </ul>
-    <!-- Bottom progress strip — mirrors total case-study scroll progress. -->
-    <div class="case-fn-popover-progress" aria-hidden="true">
-      <span class="case-fn-popover-progress-fill"></span>
-    </div>
   </nav>
+  <!-- Top-of-viewport scroll-progress strip — always visible. -->
+  <div class="case-fn-top-progress" aria-hidden="true">
+    <span class="case-fn-top-progress-fill"></span>
+  </div>
 
   <div class="case-page">
 
@@ -1199,7 +1199,7 @@
   <script src="/components/FlyBy/flyby.js?v=4" defer></script>
   <script src="/components/Stabilo/stabilo.js?v=5" defer></script>
   <!-- FLOATING NAV (experimental) -->
-  <script src="/components/FloatingNav/floating-nav.js?v=5" defer></script>
+  <script src="/components/FloatingNav/floating-nav.js?v=6" defer></script>
   <script src="/live-polish.js?v=3"></script>
 </body>
 </html>

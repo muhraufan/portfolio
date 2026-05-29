@@ -89,18 +89,20 @@
     }
 
     // ─── Scroll progress ──────────────────────────────────────────
-    // Drives the single bottom progress strip inside the popover via
-    // the --scroll-progress custom property (0..1 of total page
-    // scroll). RAF-throttled so rapid scroll events collapse into
-    // one repaint per frame.
+    // Drives the top-of-viewport progress strip via the
+    // --scroll-progress custom property (0..1 of total page scroll).
+    // RAF-throttled so rapid scroll events collapse into one repaint
+    // per frame.
+    var topProgress = document.querySelector('.case-fn-top-progress');
     var ticking = false;
     function updateProgress() {
       ticking = false;
+      if (!topProgress) return;
       var scrollY = window.scrollY || window.pageYOffset;
       var docH = Math.max(0,
         document.documentElement.scrollHeight - window.innerHeight);
       var total = docH > 0 ? Math.max(0, Math.min(1, scrollY / docH)) : 0;
-      popover.style.setProperty('--scroll-progress', total);
+      topProgress.style.setProperty('--scroll-progress', total);
     }
     function schedule() {
       if (ticking) return;

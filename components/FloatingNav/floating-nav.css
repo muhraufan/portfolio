@@ -193,27 +193,29 @@ body.case-floating-nav .case-page {
   transition: background 150ms ease, color 150ms ease;
 }
 
-/* ─── Bottom progress strip for the whole popover ─────────────────
-   A 2px track running along the bottom of the popover (inside
-   padding so it tucks neatly against the rounded corners). Fills
-   left → right with mint as the visitor scrolls deeper into the
-   case study. --scroll-progress (0..1) is set by JS. */
-.case-fn-popover-progress {
-  margin: 6px 6px 0;
-  padding: 0;
+/* ─── Top-of-viewport scroll-progress strip ───────────────────────
+   2px bar pinned to the very top edge of the page. Always visible
+   regardless of whether the popover is open. Fills left → right
+   with mint as the visitor scrolls deeper into the case study.
+   --scroll-progress (0..1) is set by JS via RAF on scroll. */
+.case-fn-top-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 2px;
-  border-radius: 2px;
-  background: var(--border2);
-  overflow: hidden;
+  background: transparent;
+  z-index: 101; /* above the toolbar */
+  pointer-events: none;
 }
-.case-fn-popover-progress-fill {
+.case-fn-top-progress-fill {
   display: block;
   height: 100%;
   background: #5a9072;
-  border-radius: inherit;
   transform-origin: left center;
   transform: scaleX(var(--scroll-progress, 0));
   transition: transform 80ms linear;
+  will-change: transform;
 }
 .case-fn-popover-link:hover {
   background: var(--bg2);
