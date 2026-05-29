@@ -46,7 +46,12 @@ body.case-floating-nav .case-page {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* ─── Single button (back or outline) ────────────────────────────── */
+/* ─── Single button (back or outline) ──────────────────────────────
+   IMPORTANT: transitions live on the :hover state, NOT the base.
+   That means hover-IN is animated, but unhover is INSTANT — when the
+   visitor sweeps the cursor between buttons, the leaving button
+   snaps shut immediately while the incoming button animates open.
+   Mixed transitions during sweeps were what felt "not smooth". */
 .case-fn-btn {
   appearance: none;
   border: 0;
@@ -64,12 +69,7 @@ body.case-floating-nav .case-page {
   letter-spacing: 0.2px;
   text-decoration: none;
   line-height: 1;
-  /* Background fade is the smoothest curve so the macOS-style hover
-     pill feels like it materialises on top of the page, not pops in.
-     Gap follows the same curve so the label slot opens in sync. */
-  transition: background 280ms cubic-bezier(0.33, 1, 0.68, 1),
-              color      200ms ease,
-              gap        280ms cubic-bezier(0.33, 1, 0.68, 1);
+  /* No transition on the base — unhover is instant. */
 }
 .case-fn-btn:hover,
 .case-fn-btn:focus-visible,
@@ -77,6 +77,9 @@ body.case-floating-nav .case-page {
   background: rgba(0, 0, 0, 0.06);
   outline: 0;
   gap: 6px;
+  /* Hover-in: smooth ease-out for background + gap. */
+  transition: background 260ms cubic-bezier(0.33, 1, 0.68, 1),
+              gap        260ms cubic-bezier(0.33, 1, 0.68, 1);
 }
 [data-theme="dark"] .case-fn-btn:hover,
 [data-theme="dark"] .case-fn-btn:focus-visible,
@@ -115,34 +118,19 @@ body.case-floating-nav .case-page {
    and the slot collapses cleanly — no "letters disappearing one by
    one in reverse" feel that the symmetric version had. */
 
-/* ── Base / unhover state ────────────────────────────────────────
-   Unhover sequence reads as:
-     1. Letters fade out together (fast, 120ms)
-     2. After they're gone, the slot collapses (170ms)
-   That order is critical — when both happen simultaneously you get
-   the "letters being squeezed" sensation that read as unsmooth.
-   Note: no translateX, just opacity. The little slide caused a
-   visible "jitter" on unhover; pure fade is calmer.
-   ─────────────────────────────────────────────────────────────── */
+/* ── Base / unhover state — NO transition (instant snap-back) ──── */
 .case-fn-btn-label {
   display: inline-flex;
   overflow: hidden;
   max-width: 0;
   white-space: nowrap;
-  /* Delay collapse so letters finish fading first. */
-  transition: max-width 170ms cubic-bezier(0.4, 0, 0.2, 1) 120ms;
 }
 .case-fn-btn-label > span {
   display: inline-block;
   opacity: 0;
-  transition: opacity 120ms ease-out;
-  transition-delay: 0ms;
 }
 
-/* ── Hover / focus / active state ─────────────────────────────────
-   On the way IN, no delay on the slot — it opens immediately so
-   the letters have room to type into. Letters then stagger in.
-   ─────────────────────────────────────────────────────────────── */
+/* ── Hover / focus / active — animated open + letter stagger ──── */
 .case-fn-btn:hover .case-fn-btn-label,
 .case-fn-btn:focus-visible .case-fn-btn-label,
 .case-fn-btn.is-active .case-fn-btn-label {
