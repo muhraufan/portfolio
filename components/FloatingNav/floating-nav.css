@@ -70,6 +70,13 @@ body.case-floating-nav .case-page {
   text-decoration: none;
   line-height: 1;
   /* No transition on the base — unhover is instant. */
+  /* Backdrop blur — the top-fade gradient is short (56px, no solid
+     plateau) so most of the button sits over un-overlaid content.
+     Blurring whatever scrolls behind keeps the buttons legible
+     against busy content without needing a heavy solid background.
+     macOS-toolbar glass. */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 .case-fn-btn:hover,
 .case-fn-btn:focus-visible,
@@ -262,6 +269,82 @@ body.case-floating-nav .case-page {
   height: 100%;
   display: block;
 }
+
+/* ─── Top fade overlay — soft scroll-into-chrome ────────────────
+   When the visitor scrolls, a gradient strip fades content into the
+   page background just before it slips behind the floating-nav
+   chrome. Sits *below* the toolbar (z-index 99 vs the toolbar's 100)
+   and *above* the page content via pointer-events:none.
+
+   Why scroll-gated instead of always-on: at scrollY=0 there's nothing
+   above the viewport to fade. An always-visible gradient would tint
+   the very top of the hero, which looks like a bug. We fade the
+   gradient IN once the visitor has scrolled past ~8px.
+
+   The mobile backdrop strip (`.case-fn-toolbar::before`, defined in
+   the mobile media query) is independent of this — it stays solid so
+   the toolbar buttons always sit on a clean color, regardless of
+   scroll state. This fade layer is *additional*, providing the soft
+   transition below the chrome.
+
+   Inspired by the modern `animation-timeline: scroll()` mask pattern,
+   but implemented with a JS class toggle so it works everywhere
+   today (Firefox doesn't ship scroll-driven animations yet). */
+body.case-floating-nav::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* No solid plateau. The previous design had ~32px of fully opaque
+     overlay before the fade started, which read as a "white block"
+     in screenshots. Here the ease-out fade begins from the very top
+     edge: 100% bg at exactly 0px, immediately transitioning down.
+     Total height 56px so the visible fade region is short and feels
+     like content "scrolls past the chrome" rather than into a zone.
+     `backdrop-filter: blur` on the toolbar buttons (defined in
+     `.case-fn-btn`) keeps them legible against the now-mostly-
+     transparent overlay. */
+  height: 56px;
+  background: linear-gradient(180deg,
+    var(--bg)                                                 0%,
+    color-mix(in srgb, var(--bg) 78%, transparent)            28%,
+    color-mix(in srgb, var(--bg) 48%, transparent)            55%,
+    color-mix(in srgb, var(--bg) 18%, transparent)            80%,
+    transparent                                              100%
+  );
+  z-index: 99;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 320ms cubic-bezier(0.2, 0, 0, 1);
+  will-change: opacity;
+}
+body.case-floating-nav.is-fn-scrolled::after { opacity: 1; }
+
+/* Bottom fade — mirror of the top, also no plateau. Auto-disables at
+   page end (handled in floating-nav.js) so content doesn't dissolve
+   before leaving the viewport. */
+body.case-floating-nav::before {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: linear-gradient(0deg,
+    var(--bg)                                                 0%,
+    color-mix(in srgb, var(--bg) 70%, transparent)            30%,
+    color-mix(in srgb, var(--bg) 38%, transparent)            60%,
+    color-mix(in srgb, var(--bg) 12%, transparent)            85%,
+    transparent                                              100%
+  );
+  z-index: 99;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 320ms cubic-bezier(0.2, 0, 0, 1);
+  will-change: opacity;
+}
+body.case-floating-nav.is-fn-bottom-fade::before { opacity: 1; }
 
 /* ─── Lang / theme toggle parity ─────────────────────────────────
    Apply the floating-nav's icon weight to the existing case-study

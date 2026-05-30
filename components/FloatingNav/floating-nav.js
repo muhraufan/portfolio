@@ -127,6 +127,9 @@
     // RAF-throttled so rapid scroll events collapse into one repaint
     // per frame.
     var topProgress = document.querySelector('.case-fn-top-progress');
+    var body        = document.body;
+    var scrolledOn  = false;
+    var bottomFadeOn = false;
     var ticking = false;
     function updateProgress() {
       ticking = false;
@@ -136,6 +139,24 @@
       var total = docH > 0 ? Math.max(0, Math.min(1, scrollY / docH)) : 0;
       if (topProgress) {
         topProgress.style.setProperty('--scroll-progress', total);
+      }
+
+      // Top-fade overlay — on once we're past the very top.
+      // 8px deadband so micro-scrolls don't flicker it on/off.
+      var nowScrolled = scrollY > 8;
+      if (nowScrolled !== scrolledOn) {
+        scrolledOn = nowScrolled;
+        body.classList.toggle('is-fn-scrolled', nowScrolled);
+      }
+
+      // Bottom-fade overlay — only when there's still content below the
+      // viewport. Otherwise it'd dissolve already-visible content right
+      // before the page actually ends, which feels broken. Same 8px
+      // deadband for stability.
+      var hasMoreBelow = (scrollY + window.innerHeight) < (document.documentElement.scrollHeight - 8);
+      if (hasMoreBelow !== bottomFadeOn) {
+        bottomFadeOn = hasMoreBelow;
+        body.classList.toggle('is-fn-bottom-fade', hasMoreBelow);
       }
 
       // Last-section fallback. The IO's -55% bottom rootMargin means
