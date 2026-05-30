@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="/css/case.css?v=153">
   <link rel="stylesheet" href="/components/FlyBy/flyby.css?v=4">
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
+  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=19">
   <style>
     /* ============================================================
        MEDIUM-STYLE PAYWALL — clip + fade the article, then drop a
@@ -734,7 +735,77 @@
   </style>
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
-<body class="minimal is-paywalled">
+<body class="minimal is-paywalled case-floating-nav">
+
+  <!-- FLOATING NAV — three icon buttons + popover. Summary version,
+       so the third button is "View full case study" linking to the
+       full version with a 4s-delayed onboarding tooltip. -->
+  <div class="case-fn-toolbar" role="toolbar" aria-label="Case study navigation">
+    <a href="/" class="case-fn-btn case-fn-back" aria-label="Back">
+      <span class="case-fn-btn-icon" aria-hidden="true">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 3.5 5 8 9 12.5"/>
+          <line x1="5" y1="8" x2="13" y2="8"/>
+        </svg>
+      </span>
+      <span class="case-fn-btn-label" data-en="Back" data-ja="戻る"><span style="--i:0">B</span><span style="--i:1">a</span><span style="--i:2">c</span><span style="--i:3">k</span></span>
+    </a>
+    <button type="button" class="case-fn-btn case-fn-menu" aria-haspopup="true" aria-expanded="false" aria-controls="case-fn-popover" aria-label="Outline">
+      <span class="case-fn-btn-icon" aria-hidden="true">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3"  y1="4"  x2="13" y2="4"/>
+          <line x1="6"  y1="8"  x2="13" y2="8"/>
+          <line x1="3"  y1="12" x2="13" y2="12"/>
+        </svg>
+      </span>
+      <span class="case-fn-btn-label" data-en="Outline" data-ja="目次"><span style="--i:0">O</span><span style="--i:1">u</span><span style="--i:2">t</span><span style="--i:3">l</span><span style="--i:4">i</span><span style="--i:5">n</span><span style="--i:6">e</span></span>
+    </button>
+    <a href="/work/uniqlo-outfit-full.html" class="case-fn-btn case-fn-switch" id="case-fn-switch" aria-label="View full case study">
+      <span class="case-fn-btn-icon" aria-hidden="true">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3.5h4a2 2 0 0 1 2 2v8a2 2 0 0 0-2-2H2z"/>
+          <path d="M14 3.5h-4a2 2 0 0 0-2 2v8a2 2 0 0 1 2-2h4z"/>
+        </svg>
+      </span>
+      <span class="case-fn-btn-label" data-en="View full case study" data-ja="ケーススタディを見る"><span style="--i:0">V</span><span style="--i:1">i</span><span style="--i:2">e</span><span style="--i:3">w</span><span style="--i:4">&nbsp;</span><span style="--i:5">f</span><span style="--i:6">u</span><span style="--i:7">l</span><span style="--i:8">l</span><span style="--i:9">&nbsp;</span><span style="--i:10">c</span><span style="--i:11">a</span><span style="--i:12">s</span><span style="--i:13">e</span><span style="--i:14">&nbsp;</span><span style="--i:15">s</span><span style="--i:16">t</span><span style="--i:17">u</span><span style="--i:18">d</span><span style="--i:19">y</span></span>
+    </a>
+  </div>
+  <nav id="case-fn-popover" class="case-fn-popover" aria-label="Outline">
+    <ul class="case-fn-popover-list">
+      <!-- Overview — page with content lines -->
+      <li><a href="#moment" class="case-fn-popover-link is-active">
+        <span class="case-fn-popover-icon" aria-hidden="true"><svg viewBox="0 0 18 18" fill="currentColor"><path fill-rule="evenodd" d="M5 2.5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2H5zm.6 3.6c0-.4.3-.7.7-.7h4.4a.7.7 0 0 1 0 1.4H6.3a.7.7 0 0 1-.7-.7zm0 2.8c0-.4.3-.7.7-.7h5.4a.7.7 0 0 1 0 1.4H6.3a.7.7 0 0 1-.7-.7zm0 2.8c0-.4.3-.7.7-.7h3.4a.7.7 0 0 1 0 1.4H6.3a.7.7 0 0 1-.7-.7z"/></svg></span>
+        <span class="case-fn-popover-text" data-en="Overview" data-ja="概要">Overview</span>
+      </a></li>
+      <!-- Pain Points — magnifying glass -->
+      <li><a href="#pain-points" class="case-fn-popover-link">
+        <span class="case-fn-popover-icon" aria-hidden="true"><svg viewBox="0 0 18 18" fill="currentColor"><path fill-rule="evenodd" d="M8 2a6 6 0 1 0 3.7 10.7l3 3 1.5-1.5-3-3A6 6 0 0 0 8 2zm0 1.8a4.2 4.2 0 1 1 0 8.4 4.2 4.2 0 0 1 0-8.4z"/></svg></span>
+        <span class="case-fn-popover-text" data-en="The Pain Points" data-ja="ペインポイント">The Pain Points</span>
+      </a></li>
+      <!-- Framework — target / bullseye -->
+      <li><a href="#framework" class="case-fn-popover-link">
+        <span class="case-fn-popover-icon" aria-hidden="true"><svg viewBox="0 0 18 18" fill="currentColor"><path fill-rule="evenodd" d="M9 2a7 7 0 1 0 0 14A7 7 0 0 0 9 2zm0 2.2a4.8 4.8 0 1 1 0 9.6 4.8 4.8 0 0 1 0-9.6zm0 2.4a2.4 2.4 0 1 0 0 4.8 2.4 2.4 0 0 0 0-4.8z"/></svg></span>
+        <span class="case-fn-popover-text" data-en="The Framework" data-ja="フレームワーク">The Framework</span>
+      </a></li>
+      <!-- Design — palette with color swatches -->
+      <li><a href="#design" class="case-fn-popover-link">
+        <span class="case-fn-popover-icon" aria-hidden="true"><svg viewBox="0 0 18 18" fill="currentColor"><path fill-rule="evenodd" d="M9 2a7 7 0 0 0 0 14c1.4 0 2-.8 2-1.5 0-.4-.2-.7-.5-1-.2-.3-.4-.5-.4-.9 0-.5.4-.9.9-.9h1.5A3.5 3.5 0 0 0 16 8.2C16 4.7 12.9 2 9 2zM5 8.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm2-3a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/></svg></span>
+        <span class="case-fn-popover-text" data-en="The Design" data-ja="デザイン">The Design</span>
+      </a></li>
+      <!-- Closing — flag -->
+      <li><a href="#closing" class="case-fn-popover-link">
+        <span class="case-fn-popover-icon" aria-hidden="true"><svg viewBox="0 0 18 18" fill="currentColor"><rect x="4" y="2" width="1.6" height="14" rx="0.6"/><path d="M5.6 3h7.2l-2.2 2.3 2.2 2.3H5.6z"/></svg></span>
+        <span class="case-fn-popover-text" data-en="Closing" data-ja="おわりに">Closing</span>
+      </a></li>
+    </ul>
+  </nav>
+  <div class="case-fn-top-progress" aria-hidden="true">
+    <span class="case-fn-top-progress-fill"></span>
+  </div>
+  <div class="case-fn-tooltip" id="case-fn-tooltip" role="status" aria-live="polite">
+    <span data-en="Want the deep dive? Click here for the full case study."
+          data-ja="詳しく知りたい方はこちらから完全版へ。">Want the deep dive? Click here for the full case study.</span>
+  </div>
 
   <div class="case-page is-visible" id="case-page">
 
@@ -1827,6 +1898,72 @@
   <canvas id="flyby-surprise"></canvas>
   <script src="/components/FlyBy/flyby.js?v=4" defer></script>
   <script src="/components/Stabilo/stabilo.js?v=5" defer></script>
+  <script src="/components/FloatingNav/floating-nav.js?v=10" defer></script>
+  <script>
+    /* Switch-button tooltip — page-local because only the summary
+       version nudges visitors toward the full case study. */
+    (function () {
+      function boot() {
+        var tip    = document.getElementById('case-fn-tooltip');
+        var anchor = document.getElementById('case-fn-switch');
+        if (!tip || !anchor) return;
+        try {
+          if (sessionStorage.getItem('uniqlo-fn-tip-seen') === '1') return;
+        } catch (_) {}
+
+        function positionTip() {
+          var iconEl = anchor.querySelector('.case-fn-btn-icon') || anchor;
+          var rect = iconEl.getBoundingClientRect();
+          var iconCenterX = rect.left + rect.width / 2;
+          var iconBottomY = rect.bottom;
+          tip.style.setProperty('--anchor-top', (iconBottomY + 10) + 'px');
+          var ARROW_LEFT_IN_TIP = 16;
+          var ARROW_HALF        = 5;
+          var idealLeft = iconCenterX - (ARROW_LEFT_IN_TIP + ARROW_HALF);
+          tip.style.setProperty('--anchor-left', idealLeft + 'px');
+          tip.style.setProperty('--arrow-offset', ARROW_LEFT_IN_TIP + 'px');
+          // Clamp to viewport on narrow screens, shift arrow to compensate.
+          var EDGE_PAD = 8;
+          var tipW = tip.offsetWidth;
+          var maxLeft = window.innerWidth - tipW - EDGE_PAD;
+          var clampedLeft = Math.max(EDGE_PAD, Math.min(idealLeft, maxLeft));
+          var arrowOffset = ARROW_LEFT_IN_TIP + (idealLeft - clampedLeft);
+          arrowOffset = Math.max(8, Math.min(arrowOffset, tipW - 18));
+          tip.style.setProperty('--anchor-left', clampedLeft + 'px');
+          tip.style.setProperty('--arrow-offset', arrowOffset + 'px');
+        }
+
+        var dismissed = false;
+        function dismiss() {
+          if (dismissed) return;
+          dismissed = true;
+          tip.classList.remove('is-visible');
+          try { sessionStorage.setItem('uniqlo-fn-tip-seen', '1'); } catch (_) {}
+          setTimeout(function () { tip.setAttribute('hidden', ''); }, 400);
+        }
+        function attachDismissers() {
+          anchor.addEventListener('mouseenter', dismiss);
+          anchor.addEventListener('click', dismiss);
+          document.addEventListener('click', function (e) {
+            if (!tip.contains(e.target)) dismiss();
+          });
+        }
+        setTimeout(function () {
+          if (dismissed) return;
+          positionTip();
+          tip.classList.add('is-visible');
+          attachDismissers();
+          setTimeout(dismiss, 8000);
+        }, 4000);
+        window.addEventListener('resize', positionTip);
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot, { once: true });
+      } else {
+        boot();
+      }
+    })();
+  </script>
   <script src="/live-polish.js?v=3"></script>
 </body>
 </html>

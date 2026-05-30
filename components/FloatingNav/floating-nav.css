@@ -145,14 +145,18 @@ body.case-floating-nav .case-page {
   transition-delay: calc(var(--i, 0) * 28ms);
 }
 
-/* ─── The popover ─────────────────────────────────────────────────── */
+/* ─── The popover ─────────────────────────────────────────────────
+   Slides in from off-screen left (its full width + a buffer) so it
+   reads as "emerging from the page edge", not just fading nearby.
+   Aligned at left:60px so it sits under the Outline button's left
+   edge (the toolbar's 2nd button), not flush with Back. */
 .case-fn-popover {
   position: fixed;
   /* Toolbar sits at top:48, button height ~32 → popover at ~92px. */
   top: 92px;
-  left: 24px;
+  left: 60px;
   z-index: 99;
-  min-width: 220px;
+  min-width: 240px;
   background: var(--bg);
   border: 1px solid rgb(218 218 218 / 14%);
   border-radius: 12px;
@@ -161,36 +165,46 @@ body.case-floating-nav .case-page {
     0 16px 36px rgb(0 0 0 / 5%);
   padding: 6px;
   opacity: 0;
-  transform: translateY(-6px) scale(0.98);
+  /* -100% of its own width + the 60px gap to viewport edge = fully
+     off-screen to the left. The "hiding behind the page edge" feel. */
+  transform: translateX(calc(-100% - 70px));
   transform-origin: top left;
   pointer-events: none;
   transition:
-    opacity   200ms ease,
-    transform 200ms cubic-bezier(0.2, 0, 0, 1);
+    opacity   260ms ease,
+    transform 360ms cubic-bezier(0.2, 0, 0, 1);
   font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
 }
 .case-fn-popover.is-open {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translateX(0);
   pointer-events: auto;
 }
+
 .case-fn-popover-list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 .case-fn-popover-link {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: 8px;
   text-decoration: none;
-  color: var(--text);
+  letter-spacing: 0.2px;
+  transition: background 150ms ease;
+}
+
+/* Section title — separate span so the active state can bump weight
+   without re-flowing the icon column. */
+.case-fn-popover-text {
   font-size: 14px;
   font-weight: 500;
-  letter-spacing: 0.2px;
-  transition: background 150ms ease, color 150ms ease;
+  color: var(--text2);
+  transition: color 180ms ease, font-weight 180ms ease;
 }
 
 /* ─── Top-of-viewport scroll-progress strip ───────────────────────
@@ -217,18 +231,20 @@ body.case-floating-nav .case-page {
   transition: transform 80ms linear;
   will-change: transform;
 }
+/* Hover — subtle bg shift + text brightens to full --text. */
 .case-fn-popover-link:hover {
   background: var(--bg2);
 }
-.case-fn-popover-link.is-active {
-  background: rgba(200, 221, 212, 0.30);
-  color: #2D4A3A;
+.case-fn-popover-link:hover .case-fn-popover-text { color: var(--text); }
+.case-fn-popover-link:hover .case-fn-popover-icon { color: var(--text2); }
+
+/* Active — typographic only. Title goes weight 600 + full text color.
+   No accent bar, no filled pill, no progress hairline. */
+.case-fn-popover-link.is-active .case-fn-popover-text {
+  color: var(--text);
+  font-weight: 600;
 }
-[data-theme="dark"] .case-fn-popover-link.is-active,
-:root:not([data-theme="light"]) .case-fn-popover-link.is-active {
-  background: rgba(200, 221, 212, 0.12);
-  color: #C8DDD4;
-}
+.case-fn-popover-link.is-active .case-fn-popover-icon { color: var(--text); }
 
 /* ─── Section icon — leading the link label ─────────────────────── */
 .case-fn-popover-icon {
@@ -239,19 +255,217 @@ body.case-floating-nav .case-page {
   align-items: center;
   justify-content: center;
   color: var(--text3); /* muted by default */
-  transition: color 150ms ease;
+  transition: color 180ms ease;
 }
 .case-fn-popover-icon svg {
   width: 100%;
   height: 100%;
   display: block;
 }
-.case-fn-popover-link:hover .case-fn-popover-icon { color: var(--text2); }
-.case-fn-popover-link.is-active .case-fn-popover-icon { color: inherit; }
 
-/* ─── Mobile — hide entirely. The case-mobile hamburger handles it. */
+/* ─── Lang / theme toggle parity ─────────────────────────────────
+   Apply the floating-nav's icon weight to the existing case-study
+   toggles so all top-row chrome reads as one set on both desktop
+   and mobile. The toggles' base CSS (in case.css) lives outside this
+   component; these scoped overrides only fire when the page opts
+   into `body.case-floating-nav`. */
+body.case-floating-nav .case-theme-toggle svg {
+  width: 16px;
+  height: 16px;
+  /* Toggle icons use a 24×24 viewBox at 16×16, so stroke 1.5 renders
+     as ~1.0 visual — thinner than the floating-nav icons (1.6 in a
+     16×16 viewBox = 1.6 visual). 2.4 brings them to ~1.6 visual. */
+  stroke-width: 2.4;
+}
+body.case-floating-nav .case-lang-toggle {
+  font-weight: 600;
+}
+
+/* ─── Switch-button tooltip ────────────────────────────────────────
+   Optional one-off nudge anchored under the "View full case study"
+   button. JS sets `--anchor-left` (px from viewport left) and toggles
+   `.is-visible` after a delay. Dismissed on any click, on hover of the
+   switch button, or after the visitor scrolls. Suppressed for the rest
+   of the session via sessionStorage. */
+.case-fn-tooltip {
+  position: fixed;
+  top: var(--anchor-top, 88px);
+  left: var(--anchor-left, 120px);
+  z-index: 102;
+  background: #1a1a1a;
+  color: #fff;
+  border-radius: 8px;
+  box-shadow:
+    0 1px 2px  rgb(0 0 0 / 12%),
+    0 12px 28px rgb(0 0 0 / 18%);
+  padding: 8px 12px;
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  line-height: 1.35;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+  transform-origin: top left;
+  transition:
+    opacity   260ms cubic-bezier(0.2, 0, 0, 1),
+    transform 260ms cubic-bezier(0.2, 0, 0, 1);
+}
+.case-fn-tooltip.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+/* Arrow pointing up at the icon. Solid black diamond rotated 45°,
+   half-clipped behind the tooltip body so only the top triangle pokes
+   out. `--arrow-offset` lets JS slide the arrow under the icon center
+   independently of where the tooltip body lands. */
+.case-fn-tooltip::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: var(--arrow-offset, 16px);
+  width: 10px;
+  height: 10px;
+  background: #1a1a1a;
+  transform: rotate(45deg);
+  border-radius: 2px 0 0 0;
+}
+
+/* Dark mode — invert so the tooltip stays high-contrast against the
+   dark page background. A black-on-black tooltip blends in; flipping
+   to a light surface with dark text gives the same "pops out from the
+   page" feel both themes share. */
+[data-theme="dark"] .case-fn-tooltip,
+:root:not([data-theme="light"]) .case-fn-tooltip {
+  background: #f4f4f4;
+  color: #1a1a1a;
+  box-shadow:
+    0 1px 2px  rgb(0 0 0 / 24%),
+    0 12px 28px rgb(0 0 0 / 32%);
+}
+[data-theme="dark"] .case-fn-tooltip::after,
+:root:not([data-theme="light"]) .case-fn-tooltip::after {
+  background: #f4f4f4;
+}
+
+/* ─── Paywall feedback — shake the wall when a locked visitor tries
+   to jump to a section via the outline. Pairs with JS that prevents
+   scroll, scrolls the wall into view, and replays this animation.
+   The translate sequence uses GPU-only transform, so it's smooth
+   even on mid-tier phones. */
+@keyframes case-fn-paywall-shake {
+  0%, 100% { transform: translateX(0); }
+  15%      { transform: translateX(-8px); }
+  30%      { transform: translateX( 7px); }
+  45%      { transform: translateX(-5px); }
+  60%      { transform: translateX( 4px); }
+  75%      { transform: translateX(-2px); }
+  90%      { transform: translateX( 1px); }
+}
+.pw-paywall.case-fn-bump {
+  animation: case-fn-paywall-shake 520ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* ─── Mobile — the floating nav now replaces the legacy sticky
+   mobile header. Toolbar stays visible (icon-only — hover-typewriter
+   is disabled because tapped :hover sticks and looks broken on touch),
+   popover is positioned to fit narrow viewports, and the legacy
+   `.case-mobile-header` / `.case-mobile-menu` are hidden whenever
+   `case-floating-nav` is opted in. */
 @media (max-width: 768px) {
-  .case-fn-toolbar,
-  .case-fn-popover { display: none; }
-  body.case-floating-nav .case-page { padding-top: 0; }
+  /* Hide the legacy mobile chrome — floating nav takes over. */
+  body.case-floating-nav .case-mobile-header,
+  body.case-floating-nav .case-mobile-menu { display: none !important; }
+
+  /* Tighter offsets for phones. Both toolbar AND lang/theme toggles
+     align to top:14px so left- and right-side chrome sit on the
+     same horizontal line. */
+  .case-fn-toolbar { top: 14px; left: 16px; }
+
+  /* Mobile sticky header backdrop — a full-width strip that sits
+     behind the toolbar buttons (and the lang/theme toggles on the
+     right) so scrolling content doesn't read through. Implemented as
+     a pseudo on the toolbar to avoid extra markup. z-index sits one
+     step below the toolbar's stacking context so the buttons stay
+     above. A 1px hairline at the bottom adds depth without weight. */
+  .case-fn-toolbar::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: var(--bg);
+    box-shadow: 0 1px 0 rgb(0 0 0 / 5%);
+    z-index: -1;
+    pointer-events: none;
+  }
+  [data-theme="dark"] .case-fn-toolbar::before,
+  :root:not([data-theme="light"]) .case-fn-toolbar::before {
+    box-shadow: 0 1px 0 rgb(255 255 255 / 6%);
+  }
+
+  /* Re-anchor the lang / theme toggles. With the hamburger gone they
+     can sit at the edge; aligned to the toolbar's top:14px so both
+     sides of the header sit on the same horizontal baseline. */
+  body.case-floating-nav .case-lang-toggle,
+  body.case-floating-nav .case-theme-toggle {
+    top: 14px !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+  }
+  body.case-floating-nav .case-lang-toggle  { right: 56px !important; font-size: 13px !important; }
+  body.case-floating-nav .case-theme-toggle { right: 16px !important; }
+  /* (Icon-weight / font-weight parity is handled by the unscoped
+     rules above this @media block, so the same look applies on
+     desktop too — only positioning differs by breakpoint.) */
+
+  /* Tooltip — now SHOWN on mobile. The button labels are icon-only on
+     touch (no hover), so the tooltip is the only way new visitors
+     learn there's a full version. Wraps to multiple lines on narrow
+     viewports instead of overflowing. */
+  .case-fn-tooltip {
+    max-width: calc(100vw - 32px);
+    white-space: normal;
+    line-height: 1.4;
+  }
+  .case-fn-popover {
+    top: 60px;
+    left: 52px;
+    min-width: 220px;
+    max-width: calc(100vw - 68px);
+  }
+
+  /* Disable the typewriter label expansion on touch — there's no real
+     hover, and the post-tap "stuck" hover state looks broken. */
+  .case-fn-btn:hover,
+  .case-fn-btn:focus-visible,
+  .case-fn-btn.is-active {
+    gap: 0;
+    background: transparent;
+    transition: none;
+  }
+  /* But keep the Outline button's active background while popover is
+     open — so the visitor sees which button opened it. */
+  .case-fn-btn.case-fn-menu.is-active {
+    background: rgba(0, 0, 0, 0.06);
+  }
+  [data-theme="dark"] .case-fn-btn.case-fn-menu.is-active,
+  :root:not([data-theme="light"]) .case-fn-btn.case-fn-menu.is-active {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .case-fn-btn:hover .case-fn-btn-label,
+  .case-fn-btn:focus-visible .case-fn-btn-label,
+  .case-fn-btn.is-active .case-fn-btn-label {
+    max-width: 0;
+  }
+
+  /* (Tooltip stays visible on mobile — see wrapping rules below.) */
+
+  /* Clear the fixed toolbar so the article starts below it. */
+  body.case-floating-nav .case-page { padding-top: 60px; }
 }

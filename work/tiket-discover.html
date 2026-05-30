@@ -15,9 +15,81 @@
   <link rel="stylesheet" href="/css/case.css?v=153">
   <link rel="stylesheet" href="/components/FlyBy/flyby.css?v=4">
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
+  <!-- FLOATING NAV (experimental — applied to both tiket pages) -->
+  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=19">
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
-<body class="minimal">
+<body class="minimal case-floating-nav">
+
+  <!-- FLOATING NAV — three icon buttons + popover. Mirrors the
+       /work/tiket-discover-full.html setup but flipped: this page is
+       the summary, so the third button is "Full" linking to the full
+       version (instead of "Summary" linking here). -->
+  <div class="case-fn-toolbar" role="toolbar" aria-label="Case study navigation">
+    <!-- Back -->
+    <a href="/" class="case-fn-btn case-fn-back" aria-label="Back">
+      <span class="case-fn-btn-icon" aria-hidden="true">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 3.5 5 8 9 12.5"/>
+          <line x1="5" y1="8" x2="13" y2="8"/>
+        </svg>
+      </span>
+      <span class="case-fn-btn-label" data-en="Back" data-ja="戻る"><span style="--i:0">B</span><span style="--i:1">a</span><span style="--i:2">c</span><span style="--i:3">k</span></span>
+    </a>
+    <!-- Outline -->
+    <button type="button" class="case-fn-btn case-fn-menu" aria-haspopup="true" aria-expanded="false" aria-controls="case-fn-popover" aria-label="Outline">
+      <span class="case-fn-btn-icon" aria-hidden="true">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3"  y1="4"  x2="13" y2="4"/>
+          <line x1="6"  y1="8"  x2="13" y2="8"/>
+          <line x1="3"  y1="12" x2="13" y2="12"/>
+        </svg>
+      </span>
+      <span class="case-fn-btn-label" data-en="Outline" data-ja="目次"><span style="--i:0">O</span><span style="--i:1">u</span><span style="--i:2">t</span><span style="--i:3">l</span><span style="--i:4">i</span><span style="--i:5">n</span><span style="--i:6">e</span></span>
+    </button>
+    <!-- View full case study — "open book" suggesting deeper read. -->
+    <a href="/work/tiket-discover-full.html" class="case-fn-btn case-fn-switch" id="case-fn-switch" aria-label="View full case study">
+      <span class="case-fn-btn-icon" aria-hidden="true">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3.5h4a2 2 0 0 1 2 2v8a2 2 0 0 0-2-2H2z"/>
+          <path d="M14 3.5h-4a2 2 0 0 0-2 2v8a2 2 0 0 1 2-2h4z"/>
+        </svg>
+      </span>
+      <span class="case-fn-btn-label" data-en="View full case study" data-ja="ケーススタディを見る"><span style="--i:0">V</span><span style="--i:1">i</span><span style="--i:2">e</span><span style="--i:3">w</span><span style="--i:4">&nbsp;</span><span style="--i:5">f</span><span style="--i:6">u</span><span style="--i:7">l</span><span style="--i:8">l</span><span style="--i:9">&nbsp;</span><span style="--i:10">c</span><span style="--i:11">a</span><span style="--i:12">s</span><span style="--i:13">e</span><span style="--i:14">&nbsp;</span><span style="--i:15">s</span><span style="--i:16">t</span><span style="--i:17">u</span><span style="--i:18">d</span><span style="--i:19">y</span></span>
+    </a>
+  </div>
+  <nav id="case-fn-popover" class="case-fn-popover" aria-label="Outline">
+    <ul class="case-fn-popover-list">
+      <!-- The Beginning — sunrise -->
+      <li><a href="#beginning" class="case-fn-popover-link is-active">
+        <span class="case-fn-popover-icon" aria-hidden="true"><svg viewBox="0 0 18 18" fill="currentColor"><path d="M9 4.5a4.4 4.4 0 0 0-4.4 4.4c0 .5.1 1 .2 1.4h8.4c.2-.4.2-.9.2-1.4A4.4 4.4 0 0 0 9 4.5z"/><rect x="2" y="11.6" width="14" height="1.3" rx="0.65"/><rect x="2" y="14.2" width="14" height="1.3" rx="0.65"/></svg></span>
+        <span class="case-fn-popover-text" data-en="The Beginning" data-ja="はじまり">The Beginning</span>
+      </a></li>
+      <!-- The Journey — footprints -->
+      <li><a href="#journey" class="case-fn-popover-link">
+        <span class="case-fn-popover-icon" aria-hidden="true"><svg viewBox="0 0 18 18" fill="currentColor"><ellipse cx="6" cy="5.2" rx="2" ry="2.6" transform="rotate(-12 6 5.2)"/><ellipse cx="12" cy="12.8" rx="2" ry="2.6" transform="rotate(-12 12 12.8)"/></svg></span>
+        <span class="case-fn-popover-text" data-en="The Journey" data-ja="旅路">The Journey</span>
+      </a></li>
+      <!-- The Ending — flag -->
+      <li><a href="#ending" class="case-fn-popover-link">
+        <span class="case-fn-popover-icon" aria-hidden="true"><svg viewBox="0 0 18 18" fill="currentColor"><rect x="4" y="2" width="1.6" height="14" rx="0.6"/><path d="M5.6 3h7.2l-2.2 2.3 2.2 2.3H5.6z"/></svg></span>
+        <span class="case-fn-popover-text" data-en="The Ending" data-ja="結び">The Ending</span>
+      </a></li>
+    </ul>
+  </nav>
+  <!-- Top-of-viewport scroll-progress strip. -->
+  <div class="case-fn-top-progress" aria-hidden="true">
+    <span class="case-fn-top-progress-fill"></span>
+  </div>
+
+  <!-- One-off nudge under the 'View full case study' button.
+       Shown 4s after page load (suppressed for the rest of the session
+       once seen). Dismissed on any click, on hover of the switch
+       button, or on first scroll. -->
+  <div class="case-fn-tooltip" id="case-fn-tooltip" role="status" aria-live="polite">
+    <span data-en="Want the deep dive? Click here for the full case study."
+          data-ja="詳しく知りたい方はこちらから完全版へ。">Want the deep dive? Click here for the full case study.</span>
+  </div>
 
   <div class="case-page">
 
@@ -1123,6 +1195,100 @@
   <canvas id="flyby-surprise"></canvas>
   <script src="/components/FlyBy/flyby.js?v=4" defer></script>
   <script src="/components/Stabilo/stabilo.js?v=5" defer></script>
+  <script src="/components/FloatingNav/floating-nav.js?v=10" defer></script>
+  <script>
+    /* Switch-button tooltip — page-local because only the summary
+       version nudges visitors toward the full case study. */
+    (function () {
+      function boot() {
+        var tip    = document.getElementById('case-fn-tooltip');
+        var anchor = document.getElementById('case-fn-switch');
+        if (!tip || !anchor) return;
+        // Suppress once per session — don't re-pester on every nav back.
+        try {
+          if (sessionStorage.getItem('tiket-fn-tip-seen') === '1') return;
+        } catch (_) { /* private mode: just show it */ }
+
+        function positionTip() {
+          // Read the switch button's icon span (more accurate than the
+          // whole anchor, which expands on hover).
+          var iconEl = anchor.querySelector('.case-fn-btn-icon') || anchor;
+          var rect = iconEl.getBoundingClientRect();
+          var iconCenterX = rect.left + rect.width / 2;
+          var iconBottomY = rect.bottom;
+          // Tooltip sits 10px below the icon.
+          tip.style.setProperty('--anchor-top', (iconBottomY + 10) + 'px');
+          // Place tooltip so the arrow (default 16px from its left edge,
+          // 5px wide center) sits directly under the icon center.
+          var ARROW_LEFT_IN_TIP = 16; // matches CSS --arrow-offset default
+          var ARROW_HALF        = 5;
+          var idealLeft = iconCenterX - (ARROW_LEFT_IN_TIP + ARROW_HALF);
+          // Apply ideal position so we can measure the rendered width
+          // (the box may have wrapped on a narrow viewport).
+          tip.style.setProperty('--anchor-left', idealLeft + 'px');
+          tip.style.setProperty('--arrow-offset', ARROW_LEFT_IN_TIP + 'px');
+          // If the tooltip overflows the right edge of the viewport,
+          // slide the box left and shift the arrow right by the same
+          // amount so the arrow still points at the icon center. Mostly
+          // relevant on mobile, where the box wraps and shifts wider.
+          var EDGE_PAD = 8;
+          var tipW = tip.offsetWidth;
+          var maxLeft = window.innerWidth - tipW - EDGE_PAD;
+          var clampedLeft = Math.min(idealLeft, maxLeft);
+          clampedLeft = Math.max(EDGE_PAD, clampedLeft);
+          var arrowOffset = ARROW_LEFT_IN_TIP + (idealLeft - clampedLeft);
+          // Keep the arrow inside the tooltip box (a hair from each edge).
+          arrowOffset = Math.max(8, Math.min(arrowOffset, tipW - 18));
+          tip.style.setProperty('--anchor-left', clampedLeft + 'px');
+          tip.style.setProperty('--arrow-offset', arrowOffset + 'px');
+        }
+
+        var dismissed = false;
+        function dismiss() {
+          if (dismissed) return;
+          dismissed = true;
+          tip.classList.remove('is-visible');
+          try { sessionStorage.setItem('tiket-fn-tip-seen', '1'); } catch (_) {}
+          // Remove from a11y tree after fade-out completes.
+          setTimeout(function () { tip.setAttribute('hidden', ''); }, 400);
+        }
+
+        function attachDismissers() {
+          // IMPORTANT: only wire these up AFTER the tooltip is visible.
+          // Otherwise any click during the 4s wait window silently
+          // pre-dismisses and the visitor never sees it.
+          //
+          // Note: scrolling does NOT dismiss. A visitor who immediately
+          // starts scrolling is exactly who we want this nudge to
+          // reach — they haven't noticed the toolbar yet. The tooltip
+          // is fixed-positioned and follows them down the page until
+          // they click, hover the button, or the 8s timer fires.
+          anchor.addEventListener('mouseenter', dismiss);
+          anchor.addEventListener('click', dismiss);
+          document.addEventListener('click', function (e) {
+            if (!tip.contains(e.target)) dismiss();
+          });
+        }
+
+        // Show after 4s.
+        setTimeout(function () {
+          if (dismissed) return;
+          positionTip();
+          tip.classList.add('is-visible');
+          attachDismissers();
+          // Auto-dismiss after 8s of being visible if untouched.
+          setTimeout(dismiss, 8000);
+        }, 4000);
+
+        window.addEventListener('resize', positionTip);
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot, { once: true });
+      } else {
+        boot();
+      }
+    })();
+  </script>
   <script src="/live-polish.js?v=3"></script>
 </body>
 </html>
