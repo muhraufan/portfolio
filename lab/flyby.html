@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <title>Fly-By Playground — Raufan Yusup</title>
+  <meta name="description" content="Customize a pixel-art fly-by easter egg.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/components/FlyByPlayground/playground.css?v=9">
+</head>
+<body>
+  <a class="back-link" href="/#lab">← Back</a>
+
+  <main class="playground">
+    <header class="playground-header">
+      <h1>Fly-By Playground</h1>
+      <p>Customize the pixel-art easter egg drifting across my case studies.</p>
+    </header>
+
+    <section class="preview-section">
+      <div class="mock-browser" aria-hidden="true">
+        <div class="mock-browser-chrome">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <div class="mock-url">yourportfolio.com</div>
+          <div class="dots-spacer"></div>
+        </div>
+        <div class="mock-browser-stage">
+          <canvas id="preview-canvas"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="controls">
+      <div class="control-group">
+        <label class="control-label">Vehicle</label>
+        <div class="vehicle-cards" id="vehicle-cards"></div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="message-input">Message</label>
+        <input id="message-input" type="text" maxlength="40" value="You won't regret hiring me" autocomplete="off">
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">Palette</label>
+        <div class="palette-swatches" id="palette-swatches"></div>
+      </div>
+
+      <div class="control-row">
+        <div class="slider-pill" id="speed-pill">
+          <input id="speed-input" class="slider-pill__input" type="range" min="0" max="9" step="0.1" value="4" aria-label="Speed">
+          <span class="slider-pill__fill"></span>
+          <span class="slider-pill__handle" aria-hidden="true"></span>
+          <span class="slider-pill__ticks" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+          </span>
+          <span class="slider-pill__label">Speed</span>
+          <span class="slider-pill__display" id="speed-display">14.0s</span>
+        </div>
+        <div class="slider-pill" id="size-pill">
+          <input id="size-input" class="slider-pill__input" type="range" min="0" max="9" step="0.1" value="4" aria-label="Size">
+          <span class="slider-pill__fill"></span>
+          <span class="slider-pill__handle" aria-hidden="true"></span>
+          <span class="slider-pill__ticks" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+          </span>
+          <span class="slider-pill__label">Size</span>
+          <span class="slider-pill__display" id="size-display">2×</span>
+        </div>
+      </div>
+    </section>
+
+    <p class="mobile-note">Best viewed on desktop — the fly-by needs a wider stage.</p>
+  </main>
+
+  <script src="/components/FlyByPlayground/playground.js?v=10"></script>
+</body>
+</html>

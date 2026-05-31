@@ -1,0 +1,427 @@
+/* ════════════════════════════════════════════════════════════════════
+   FLY-BY PLAYGROUND
+   Subpage of the Lab. Top half = mock browser preview where the
+   selected vehicle flies across. Bottom half = controls. Live preview:
+   any control change re-triggers a flight.
+   ════════════════════════════════════════════════════════════════════ */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  background: #fafaf9;
+  color: #1a1a1a;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Back button (matches live-polish.html) ─────────────────────── */
+.back-link {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #E5E5E5;
+  background: #FFFFFF;
+  color: #111;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  min-height: 40px;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
+  transition: transform 140ms cubic-bezier(0.2, 0, 0, 1),
+              box-shadow 220ms cubic-bezier(0.2, 0, 0, 1);
+}
+.back-link:hover {
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 8px 20px rgba(0,0,0,0.08);
+}
+.back-link:active { transform: scale(0.97); }
+
+/* ─── Page shell ─────────────────────────────────────────────────── */
+.playground {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 96px 24px 80px;
+}
+.playground-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.playground-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+}
+.playground-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+/* ─── Mock browser preview ───────────────────────────────────────── */
+.preview-section {
+  margin-bottom: 48px;
+}
+.mock-browser {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.06);
+}
+.mock-browser-chrome {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #f5f5f4;
+  border-bottom: 1px solid #e5e5e5;
+}
+.dots { display: flex; gap: 6px; flex-shrink: 0; }
+.dots span {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #d4d4d4;
+}
+.dots span:nth-child(1) { background: #ff5f57; }
+.dots span:nth-child(2) { background: #febc2e; }
+.dots span:nth-child(3) { background: #28c840; }
+.dots-spacer { width: 41px; flex-shrink: 0; }
+.mock-url {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  color: #6b7280;
+  background: #fff;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid #e5e5e5;
+  max-width: 320px;
+  margin: 0 auto;
+}
+.mock-browser-stage {
+  position: relative;
+  height: 380px;
+  background: #fafaf9;
+  overflow: hidden;
+}
+#preview-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.preview-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+/* ─── Controls ───────────────────────────────────────────────────── */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.control-group { display: block; }
+.control-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+  margin-bottom: 12px;
+}
+.control-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+/* Vehicle cards with flying-in-place mini canvases */
+.vehicle-cards {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+.vehicle-card {
+  background: #fff;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 10px;
+  padding: 14px 10px 12px;
+  cursor: pointer;
+  transition: border-color 140ms, transform 140ms, box-shadow 220ms;
+  text-align: center;
+  font: inherit;
+  color: inherit;
+}
+.vehicle-card:hover {
+  border-color: #c4c4c4;
+}
+.vehicle-card.selected {
+  border-color: #1a1a1a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+.vehicle-card canvas {
+  display: block;
+  margin: 0 auto 8px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background: #fafaf9;
+  border-radius: 6px;
+}
+.vehicle-card-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #1a1a1a;
+  text-transform: capitalize;
+}
+
+/* Text input */
+#message-input {
+  width: 100%;
+  padding: 12px 16px;
+  font: 500 14px 'Plus Jakarta Sans', sans-serif;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 10px;
+  background: #fff;
+  color: #1a1a1a;
+  transition: border-color 140ms;
+}
+#message-input:focus {
+  outline: none;
+  border-color: #1a1a1a;
+}
+
+/* Palette swatches */
+.palette-swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+.palette-swatch {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  padding: 0;
+  display: flex;
+  overflow: hidden;
+  transition: border-color 140ms, transform 140ms;
+}
+.palette-swatch:hover { transform: translateY(-1px); }
+.palette-swatch.selected { border-color: #1a1a1a; }
+.palette-swatch span {
+  flex: 1;
+  height: 100%;
+}
+
+/* Dark pill sliders — self-contained (label inside on the left, value
+   inside on the right). The fill is an inset rounded bar; on hover
+   the whole pill brightens, the label/value brighten, and a handle
+   indicator appears at the fill's right edge. */
+/* Colors are CSS custom properties so each pill can have its own
+   scheme (set on the per-pill ID below). --fill is the fill PERCENT
+   (set by JS), --fill-color is the fill background — different things. */
+.slider-pill {
+  /* Default: warm charcoal (Option A) */
+  --track-color:       #3a3835;
+  --track-hover:       #45413c;
+  --fill-color:        #4d4a45;
+  --fill-hover-color:  #5e5a54;
+  --label-color:       #9a958e;
+  --label-hover-color: #f5f1ec;
+  --handle-color:      #f5f1ec;
+  --tick-color:        rgba(255,255,255,0.18);
+
+  position: relative;
+  height: 48px;
+  background: var(--track-color);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  --fill: 50%;
+  --stretch: 1;
+  overflow: hidden;
+  cursor: ew-resize;
+  transform: scaleX(var(--stretch));
+  /* Anchor LEFT — only the right side grows when stretching. */
+  transform-origin: left center;
+  /* Spring back when --stretch returns to 1 after the user releases. */
+  transition: background 160ms, transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.slider-pill:hover {
+  background: var(--track-hover);
+}
+/* While the pointer is dragging, follow the cursor 1:1 — no spring. */
+.slider-pill.is-stretching {
+  transition: background 160ms;
+}
+.slider-pill__fill {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  bottom: 4px;
+  /* Subtract BOTH insets (4px left + 4px right = 8px) so the fill
+     stays inset on the right at 100% too — symmetric padding. */
+  width: calc(var(--fill) - 8px);
+  min-width: 0;
+  background: var(--fill-color);
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 0;
+  /* No width transition: --fill updates many times per second during
+     drag, and a transition makes the bar chase the cursor laggily. */
+  transition: background 160ms;
+}
+.slider-pill:hover .slider-pill__fill,
+.slider-pill.is-full .slider-pill__fill {
+  background: var(--fill-hover-color);
+}
+.slider-pill__handle {
+  position: absolute;
+  /* Handle center sits ~5px inside the fill's right edge. Fill right
+     edge is now at (var(--fill) - 4px), so handle at (-9px) puts the
+     center 5px inside — same visual inset the handle had before the
+     fill became symmetric. */
+  left: calc(var(--fill) - 9px);
+  transform: translateX(-50%);
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  background: var(--handle-color);
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 160ms;
+}
+.slider-pill:hover .slider-pill__handle,
+.slider-pill__input:focus-visible ~ .slider-pill__handle {
+  opacity: 1;
+}
+.slider-pill__ticks {
+  position: absolute;
+  left: 14px; right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  pointer-events: none;
+  z-index: 1;
+}
+.slider-pill__ticks > span {
+  display: block;
+  width: 1.5px;
+  background: var(--tick-color);
+  border-radius: 1px;
+}
+.slider-pill__label,
+.slider-pill__display {
+  position: relative;
+  z-index: 2;
+  font: 500 14px 'Plus Jakarta Sans', sans-serif;
+  color: var(--label-color);
+  pointer-events: none;
+  letter-spacing: 0.01em;
+  transition: color 160ms;
+}
+.slider-pill__display {
+  margin-left: auto;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+.slider-pill:hover .slider-pill__label,
+.slider-pill:hover .slider-pill__display {
+  color: var(--label-hover-color);
+}
+
+/* Both pills use the default warm charcoal scheme defined above
+   (Option A). Per-pill overrides removed after side-by-side
+   comparison — Option A felt right. */
+.slider-pill__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: ew-resize;
+  z-index: 3;
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Buttons */
+.ghost-btn {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  color: #1a1a1a;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font: 500 13px 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  transition: background 140ms, border-color 140ms, transform 140ms;
+}
+.ghost-btn:hover { background: #fafaf9; border-color: #c4c4c4; }
+.ghost-btn:active { transform: scale(0.97); }
+
+.primary-btn {
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font: 600 14px 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  transition: background 140ms, transform 140ms;
+}
+.primary-btn:hover { background: #000; }
+.primary-btn:active { transform: scale(0.98); }
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+}
+.share-status {
+  font-size: 13px;
+  color: #28a745;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 200ms;
+}
+.share-status.visible { opacity: 1; }
+
+.mobile-note {
+  display: none;
+  text-align: center;
+  margin-top: 40px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .playground { padding: 72px 16px 60px; }
+  .playground-header h1 { font-size: 24px; }
+  .mock-browser-stage { height: 240px; }
+  .vehicle-cards { grid-template-columns: repeat(3, 1fr); }
+  .control-row { grid-template-columns: 1fr; }
+  .back-link { top: 16px; left: 16px; font-size: 12px; padding: 8px 16px; min-height: 36px; }
+  .mobile-note { display: block; }
+}
