@@ -347,21 +347,74 @@ body.case-floating-nav::before {
 body.case-floating-nav.is-fn-bottom-fade::before { opacity: 1; }
 
 /* ─── Lang / theme toggle parity ─────────────────────────────────
-   Apply the floating-nav's icon weight to the existing case-study
-   toggles so all top-row chrome reads as one set on both desktop
-   and mobile. The toggles' base CSS (in case.css) lives outside this
-   component; these scoped overrides only fire when the page opts
-   into `body.case-floating-nav`. */
+   Promote the case-study lang/theme toggles into peers of the
+   floating-nav buttons: same fixed positioning (mirror-image on the
+   right edge), same 32×32 button size, same `var(--text)` icon color,
+   same backdrop-blur, same hover treatment. The toggles' base styles
+   live in case.css; these overrides only fire when the page opts in
+   to `body.case-floating-nav`.
+
+   IMPORTANT: case.css positions both toggles as `position: absolute`
+   inside `.case-page`, so they scroll with the page on desktop (only
+   the mobile media query in case.css flips them to fixed). We force
+   fixed here so they pin to the viewport like the nav toolbar does. */
+body.case-floating-nav .case-lang-toggle,
+body.case-floating-nav .case-theme-toggle {
+  position: fixed !important;
+  top: 48px;
+  z-index: 100;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text) !important;
+  border-radius: 8px;
+  /* Glass — same backdrop-blur as .case-fn-btn so the chrome reads
+     as one cohesive toolbar across left + right. */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: transparent;
+  /* Hover-in only — base has no transition so unhover snaps. */
+}
+body.case-floating-nav .case-theme-toggle { right: 24px; }
+body.case-floating-nav .case-lang-toggle  { right: 64px; font-weight: 600; }
+
+/* Hover treatment matches .case-fn-btn — soft macOS-style pill. */
+body.case-floating-nav .case-lang-toggle:hover,
+body.case-floating-nav .case-lang-toggle:focus-visible,
+body.case-floating-nav .case-theme-toggle:hover,
+body.case-floating-nav .case-theme-toggle:focus-visible {
+  background: rgba(0, 0, 0, 0.06);
+  outline: 0;
+  transition: background 260ms cubic-bezier(0.33, 1, 0.68, 1);
+}
+[data-theme="dark"] body.case-floating-nav .case-lang-toggle:hover,
+[data-theme="dark"] body.case-floating-nav .case-lang-toggle:focus-visible,
+[data-theme="dark"] body.case-floating-nav .case-theme-toggle:hover,
+[data-theme="dark"] body.case-floating-nav .case-theme-toggle:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body.case-floating-nav .case-lang-toggle:hover,
+  :root:not([data-theme="light"]) body.case-floating-nav .case-lang-toggle:focus-visible,
+  :root:not([data-theme="light"]) body.case-floating-nav .case-theme-toggle:hover,
+  :root:not([data-theme="light"]) body.case-floating-nav .case-theme-toggle:focus-visible {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* SVG visual weight parity — toggle icons live in a 24×24 viewBox at
+   16×16, so the native 1.5 stroke renders as ~1.0 visual, thinner
+   than the floating-nav icons (1.6 in 16×16 = 1.6 visual). 2.4
+   brings them to ~1.6 visual to match Back/Outline/Switch. */
 body.case-floating-nav .case-theme-toggle svg {
   width: 16px;
   height: 16px;
-  /* Toggle icons use a 24×24 viewBox at 16×16, so stroke 1.5 renders
-     as ~1.0 visual — thinner than the floating-nav icons (1.6 in a
-     16×16 viewBox = 1.6 visual). 2.4 brings them to ~1.6 visual. */
   stroke-width: 2.4;
-}
-body.case-floating-nav .case-lang-toggle {
-  font-weight: 600;
 }
 
 /* ─── Switch-button tooltip ────────────────────────────────────────
