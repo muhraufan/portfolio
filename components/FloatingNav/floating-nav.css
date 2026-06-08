@@ -20,6 +20,114 @@
    - Remove the floating-nav.js <script>
    ════════════════════════════════════════════════════════════════════ */
 
+/* ─── Section rail — minimalist scrollspy ────────────────────────
+   An always-visible vertical column of small horizontal bars pinned
+   to the left edge of the viewport, one bar per section. The bar of
+   the section currently being read is highlighted (longer + full
+   text color). On hover of the rail, all bars fade and the section
+   titles fade in in their place — clickable, jumps to the section.
+   Inspired by the in-place expand pattern from long-form Korean
+   blogs / Medium-class readers. Mobile hides entirely (the Outline
+   popover handles small viewports). */
+/* Bars and labels are visually decoupled. In collapsed state each row
+   is just a thin bar (~3px tall); on hover, the row animates to ~18px
+   so the labels fit. Labels are absolutely positioned inside their
+   row — they don't influence collapsed-row height, only what's
+   visible. Result: rail reads as a tight cluster of bars by default
+   and a comfortable text list on hover, with a smooth height
+   transition between the two states. */
+.case-fn-rail {
+  position: fixed;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 99;
+  display: flex;
+  flex-direction: column;
+  /* Comfortable gap that holds up at both collapsed and hover states
+     — tuned by hand at 12px. */
+  gap: 12px;
+  /* Transparent buffer around the bars — `:hover` triggers when the
+     cursor is ~16px from the rail, not only directly on a 2px line. */
+  padding: 12px 16px 12px 0;
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+}
+
+.case-fn-rail-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--text3);
+  cursor: pointer;
+  min-width: 22px;
+  /* Animated row height: tiny when collapsed, comfortable on hover. */
+  height: 4px;
+  transition:
+    height 280ms cubic-bezier(0.2, 0, 0, 1),
+    color  200ms ease;
+}
+.case-fn-rail:hover .case-fn-rail-item { height: 18px; }
+
+.case-fn-rail-bar {
+  display: block;
+  width: 12px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transition:
+    width   240ms cubic-bezier(0.2, 0, 0, 1),
+    opacity 220ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.case-fn-rail-item.is-active           { color: var(--text); }
+.case-fn-rail-item.is-active .case-fn-rail-bar { width: 20px; }
+
+/* Text floats absolutely inside the row — doesn't contribute to row
+   height when invisible, so the collapsed state can be tight. */
+.case-fn-rail-text {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.15px;
+  white-space: nowrap;
+  color: inherit;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.case-fn-rail-item.is-active .case-fn-rail-text { font-weight: 600; }
+
+/* Hover the rail container → bars fade out, labels appear in place. */
+.case-fn-rail:hover .case-fn-rail-bar {
+  width: 0;
+  opacity: 0;
+}
+.case-fn-rail:hover .case-fn-rail-text {
+  opacity: 1;
+  pointer-events: auto;
+}
+.case-fn-rail:hover .case-fn-rail-item            { color: var(--text3); }
+.case-fn-rail:hover .case-fn-rail-item.is-active  { color: var(--text); }
+.case-fn-rail:hover .case-fn-rail-item:hover      { color: var(--text); }
+
+/* Mobile — hide entirely. The Outline popover handles narrow viewports. */
+@media (max-width: 768px) {
+  .case-fn-rail { display: none; }
+}
+
+/* Desktop — the rail replaces the Outline button. Hide the button on
+   wider viewports so the toolbar reads as just Back + (switch).
+   Mobile keeps the button (rail is hidden there). The popover markup
+   stays in the DOM either way so the rail can mirror its active state. */
+@media (min-width: 769px) {
+  body.case-floating-nav .case-fn-menu { display: none; }
+}
+
 /* ─── Hide the legacy left-rail sidebar + recentre the content ──── */
 body.case-floating-nav .case-sidebar { display: none; }
 body.case-floating-nav .case-page {

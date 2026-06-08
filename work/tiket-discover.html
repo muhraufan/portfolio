@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="/components/FlyBy/flyby.css?v=4">
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
   <!-- FLOATING NAV (experimental — applied to both tiket pages) -->
-  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=25">
+  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=30">
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body class="minimal case-floating-nav">
@@ -77,6 +77,24 @@
       </a></li>
     </ul>
   </nav>
+  <!-- Section rail — desktop mini-scrollspy on the left edge. Bars
+       collapse / labels expand on hover. Hidden on mobile (popover
+       handles narrow viewports). -->
+  <nav class="case-fn-rail" aria-label="Section rail">
+    <a href="#beginning" class="case-fn-rail-item is-active">
+      <span class="case-fn-rail-bar"  aria-hidden="true"></span>
+      <span class="case-fn-rail-text" data-en="The Beginning" data-ja="はじまり">The Beginning</span>
+    </a>
+    <a href="#journey" class="case-fn-rail-item">
+      <span class="case-fn-rail-bar"  aria-hidden="true"></span>
+      <span class="case-fn-rail-text" data-en="The Journey" data-ja="旅路">The Journey</span>
+    </a>
+    <a href="#ending" class="case-fn-rail-item">
+      <span class="case-fn-rail-bar"  aria-hidden="true"></span>
+      <span class="case-fn-rail-text" data-en="The Ending" data-ja="結び">The Ending</span>
+    </a>
+  </nav>
+
   <!-- Top-of-viewport scroll-progress strip. -->
   <div class="case-fn-top-progress" aria-hidden="true">
     <span class="case-fn-top-progress-fill"></span>
@@ -1195,7 +1213,7 @@
   <canvas id="flyby-surprise"></canvas>
   <script src="/components/FlyBy/flyby.js?v=4" defer></script>
   <script src="/components/Stabilo/stabilo.js?v=5" defer></script>
-  <script src="/components/FloatingNav/floating-nav.js?v=12" defer></script>
+  <script src="/components/FloatingNav/floating-nav.js?v=15" defer></script>
   <script>
     /* Switch-button tooltip — page-local because only the summary
        version nudges visitors toward the full case study. */

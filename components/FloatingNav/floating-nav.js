@@ -92,6 +92,14 @@
           // Update active immediately (visual feedback)
           links.forEach(function (l) { l.classList.remove('is-active'); });
           link.classList.add('is-active');
+          // Mirror the active state on the rail if one is present.
+          var clickedIdx = Array.prototype.indexOf.call(links, link);
+          if (clickedIdx >= 0) setRailActive(clickedIdx);
+          // Lock out the near-bottom fallback for the duration of the
+          // smooth scroll. Otherwise it can re-activate the last
+          // section mid-scroll because we're momentarily still in the
+          // bottom-80px deadband.
+          clickLockUntil = Date.now() + 800;
         }
       });
     });
@@ -101,6 +109,43 @@
     var sections = Array.prototype.map.call(links, function (link) {
       var href = link.getAttribute('href') || '';
       return href.charAt(0) === '#' ? document.querySelector(href) : null;
+    });
+
+    // Optional section-rail (mini scrollspy on the left edge). The rail
+    // mirrors the popover's active state index-for-index, so we keep
+    // the items in a parallel array keyed by href and update them
+    // alongside `links[idx]` everywhere `is-active` flips.
+    var railItems = Array.prototype.slice.call(
+      document.querySelectorAll('.case-fn-rail-item')
+    );
+    var railByHref = {};
+    railItems.forEach(function (r) {
+      var h = r.getAttribute('href') || '';
+      if (h.charAt(0) === '#') railByHref[h] = r;
+    });
+    function setRailActive(idx) {
+      if (!railItems.length) return;
+      var href = links[idx] && links[idx].getAttribute('href');
+      railItems.forEach(function (r) { r.classList.remove('is-active'); });
+      var match = href && railByHref[href];
+      if (match) match.classList.add('is-active');
+    }
+
+    // Rail click → delegate to the matching popover link's click
+    // handler. Keeps paywall guard + IO sync logic in one place
+    // (no duplicated shake animation, no diverging code paths).
+    railItems.forEach(function (item) {
+      item.addEventListener('click', function (e) {
+        var href = item.getAttribute('href') || '';
+        if (href.charAt(0) !== '#') return;
+        e.preventDefault();
+        for (var i = 0; i < links.length; i++) {
+          if (links[i].getAttribute('href') === href) {
+            links[i].click();
+            return;
+          }
+        }
+      });
     });
 
     // Active section tracking via IntersectionObserver — same idea
@@ -114,6 +159,7 @@
             if (idx >= 0) {
               links.forEach(function (l) { l.classList.remove('is-active'); });
               links[idx].classList.add('is-active');
+              setRailActive(idx);
             }
           }
         });
@@ -131,6 +177,11 @@
     var scrolledOn  = false;
     var bottomFadeOn = false;
     var ticking = false;
+    // When the visitor clicks a popover/rail link to jump elsewhere,
+    // we set this to a timestamp ~800ms in the future. The near-bottom
+    // fallback (below) skips while this is in the future, so it can't
+    // re-activate the last section mid-smooth-scroll.
+    var clickLockUntil = 0;
     function updateProgress() {
       ticking = false;
       var scrollY = window.scrollY || window.pageYOffset;
@@ -164,13 +215,16 @@
       // outline gets "stuck" on the second-to-last item once the
       // visitor reaches the foot of the page. When the viewport is
       // within ~80px of the doc bottom, force the last link active.
-      if (links.length > 0 && (scrollY + window.innerHeight) >= (document.documentElement.scrollHeight - 80)) {
+      if (Date.now() >= clickLockUntil
+          && links.length > 0
+          && (scrollY + window.innerHeight) >= (document.documentElement.scrollHeight - 80)) {
         var lastIdx = links.length - 1;
         if (!links[lastIdx].classList.contains('is-active')) {
           for (var i = 0; i < links.length; i++) {
             links[i].classList.remove('is-active');
           }
           links[lastIdx].classList.add('is-active');
+          setRailActive(lastIdx);
         }
       }
     }
