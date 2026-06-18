@@ -56,8 +56,11 @@
     </p>
 
     <ul class="m-list">
+      <li><a href="https://arsip.app/" target="_blank" rel="noopener noreferrer">arsip — Manage your documents like a design system</a></li>
       <li><a href="https://risokit.dev" target="_blank" rel="noopener noreferrer">Riso Kit — a browser-based halftone gradient toolkit</a></li>
+      <!-- Live Polish temporarily hidden — restore by un-commenting:
       <li><a href="/lab/live-polish.html">Live Polish — Tweak the web like a Figma file</a></li>
+      -->
       <li><a href="/lab/tokyo-transit-map.html">Tokyo Transit Map — Cartography and an uncommon care</a></li>
       <!-- Fly-By Playground temporarily hidden — restore by un-commenting:
       <li><a href="/lab/flyby.html">Fly-By Playground — The easter egg from my case studies</a></li>
@@ -161,6 +164,11 @@
        from devtools for manual replay. */
     (function homepageBirdNudge() {
       var autoTriggerOK = true;
+      // Easter-egg bird hidden for now. Set BIRD_HIDDEN = false to
+      // restore the auto-trigger. (window.__showBird() still works for
+      // manual replay regardless.)
+      var BIRD_HIDDEN = true;
+      if (BIRD_HIDDEN) autoTriggerOK = false;
       if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) autoTriggerOK = false;
       if (window.innerWidth < 600) autoTriggerOK = false;
       try { if (localStorage.getItem('bird-shown-v1') === '1') autoTriggerOK = false; } catch (e) {}
