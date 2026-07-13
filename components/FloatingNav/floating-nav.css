@@ -64,7 +64,7 @@
   /* Animated row height: tiny when collapsed, comfortable on hover. */
   height: 4px;
   transition:
-    height 280ms cubic-bezier(0.2, 0, 0, 1),
+    height 280ms var(--ease-out),
     color  200ms ease;
 }
 .case-fn-rail:hover .case-fn-rail-item { height: 18px; }
@@ -76,8 +76,8 @@
   background: currentColor;
   border-radius: 2px;
   transition:
-    width   240ms cubic-bezier(0.2, 0, 0, 1),
-    opacity 220ms cubic-bezier(0.2, 0, 0, 1);
+    width   240ms var(--ease-out),
+    opacity 220ms var(--ease-out);
 }
 
 .case-fn-rail-item.is-active           { color: var(--text); }
@@ -97,7 +97,7 @@
   color: inherit;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 240ms cubic-bezier(0.2, 0, 0, 1);
+  transition: opacity 240ms var(--ease-out);
 }
 
 .case-fn-rail-item.is-active .case-fn-rail-text { font-weight: 600; }
@@ -114,6 +114,18 @@
 .case-fn-rail:hover .case-fn-rail-item            { color: var(--text3); }
 .case-fn-rail:hover .case-fn-rail-item.is-active  { color: var(--text); }
 .case-fn-rail:hover .case-fn-rail-item:hover      { color: var(--text); }
+
+/* Label reveal staggers 18ms per row on hover-in — echoes the
+   toolbar's typewriter personality. Delays live ONLY on the :hover
+   state; the base rule has none, so unhover fades all labels out
+   together, instantly re-entering the site's snap-shut convention.
+   Decorative only — pointer-events flip with opacity, not delay. */
+.case-fn-rail:hover .case-fn-rail-item:nth-child(2) .case-fn-rail-text { transition-delay: 18ms; }
+.case-fn-rail:hover .case-fn-rail-item:nth-child(3) .case-fn-rail-text { transition-delay: 36ms; }
+.case-fn-rail:hover .case-fn-rail-item:nth-child(4) .case-fn-rail-text { transition-delay: 54ms; }
+.case-fn-rail:hover .case-fn-rail-item:nth-child(5) .case-fn-rail-text { transition-delay: 72ms; }
+.case-fn-rail:hover .case-fn-rail-item:nth-child(6) .case-fn-rail-text { transition-delay: 90ms; }
+.case-fn-rail:hover .case-fn-rail-item:nth-child(7) .case-fn-rail-text { transition-delay: 108ms; }
 
 /* Mobile — hide entirely. The Outline popover handles narrow viewports. */
 @media (max-width: 768px) {
@@ -193,8 +205,8 @@ body.case-floating-nav .case-page {
   outline: 0;
   gap: 6px;
   /* Hover-in: smooth ease-out for background + gap. */
-  transition: background 260ms cubic-bezier(0.33, 1, 0.68, 1),
-              gap        260ms cubic-bezier(0.33, 1, 0.68, 1);
+  transition: background 260ms var(--ease-out-lift),
+              gap        260ms var(--ease-out-lift);
 }
 [data-theme="dark"] .case-fn-btn:hover,
 [data-theme="dark"] .case-fn-btn:focus-visible,
@@ -250,13 +262,13 @@ body.case-floating-nav .case-page {
 .case-fn-btn:focus-visible .case-fn-btn-label,
 .case-fn-btn.is-active .case-fn-btn-label {
   max-width: 220px;
-  transition: max-width 320ms cubic-bezier(0.2, 0, 0, 1);
+  transition: max-width 320ms var(--ease-out);
 }
 .case-fn-btn:hover .case-fn-btn-label > span,
 .case-fn-btn:focus-visible .case-fn-btn-label > span,
 .case-fn-btn.is-active .case-fn-btn-label > span {
   opacity: 1;
-  transition: opacity 200ms cubic-bezier(0.2, 0, 0, 1);
+  transition: opacity 200ms var(--ease-out);
   transition-delay: calc(var(--i, 0) * 28ms);
 }
 
@@ -287,7 +299,7 @@ body.case-floating-nav .case-page {
   pointer-events: none;
   transition:
     opacity   260ms ease,
-    transform 360ms cubic-bezier(0.2, 0, 0, 1);
+    transform 360ms var(--ease-out);
   font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
 }
 .case-fn-popover.is-open {
@@ -319,7 +331,10 @@ body.case-floating-nav .case-page {
   font-size: 14px;
   font-weight: 500;
   color: var(--text2);
-  transition: color 180ms ease, font-weight 180ms ease;
+  /* color only — font-weight can't interpolate between the static
+     400/500/600 cuts of Plus Jakarta Sans; declaring it just forced
+     a pointless style/layout pass while the weight snapped anyway. */
+  transition: color 180ms ease;
 }
 
 /* ─── Top-of-viewport scroll-progress strip ───────────────────────
@@ -424,7 +439,7 @@ body.case-floating-nav::after {
   z-index: 99;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 320ms cubic-bezier(0.2, 0, 0, 1);
+  transition: opacity 320ms var(--ease-out);
   will-change: opacity;
 }
 body.case-floating-nav.is-fn-scrolled::after { opacity: 1; }
@@ -449,7 +464,7 @@ body.case-floating-nav::before {
   z-index: 99;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 320ms cubic-bezier(0.2, 0, 0, 1);
+  transition: opacity 320ms var(--ease-out);
   will-change: opacity;
 }
 body.case-floating-nav.is-fn-bottom-fade::before { opacity: 1; }
@@ -498,7 +513,7 @@ body.case-floating-nav .case-theme-toggle:hover,
 body.case-floating-nav .case-theme-toggle:focus-visible {
   background: rgba(0, 0, 0, 0.06);
   outline: 0;
-  transition: background 260ms cubic-bezier(0.33, 1, 0.68, 1);
+  transition: background 260ms var(--ease-out-lift);
 }
 [data-theme="dark"] body.case-floating-nav .case-lang-toggle:hover,
 [data-theme="dark"] body.case-floating-nav .case-lang-toggle:focus-visible,
@@ -554,8 +569,8 @@ body.case-floating-nav .case-theme-toggle svg {
   transform: translateY(-4px) scale(0.98);
   transform-origin: top left;
   transition:
-    opacity   260ms cubic-bezier(0.2, 0, 0, 1),
-    transform 260ms cubic-bezier(0.2, 0, 0, 1);
+    opacity   260ms var(--ease-out),
+    transform 260ms var(--ease-out);
 }
 .case-fn-tooltip.is-visible {
   opacity: 1;
@@ -712,4 +727,47 @@ body.case-floating-nav .case-theme-toggle svg {
 
   /* Clear the fixed toolbar so the article starts below it. */
   body.case-floating-nav .case-page { padding-top: 60px; }
+}
+
+/* ─── Reduced motion ──────────────────────────────────────────────
+   Fewer and gentler, not zero: every state change keeps its opacity
+   fade so comprehension survives, but positional movement (popover
+   slide-in, tooltip drop, letter stagger, rail expansion) and the
+   paywall shake are removed. The top progress strip keeps its 80ms
+   scaleX — it's constant-position state indication, not movement. */
+@media (prefers-reduced-motion: reduce) {
+  /* Popover: fade in place instead of sliding from the page edge. */
+  .case-fn-popover {
+    transform: none;
+    transition: opacity 200ms ease;
+  }
+  .case-fn-popover.is-open { transform: none; }
+
+  /* Toolbar labels: reveal instantly, no typewriter stagger. */
+  .case-fn-btn:hover .case-fn-btn-label,
+  .case-fn-btn:focus-visible .case-fn-btn-label,
+  .case-fn-btn.is-active .case-fn-btn-label { transition: none; }
+  .case-fn-btn:hover .case-fn-btn-label > span,
+  .case-fn-btn:focus-visible .case-fn-btn-label > span,
+  .case-fn-btn.is-active .case-fn-btn-label > span {
+    transition: none;
+    transition-delay: 0ms;
+  }
+
+  /* Tooltip: pure fade, no drop-down slide. */
+  .case-fn-tooltip {
+    transform: none;
+    transition: opacity 260ms ease;
+  }
+  .case-fn-tooltip.is-visible { transform: none; }
+
+  /* Rail: rows snap to their hover height; labels keep the fade but
+     lose the per-row stagger (!important outguns the :nth-child
+     delay rules, which are more specific). */
+  .case-fn-rail-item { transition: color 200ms ease; }
+  .case-fn-rail-bar  { transition: opacity 220ms ease; }
+  .case-fn-rail-text { transition-delay: 0ms !important; }
+
+  /* Paywall shake: a hard "no" doesn't need to rattle the card. */
+  .pw-paywall.case-fn-bump { animation: none; }
 }

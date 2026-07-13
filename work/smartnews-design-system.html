@@ -15,11 +15,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=14">
+  <link rel="stylesheet" href="/css/style.css?v=15">
   <link rel="stylesheet" href="/css/case.css?v=153">
   <link rel="stylesheet" href="/components/FlyBy/flyby.css?v=4">
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
-  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=30">
+  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=31">
   <style>
     /* ============================================================
        MEDIUM-STYLE PAYWALL
@@ -102,6 +102,44 @@
                   0 16px 40px -12px rgba(0,0,0,0.5);
     }
 
+    /* Unlock stamp — the rare success moment. A vermilion 開 ("open")
+       seal thunks onto the card with a heavy overshoot spring, an ink
+       ring ripples out, and only then does the card fade and the
+       article un-clip — the big layout change lands while eyes are on
+       the stamp. Keyframes are fine here: one-shot, never retriggered
+       (style.css zeroes them globally under prefers-reduced-motion,
+       and the JS skips the stamp hold entirely in that case). */
+    .pw-stamp {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 96px; height: 96px;
+      margin: -48px 0 0 -48px;
+      border: 4px solid #C13B2E;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #C13B2E;
+      font-size: 42px; font-weight: 800; line-height: 1;
+      pointer-events: none;
+      z-index: 6;
+      opacity: 0;
+      transform: rotate(-8deg) scale(2.6);
+      animation: pw-stamp-thunk 380ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    .pw-stamp::after {
+      content: '';
+      position: absolute; inset: -10px;
+      border: 2px solid #C13B2E;
+      border-radius: 50%;
+      opacity: 0;
+      animation: pw-stamp-ripple 700ms ease-out 160ms forwards;
+    }
+    @keyframes pw-stamp-thunk {
+      to { transform: rotate(-8deg) scale(1); opacity: 0.92; }
+    }
+    @keyframes pw-stamp-ripple {
+      from { opacity: 0.45; transform: scale(0.85); }
+      to   { opacity: 0; transform: scale(1.55); }
+    }
     .pw-paywall.is-unlocked {
       opacity: 0;
       transform: translateY(8px);
@@ -7127,6 +7165,23 @@
     }
 
     function unlock() {
+      // Rare success moment — stamp the card first, then run the
+      // reveal while attention is on the stamp so the article's
+      // un-clip layout jump lands off-attention. Reduced-motion
+      // visitors skip straight to the reveal. pwReveal is the
+      // original unlock body (function declarations hoist).
+      var pwReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!pwReduced && !wall.querySelector('.pw-stamp')) {
+        var stamp = document.createElement('span');
+        stamp.className = 'pw-stamp';
+        stamp.setAttribute('aria-hidden', 'true');
+        stamp.textContent = '\u958B';
+        wall.appendChild(stamp);
+      }
+      setTimeout(pwReveal, pwReduced ? 0 : 900);
+    }
+
+    function pwReveal() {
       // Fade the card out, then drop it from layout so the page
       // reflows naturally. Removing `is-paywalled` un-clips the
       // article and re-enables the dimmed sidebar links.

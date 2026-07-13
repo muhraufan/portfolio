@@ -1040,10 +1040,12 @@
   -webkit-backdrop-filter: blur(4px);
 }
 
-.gb-card-colors-arrow:hover {
-  background: #fff;
-  transform: scale(1.06);
-  box-shadow: 0 2px 6px rgba(30, 20, 10, 0.12);
+@media (hover: hover) and (pointer: fine) {
+  .gb-card-colors-arrow:hover {
+    background: #fff;
+    transform: scale(1.06);
+    box-shadow: 0 2px 6px rgba(30, 20, 10, 0.12);
+  }
 }
 
 .gb-card-colors-arrow:focus-visible {
@@ -1084,8 +1086,10 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.gb-card-swatch:hover {
-  transform: scale(1.08);
+@media (hover: hover) and (pointer: fine) {
+  .gb-card-swatch:hover {
+    transform: scale(1.08);
+  }
 }
 
 .gb-card-swatch:focus-visible {
@@ -1139,14 +1143,18 @@
   }
 }
 
-.gb-card-colors-custom-link:hover,
-.gb-card-colors-back-link:hover {
-  opacity: 1;
-  transform: translateX(2px);
+@media (hover: hover) and (pointer: fine) {
+  .gb-card-colors-custom-link:hover,
+  .gb-card-colors-back-link:hover {
+    opacity: 1;
+    transform: translateX(2px);
+  }
 }
 
-.gb-card-colors-back-link:hover {
-  transform: translateX(-2px);
+@media (hover: hover) and (pointer: fine) {
+  .gb-card-colors-back-link:hover {
+    transform: translateX(-2px);
+  }
 }
 
 .gb-card-colors-custom-link:focus-visible,
@@ -1866,8 +1874,10 @@
   z-index: -1;
 }
 
-.gb-form-stamp:hover {
-  transform: scale(1.08);
+@media (hover: hover) and (pointer: fine) {
+  .gb-form-stamp:hover {
+    transform: scale(1.08);
+  }
 }
 
 .gb-form-stamp.is-selected::before {
