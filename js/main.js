@@ -54,6 +54,25 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () 
   if (getTheme() === 'auto') applyTheme('auto');
 });
 
+// ---- Playable profile-photo stack ----
+// Selection intentionally lives only in this page session: refresh returns to
+// the original portrait, while clicks immediately promote either print.
+(function profilePhotoPicker() {
+  const picker = document.querySelector('.m-avatar-picker');
+  if (!picker) return;
+
+  const cards = [...picker.querySelectorAll('.m-avatar-card')];
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      cards.forEach(candidate => {
+        const isActive = candidate === card;
+        candidate.classList.toggle('is-active', isActive);
+        candidate.setAttribute('aria-pressed', String(isActive));
+      });
+    });
+  });
+})();
+
 // ---- Language Switcher ----
 function getLang() {
   return localStorage.getItem('lang') || 'en';
@@ -660,3 +679,35 @@ document.querySelectorAll('.nav-links a').forEach(link => {
 //     link.addEventListener('blur', scheduleDeactivate);
 //   });
 // })();
+
+// ---- Case-study folders ----
+// The folder link owns navigation. Sheets are decorative previews; tracking
+// the one under the pointer gives the stack a tactile, print-like response.
+(function caseStudyFolders() {
+  const folders = document.querySelectorAll('.case-folder');
+  if (!folders.length) return;
+
+  folders.forEach(folder => {
+    const sheets = folder.querySelectorAll('.case-sheet');
+    const clearFocus = () => {
+      sheets.forEach(sheet => sheet.classList.remove('is-focused'));
+      delete folder.dataset.focus;
+    };
+
+    folder.addEventListener('pointerenter', () => {
+      folder.classList.add('is-open');
+    });
+    folder.addEventListener('pointerleave', () => {
+      folder.classList.remove('is-open');
+      clearFocus();
+    });
+    sheets.forEach((sheet, index) => {
+      sheet.addEventListener('pointerenter', () => {
+        if (!folder.classList.contains('is-open')) return;
+        clearFocus();
+        sheet.classList.add('is-focused');
+        folder.dataset.focus = String(index);
+      });
+    });
+  });
+})();
