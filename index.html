@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=28">
+  <link rel="stylesheet" href="/css/style.css?v=38">
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
   <link id="gb-stylesheet" rel="stylesheet" href="/components/Guestbook/guestbook.css?v=7">
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
@@ -47,17 +47,18 @@
     </div>
 
     <header class="m-header">
-      <div class="m-avatar-picker" role="group" aria-label="Choose Raufan's profile picture">
-        <button class="m-avatar-card is-active" type="button" data-avatar="smiling" aria-label="Use portrait of Raufan smiling" aria-pressed="true">
+      <div class="m-avatar-picker" role="group" aria-label="Choose Raufan's portfolio">
+        <button class="m-avatar-card is-active" type="button" data-avatar="smiling" data-profile="design" aria-label="Show Raufan's product design portfolio" aria-pressed="true">
           <img class="m-avatar" src="/assets/profile-raufan.png" alt="Illustrated portrait of Raufan smiling in a bucket hat" width="2048" height="2048">
         </button>
-        <button class="m-avatar-card" type="button" data-avatar="camera" aria-label="Use portrait of Raufan holding a camera" aria-pressed="false">
+        <button class="m-avatar-card" type="button" data-avatar="camera" data-profile="photography" aria-label="Show Raufan's photography portfolio" aria-pressed="false">
           <img class="m-avatar" src="/assets/profile-raufan-camera.png" alt="Illustrated portrait of Raufan holding a camera" width="2048" height="2048">
         </button>
       </div>
       <h1 class="m-name" data-en-html='Hey, I&apos;m <a href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener" class="m-name-hover m-highlight"><span class="m-name-prefix">Muhammad </span>Raufan<span class="m-name-suffix"> Yusup</span></a>.' data-ja-html='ヤホー、<a href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener" class="m-name-hover m-highlight"><span class="m-name-prefix">ムハンマド</span>ラウファン<span class="m-name-suffix">ユスップ</span></a>です。'>Hey, I'm <a href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener" class="m-name-hover m-highlight"><span class="m-name-prefix">Muhammad </span>Raufan<span class="m-name-suffix"> Yusup</span></a>.</h1>
     </header>
 
+    <div class="m-profile-panel is-active" data-profile-panel="design">
     <p class="m-bio" data-en-html='I&apos;m a Tokyo-based product designer currently working in AI New Business Division at <a href="https://cybozu.co.jp/" target="_blank" rel="noopener" class="m-highlight">Cybozu</a>. Over the past 12+ years, I&apos;ve designed products for people across cultures at <a href="https://apps.apple.com/jp/app/uniqlo%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%A6%E3%83%8B%E3%82%AF%E3%83%AD%E3%82%A2%E3%83%97%E3%83%AA/id460989014" target="_blank" rel="noopener" class="m-highlight-muted">UNIQLO</a>, <a href="https://apps.apple.com/jp/app/%E3%82%B9%E3%83%9E%E3%83%BC%E3%83%88%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9-%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%9D%E3%82%A4%E6%B4%BB-%E3%82%AF%E3%83%BC%E3%83%9D%E3%83%B3-%E5%A4%A9%E6%B0%97/id579581125" target="_blank" rel="noopener" class="m-highlight-muted">SmartNews</a>, <a href="https://apps.apple.com/us/app/tiket-com-flight-hotel-deals/id890405921" target="_blank" rel="noopener" class="m-highlight-muted">tiket.com</a>, and <a href="https://apps.apple.com/id/app/tokopedia/id1001394201" target="_blank" rel="noopener" class="m-highlight-muted">Tokopedia</a>. These days, I&apos;m experimenting with AI to bridge the gap between design and engineering as I grow into a design engineer.' data-ja-html='東京を拠点に、現在は<a href="https://cybozu.co.jp/" target="_blank" rel="noopener" class="m-highlight">サイボウズ</a>のAI新規事業部でプロダクトデザイナーとして働いています。これまで12年以上にわたり、<a href="https://apps.apple.com/jp/app/uniqlo%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%A6%E3%83%8B%E3%82%AF%E3%83%AD%E3%82%A2%E3%83%97%E3%83%AA/id460989014" target="_blank" rel="noopener" class="m-highlight-muted">ユニクロ</a>、<a href="https://apps.apple.com/jp/app/%E3%82%B9%E3%83%9E%E3%83%BC%E3%83%88%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9-%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%9D%E3%82%A4%E6%B4%BB-%E3%82%AF%E3%83%BC%E3%83%9D%E3%83%B3-%E5%A4%A9%E6%B0%97/id579581125" target="_blank" rel="noopener" class="m-highlight-muted">SmartNews</a>、<a href="https://apps.apple.com/us/app/tiket-com-flight-hotel-deals/id890405921" target="_blank" rel="noopener" class="m-highlight-muted">tiket.com</a>、<a href="https://apps.apple.com/id/app/tokopedia/id1001394201" target="_blank" rel="noopener" class="m-highlight-muted">Tokopedia</a>で、文化を越えて人々に使われるプロダクトをデザインしてきました。最近は、デザインとエンジニアリングの距離を縮め、デザインエンジニアへと成長するために、AIを活用した実験に取り組んでいます。'>
       I'm a Tokyo-based product designer currently working in AI New Business Division at <a href="https://cybozu.co.jp/" target="_blank" rel="noopener" class="m-highlight">Cybozu</a>. Over the past 12+ years, I've designed products for people across cultures at <a href="https://apps.apple.com/jp/app/uniqlo%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%A6%E3%83%8B%E3%82%AF%E3%83%AD%E3%82%A2%E3%83%97%E3%83%AA/id460989014" target="_blank" rel="noopener" class="m-highlight-muted">UNIQLO</a>, <a href="https://apps.apple.com/jp/app/%E3%82%B9%E3%83%9E%E3%83%BC%E3%83%88%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9-%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%9D%E3%82%A4%E6%B4%BB-%E3%82%AF%E3%83%BC%E3%83%9D%E3%83%B3-%E5%A4%A9%E6%B0%97/id579581125" target="_blank" rel="noopener" class="m-highlight-muted">SmartNews</a>, <a href="https://apps.apple.com/us/app/tiket-com-flight-hotel-deals/id890405921" target="_blank" rel="noopener" class="m-highlight-muted">tiket.com</a>, and <a href="https://apps.apple.com/id/app/tokopedia/id1001394201" target="_blank" rel="noopener" class="m-highlight-muted">Tokopedia</a>. These days, I'm experimenting with AI to bridge the gap between design and engineering as I grow into a design engineer.
     </p>
@@ -154,10 +155,29 @@
         </a>
       </div>
     </section>
+    </div>
 
-    <p class="m-bio" data-en-html='Good design begins with curiosity. Outside design, I make films and content on <a href="https://www.youtube.com/@notmegapixels" target="_blank" rel="noopener" class="m-link">YouTube</a>, write on <a href="https://notmegapixels.substack.com/" target="_blank" rel="noopener" class="m-link">Substack</a>, and share my love for analog photography on <a href="https://shootitwithfilm.com/tag/raufan-yusup/" target="_blank" rel="noopener" class="m-link">Shoot It With Film</a> and <a href="https://www.instagram.com/notmegapixels/" target="_blank" rel="noopener" class="m-link">Notmegapixels</a>.' data-ja-html='良いデザインは、好奇心から始まると思っています。デザインの外では、<a href="https://www.youtube.com/@notmegapixels" target="_blank" rel="noopener" class="m-link">YouTube</a>で映像コンテンツを制作し、<a href="https://notmegapixels.substack.com/" target="_blank" rel="noopener" class="m-link">Substack</a>で文章を書き、<a href="https://shootitwithfilm.com/tag/raufan-yusup/" target="_blank" rel="noopener" class="m-link">Shoot It With Film</a>と<a href="https://www.instagram.com/notmegapixels/" target="_blank" rel="noopener" class="m-link">Notmegapixels</a>でフィルム写真への愛を綴っています。'>
-      Last but not least, good design begins with curiosity. Outside design, I make films and content on <a href="https://www.youtube.com/@notmegapixels" target="_blank" rel="noopener" class="m-link">YouTube</a>, write on <a href="https://notmegapixels.substack.com/" target="_blank" rel="noopener" class="m-link">Substack</a>, and share my love for analog photography on <a href="https://shootitwithfilm.com/tag/raufan-yusup/" target="_blank" rel="noopener" class="m-link">Shoot It With Film</a> and <a href="https://www.instagram.com/notmegapixels/" target="_blank" rel="noopener" class="m-link">Notmegapixels</a>.
-    </p>
+    <div class="m-profile-panel m-photo-profile" data-profile-panel="photography" hidden>
+      <p class="m-bio m-photo-intro" data-en-html='I&apos;m a Tokyo-based film photographer. My work explores change, the mundane, and the beauty of everyday life through a contemplative lens. I&apos;ve published two photobooks and exhibited in solo and group shows across Tokyo. I also make films on <a href="https://www.youtube.com/@notmegapixels" target="_blank" rel="noopener" class="m-link">YouTube</a>, write on <a href="https://notmegapixels.substack.com/" target="_blank" rel="noopener" class="m-link">Substack</a>, and share my love for film photography through <a href="https://shootitwithfilm.com/tag/raufan-yusup/" target="_blank" rel="noopener" class="m-link">Shoot It With Film</a> and <a href="https://www.instagram.com/notmegapixels/" target="_blank" rel="noopener" class="m-link">Notmegapixels</a>.' data-ja-html='東京を拠点に活動するフィルム写真家です。変化や何気ない日常、そして暮らしの中にある美しさを、静かなまなざしで見つめています。これまでに2冊の写真集を出版し、東京各地で個展を開催し、グループ展にも参加してきました。また、<a href="https://www.youtube.com/@notmegapixels" target="_blank" rel="noopener" class="m-link">YouTube</a>で映像をつくり、<a href="https://notmegapixels.substack.com/" target="_blank" rel="noopener" class="m-link">Substack</a>で文章を書き、<a href="https://shootitwithfilm.com/tag/raufan-yusup/" target="_blank" rel="noopener" class="m-link">Shoot It With Film</a>と<a href="https://www.instagram.com/notmegapixels/" target="_blank" rel="noopener" class="m-link">Notmegapixels</a>を通してフィルム写真への愛を発信しています。'>
+        I'm a Tokyo-based film photographer. My work explores change, the mundane, and the beauty of everyday life through a contemplative lens. I've published two photobooks and exhibited in solo and group shows across Tokyo. I also make films on <a href="https://www.youtube.com/@notmegapixels" target="_blank" rel="noopener" class="m-link">YouTube</a>, write on <a href="https://notmegapixels.substack.com/" target="_blank" rel="noopener" class="m-link">Substack</a>, and share my love for film photography through <a href="https://shootitwithfilm.com/tag/raufan-yusup/" target="_blank" rel="noopener" class="m-link">Shoot It With Film</a> and <a href="https://www.instagram.com/notmegapixels/" target="_blank" rel="noopener" class="m-link">Notmegapixels</a>.
+      </p>
+
+      <section class="m-photo-work" aria-labelledby="photography-heading">
+        <div class="m-photo-heading">
+          <h2 class="m-experiment-label" id="photography-heading" data-en="Selected photography" data-ja="主な写真作品">Selected photography</h2>
+          <p class="m-photo-note" data-en="Photography archive · 182 photographs." data-ja="写真アーカイブ · 182点。">Photography archive · 182 photographs.</p>
+        </div>
+
+        <div class="m-photo-filters" role="group" aria-label="Filter photographs">
+          <button class="m-photo-filter is-active" type="button" data-photo-filter="all" data-en="All" data-ja="すべて" aria-pressed="true">All</button>
+          <button class="m-photo-filter" type="button" data-photo-filter="portraits" data-en="Portraits" data-ja="ポートレート" aria-pressed="false">Portraits</button>
+          <button class="m-photo-filter" type="button" data-photo-filter="everyday" data-en="Everyday" data-ja="日常" aria-pressed="false">Everyday</button>
+          <button class="m-photo-filter" type="button" data-photo-filter="landscapes" data-en="Landscapes" data-ja="風景" aria-pressed="false">Landscapes</button>
+        </div>
+
+        <div class="m-photo-grid" aria-label="Photography gallery" aria-busy="true"></div>
+      </section>
+    </div>
 
     <div class="m-spacer"></div>
 
@@ -175,7 +195,7 @@
   </main>
 
   <canvas id="confetti-canvas"></canvas>
-  <script src="/js/main.js?v=18"></script>
+  <script src="/js/main.js?v=33"></script>
   <script src="/components/Stabilo/stabilo.js?v=5" defer></script>
   <script type="module">
     import { GuestbookCard } from '/components/Guestbook/GuestbookCard.js?v=4';
@@ -193,6 +213,19 @@
       }
     });
     document.body.appendChild(card.el);
+
+    function syncGuestCardVisibility(mode = document.body.dataset.profile) {
+      const hidden = mode === 'photography';
+      if (hidden) card.close();
+      card.el.inert = hidden;
+      if (hidden) card.el.setAttribute('aria-hidden', 'true');
+      else card.el.removeAttribute('aria-hidden');
+    }
+
+    syncGuestCardVisibility();
+    window.addEventListener('profilechange', event => {
+      syncGuestCardVisibility(event.detail.mode);
+    });
   </script>
 
   <!-- HOMEPAGE BIRD NUDGE — Pixel-art yellow finch carries a banner

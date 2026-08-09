@@ -19,3 +19,6 @@ id_dsa
 *_ecdsa
 *_dsa
 *.pub
+
+# Photography source files stay local; publish optimized derivatives instead
+assets/photography/portfolio/*/

@@ -54,23 +54,678 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () 
   if (getTheme() === 'auto') applyTheme('auto');
 });
 
-// ---- Playable profile-photo stack ----
-// Selection intentionally lives only in this page session: refresh returns to
-// the original portrait, while clicks immediately promote either print.
-(function profilePhotoPicker() {
+// ---- Profile-photo portfolio switcher ----
+(function profilePortfolioSwitcher() {
   const picker = document.querySelector('.m-avatar-picker');
   if (!picker) return;
 
   const cards = [...picker.querySelectorAll('.m-avatar-card')];
+  const panels = [...document.querySelectorAll('[data-profile-panel]')];
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const touchLayout = window.matchMedia('(hover: none), (pointer: coarse)');
+  let transitionToken = 0;
+
+  function closeTouchPicker() {
+    picker.classList.remove('is-open');
+  }
+
+  function updateProfileUrl(mode, method = 'pushState') {
+    const url = new URL(window.location.href);
+    if (mode === 'photography') url.searchParams.set('view', 'photography');
+    else url.searchParams.delete('view');
+    window.history[method]({}, '', `${url.pathname}${url.search}${url.hash}`);
+  }
+
+  function showProfile(mode, { animate = true, updateUrl = true } = {}) {
+    const nextPanel = panels.find(panel => panel.dataset.profilePanel === mode);
+    if (!nextPanel) return;
+
+    const visiblePanel = panels.find(panel => !panel.hidden);
+    const token = ++transitionToken;
+    document.body.dataset.profile = mode;
+    document.title = mode === 'photography' ? 'Photography — Raufan Yusup' : 'Raufan Yusup';
+
+    cards.forEach(card => {
+      const isActive = card.dataset.profile === mode;
+      card.classList.toggle('is-active', isActive);
+      card.setAttribute('aria-pressed', String(isActive));
+    });
+    if (updateUrl) updateProfileUrl(mode);
+
+    if (visiblePanel === nextPanel) {
+      visiblePanel.classList.remove('is-leaving');
+      visiblePanel.classList.add('is-active');
+      return;
+    }
+
+    const reveal = () => {
+      if (token !== transitionToken) return;
+      panels.forEach(panel => {
+        panel.hidden = panel !== nextPanel;
+        panel.classList.remove('is-active', 'is-leaving');
+      });
+      nextPanel.hidden = false;
+      window.dispatchEvent(new CustomEvent('profilechange', { detail: { mode } }));
+
+      if (!animate || reduceMotion.matches) {
+        nextPanel.classList.add('is-active');
+        return;
+      }
+
+      requestAnimationFrame(() => {
+        if (token !== transitionToken) return;
+        nextPanel.classList.add('is-active');
+      });
+    };
+
+    if (!visiblePanel || !animate || reduceMotion.matches) {
+      reveal();
+      return;
+    }
+
+    visiblePanel.classList.remove('is-active');
+    visiblePanel.classList.add('is-leaving');
+    window.setTimeout(reveal, 150);
+  }
+
   cards.forEach(card => {
     card.addEventListener('click', () => {
-      cards.forEach(candidate => {
-        const isActive = candidate === card;
-        candidate.classList.toggle('is-active', isActive);
-        candidate.setAttribute('aria-pressed', String(isActive));
-      });
+      if (touchLayout.matches) {
+        if (!picker.classList.contains('is-open')) {
+          picker.classList.add('is-open');
+          return;
+        }
+
+        const isAlreadyActive = card.classList.contains('is-active');
+        closeTouchPicker();
+        if (isAlreadyActive) return;
+      }
+
+      showProfile(card.dataset.profile);
     });
   });
+
+  document.addEventListener('pointerdown', event => {
+    if (!touchLayout.matches || !picker.classList.contains('is-open')) return;
+    if (!picker.contains(event.target)) closeTouchPicker();
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closeTouchPicker();
+  });
+
+  touchLayout.addEventListener('change', closeTouchPicker);
+
+  window.addEventListener('popstate', () => {
+    const mode = new URLSearchParams(window.location.search).get('view') === 'photography'
+      ? 'photography'
+      : 'design';
+    showProfile(mode, { animate: false, updateUrl: false });
+  });
+
+  const initialMode = new URLSearchParams(window.location.search).get('view') === 'photography'
+    ? 'photography'
+    : 'design';
+  showProfile(initialMode, { animate: false, updateUrl: false });
+})();
+
+// ---- Photography filters + native-ratio archive grid ----
+(async function photographyGallery() {
+  const grid = document.querySelector('.m-photo-grid');
+  const filters = [...document.querySelectorAll('[data-photo-filter]')];
+  if (!grid) return;
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let activeFilter = 'all';
+  let photoItems = [];
+  let activeItem = null;
+  let savedScrollY = 0;
+  let closeTimer = 0;
+  let filterTimer = 0;
+  let filterTransitionToken = 0;
+  let viewerBaseWidth = 1;
+  const fullPhotoCache = new Map();
+  const scatteredItems = new Set();
+  const scatteredChrome = new Set();
+
+  const viewer = document.createElement('div');
+  const viewerBackdrop = document.createElement('div');
+  const viewerImage = document.createElement('img');
+  const viewerControls = document.createElement('div');
+  const viewerCount = document.createElement('span');
+  const viewerClose = document.createElement('button');
+
+  viewer.className = 'm-photo-viewer';
+  viewer.hidden = true;
+  viewer.setAttribute('role', 'dialog');
+  viewer.setAttribute('aria-modal', 'true');
+  viewer.setAttribute('aria-label', 'Enlarged photograph. Use Left and Right Arrow keys to browse.');
+
+  viewerBackdrop.className = 'm-photo-viewer-backdrop';
+
+  viewerImage.className = 'm-photo-viewer-image';
+  viewerImage.decoding = 'async';
+
+  viewerControls.className = 'm-photo-viewer-controls';
+  viewerCount.className = 'm-photo-viewer-count';
+  viewerCount.setAttribute('aria-live', 'polite');
+  viewerClose.className = 'm-photo-viewer-close';
+  viewerClose.type = 'button';
+  viewerClose.setAttribute('aria-label', 'Close enlarged photograph');
+  viewerClose.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>';
+  viewerControls.append(viewerCount, viewerClose);
+  viewer.append(viewerBackdrop, viewerImage, viewerControls);
+  document.body.append(viewer);
+
+  const viewerChrome = [
+    ...document.querySelectorAll('.m-top-controls > *'),
+    ...document.querySelectorAll('.m-avatar-picker > .m-avatar-card'),
+    document.querySelector('.m-header > .m-name'),
+    document.querySelector('.m-photo-profile > .m-photo-intro'),
+    ...document.querySelectorAll('.m-photo-heading > *'),
+    ...document.querySelectorAll('.m-photo-filters > .m-photo-filter'),
+    ...document.querySelectorAll('.m-page > .m-footer > *')
+  ].filter(Boolean);
+  viewerChrome.forEach(element => element.classList.add('m-photo-viewer-chrome'));
+
+  function seededOrder(item) {
+    const input = `${item.dataset.photoSource}-${item.dataset.photoIndex}`;
+    let hash = 2166136261;
+    for (let index = 0; index < input.length; index += 1) {
+      hash ^= input.charCodeAt(index);
+      hash = Math.imul(hash, 16777619);
+    }
+    return hash >>> 0;
+  }
+
+  function mixedAllItems(items) {
+    return [...items].sort((first, second) => seededOrder(first) - seededOrder(second));
+  }
+
+  function loadFullPhoto(item) {
+    const src = item?.dataset.photoFull;
+    if (!src) return Promise.resolve(null);
+    if (fullPhotoCache.has(src)) return fullPhotoCache.get(src);
+
+    const request = new Promise(resolve => {
+      const image = new Image();
+      image.decoding = 'async';
+      image.onload = async () => {
+        try { await image.decode(); } catch (_) { /* A loaded image is still safe to display. */ }
+        resolve(image);
+      };
+      image.onerror = () => resolve(null);
+      image.src = src;
+    });
+    fullPhotoCache.set(src, request);
+    return request;
+  }
+
+  async function upgradeViewerImage(item) {
+    const fullImage = await loadFullPhoto(item);
+    if (!fullImage || activeItem !== item || viewer.hidden) return;
+    viewerImage.src = fullImage.currentSrc || fullImage.src;
+  }
+
+  function viewerTarget(image) {
+    const viewportWidth = window.visualViewport?.width || window.innerWidth;
+    const viewportHeight = window.visualViewport?.height || window.innerHeight;
+    const item = image.closest('.m-photo-item');
+    const naturalWidth = Number(item?.dataset.photoWidth)
+      || image.naturalWidth
+      || Number(image.getAttribute('width'))
+      || 1;
+    const naturalHeight = Number(item?.dataset.photoHeight)
+      || image.naturalHeight
+      || Number(image.getAttribute('height'))
+      || 1;
+    const ratio = naturalWidth / naturalHeight;
+    const gutter = viewportWidth < 640 ? 20 : Math.max(56, viewportWidth * 0.1);
+    const verticalGutter = viewportWidth < 640 ? 88 : Math.max(64, viewportHeight * 0.08);
+    const maxWidth = viewportWidth - gutter * 2;
+    const maxHeight = viewportHeight - verticalGutter * 2;
+    const width = Math.min(maxWidth, maxHeight * ratio, naturalWidth);
+    const height = width / ratio;
+
+    return {
+      x: Math.round((viewportWidth - width) / 2),
+      y: Math.round((viewportHeight - height) / 2),
+      width,
+      height
+    };
+  }
+
+  function viewportExit(rect, focusX, focusY, overshoot, fallbackAngle) {
+    const viewportWidth = window.visualViewport?.width || window.innerWidth;
+    const viewportHeight = window.visualViewport?.height || window.innerHeight;
+    let deltaX = rect.left + rect.width / 2 - focusX;
+    let deltaY = rect.top + rect.height / 2 - focusY;
+
+    if (Math.hypot(deltaX, deltaY) < 2) {
+      deltaX = Math.cos(fallbackAngle) * 2;
+      deltaY = Math.sin(fallbackAngle) * 2;
+    }
+
+    const distance = Math.hypot(deltaX, deltaY);
+    const unitX = deltaX / distance;
+    const unitY = deltaY / distance;
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const exitCenterX = unitX >= 0
+      ? viewportWidth + rect.width / 2 + overshoot
+      : -rect.width / 2 - overshoot;
+    const exitCenterY = unitY >= 0
+      ? viewportHeight + rect.height / 2 + overshoot
+      : -rect.height / 2 - overshoot;
+    const travelX = Math.abs(unitX) > 0.001 ? (exitCenterX - centerX) / unitX : Infinity;
+    const travelY = Math.abs(unitY) > 0.001 ? (exitCenterY - centerY) / unitY : Infinity;
+    const travel = Math.min(
+      travelX > 0 ? travelX : Infinity,
+      travelY > 0 ? travelY : Infinity
+    );
+
+    return {
+      x: unitX * travel,
+      y: unitY * travel,
+      distanceRatio: Math.min(distance / Math.hypot(viewportWidth / 2, viewportHeight / 2), 1)
+    };
+  }
+
+  function intersectsViewport(rect, margin = 0) {
+    const viewportWidth = window.visualViewport?.width || window.innerWidth;
+    const viewportHeight = window.visualViewport?.height || window.innerHeight;
+    return rect.bottom > -margin
+      && rect.top < viewportHeight + margin
+      && rect.right > -margin
+      && rect.left < viewportWidth + margin;
+  }
+
+  function scatterGallery(selectedItem, target) {
+    const viewportWidth = window.visualViewport?.width || window.innerWidth;
+    const focusX = target.x + target.width / 2;
+    const focusY = target.y + target.height / 2;
+    const overshoot = viewportWidth < 640 ? 16 : 28;
+
+    [...grid.querySelectorAll('.m-photo-item')].forEach((item, index) => {
+      if (item === selectedItem) {
+        item.style.opacity = '0';
+        scatteredItems.add(item);
+        return;
+      }
+
+      const rect = item.getBoundingClientRect();
+      if (!intersectsViewport(rect, 32)) return;
+      const movement = viewportExit(rect, focusX, focusY, overshoot, index * 2.399963);
+      const fade = 0.42 + movement.distanceRatio * 0.08;
+      const blur = 1.4 - movement.distanceRatio * 0.4;
+
+      item.style.transform = `translate3d(${movement.x.toFixed(2)}px, ${movement.y.toFixed(2)}px, 0) scale(0.98)`;
+      item.style.opacity = fade.toFixed(2);
+      item.style.filter = `blur(${blur}px)`;
+      scatteredItems.add(item);
+    });
+  }
+
+  function clearGalleryItemStyles(item) {
+    item.style.removeProperty('transform');
+    item.style.removeProperty('opacity');
+    item.style.removeProperty('filter');
+  }
+
+  function resetGalleryScatter(preservedItem = null) {
+    const shouldPreserve = preservedItem && scatteredItems.has(preservedItem);
+    scatteredItems.forEach(item => {
+      if (item !== preservedItem) clearGalleryItemStyles(item);
+    });
+    scatteredItems.clear();
+    if (shouldPreserve) scatteredItems.add(preservedItem);
+  }
+
+  function restoreGalleryItem(item) {
+    clearGalleryItemStyles(item);
+    scatteredItems.delete(item);
+  }
+
+  function scatterPageChrome(target, shouldAnimate) {
+    const viewportWidth = window.visualViewport?.width || window.innerWidth;
+    const focusX = target.x + target.width / 2;
+    const focusY = target.y + target.height / 2;
+    const overshoot = viewportWidth < 640 ? 20 : 36;
+
+    viewerChrome.forEach((element, index) => {
+      const rect = element.getBoundingClientRect();
+      if (!intersectsViewport(rect)) return;
+
+      if (shouldAnimate) {
+        const movement = viewportExit(rect, focusX, focusY, overshoot, index * 2.399963);
+        element.style.translate = `${movement.x.toFixed(2)}px ${movement.y.toFixed(2)}px`;
+      } else {
+        element.style.opacity = '0';
+      }
+      element.style.pointerEvents = 'none';
+      scatteredChrome.add(element);
+    });
+  }
+
+  function resetPageChrome() {
+    scatteredChrome.forEach(element => {
+      element.style.removeProperty('translate');
+      element.style.removeProperty('opacity');
+      element.style.removeProperty('filter');
+      element.style.removeProperty('pointer-events');
+    });
+    scatteredChrome.clear();
+  }
+
+  async function openViewer(item, { animate = true } = {}) {
+    if (activeItem) return;
+    const thumbnail = item.querySelector('img');
+    if (!thumbnail) return;
+
+    if (!thumbnail.complete) {
+      try { await thumbnail.decode(); } catch (_) { /* The browser can still render it. */ }
+    }
+
+    window.clearTimeout(closeTimer);
+    activeItem = item;
+    savedScrollY = window.scrollY;
+
+    const sourceRect = thumbnail.getBoundingClientRect();
+    const visibleItems = [...grid.querySelectorAll('.m-photo-item')];
+    const visibleIndex = visibleItems.indexOf(item);
+    const target = viewerTarget(thumbnail);
+    const shouldAnimate = animate && !reduceMotion.matches;
+
+    viewerImage.src = thumbnail.currentSrc || thumbnail.src;
+    viewerImage.alt = thumbnail.alt;
+    viewerImage.style.width = `${sourceRect.width}px`;
+    viewerImage.style.height = `${sourceRect.height}px`;
+    viewerImage.style.transform = `translate3d(${sourceRect.left}px, ${sourceRect.top}px, 0) scale(1)`;
+    viewerBaseWidth = sourceRect.width;
+    viewerCount.textContent = `${visibleIndex + 1} / ${visibleItems.length}`;
+
+    viewer.hidden = false;
+    viewer.removeAttribute('data-closing');
+    viewer.toggleAttribute('data-instant', !shouldAnimate);
+    document.body.classList.remove('m-photo-viewer-closing');
+    document.body.classList.toggle('m-photo-viewer-instant', !shouldAnimate);
+    const scrollbarWidth = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
+    document.body.style.setProperty('--photo-viewer-scrollbar-width', `${scrollbarWidth}px`);
+    document.body.classList.add('m-photo-viewer-open');
+    document.body.style.top = `-${savedScrollY}px`;
+    void document.body.offsetWidth;
+    scatterGallery(item, target);
+    scatterPageChrome(target, shouldAnimate);
+
+    requestAnimationFrame(() => {
+      viewer.setAttribute('data-open', '');
+      viewerImage.style.transform = `translate3d(${target.x}px, ${target.y}px, 0) scale(${target.width / sourceRect.width})`;
+      viewerClose.focus({ preventScroll: true });
+      upgradeViewerImage(item);
+      requestAnimationFrame(() => {
+        viewer.removeAttribute('data-instant');
+        document.body.classList.remove('m-photo-viewer-instant');
+      });
+    });
+  }
+
+  function navigateViewer(direction) {
+    if (!activeItem) return;
+    const visibleItems = [...grid.querySelectorAll('.m-photo-item')];
+    const currentIndex = visibleItems.indexOf(activeItem);
+    if (currentIndex < 0 || visibleItems.length < 2) return;
+
+    const nextIndex = (currentIndex + direction + visibleItems.length) % visibleItems.length;
+    const nextItem = visibleItems[nextIndex];
+    const thumbnail = nextItem.querySelector('img');
+    if (!thumbnail) return;
+
+    const target = viewerTarget(thumbnail);
+    viewer.setAttribute('data-instant', '');
+    document.body.classList.add('m-photo-viewer-instant');
+    resetGalleryScatter();
+    activeItem = nextItem;
+
+    viewerImage.src = thumbnail.currentSrc || thumbnail.src;
+    viewerImage.alt = thumbnail.alt;
+    viewerImage.style.width = `${target.width}px`;
+    viewerImage.style.height = `${target.height}px`;
+    viewerImage.style.transform = `translate3d(${target.x}px, ${target.y}px, 0) scale(1)`;
+    viewerBaseWidth = target.width;
+    viewerCount.textContent = `${nextIndex + 1} / ${visibleItems.length}`;
+    scatterGallery(nextItem, target);
+    upgradeViewerImage(nextItem);
+
+    requestAnimationFrame(() => {
+      viewer.removeAttribute('data-instant');
+      document.body.classList.remove('m-photo-viewer-instant');
+    });
+  }
+
+  function closeViewer({ animate = true } = {}) {
+    if (!activeItem) return;
+    window.clearTimeout(closeTimer);
+
+    const itemToRestore = activeItem;
+    const thumbnail = itemToRestore.querySelector('img');
+    const sourceRect = thumbnail?.getBoundingClientRect();
+    const shouldAnimate = animate && !reduceMotion.matches && sourceRect;
+    activeItem = null;
+
+    viewer.setAttribute('data-closing', '');
+    viewer.toggleAttribute('data-instant', !shouldAnimate);
+    document.body.classList.add('m-photo-viewer-closing');
+    document.body.classList.toggle('m-photo-viewer-instant', !shouldAnimate);
+    viewer.removeAttribute('data-open');
+    resetGalleryScatter(itemToRestore);
+    resetPageChrome();
+    if (sourceRect) {
+      viewerImage.style.transform = `translate3d(${sourceRect.left}px, ${sourceRect.top}px, 0) scale(${sourceRect.width / viewerBaseWidth})`;
+    }
+
+    const finish = () => {
+      viewer.hidden = true;
+      viewerImage.removeAttribute('src');
+      document.body.classList.add('m-photo-viewer-instant');
+      itemToRestore.classList.add('m-photo-source-handoff');
+      restoreGalleryItem(itemToRestore);
+      void itemToRestore.offsetWidth;
+      const root = document.documentElement;
+      const previousScrollBehavior = root.style.scrollBehavior;
+      root.style.scrollBehavior = 'auto';
+      viewer.removeAttribute('data-closing');
+      viewer.removeAttribute('data-instant');
+      document.body.classList.remove('m-photo-viewer-open');
+      document.body.classList.remove('m-photo-viewer-closing', 'm-photo-viewer-instant');
+      document.body.style.removeProperty('top');
+      document.body.style.removeProperty('--photo-viewer-scrollbar-width');
+      window.scrollTo(0, savedScrollY);
+      itemToRestore.querySelector('.m-photo-open')?.focus({ preventScroll: true });
+      void root.offsetWidth;
+      requestAnimationFrame(() => {
+        itemToRestore.classList.remove('m-photo-source-handoff');
+        if (previousScrollBehavior) root.style.scrollBehavior = previousScrollBehavior;
+        else root.style.removeProperty('scroll-behavior');
+      });
+    };
+
+    closeTimer = window.setTimeout(finish, shouldAnimate ? 320 : 20);
+  }
+
+  function createPhotoItem(photo) {
+    const item = document.createElement('figure');
+    const openButton = document.createElement('button');
+    const image = document.createElement('img');
+    const caption = document.createElement('figcaption');
+    const title = document.createElement('span');
+    const category = document.createElement('span');
+    const categories = Array.isArray(photo.category) ? photo.category : [photo.category];
+
+    item.className = 'm-photo-item';
+    item.dataset.photoCategory = categories.filter(Boolean).join(' ');
+    item.dataset.frame = photo.frame || 'standard';
+    item.dataset.photoIndex = String(photo.order || '');
+    item.dataset.photoSource = photo.source || photo.src;
+    item.dataset.photoFull = photo.fullSrc || photo.src;
+    item.dataset.photoWidth = String(photo.width);
+    item.dataset.photoHeight = String(photo.height);
+    item.style.setProperty('--photo-ratio', photo.width / photo.height);
+    item.style.setProperty('--photo-basis', `${Math.round(photo.width / photo.height * 90)}px`);
+    item.style.setProperty('--photo-basis-mobile', `${Math.round(photo.width / photo.height * 64)}px`);
+
+    openButton.className = 'm-photo-open';
+    openButton.type = 'button';
+    openButton.setAttribute('aria-label', `Enlarge ${photo.title || 'photograph'}`);
+
+    image.src = photo.src;
+    image.alt = photo.alt || photo.title || '';
+    image.width = photo.width;
+    image.height = photo.height;
+    image.loading = 'lazy';
+    image.decoding = 'async';
+    if (photo.position) image.style.setProperty('--photo-position', photo.position);
+
+    title.textContent = photo.title || '';
+    category.textContent = categories.join(', ');
+    caption.append(title, category);
+    openButton.append(image);
+    openButton.addEventListener('pointerdown', () => loadFullPhoto(item));
+    openButton.addEventListener('click', event => {
+      openViewer(item, { animate: event.detail !== 0 });
+    });
+    item.append(openButton, caption);
+    return item;
+  }
+
+  function matchingPhotoItems(filter) {
+    let matchingItems = photoItems.filter(item => {
+      if (filter === 'all') return true;
+      const categories = item.dataset.photoCategory?.split(' ') || [];
+      return categories.includes(filter);
+    });
+    if (filter === 'all') matchingItems = mixedAllItems(matchingItems);
+    return matchingItems;
+  }
+
+  function clearFilterMotion(items = photoItems) {
+    items.forEach(item => {
+      item.classList.remove('is-filter-leaving', 'is-filter-entering');
+      item.style.removeProperty('transition-delay');
+    });
+    grid.removeAttribute('data-filter-phase');
+  }
+
+  function renderFilter(filter, { animate = true } = {}) {
+    if (filter === activeFilter && grid.childElementCount) return;
+    activeFilter = filter;
+    filters.forEach(button => {
+      const active = button.dataset.photoFilter === filter;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+
+    const matchingItems = matchingPhotoItems(filter);
+    const currentItems = [...grid.querySelectorAll('.m-photo-item')];
+    const token = ++filterTransitionToken;
+    window.clearTimeout(filterTimer);
+    clearFilterMotion();
+
+    if (!animate || reduceMotion.matches || !currentItems.length) {
+      grid.replaceChildren(...matchingItems);
+      return;
+    }
+
+    grid.dataset.filterPhase = 'exit';
+    currentItems.forEach((item, index) => {
+      item.style.transitionDelay = `${(index % 6) * 12}ms`;
+      item.classList.add('is-filter-leaving');
+    });
+
+    filterTimer = window.setTimeout(() => {
+      if (token !== filterTransitionToken) return;
+      clearFilterMotion(currentItems);
+      grid.replaceChildren(...matchingItems);
+      grid.dataset.filterPhase = 'enter';
+
+      matchingItems.forEach((item, index) => {
+        item.style.transitionDelay = `${(index % 6) * 12}ms`;
+        item.classList.add('is-filter-entering');
+      });
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (token !== filterTransitionToken) return;
+          matchingItems.forEach(item => item.classList.remove('is-filter-entering'));
+          filterTimer = window.setTimeout(() => {
+            if (token === filterTransitionToken) clearFilterMotion(matchingItems);
+          }, 300);
+        });
+      });
+    }, 200);
+  }
+
+  filters.forEach(button => {
+    button.addEventListener('click', event => {
+      renderFilter(button.dataset.photoFilter, { animate: event.detail !== 0 });
+    });
+  });
+
+  viewerBackdrop.addEventListener('click', () => closeViewer());
+  viewerClose.addEventListener('click', event => closeViewer({ animate: event.detail !== 0 }));
+  document.addEventListener('keydown', event => {
+    if (!activeItem) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeViewer({ animate: false });
+    }
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      navigateViewer(-1);
+    }
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      navigateViewer(1);
+    }
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      viewerClose.focus({ preventScroll: true });
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    if (!activeItem) return;
+    const thumbnail = activeItem.querySelector('img');
+    const sourceRect = thumbnail?.getBoundingClientRect();
+    if (!thumbnail || !sourceRect) return;
+    const target = viewerTarget(thumbnail);
+    viewer.setAttribute('data-instant', '');
+    document.body.classList.add('m-photo-viewer-instant');
+    resetGalleryScatter();
+    resetPageChrome();
+    viewerImage.style.transform = `translate3d(${target.x}px, ${target.y}px, 0) scale(${target.width / viewerBaseWidth})`;
+    scatterGallery(activeItem, target);
+    scatterPageChrome(target, true);
+    requestAnimationFrame(() => {
+      viewer.removeAttribute('data-instant');
+      document.body.classList.remove('m-photo-viewer-instant');
+    });
+  });
+
+  try {
+    const response = await fetch('/assets/photography/portfolio/photos.json?v=5');
+    if (!response.ok) throw new Error(`Photography manifest returned ${response.status}`);
+    const manifest = await response.json();
+    photoItems = manifest.photos.map(createPhotoItem);
+    renderFilter(activeFilter, { animate: false });
+  } catch (error) {
+    console.error('[Photography] Unable to load the archive', error);
+    const message = document.createElement('p');
+    message.className = 'm-photo-error';
+    message.textContent = 'The photography archive could not be loaded.';
+    grid.replaceChildren(message);
+  } finally {
+    grid.setAttribute('aria-busy', 'false');
+  }
 })();
 
 // ---- Language Switcher ----
