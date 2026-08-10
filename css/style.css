@@ -581,7 +581,8 @@ body.minimal footer:not(.m-footer) {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  gap: 5px;
+  column-gap: 4px;
+  row-gap: 24px;
   padding-inline: 4px;
 }
 
@@ -3103,7 +3104,6 @@ footer {
   }
 
   .m-photo-grid {
-    gap: 4px;
     padding-inline: 4px;
   }
 
