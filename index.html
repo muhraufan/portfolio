@@ -226,6 +226,14 @@
     window.addEventListener('profilechange', event => {
       syncGuestCardVisibility(event.detail.mode);
     });
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('guestcard') === 'open') {
+      card.open();
+      params.delete('guestcard');
+      const cleanUrl = `${window.location.pathname}${params.size ? `?${params}` : ''}${window.location.hash}`;
+      window.history.replaceState({}, '', cleanUrl);
+    }
   </script>
 
   <!-- HOMEPAGE BIRD NUDGE — Pixel-art yellow finch carries a banner

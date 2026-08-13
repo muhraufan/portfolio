@@ -10,16 +10,49 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      var theme = localStorage.getItem('theme') || 'light';
+      var lang = localStorage.getItem('lang') || 'en';
+      if (theme === 'dark' || theme === 'light') document.documentElement.setAttribute('data-theme', theme);
+      document.documentElement.setAttribute('data-lang', lang);
+    })();
+  </script>
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #f5f3f0;
-      --text: #1a1a1a;
-      --text2: #6a6a6a;
-      --text3: #9a9a9a;
-      --border: rgba(0, 0, 0, 0.08);
+      --bg: #fafafa;
+      --text: #111111;
+      --text2: rgba(17, 17, 17, 0.72);
+      --text3: rgba(17, 17, 17, 0.45);
+      --border: rgba(17, 17, 17, 0.1);
+      --surface: rgba(255, 255, 255, 0.82);
+      --ease-out: cubic-bezier(0.2, 0, 0, 1);
+      --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+      --ease-folder-open: linear(0, .027 4%, .097 8%, .195 12%, .307 16%, .424 20%, .539 24%, .646 28%, .742 32%, .825 36%, .895 40%, .95 44%, .994 48%, 1.025 52%, 1.047 56%, 1.06 60%, 1.067 64%, 1.068 68%, 1.065 72%, 1.06 76%, 1.053 80%, 1.04 84%, 1.027 88%, 1.015 92%, 1.006 96%, 1);
+    }
+
+    [data-theme="dark"] {
+      --bg: #111111;
+      --text: #f1efeb;
+      --text2: rgba(241, 239, 235, 0.72);
+      --text3: rgba(241, 239, 235, 0.46);
+      --border: rgba(255, 255, 255, 0.12);
+      --surface: rgba(27, 27, 27, 0.82);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #111111;
+        --text: #f1efeb;
+        --text2: rgba(241, 239, 235, 0.72);
+        --text3: rgba(241, 239, 235, 0.46);
+        --border: rgba(255, 255, 255, 0.12);
+        --surface: rgba(27, 27, 27, 0.82);
+      }
     }
 
     html, body {
@@ -28,63 +61,161 @@
       color: var(--text);
       -webkit-font-smoothing: antialiased;
       min-height: 100%;
+      transition: background 220ms var(--ease-out), color 220ms var(--ease-out);
     }
+
+    html[data-lang="ja"] body { font-family: 'Noto Sans JP', 'Plus Jakarta Sans', sans-serif; }
+
+    :focus { outline: none; }
+    :focus-visible { outline: 2px solid #0099ff; outline-offset: 3px; }
+
+    .page-shell {
+      position: relative;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 80px 24px 30px;
+      transition: opacity 320ms var(--ease-out), transform 420ms var(--ease-in-out), filter 320ms var(--ease-out);
+    }
+
+    .page-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 40px;
+      margin-bottom: 58px;
+    }
+
+    .page-controls { display: flex; align-items: center; gap: 8px; }
+
+    .language-toggle,
+    .theme-toggle {
+      min-width: 40px;
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      border: 0;
+      background: transparent;
+      color: var(--text3);
+      font: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      transition: color 160ms ease, transform 140ms var(--ease-out);
+    }
+
+    .theme-toggle svg { position: absolute; width: 16px; height: 16px; }
+    .theme-toggle .icon-sun,
+    [data-theme="dark"] .theme-toggle .icon-moon { opacity: 0; transform: scale(.25); filter: blur(4px); }
+    .theme-toggle .icon-moon,
+    [data-theme="dark"] .theme-toggle .icon-sun { opacity: 1; transform: scale(1); filter: blur(0); }
+    .theme-toggle svg { transition: opacity 300ms var(--ease-out), transform 300ms var(--ease-out), filter 300ms var(--ease-out); }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .theme-toggle .icon-moon { opacity: 0; transform: scale(.25); filter: blur(4px); }
+      :root:not([data-theme="light"]) .theme-toggle .icon-sun { opacity: 1; transform: scale(1); filter: blur(0); }
+    }
+
+    .language-toggle:hover,
+    .theme-toggle:hover { color: var(--text); }
+    .language-toggle:active,
+    .theme-toggle:active { transform: scale(.96); }
 
     /* ---- Header ---- */
     .page-header {
-      max-width: 1520px;
-      margin: 0 auto;
-      padding: 72px 32px 24px;
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 24px;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 12px 24px;
     }
     .page-header h1 {
-      font-size: 32px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
     }
     .page-header .count {
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: .04em;
       color: var(--text3);
+      font-variant-numeric: tabular-nums;
+      text-align: right;
     }
+
+    .page-intro {
+      grid-column: 1 / -1;
+      max-width: 610px;
+      margin-top: 10px;
+      color: var(--text2);
+      font-size: 17px;
+      line-height: 1.8;
+      letter-spacing: .035em;
+      text-wrap: pretty;
+    }
+
+    .page-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-top: 22px;
+    }
+
+    .shuffle-button {
+      position: relative;
+      min-height: 40px;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--text);
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      transition: color 160ms ease, transform 140ms var(--ease-out);
+    }
+    .shuffle-button::after,
+    .back-link::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: 8px;
+      left: 0;
+      height: 1px;
+      background: currentColor;
+      transform: scaleX(.35);
+      transform-origin: left;
+      opacity: .35;
+      transition: transform 220ms var(--ease-out), opacity 160ms ease;
+    }
+    .shuffle-button:hover::after,
+    .back-link:hover::after { transform: scaleX(1); opacity: .75; }
+    .shuffle-button:active { transform: scale(.96); }
 
     /* ---- Back link ---- */
     .back-link {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      z-index: 100;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text2);
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      color: var(--text3);
+      font-size: 12px;
+      font-weight: 400;
       text-decoration: none;
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: blur(8px);
-      padding: 8px 14px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      transition: background 160ms ease-out, color 160ms ease-out;
+      transition: color 160ms ease, transform 140ms var(--ease-out);
     }
-    .back-link:hover {
-      background: rgba(255,255,255,1);
-      color: var(--text);
-    }
+    .back-link:hover { color: var(--text); }
+    .back-link:active { transform: scale(.96); }
 
     /* ---- Grid ---- */
     .gallery-grid {
       max-width: 1520px;
       margin: 0 auto;
-      padding: 24px 32px 120px;
+      padding: 28px 32px 120px;
       display: grid;
       /* 6 cards/row on wide screens; auto-downshifts on smaller. */
       grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-      gap: 32px 22px;
+      gap: 28px 18px;
       perspective: 1600px;
     }
 
@@ -101,9 +232,10 @@
       position: relative;
       aspect-ratio: 1.586 / 1; /* credit-card ratio */
       border-radius: 18px;
-      overflow: hidden;
+      overflow: visible;
       transform-style: preserve-3d;
       transform:
+        translate3d(var(--scatter-x, 0px), var(--scatter-y, 0px), 0)
         perspective(1600px)
         rotateX(var(--rx, 0deg))
         rotateY(var(--ry, 0deg))
@@ -122,9 +254,7 @@
         transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
         box-shadow 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
       cursor: pointer;
-      opacity: 0;
-      animation: cardFadeIn 0.5s ease forwards;
-      will-change: transform;
+      opacity: 1;
       background: transparent;
       border: 0;
       padding: 0;
@@ -143,9 +273,9 @@
         box-shadow 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
       /* "Flying" feel: forward push (tz), small upward hop (ty),
          slight scale-up, much larger lift shadow. */
-      --tz: 20px;
-      --ty: -3px;
-      --s: 1.02;
+      --tz: 12px;
+      --ty: -2px;
+      --s: 1.01;
       /* Tight near-edge contact + broader ambient — reads as a solid
          object lifted just above the surface, not a floating sheet. */
       box-shadow:
@@ -155,21 +285,41 @@
       z-index: 5;
     }
     .gallery-card.is-new {
-      animation: cardPopIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      animation: cardDealIn 520ms var(--ease-folder-open) both;
     }
 
-    @keyframes cardFadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
+    @keyframes cardDealIn {
+      from { opacity: 0; transform: translate3d(32px, -24px, 0) rotate(2deg) scale(.96); }
+      to   { opacity: 1; transform: translate3d(0, 0, 0) rotate(0) scale(1); }
     }
-    @keyframes cardPopIn {
-      from { opacity: 0; transform: scale(0.5); }
-      to   { opacity: 1; transform: scale(1); }
+
+    .gallery-card.is-source { opacity: 0; pointer-events: none; }
+    .gallery-card.is-scattered {
+      opacity: .18;
+      filter: blur(1px);
+      pointer-events: none;
     }
+
+    .watermelon-sticker {
+      position: absolute;
+      top: -4px;
+      right: 18px;
+      z-index: -1;
+      font-size: 24px;
+      line-height: 1;
+      pointer-events: none;
+      transform: translateY(-110%) rotate(10deg);
+      opacity: 0;
+      transition: transform 420ms var(--ease-folder-open), opacity 180ms ease;
+    }
+    .watermelon-sticker.is-peeking { transform: translateY(0) rotate(10deg); opacity: 1; }
+    .gallery-card:has(.watermelon-sticker) { z-index: 4; }
 
     .gallery-card-bg {
       position: absolute;
       inset: 0;
+      overflow: hidden;
+      border-radius: inherit;
     }
 
     .gallery-card-pattern {
@@ -177,6 +327,7 @@
       inset: 0;
       opacity: 0.18;
       overflow: hidden;
+      border-radius: inherit;
     }
     .gallery-card-pattern svg {
       position: absolute;
@@ -202,6 +353,8 @@
       inset: 0;
       pointer-events: none;
       opacity: 0;
+      overflow: hidden;
+      border-radius: inherit;
       transition: opacity 320ms ease-out;
       /* Same sliding position for both — so the two layers reinforce
          each other as a single reflection rather than splitting. */
@@ -246,6 +399,8 @@
       display: flex;
       flex-direction: column;
       transform: translateZ(1px);
+      overflow: hidden;
+      border-radius: inherit;
     }
 
     .gallery-card-name {
@@ -310,41 +465,47 @@
       position: fixed;
       inset: 0;
       z-index: 200;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px;
+      padding: 0;
       background: rgba(20, 18, 16, 0);
       backdrop-filter: blur(0);
       -webkit-backdrop-filter: blur(0);
       opacity: 0;
       pointer-events: none;
       transition:
-        opacity 280ms ease-out,
-        background 320ms ease-out,
-        backdrop-filter 320ms ease-out;
+        opacity 240ms var(--ease-out),
+        background 280ms var(--ease-out),
+        backdrop-filter 280ms var(--ease-out);
     }
     .card-modal.is-open {
       opacity: 1;
       pointer-events: auto;
-      background: rgba(20, 18, 16, 0.42);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      background: rgba(17, 17, 17, 0.38);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .card-modal.is-closing {
+      opacity: 1;
+      pointer-events: none;
+      background: rgba(17, 17, 17, 0.24);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
     }
     .card-modal-stage {
-      position: relative;
+      position: fixed;
       perspective: 1800px;
-      width: min(560px, 92vw);
-      transform: scale(0.92);
-      transition: transform 400ms cubic-bezier(0.22, 0.61, 0.36, 1);
-    }
-    .card-modal.is-open .card-modal-stage {
-      transform: scale(1);
+      transform-origin: top left;
+      transition: transform 440ms var(--ease-folder-open);
+      will-change: transform;
+      pointer-events: none;
     }
     /* Card inside modal: scale up proportionally, keep tilt/shine. */
     .card-modal .gallery-card {
       width: 100%;
+      height: 100%;
+      opacity: 1;
+      animation: none;
       cursor: default;
+      pointer-events: auto;
     }
     .card-modal .gallery-card-name { font-size: 22px; }
     .card-modal .gallery-card-message {
@@ -356,24 +517,50 @@
     .card-modal .gallery-card-date { font-size: 12px; }
     .card-modal .gallery-card-content { padding: 28px 32px; }
     .card-modal-close {
-      position: absolute;
-      top: -52px;
-      right: -6px;
-      width: 36px;
-      height: 36px;
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      background: rgba(255, 255, 255, 0.12);
+      border: 0;
+      background: rgba(255, 255, 255, 0.14);
       color: #ffffff;
       cursor: pointer;
       transition: background 160ms ease-out, transform 140ms ease-out;
       font-size: 14px;
+      pointer-events: auto;
     }
     .card-modal-close:hover { background: rgba(255, 255, 255, 0.22); }
-    .card-modal-close:active { transform: scale(0.94); }
+    .card-modal-close:active { transform: scale(0.96); }
+
+    body.has-card-open { overflow: hidden; }
+    body.has-card-open .page-shell { opacity: .12; transform: translateY(-24px); filter: blur(1px); }
+
+    .leave-card {
+      position: relative;
+      aspect-ratio: 1.586 / 1;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      color: var(--text3);
+      box-shadow: inset 0 0 0 1px var(--border);
+      text-decoration: none;
+      font-size: 12px;
+      transition: color 180ms ease, transform 180ms var(--ease-out), box-shadow 180ms ease;
+    }
+    .leave-card::before {
+      content: '';
+      position: absolute;
+      inset: 9px;
+      border-radius: 11px;
+      border: 1px dashed var(--border);
+    }
+    .leave-card:hover { color: var(--text); transform: translateY(-2px); box-shadow: inset 0 0 0 1px rgba(17,17,17,.18); }
+    .leave-card:active { transform: scale(.96); }
 
     /* ---- Empty / loading states ---- */
     .status {
@@ -391,8 +578,11 @@
 
     /* ---- Mobile ---- */
     @media (max-width: 640px) {
-      .page-header { padding: 64px 20px 16px; }
-      .page-header h1 { font-size: 26px; }
+      .page-shell { padding: 28px 20px 20px; }
+      .page-nav { margin-bottom: 44px; }
+      .page-header { grid-template-columns: 1fr; }
+      .page-header .count { text-align: left; }
+      .page-intro { font-size: 15px; line-height: 1.75; }
       .gallery-grid {
         padding: 16px 20px 80px;
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -401,7 +591,12 @@
       /* Tilt is jittery on touch — flatten it. */
       .gallery-card { --rx: 0deg !important; --ry: 0deg !important; }
       .gallery-card.is-active { --ty: -4px; --tz: 24px; --s: 1.03; }
-      .card-modal-close { top: -48px; right: 0; }
+      .card-modal-close { right: 12px; bottom: 12px; }
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .gallery-card { will-change: transform; }
+      .gallery-card:hover { z-index: 5; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -413,28 +608,45 @@
       .gallery-card-shine,
       .gallery-card-holo { display: none; }
       .card-modal-stage { transform: none !important; }
+      .gallery-card.is-scattered { opacity: .12; filter: none; }
+      body.has-card-open .page-shell { transform: none; filter: none; }
     }
   </style>
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body>
-  <a href="/" class="back-link">← Back</a>
+  <div class="page-shell">
+    <nav class="page-nav" aria-label="Guestbook navigation">
+      <a href="/" class="back-link" data-en="← Back home" data-ja="← ホームへ戻る">← Back home</a>
+      <div class="page-controls">
+        <button class="language-toggle" type="button" aria-label="Switch language">JA</button>
+        <button class="theme-toggle" type="button" aria-label="Toggle theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </nav>
 
-  <header class="page-header">
-    <h1>Guest Cards</h1>
-    <span class="count" id="count"></span>
-  </header>
-
-  <div class="gallery-grid" id="grid">
-    <div class="status" id="status">Gathering cards…</div>
+    <header class="page-header">
+      <h1 data-en="Guestbook" data-ja="ゲストブック">Guestbook</h1>
+      <span class="count" id="count" aria-live="polite"></span>
+      <p class="page-intro" data-en="Notes left here by visitors—small traces from people who stopped by." data-ja="ここを訪れた人たちが残してくれた、小さな足あと。">Notes left here by visitors—small traces from people who stopped by.</p>
+      <div class="page-actions">
+        <button class="shuffle-button" id="shuffleButton" type="button" data-en="Shuffle the deck" data-ja="カードをシャッフル">Shuffle the deck</button>
+      </div>
+    </header>
   </div>
 
+  <main class="gallery-grid" id="grid" aria-label="Visitor cards">
+    <div class="status" id="status">Gathering cards…</div>
+  </main>
+
   <!-- Modal for enlarged card -->
-  <div class="card-modal" id="modal" aria-hidden="true" role="dialog">
+  <div class="card-modal" id="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Enlarged visitor card">
     <div class="card-modal-stage" id="modalStage">
-      <button class="card-modal-close" id="modalClose" aria-label="Close">✕</button>
       <!-- card injected here -->
     </div>
+    <button class="card-modal-close" id="modalClose" aria-label="Close">✕</button>
   </div>
 
   <script type="module">
@@ -453,6 +665,53 @@
     const modal = document.getElementById('modal');
     const modalStage = document.getElementById('modalStage');
     const modalClose = document.getElementById('modalClose');
+    const shuffleButton = document.getElementById('shuffleButton');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+    let currentCount = 0;
+    let activeSource = null;
+    let savedScrollY = 0;
+    let closeTimer = 0;
+
+    function getLanguage() {
+      return localStorage.getItem('lang') || 'en';
+    }
+
+    function updateCount(count = currentCount) {
+      currentCount = count;
+      const lang = getLanguage();
+      countEl.textContent = lang === 'ja'
+        ? `${count}人の来訪者から届いたカード`
+        : `${count} ${count === 1 ? 'note' : 'notes'} from visitors`;
+    }
+
+    function applyLanguage(lang) {
+      localStorage.setItem('lang', lang);
+      document.documentElement.setAttribute('data-lang', lang);
+      document.querySelectorAll('[data-en][data-ja]').forEach(element => {
+        element.textContent = element.dataset[lang];
+      });
+      document.querySelector('.language-toggle').textContent = lang === 'ja' ? 'EN' : 'JA';
+      grid.setAttribute('aria-label', lang === 'ja' ? '来訪者のカード' : 'Visitor cards');
+      modalClose.setAttribute('aria-label', lang === 'ja' ? '閉じる' : 'Close');
+      updateCount();
+    }
+
+    function applyTheme(theme) {
+      localStorage.setItem('theme', theme);
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+
+    document.querySelector('.language-toggle').addEventListener('click', () => {
+      applyLanguage(getLanguage() === 'ja' ? 'en' : 'ja');
+    });
+
+    document.querySelector('.theme-toggle').addEventListener('click', () => {
+      const nextTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      applyTheme(nextTheme);
+    });
+
+    applyLanguage(getLanguage());
 
     // ---- Pattern SVG generator (mirrors GuestbookCard.js) ----
     let patternUid = 0;
@@ -552,7 +811,6 @@
       const card = document.createElement(isModal ? 'div' : 'button');
       card.className = 'gallery-card' + (isNew ? ' is-new' : '');
       card.style.setProperty('--card-ink', ink);
-      card.style.animationDelay = isNew ? '0s' : `${Math.random() * 0.35}s`;
       if (!isModal) {
         card.type = 'button';
         card.setAttribute('aria-label', `Open card from ${entry.name || 'Anonymous'}`);
@@ -621,11 +879,11 @@
       content.appendChild(footer);
       card.appendChild(content);
 
-      attachTilt(card);
+      if (finePointer.matches) attachTilt(card);
 
       if (!isModal) {
         card.__entry = entry;
-        card.addEventListener('click', () => openModal(entry));
+        card.addEventListener('click', () => openModal(entry, card));
       }
 
       return card;
@@ -641,7 +899,7 @@
     //                 as the angle changes (not a spotlight under the
     //                 cursor).
     function attachTilt(card) {
-      const MAX_TILT = 7;
+      const MAX_TILT = 4;
 
       function onMove(e) {
         const rect = card.getBoundingClientRect();
@@ -678,29 +936,133 @@
       card.addEventListener('pointercancel', onLeave);
     }
 
-    // ---- Modal ----
-    let lastFocus = null;
-    function openModal(entry) {
-      lastFocus = document.activeElement;
-      // Remove any previous card inside the stage (everything except the
-      // close button) to prevent stacking on rapid re-clicks.
-      modalStage.querySelectorAll('.gallery-card').forEach(n => n.remove());
+    function centeredCardRect(sourceRect) {
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const maxWidth = Math.min(560, viewportWidth - (viewportWidth < 640 ? 32 : 96));
+      const maxHeight = viewportHeight - (viewportWidth < 640 ? 112 : 128);
+      const ratio = sourceRect.width / sourceRect.height;
+      const width = Math.min(maxWidth, maxHeight * ratio);
+      const height = width / ratio;
+      return {
+        left: (viewportWidth - width) / 2,
+        top: (viewportHeight - height) / 2,
+        width,
+        height,
+      };
+    }
+
+    function placeStage(rect, sourceRect = null) {
+      modalStage.style.left = `${rect.left}px`;
+      modalStage.style.top = `${rect.top}px`;
+      modalStage.style.width = `${rect.width}px`;
+      modalStage.style.height = `${rect.height}px`;
+      if (sourceRect && !reduceMotion.matches) {
+        const x = sourceRect.left - rect.left;
+        const y = sourceRect.top - rect.top;
+        const scaleX = sourceRect.width / rect.width;
+        const scaleY = sourceRect.height / rect.height;
+        modalStage.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scaleX}, ${scaleY})`;
+      } else {
+        modalStage.style.transform = 'translate3d(0, 0, 0) scale(1)';
+      }
+    }
+
+    function scatterCards(source, target) {
+      const focusX = target.left + target.width / 2;
+      const focusY = target.top + target.height / 2;
+      [...grid.querySelectorAll('.gallery-card')].forEach((card, index) => {
+        if (card === source) return;
+        const rect = card.getBoundingClientRect();
+        if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        let dx = centerX - focusX;
+        let dy = centerY - focusY;
+        if (Math.hypot(dx, dy) < 4) {
+          dx = Math.cos(index * 2.399963);
+          dy = Math.sin(index * 2.399963);
+        }
+        const distance = Math.hypot(dx, dy);
+        const travel = Math.min(72, Math.max(24, distance * .14));
+        card.style.setProperty('--scatter-x', `${dx / distance * travel}px`);
+        card.style.setProperty('--scatter-y', `${dy / distance * travel}px`);
+        card.classList.add('is-scattered');
+      });
+    }
+
+    function resetScatter() {
+      grid.querySelectorAll('.gallery-card.is-scattered').forEach(card => {
+        card.classList.remove('is-scattered');
+        card.style.removeProperty('--scatter-x');
+        card.style.removeProperty('--scatter-y');
+      });
+    }
+
+    // ---- Spatial card viewer ----
+    function openModal(entry, source) {
+      if (activeSource) return;
+      window.clearTimeout(closeTimer);
+      activeSource = source;
+      savedScrollY = window.scrollY;
+      const sourceRect = source.getBoundingClientRect();
+      const target = centeredCardRect(sourceRect);
       const bigCard = buildCard(entry, { isModal: true });
+
+      modalStage.querySelectorAll('.gallery-card').forEach(node => node.remove());
       modalStage.appendChild(bigCard);
+      placeStage(target, sourceRect);
+      source.classList.add('is-source');
+      modal.classList.remove('is-closing');
       modal.classList.add('is-open');
       modal.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-      modalClose.focus();
+      document.body.classList.add('has-card-open');
+      document.body.style.top = `-${savedScrollY}px`;
+      document.body.style.position = 'fixed';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      scatterCards(source, target);
+
+      if (!reduceMotion.matches) {
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          modalStage.style.transform = 'translate3d(0, 0, 0) scale(1)';
+        }));
+      }
+      modalClose.focus({ preventScroll: true });
     }
+
     function closeModal() {
+      if (!activeSource) return;
+      window.clearTimeout(closeTimer);
+      const source = activeSource;
+      const sourceRect = source.getBoundingClientRect();
+      const stageRect = modalStage.getBoundingClientRect();
+      activeSource = null;
+      resetScatter();
+      document.body.classList.remove('has-card-open');
+      modal.classList.add('is-closing');
       modal.classList.remove('is-open');
       modal.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-      if (lastFocus) lastFocus.focus();
-      // Clean up the card after the exit transition.
-      setTimeout(() => {
-        modalStage.querySelectorAll('.gallery-card').forEach(n => n.remove());
-      }, 320);
+      if (!reduceMotion.matches) {
+        const x = sourceRect.left - stageRect.left;
+        const y = sourceRect.top - stageRect.top;
+        const scaleX = sourceRect.width / stageRect.width;
+        const scaleY = sourceRect.height / stageRect.height;
+        modalStage.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scaleX}, ${scaleY})`;
+      }
+
+      const finish = () => {
+        modalStage.querySelectorAll('.gallery-card').forEach(node => node.remove());
+        modal.classList.remove('is-closing');
+        source.classList.remove('is-source');
+        document.body.style.removeProperty('position');
+        document.body.style.removeProperty('top');
+        document.body.style.removeProperty('left');
+        document.body.style.removeProperty('right');
+        window.scrollTo(0, savedScrollY);
+        source.focus({ preventScroll: true });
+      };
+      closeTimer = window.setTimeout(finish, reduceMotion.matches ? 100 : 440);
     }
     modalClose.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => {
@@ -708,7 +1070,84 @@
     });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+      if (e.key === 'Tab' && modal.classList.contains('is-open')) {
+        e.preventDefault();
+        modalClose.focus({ preventScroll: true });
+      }
     });
+
+    window.addEventListener('resize', () => {
+      if (!activeSource) return;
+      modalStage.style.transition = 'none';
+      placeStage(centeredCardRect(activeSource.getBoundingClientRect()));
+      requestAnimationFrame(() => modalStage.style.removeProperty('transition'));
+    });
+
+    function leaveCardLink() {
+      const link = document.createElement('a');
+      link.className = 'leave-card';
+      link.href = '/?guestcard=open';
+      link.dataset.en = 'Leave your card →';
+      link.dataset.ja = 'カードを残す →';
+      link.textContent = getLanguage() === 'ja' ? link.dataset.ja : link.dataset.en;
+      return link;
+    }
+
+    function cardNodes() {
+      return [...grid.querySelectorAll('.gallery-card')];
+    }
+
+    function shuffled(items) {
+      const result = [...items];
+      for (let index = result.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+      }
+      return result;
+    }
+
+    function showWatermelon() {
+      const cards = cardNodes();
+      if (!cards.length || document.querySelector('.watermelon-sticker')) return;
+      const host = cards[Math.floor(cards.length * .58)];
+      const sticker = document.createElement('span');
+      sticker.className = 'watermelon-sticker';
+      sticker.setAttribute('aria-hidden', 'true');
+      sticker.textContent = '🍉';
+      host.appendChild(sticker);
+      requestAnimationFrame(() => sticker.classList.add('is-peeking'));
+      window.setTimeout(() => sticker.classList.remove('is-peeking'), 2200);
+      window.setTimeout(() => sticker.remove(), 2700);
+    }
+
+    function shuffleDeck() {
+      if (activeSource) return;
+      const cards = cardNodes();
+      const oldRects = new Map(cards.map(card => [card, card.getBoundingClientRect()]));
+      const leaveCard = grid.querySelector('.leave-card');
+      shuffled(cards).forEach(card => grid.insertBefore(card, leaveCard));
+
+      if (!reduceMotion.matches) {
+        cards.forEach((card, index) => {
+          const oldRect = oldRects.get(card);
+          const newRect = card.getBoundingClientRect();
+          card.animate([
+            { transform: `translate3d(${oldRect.left - newRect.left}px, ${oldRect.top - newRect.top}px, 0)` },
+            { transform: 'translate3d(0, 0, 0)' },
+          ], {
+            duration: 420,
+            delay: Math.min(index * 18, 180),
+            easing: 'cubic-bezier(0.2, 0, 0, 1)',
+          });
+        });
+      }
+
+      const shuffleCount = Number(sessionStorage.getItem('guestbook-shuffles') || 0) + 1;
+      sessionStorage.setItem('guestbook-shuffles', String(shuffleCount));
+      if (shuffleCount === 3) window.setTimeout(showWatermelon, reduceMotion.matches ? 0 : 520);
+    }
+
+    shuffleButton.addEventListener('click', shuffleDeck);
 
     // ---- Dummy cards for preview when Supabase is empty ----
     const DUMMY_ENTRIES = [
@@ -746,7 +1185,8 @@
 
       status.remove();
       entries.forEach(entry => grid.appendChild(buildCard(entry)));
-      countEl.textContent = `${entries.length} ${entries.length === 1 ? 'card' : 'cards'}`;
+      grid.appendChild(leaveCardLink());
+      updateCount(entries.length);
     }
 
     // ---- Real-time subscription ----
@@ -754,10 +1194,21 @@
       supabase
         .channel('guestbook_gallery')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'guestbook_entries' }, payload => {
+          const existingCards = cardNodes();
+          const oldRects = new Map(existingCards.map(existingCard => [existingCard, existingCard.getBoundingClientRect()]));
           const card = buildCard(payload.new, { isNew: true });
           grid.insertBefore(card, grid.firstChild);
-          const n = grid.querySelectorAll('.gallery-card').length;
-          countEl.textContent = `${n} ${n === 1 ? 'card' : 'cards'}`;
+          if (!reduceMotion.matches) {
+            existingCards.forEach(existingCard => {
+              const oldRect = oldRects.get(existingCard);
+              const newRect = existingCard.getBoundingClientRect();
+              existingCard.animate([
+                { transform: `translate3d(${oldRect.left - newRect.left}px, ${oldRect.top - newRect.top}px, 0)` },
+                { transform: 'translate3d(0, 0, 0)' },
+              ], { duration: 420, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+            });
+          }
+          updateCount(cardNodes().length);
         })
         .subscribe();
     }
