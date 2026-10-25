@@ -208,6 +208,10 @@ body.case-floating-nav .case-page {
   transition: background 260ms var(--ease-out-lift),
               gap        260ms var(--ease-out-lift);
 }
+.case-fn-btn:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 3px;
+}
 [data-theme="dark"] .case-fn-btn:hover,
 [data-theme="dark"] .case-fn-btn:focus-visible,
 [data-theme="dark"] .case-fn-btn.is-active {
@@ -514,6 +518,11 @@ body.case-floating-nav .case-theme-toggle:focus-visible {
   background: rgba(0, 0, 0, 0.06);
   outline: 0;
   transition: background 260ms var(--ease-out-lift);
+}
+body.case-floating-nav .case-lang-toggle:focus-visible,
+body.case-floating-nav .case-theme-toggle:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 3px;
 }
 [data-theme="dark"] body.case-floating-nav .case-lang-toggle:hover,
 [data-theme="dark"] body.case-floating-nav .case-lang-toggle:focus-visible,

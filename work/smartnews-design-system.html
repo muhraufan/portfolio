@@ -51,11 +51,11 @@
 })();
 </script>
 
-  <link rel="stylesheet" href="/css/style.css?v=42">
-  <link rel="stylesheet" href="/css/case.css?v=154">
+  <link rel="stylesheet" href="/css/style.css?v=43">
+  <link rel="stylesheet" href="/css/case.css?v=155">
   <link rel="stylesheet" href="/components/FlyBy/flyby.css?v=5">
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
-  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=32">
+  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=33">
   <style>
     /* ============================================================
        MEDIUM-STYLE PAYWALL
@@ -316,9 +316,11 @@
     .pw-email {
       color: var(--text);
       font-weight: 500;
-      text-underline-offset: 3px;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.22em;
+      text-decoration-color: color-mix(in srgb, var(--text) 55%, transparent);
     }
-    .pw-email:hover { text-decoration-color: #C8DDD4; }
+    .pw-email:hover { text-decoration-color: var(--text); }
 
     .pw-back {
       display: inline-block;
