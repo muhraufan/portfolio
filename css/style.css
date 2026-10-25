@@ -49,7 +49,15 @@
   --bg3:      #f0f0f0;
   --text:     #111111;
   --text2:    rgba(17, 17, 17, 0.75);
-  --text3:    rgba(17, 17, 17, 0.45);
+  /* Warm grey, 5.15:1 on the homepage background. Small labels need 4.5:1. */
+  --text3:    #6e6a64;
+  --type-label: 12px;
+  --type-ui: 14px;
+  --type-body: 16px;
+  --type-title: 20px;
+  --type-display: 28px;
+  --leading-body: 1.55;
+  --measure: 66ch;
   --border:   rgba(17, 17, 17, 0.08);
   --border2:  rgba(17, 17, 17, 0.14);
   --accent:   #0099ff;
@@ -139,7 +147,7 @@
     --bg3:     #222222;
     --text:    #f0f0f0;
     --text2:   rgba(240, 240, 240, 0.75);
-    --text3:   rgba(240, 240, 240, 0.45);
+    --text3:   #a39e96;
     --border:  rgba(240, 240, 240, 0.07);
     --border2: rgba(240, 240, 240, 0.12);
   }
@@ -152,7 +160,7 @@
   --bg3:     #222222;
   --text:    #f0f0f0;
   --text2:   rgba(240, 240, 240, 0.75);
-  --text3:   rgba(240, 240, 240, 0.45);
+  --text3:   #a39e96;
   --border:  rgba(240, 240, 240, 0.07);
   --border2: rgba(240, 240, 240, 0.12);
 }
@@ -163,7 +171,7 @@
   --bg3:     #f0f0f0;
   --text:    #111111;
   --text2:   rgba(17, 17, 17, 0.75);
-  --text3:   rgba(17, 17, 17, 0.45);
+  --text3:   #6e6a64;
   --border:  rgba(17, 17, 17, 0.08);
   --border2: rgba(17, 17, 17, 0.14);
 }
@@ -177,12 +185,20 @@ body {
   font-family: 'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   background: var(--bg);
   color: var(--text);
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+  letter-spacing: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-wrap: pretty;
   transition: background 0.2s, color 0.2s;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 /* Balance headings so line lengths look even instead of having a short orphan
@@ -196,6 +212,8 @@ h1, h2, h3, h4,
 html[data-lang="ja"] body,
 html[data-lang="ja"] body.minimal {
   font-family: 'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans CJK JP', 'Yu Gothic', Meiryo, sans-serif;
+  line-height: 1.7;
+  letter-spacing: 0;
 }
 
 /* Both languages occupy one grid cell. The hidden copy still
@@ -230,9 +248,9 @@ html[data-lang="ja"] .lang-stack > .lang-layer[lang="en"] {
 
 body.minimal {
   font-family: 'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  font-size: 13px;
-  line-height: 2;
-  letter-spacing: 1px;
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+  letter-spacing: 0;
   color: var(--text);
   background: #fafafa;
 }
@@ -258,9 +276,9 @@ body.minimal footer:not(.m-footer) {
 }
 
 .m-page {
-  max-width: 720px;
+  max-width: calc(var(--measure) + 48px);
   margin: 0 auto;
-  padding: 80px 24px 64px;
+  padding: 88px 24px 80px;
   position: relative;
 }
 
@@ -332,9 +350,9 @@ body.minimal footer:not(.m-footer) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: var(--type-ui);
   font-weight: 500;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   /* Ensure a 40x40 minimum hit area. */
   min-width: 40px;
   min-height: 40px;
@@ -354,9 +372,9 @@ body.minimal footer:not(.m-footer) {
   padding: 6px 10px;
   border-radius: 8px;
   color: var(--text2);
-  font-size: 12px;
+  font-size: var(--type-ui);
   font-weight: 500;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   line-height: 1;
   transition: color 0.15s, background 0.15s, transform 140ms ease-out;
   display: flex;
@@ -400,14 +418,14 @@ body.minimal footer:not(.m-footer) {
 }
 
 .m-header {
-  margin-bottom: 16px;
+  margin-bottom: 28px;
 }
 
 .m-avatar-picker {
   position: relative;
   width: 164px;
   height: 82px;
-  margin-bottom: 18px;
+  margin-bottom: 28px;
 }
 
 .m-avatar-card {
@@ -514,17 +532,32 @@ body.minimal footer:not(.m-footer) {
 }
 
 .m-name {
-  font-size: 13px;
-  line-height: 2;
-  font-weight: 500;
-  letter-spacing: 0;
+  font-size: var(--type-display);
+  line-height: 1.15;
+  font-weight: 550;
+  letter-spacing: -0.02em;
   color: var(--text);
 }
 
+html[data-lang="ja"] .m-name {
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.35;
+}
+
+html[data-lang="ja"] .m-bio,
+html[data-lang="ja"] .m-experiment-list p,
+html[data-lang="ja"] .case-content p,
+html[data-lang="ja"] .case-content li {
+  line-height: 1.75;
+}
+
 .m-bio {
-  font-size: 13px;
-  line-height: 2;
+  max-width: var(--measure);
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
   font-weight: 400;
+  letter-spacing: 0;
   color: #6F6F6F;
   margin-bottom: 0;
 }
@@ -572,7 +605,7 @@ body.minimal footer:not(.m-footer) {
 
 .m-photo-note {
   color: var(--text3);
-  font-size: 10px;
+  font-size: var(--type-label);
   line-height: 1.5;
   text-align: right;
 }
@@ -601,8 +634,9 @@ body.minimal footer:not(.m-footer) {
   border: 0;
   border-radius: 0;
   font: inherit;
-  font-size: 11px;
-  letter-spacing: 0.02em;
+  font-size: var(--type-ui);
+  font-weight: 500;
+  letter-spacing: 0;
   cursor: pointer;
   transition: color 160ms ease-out, transform 140ms ease-out;
 }
@@ -952,7 +986,7 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 }
 
 .m-experiment-section {
-  margin: 48px 0 58px;
+  margin: 72px 0 80px;
 }
 
 .m-experiment-header {
@@ -1508,12 +1542,12 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 }
 
 .m-experiment-label {
-  margin: 0 0 32px;
-  color: #84817c;
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1.5;
-  letter-spacing: 0.14em;
+  margin: 0 0 28px;
+  color: var(--text3);
+  font-size: var(--type-label);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -1539,9 +1573,9 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
   margin: -8px 0;
   padding: 8px 0;
   color: var(--text);
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 24px;
+  font-size: var(--type-title);
+  font-weight: 550;
+  line-height: 1.3;
   letter-spacing: -0.02em;
   text-decoration: none;
 }
@@ -1570,10 +1604,12 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 .m-experiment-list p {
   position: relative;
   z-index: 1;
-  margin: 10px 0 0;
-  color: #7b7975;
-  font-size: 13px;
-  line-height: 1.8;
+  max-width: var(--measure);
+  margin: 12px 0 0;
+  color: #6F6F6F;
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+  letter-spacing: 0;
   text-wrap: pretty;
 }
 
@@ -1665,9 +1701,12 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
   }
 }
 
-[data-theme="dark"] .m-experiment-label,
+[data-theme="dark"] .m-experiment-label {
+  color: var(--text3);
+}
+
 [data-theme="dark"] .m-experiment-list p {
-  color: #aaa7a0;
+  color: #c8c4bc;
 }
 
 [data-theme="dark"] .m-experiment-name {
@@ -1683,15 +1722,15 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .m-experiment-label,
-  :root:not([data-theme="light"]) .m-experiment-list p { color: #aaa7a0; }
+  :root:not([data-theme="light"]) .m-experiment-label { color: var(--text3); }
+  :root:not([data-theme="light"]) .m-experiment-list p { color: #c8c4bc; }
   :root:not([data-theme="light"]) .m-experiment-name { text-decoration-color: rgba(255, 255, 255, 0.22); }
   :root:not([data-theme="light"]) .m-experiment-tagline { color: #c2bfb8; }
   :root:not([data-theme="light"]) .m-experiment-preview img { outline-color: rgba(255, 255, 255, 0.1); }
 }
 
 .m-case-section {
-  margin: 0 0 64px;
+  margin: 8px 0 80px;
 }
 
 .m-section-copy {
@@ -1838,17 +1877,17 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 
 .case-folder-label strong {
   color: #252525;
-  font-size: 12px;
+  font-size: var(--type-ui);
   font-weight: 600;
-  line-height: 1.45;
+  line-height: 1.4;
   letter-spacing: -0.01em;
 }
 
 .case-folder-label span {
-  margin-top: 2px;
-  color: #747474;
-  font-size: 10px;
-  line-height: 1.45;
+  margin-top: 3px;
+  color: #6e6a64;
+  font-size: var(--type-label);
+  line-height: 1.4;
   letter-spacing: 0;
 }
 
@@ -2218,7 +2257,8 @@ body.minimal.is-spotlight .m-list.is-active-list a:not(.is-active) {
 }
 
 .m-footer {
-  font-size: 13px;
+  font-size: var(--type-ui);
+  margin-top: 8px;
   margin-bottom: 12px;
   display: flex;
   align-items: center;
@@ -2916,20 +2956,20 @@ footer {
 }
 
 .case-kicker {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--type-label);
+  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--accent);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .case-title {
-  font-size: 26px;
-  font-weight: 700;
+  font-size: var(--type-display);
+  font-weight: 550;
   letter-spacing: -0.02em;
-  line-height: 1.25;
-  margin-bottom: 16px;
+  line-height: 1.2;
+  margin-bottom: 20px;
 }
 
 .case-meta-row {
@@ -3135,8 +3175,12 @@ footer {
 
 /* ---- Responsive ---- */
 @media (max-width: 600px) {
+  :root {
+    --type-body: 15px;
+  }
+
   .m-page {
-    padding-top: 48px;
+    padding-top: 56px;
   }
 
   .m-top-controls {
