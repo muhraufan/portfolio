@@ -32,24 +32,16 @@
       --accent: #4f46e5;
       --bg: #fafaf9;
       --card: #ffffff;
-      --type-label: 12px;
-      --type-ui: 14px;
-      --type-body: 16px;
-      --type-title: 20px;
-      --type-display: 28px;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-      font-size: var(--type-body);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
       background: var(--bg);
       color: var(--ink);
-      line-height: 1.55;
-      letter-spacing: 0;
+      line-height: 1.5;
       min-height: 100vh;
     }
-    button, input, select, textarea { font: inherit; }
 
     /* ─── Acme sample landing page (the playground content) ──────── */
     header.acme-header {
@@ -59,12 +51,12 @@
       justify-content: space-between;
       align-items: center;
     }
-    .acme-logo { font-weight: 600; font-size: var(--type-title); }
+    .acme-logo { font-weight: 700; font-size: 18px; }
     .acme-nav a {
       margin-left: 20px;
       color: var(--muted);
       text-decoration: none;
-      font-size: var(--type-ui);
+      font-size: 14px;
     }
     .acme-hero {
       padding: 80px 32px;
@@ -73,23 +65,22 @@
       margin: 0 auto;
     }
     .acme-hero h1 {
-      font-size: var(--type-display);
-      font-weight: 550;
+      font-size: 48px;
+      font-weight: 700;
       margin: 0 0 16px;
       letter-spacing: -0.02em;
     }
     .acme-hero p {
-      font-size: var(--type-body);
+      font-size: 18px;
       color: var(--muted);
       margin: 0 0 32px;
-      max-width: 66ch;
     }
     .acme-cta {
       background: var(--accent);
       color: #fff;
       border: none;
       padding: 12px 24px;
-      font-size: var(--type-ui);
+      font-size: 15px;
       font-weight: 600;
       border-radius: 6px;
       cursor: pointer;
@@ -114,18 +105,18 @@
       border-radius: 8px;
       border: 1px solid #e5e5e5;
     }
-    .acme-card h3 { margin: 0 0 8px; font-size: var(--type-body); font-weight: 600; }
-    .acme-card p { margin: 0; color: var(--muted); font-size: var(--type-ui); }
+    .acme-card h3 { margin: 0 0 8px; font-size: 16px; }
+    .acme-card p { margin: 0; color: var(--muted); font-size: 14px; }
     footer.acme-footer {
       padding: 24px 32px;
       text-align: center;
       color: var(--muted);
-      font-size: var(--type-ui);
+      font-size: 13px;
       border-top: 1px solid #e5e5e5;
     }
     @media (max-width: 700px) {
       .acme-hero { padding: 48px 24px; }
-      .acme-hero h1 { font-size: var(--type-display); }
+      .acme-hero h1 { font-size: 32px; }
       .acme-features { grid-template-columns: 1fr; padding: 0 24px; }
     }
 
@@ -150,7 +141,7 @@
       border: 1px solid #E5E5E5;
       background: #FFFFFF;
       color: #111;
-      font-size: var(--type-ui);
+      font-size: 13px;
       font-weight: 500;
       letter-spacing: 0.2px;
       padding: 10px 20px;
@@ -166,7 +157,7 @@
     }
     .back-link:active { transform: scale(0.97); }
     @media (max-width: 768px) {
-      .back-link { top: 16px; left: 16px; font-size: var(--type-label); padding: 8px 16px; min-height: 36px; }
+      .back-link { top: 16px; left: 16px; font-size: 12px; padding: 8px 16px; min-height: 36px; }
     }
 
     /* ─── Coach panel (bottom-right) ─────────────────────────────── */
@@ -215,12 +206,12 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: var(--type-ui);
+      font-size: 13px;
       font-weight: 700;
       flex-shrink: 0;
     }
     .coach-toggle-label {
-      font-size: var(--type-ui);
+      font-size: 13px;
       font-weight: 600;
       letter-spacing: 0.2px;
     }
@@ -256,7 +247,7 @@
       to   { opacity: 1; transform: translateY(0); }
     }
     .coach-eyebrow {
-      font-size: var(--type-label);
+      font-size: 11px;
       letter-spacing: 3px;
       text-transform: uppercase;
       color: #888;
@@ -264,14 +255,14 @@
       margin-bottom: 6px;
     }
     .coach-title {
-      font-size: var(--type-body);
+      font-size: 15px;
       font-weight: 700;
       color: #111;
       margin: 0 0 12px;
       line-height: 1.3;
     }
     .coach-lede {
-      font-size: var(--type-label);
+      font-size: 12.5px;
       color: #666;
       line-height: 1.6;
       margin: 0 0 16px;
@@ -287,7 +278,7 @@
       position: relative;
       padding-left: 24px;
       padding-bottom: 10px;
-      font-size: var(--type-label);
+      font-size: 12.5px;
       color: #444;
       line-height: 1.55;
     }
@@ -302,7 +293,7 @@
       border-radius: 50%;
       background: #F4F4F2;
       color: #111;
-      font-size: var(--type-label);
+      font-size: 10px;
       font-weight: 700;
       display: flex;
       align-items: center;
@@ -311,7 +302,7 @@
     }
     .coach kbd {
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: var(--type-label);
+      font-size: 11px;
       background: #F4F4F2;
       border: 1px solid #E5E5E5;
       border-bottom-width: 2px;
@@ -325,7 +316,7 @@
       gap: 6px;
       align-items: center;
       flex-wrap: wrap;
-      font-size: var(--type-label);
+      font-size: 11px;
       color: #888;
       border-top: 1px solid #F0F0F0;
       padding-top: 10px;

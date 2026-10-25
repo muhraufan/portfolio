@@ -9,30 +9,12 @@
 
 body {
   margin: 0;
-  --type-label: 12px;
-  --type-ui: 14px;
-  --type-body: 16px;
-  --type-title: 20px;
-  --type-display: 28px;
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  font-size: var(--type-body);
   background: #fafaf9;
   color: #1a1a1a;
-  line-height: 1.55;
-  letter-spacing: 0;
+  line-height: 1.5;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
-}
-
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
-
-@media (max-width: 600px) {
-  body { --type-body: 15px; }
 }
 
 /* ─── Back button (matches live-polish.html) ─────────────────────── */
@@ -46,7 +28,7 @@ textarea {
   border: 1px solid #E5E5E5;
   background: #FFFFFF;
   color: #111;
-  font-size: var(--type-ui);
+  font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.2px;
   padding: 10px 20px;
@@ -73,15 +55,15 @@ textarea {
   margin-bottom: 36px;
 }
 .playground-header h1 {
-  font-size: var(--type-display);
-  font-weight: 550;
+  font-size: 32px;
+  font-weight: 700;
   letter-spacing: -0.02em;
   margin: 0 0 8px;
 }
 .playground-header p {
   margin: 0;
   color: #6b7280;
-  font-size: var(--type-body);
+  font-size: 15px;
 }
 
 /* ─── Mock browser preview ───────────────────────────────────────── */
@@ -358,7 +340,7 @@ textarea {
 }
 .slider-pill__display {
   margin-left: auto;
-  font-size: var(--type-ui);
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
 }
@@ -417,7 +399,7 @@ textarea {
   margin-top: 8px;
 }
 .share-status {
-  font-size: var(--type-ui);
+  font-size: 13px;
   color: #28a745;
   font-weight: 500;
   opacity: 0;
@@ -430,7 +412,7 @@ textarea {
   text-align: center;
   margin-top: 40px;
   color: #6b7280;
-  font-size: var(--type-ui);
+  font-size: 13px;
 }
 
 /* ─── Responsive ─────────────────────────────────────────────────── */

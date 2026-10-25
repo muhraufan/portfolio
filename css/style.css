@@ -49,24 +49,12 @@
   --bg3:      #f0f0f0;
   --text:     #111111;
   --text2:    rgba(17, 17, 17, 0.75);
-  /* Secondary body copy, ~5.6:1 on #fafafa. Labels are a step lighter, ~4.9:1. */
-  --text-secondary: #67625c;
-  --text3:    #736e67;
-  --type-label: 12px;
-  --type-ui: 14px;
-  --type-body: 16px;
-  --type-title: 20px;
-  --type-display: 28px;
-  --leading-body: 1.55;
-  --leading-bio: 1.6;
-  --measure: 66ch;
-  --measure-bio: 34em;
+  --text3:    rgba(17, 17, 17, 0.45);
   --border:   rgba(17, 17, 17, 0.08);
   --border2:  rgba(17, 17, 17, 0.14);
   /* Ink is the only accent. --text flips with the theme, so this stays
      black on light pages and near-white on dark pages. */
   --accent:   var(--text);
-  --index-accent: var(--text);
   --green:    #C8DDD4;
   --radius:   12px;
   --max:      640px;
@@ -153,8 +141,7 @@
     --bg3:     #222222;
     --text:    #f0f0f0;
     --text2:   rgba(240, 240, 240, 0.75);
-    --text-secondary: #a9a49c;
-    --text3:   #9d988f;
+    --text3:   rgba(240, 240, 240, 0.45);
     --border:  rgba(240, 240, 240, 0.07);
     --border2: rgba(240, 240, 240, 0.12);
   }
@@ -167,8 +154,7 @@
   --bg3:     #222222;
   --text:    #f0f0f0;
   --text2:   rgba(240, 240, 240, 0.75);
-  --text-secondary: #a9a49c;
-  --text3:   #9d988f;
+  --text3:   rgba(240, 240, 240, 0.45);
   --border:  rgba(240, 240, 240, 0.07);
   --border2: rgba(240, 240, 240, 0.12);
 }
@@ -179,8 +165,7 @@
   --bg3:     #f0f0f0;
   --text:    #111111;
   --text2:   rgba(17, 17, 17, 0.75);
-  --text-secondary: #67625c;
-  --text3:   #736e67;
+  --text3:   rgba(17, 17, 17, 0.45);
   --border:  rgba(17, 17, 17, 0.08);
   --border2: rgba(17, 17, 17, 0.14);
 }
@@ -194,20 +179,12 @@ body {
   font-family: 'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   background: var(--bg);
   color: var(--text);
-  font-size: var(--type-body);
-  line-height: var(--leading-body);
-  letter-spacing: 0;
+  font-size: 16px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-wrap: pretty;
   transition: background 0.2s, color 0.2s;
-}
-
-button,
-input,
-select,
-textarea {
-  font: inherit;
 }
 
 /* Balance headings so line lengths look even instead of having a short orphan
@@ -221,8 +198,6 @@ h1, h2, h3, h4,
 html[data-lang="ja"] body,
 html[data-lang="ja"] body.minimal {
   font-family: 'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans CJK JP', 'Yu Gothic', Meiryo, sans-serif;
-  line-height: 1.7;
-  letter-spacing: 0;
 }
 
 /* Both languages occupy one grid cell. The hidden copy still
@@ -257,9 +232,9 @@ html[data-lang="ja"] .lang-stack > .lang-layer[lang="en"] {
 
 body.minimal {
   font-family: 'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  font-size: var(--type-body);
-  line-height: var(--leading-body);
-  letter-spacing: 0;
+  font-size: 13px;
+  line-height: 2;
+  letter-spacing: 1px;
   color: var(--text);
   background: #fafafa;
 }
@@ -285,12 +260,9 @@ body.minimal footer:not(.m-footer) {
 }
 
 .m-page {
-  /* 66ch of Plus Jakarta Sans at 16px, plus the 24px side padding.
-     A ch unit would shrink the column under Noto Sans JP and the
-     language toggle would reflow the folders. */
-  max-width: 821px;
+  max-width: 720px;
   margin: 0 auto;
-  padding: 88px 24px 80px;
+  padding: 80px 24px 64px;
   position: relative;
 }
 
@@ -362,9 +334,9 @@ body.minimal footer:not(.m-footer) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--type-label);
+  font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   /* Ensure a 40x40 minimum hit area. */
   min-width: 40px;
   min-height: 40px;
@@ -384,9 +356,9 @@ body.minimal footer:not(.m-footer) {
   padding: 6px 10px;
   border-radius: 8px;
   color: var(--text2);
-  font-size: var(--type-ui);
+  font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   line-height: 1;
   transition: color 0.15s, background 0.15s, transform 140ms ease-out;
   display: flex;
@@ -430,14 +402,14 @@ body.minimal footer:not(.m-footer) {
 }
 
 .m-header {
-  margin-bottom: 28px;
+  margin-bottom: 16px;
 }
 
 .m-avatar-picker {
   position: relative;
   width: 164px;
   height: 82px;
-  margin-bottom: 28px;
+  margin-bottom: 18px;
 }
 
 .m-avatar-card {
@@ -544,53 +516,19 @@ body.minimal footer:not(.m-footer) {
 }
 
 .m-name {
-  margin: 20px 0 0;
-  padding-bottom: 6px;
-  font-size: var(--type-display);
-  line-height: 1.15;
-  font-weight: 500;
-  letter-spacing: -0.03em;
-  color: var(--text);
-}
-
-.m-name .m-highlight {
-  text-underline-offset: 6px;
-}
-
-/* Tracking only. Line-height stays with the English name so the
-   stacked heading does not grow when the language toggles. */
-html[data-lang="ja"] .m-name,
-.m-name > .lang-layer[lang="ja"] {
+  font-size: 13px;
+  line-height: 2;
   font-weight: 500;
   letter-spacing: 0;
-}
-
-/* Japanese copy is looser, on the hidden layer as well as the visible
-   one, so the grid row is already the taller language before the toggle. */
-.m-bio > .lang-layer[lang="ja"],
-.m-experiment-list p > .lang-layer[lang="ja"],
-html[data-lang="ja"] .case-content p,
-html[data-lang="ja"] .case-content li {
-  line-height: 1.75;
+  color: var(--text);
 }
 
 .m-bio {
-  max-width: var(--measure-bio);
-  margin-top: 14px;
-  margin-bottom: 0;
-  font-size: var(--type-body);
-  line-height: var(--leading-bio);
+  font-size: 13px;
+  line-height: 2;
   font-weight: 400;
-  letter-spacing: 0;
-  color: var(--text-secondary);
-}
-
-.m-bio a {
-  color: var(--text);
-}
-
-.m-section-copy .m-bio {
-  margin-top: 0;
+  color: #6F6F6F;
+  margin-bottom: 0;
 }
 
 .m-profile-panel {
@@ -636,7 +574,7 @@ html[data-lang="ja"] .case-content li {
 
 .m-photo-note {
   color: var(--text3);
-  font-size: var(--type-label);
+  font-size: 10px;
   line-height: 1.5;
   text-align: right;
 }
@@ -665,9 +603,8 @@ html[data-lang="ja"] .case-content li {
   border: 0;
   border-radius: 0;
   font: inherit;
-  font-size: var(--type-ui);
-  font-weight: 500;
-  letter-spacing: 0;
+  font-size: 11px;
+  letter-spacing: 0.02em;
   cursor: pointer;
   transition: color 160ms ease-out, transform 140ms ease-out;
 }
@@ -1017,7 +954,7 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 }
 
 .m-experiment-section {
-  margin: 72px 0 80px;
+  margin: 48px 0 58px;
 }
 
 .m-experiment-header {
@@ -1573,12 +1510,12 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 }
 
 .m-experiment-label {
-  margin: 0 0 24px;
-  color: var(--text3);
-  font-size: var(--type-label);
-  font-weight: 600;
-  line-height: 1.4;
-  letter-spacing: 0.08em;
+  margin: 0 0 32px;
+  color: #84817c;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
@@ -1595,7 +1532,7 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 }
 
 .m-experiment-list li + li {
-  margin-top: 32px;
+  margin-top: 40px;
 }
 
 .m-experiment-list a {
@@ -1604,10 +1541,10 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
   margin: -8px 0;
   padding: 8px 0;
   color: var(--text);
-  font-size: var(--type-body);
+  font-size: 15px;
   font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
+  line-height: 24px;
+  letter-spacing: -0.02em;
   text-decoration: none;
 }
 
@@ -1628,19 +1565,17 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 }
 
 .m-experiment-tagline {
-  color: var(--text-secondary);
+  color: #55524e;
   font-weight: 400;
 }
 
 .m-experiment-list p {
   position: relative;
   z-index: 1;
-  max-width: 40em;
-  margin: 6px 0 0;
-  color: var(--text-secondary);
-  font-size: var(--type-ui);
-  line-height: var(--leading-body);
-  letter-spacing: 0;
+  margin: 10px 0 0;
+  color: #7b7975;
+  font-size: 13px;
+  line-height: 1.8;
   text-wrap: pretty;
 }
 
@@ -1732,13 +1667,9 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
   }
 }
 
-[data-theme="dark"] .m-experiment-label {
-  color: var(--text3);
-}
-
-[data-theme="dark"] .m-bio,
+[data-theme="dark"] .m-experiment-label,
 [data-theme="dark"] .m-experiment-list p {
-  color: var(--text-secondary);
+  color: #aaa7a0;
 }
 
 [data-theme="dark"] .m-experiment-name {
@@ -1746,7 +1677,7 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 }
 
 [data-theme="dark"] .m-experiment-tagline {
-  color: var(--text-secondary);
+  color: #c2bfb8;
 }
 
 [data-theme="dark"] .m-experiment-preview img {
@@ -1754,16 +1685,15 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .m-experiment-label { color: var(--text3); }
-  :root:not([data-theme="light"]) .m-bio,
-  :root:not([data-theme="light"]) .m-experiment-list p { color: var(--text-secondary); }
+  :root:not([data-theme="light"]) .m-experiment-label,
+  :root:not([data-theme="light"]) .m-experiment-list p { color: #aaa7a0; }
   :root:not([data-theme="light"]) .m-experiment-name { text-decoration-color: rgba(255, 255, 255, 0.22); }
-  :root:not([data-theme="light"]) .m-experiment-tagline { color: var(--text-secondary); }
+  :root:not([data-theme="light"]) .m-experiment-tagline { color: #c2bfb8; }
   :root:not([data-theme="light"]) .m-experiment-preview img { outline-color: rgba(255, 255, 255, 0.1); }
 }
 
 .m-case-section {
-  margin: 8px 0 80px;
+  margin: 0 0 64px;
 }
 
 .m-section-copy {
@@ -1910,17 +1840,17 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 
 .case-folder-label strong {
   color: #252525;
-  font-size: var(--type-ui);
+  font-size: 12px;
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.45;
   letter-spacing: -0.01em;
 }
 
 .case-folder-label span {
-  margin-top: 3px;
-  color: var(--text3);
-  font-size: var(--type-label);
-  line-height: 1.4;
+  margin-top: 2px;
+  color: #747474;
+  font-size: 10px;
+  line-height: 1.45;
   letter-spacing: 0;
 }
 
@@ -1997,7 +1927,7 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 }
 
 [data-theme="dark"] .case-folder-label strong { color: #f0f0f0; }
-[data-theme="dark"] .case-folder-label span { color: var(--text3); }
+[data-theme="dark"] .case-folder-label span { color: #a4a4a4; }
 [data-theme="dark"] .case-folder-label svg { color: #8d8d8d; }
 
 @media (prefers-color-scheme: dark) {
@@ -2010,7 +1940,7 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 -2px 7px -2px rgba(0, 0, 0, 0.4);
   }
   :root:not([data-theme="light"]) .case-folder-label strong { color: #f0f0f0; }
-  :root:not([data-theme="light"]) .case-folder-label span { color: var(--text3); }
+  :root:not([data-theme="light"]) .case-folder-label span { color: #a4a4a4; }
 }
 
 /* ---- Underlined links ---- */
@@ -2293,9 +2223,7 @@ body.minimal.is-spotlight .m-list.is-active-list a:not(.is-active) {
 }
 
 .m-footer {
-  font-size: var(--type-ui);
-  letter-spacing: 0;
-  margin-top: 8px;
+  font-size: 13px;
   margin-bottom: 12px;
   display: flex;
   align-items: center;
@@ -3008,20 +2936,20 @@ footer {
 }
 
 .case-kicker {
-  font-size: var(--type-label);
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .case-title {
-  font-size: var(--type-display);
-  font-weight: 550;
+  font-size: 26px;
+  font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 1.2;
-  margin-bottom: 20px;
+  line-height: 1.25;
+  margin-bottom: 16px;
 }
 
 .case-meta-row {
@@ -3226,15 +3154,9 @@ footer {
 }
 
 /* ---- Responsive ---- */
-@media (max-width: 640px) {
-  :root {
-    --type-body: 15px;
-  }
-}
-
 @media (max-width: 600px) {
   .m-page {
-    padding-top: 56px;
+    padding-top: 48px;
   }
 
   .m-top-controls {
