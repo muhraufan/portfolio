@@ -111,14 +111,13 @@
 
 /* ---- Focus ring (keyboard users only) ----
    Remove the default UA outline, but only replace it on :focus-visible
-   so mouse/touch users don't see rings on click. The accent-coloured
-   ring with a 3px offset reads as intentional on both light and dark
-   backgrounds. */
+   so mouse/touch users don't see rings on click. The ring uses the
+   theme ink, with a 3px offset, on both light and dark backgrounds. */
 :focus {
   outline: none;
 }
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--text);
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -1721,7 +1720,7 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 
 .case-folder:focus-visible {
   border-radius: 26px;
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--text);
   outline-offset: 5px;
 }
 
@@ -2658,7 +2657,10 @@ section {
 }
 
 .outside-item:hover .outside-title {
-  color: var(--accent);
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 
 .outside-title {
@@ -2695,7 +2697,10 @@ section {
 }
 
 .writing-item:hover .writing-title {
-  color: var(--accent);
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 
 .writing-title {
@@ -2740,8 +2745,10 @@ footer {
 }
 
 .footer-links a:hover {
-  color: var(--accent);
-  text-decoration: none;
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 
 /* ==================== */
