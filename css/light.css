@@ -1,0 +1,117 @@
+/* Four times of day for the whole site.
+   Night is the existing dark theme (data-theme="dark" is set with it).
+   Morning and golden only shift paper and greys. Type sizes are untouched. */
+html[data-tod="morning"] {
+  --pg: #f4f6f7; --pg-bio: #62686d; --pg-cap: #6a7075; --pg-where: #4a5055; --pg-dot: #7a8086; --pg-muted: #d0d6da;
+  --pg-menu: #fbfcfd; --pg-print: #f9fafa; --pg-photo: #eceff1;
+  --bg: #f4f6f7; --bg2: #edf0f2; --bg3: #e6eaed; --text: #101316; --text2: rgba(16, 19, 22, .75); --text3: rgba(16, 19, 22, .45);
+  --border: rgba(16, 19, 22, .08); --border2: rgba(16, 19, 22, .14); --ink: #101316;
+  --surface: rgba(251, 252, 253, .88);
+}
+html[data-tod="midday"] {
+  --pg: #fafafa; --pg-bio: #6f6f6f; --pg-cap: #73716d; --pg-where: #55524e; --pg-dot: #84817c; --pg-muted: #d8d4d0;
+  --pg-menu: #ffffff; --pg-print: #fbf9f4; --pg-photo: #f7f7f7; --ink: #111;
+}
+html[data-tod="golden"] {
+  --pg: #fbf3ea; --pg-bio: #6c6056; --pg-cap: #76695e; --pg-where: #57493e; --pg-dot: #8a786a; --pg-muted: #e6d3c1;
+  --pg-menu: #fffaf4; --pg-print: #fdf6ec; --pg-photo: #f5eadf;
+  --bg: #fbf3ea; --bg2: #f6ebdf; --bg3: #f0e3d5; --text: #1b1511; --text2: rgba(27, 21, 17, .75); --text3: rgba(27, 21, 17, .45);
+  --border: rgba(27, 21, 17, .08); --border2: rgba(27, 21, 17, .14); --ink: #1b1511;
+  --surface: rgba(255, 250, 244, .9);
+}
+html[data-tod="night"] {
+  --pg: #111111; --pg-bio: #8e8e8e; --pg-cap: #aaa7a0; --pg-where: #c2bfb8; --pg-dot: #84817c; --pg-muted: rgba(240, 240, 240, .18);
+  --pg-menu: #1b1b1b; --pg-print: #e6e1d8; --pg-photo: #1a1a1a; --ink: #f0f0f0;
+}
+html[data-tod] body { background: var(--pg); }
+
+/* one calm crossfade. Golden ↔ night darkens through a warm brown first, so the blend never sits in grey. */
+@supports (view-transition-name: none) {
+  html.pc-vt::view-transition-old(root) { animation: none; mask-image: none; -webkit-mask-image: none; z-index: 1; }
+  html.pc-vt::view-transition-new(root) { animation: pc-vt-in 520ms cubic-bezier(0.2, 0, 0, 1) both; mask-image: none; -webkit-mask-image: none; z-index: 2; }
+  @keyframes pc-vt-in { from { opacity: 0; } to { opacity: 1; } }
+  html.pc-vt-warm::view-transition-old(root) {
+    animation: pc-vt-warm-out 680ms cubic-bezier(0.45, 0, 0.2, 1) both;
+    mix-blend-mode: normal;
+  }
+  html.pc-vt-warm::view-transition-new(root) {
+    animation: pc-vt-warm-in 680ms cubic-bezier(0.2, 0, 0, 1) both;
+  }
+  @keyframes pc-vt-warm-out {
+    0% { opacity: 1; filter: none; }
+    42% { opacity: 1; filter: brightness(0.22) sepia(0.45); }
+    100% { opacity: 0; filter: brightness(0.12) sepia(0.35); }
+  }
+  @keyframes pc-vt-warm-in {
+    0%, 38% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.pc-vt::view-transition-old(root),
+  html.pc-vt::view-transition-new(root),
+  html.pc-vt-warm::view-transition-old(root),
+  html.pc-vt-warm::view-transition-new(root) { animation: none; }
+}
+
+.pc-light { position: relative; }
+.pc-light-btn {
+  display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 8px; margin: 0; border: 0; border-radius: 999px; background: none; cursor: pointer;
+  font: inherit; font-size: 11px; line-height: 1; letter-spacing: .14em; text-transform: uppercase; font-weight: 500; color: var(--pg-cap, var(--text2));
+  transition: color 160ms ease-out, background-color 160ms ease-out;
+}
+.pc-light-time { font-variant-numeric: tabular-nums; letter-spacing: .08em; }
+.pc-light-sep { color: var(--pg-dot); letter-spacing: 0; }
+.pc-light-chev { margin-left: 1px; transition: transform 220ms cubic-bezier(0.2, 0, 0, 1); }
+.pc-light-btn:hover, .pc-light-btn[aria-expanded="true"] { color: var(--text); }
+.pc-light-btn[aria-expanded="true"] .pc-light-chev { transform: rotate(180deg); }
+.pc-light-btn:active { background: color-mix(in srgb, var(--text) 5%, transparent); }
+.pc-light-btn:focus-visible { outline: 1.5px solid var(--ink, var(--text)); outline-offset: 2px; }
+html[data-lang="ja"] .pc-light-btn { letter-spacing: .1em; }
+
+.pc-light-menu {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 20; min-width: 196px; box-sizing: border-box; padding: 6px;
+  background: var(--pg-menu, #fff); border-radius: 12px;
+  box-shadow: 0 0 0 1px var(--border), 0 1px 2px rgba(20, 16, 12, .05), 0 6px 14px -4px rgba(20, 16, 12, .08), 0 18px 40px -12px rgba(20, 16, 12, .16);
+  transform-origin: calc(100% - 22px) -4px;
+  opacity: 0; transform: scale(.95) translateY(-2px);
+  transition: opacity 90ms ease-in, transform 90ms ease-in;
+}
+.pc-light-menu.is-open { opacity: 1; transform: none; transition: opacity 150ms cubic-bezier(0.2, 0, 0, 1), transform 200ms cubic-bezier(0.2, 0, 0, 1); }
+[data-theme="dark"] .pc-light-menu { box-shadow: 0 0 0 1px rgba(255, 255, 255, .07), 0 1px 2px rgba(0, 0, 0, .3), 0 18px 40px -12px rgba(0, 0, 0, .6); }
+.pc-light-label { padding: 8px 10px 6px; font-size: 11px; line-height: 1.5; letter-spacing: .14em; text-transform: uppercase; color: var(--pg-cap); }
+.pc-light-menu [role="menuitemradio"] {
+  display: flex; align-items: center; gap: 10px; width: 100%; height: 32px; padding: 0 10px; box-sizing: border-box; border: 0; border-radius: 7px; background: none; cursor: pointer;
+  font: inherit; font-size: 11px; line-height: 1; letter-spacing: .14em; text-transform: uppercase; font-weight: 500; color: var(--pg-where, var(--text2)); text-align: left;
+}
+.pc-li-name { flex: 1 1 auto; }
+.pc-li-note { color: var(--pg-cap, var(--text3)); font-weight: 400; letter-spacing: .1em; font-variant-numeric: tabular-nums; }
+.pc-li-check { flex: none; opacity: 0; color: var(--text); }
+.pc-light-menu [aria-checked="true"] { color: var(--text); }
+.pc-light-menu [aria-checked="true"] .pc-li-check { opacity: 1; }
+.pc-light-menu [role="menuitemradio"]:is(:hover, :focus-visible) { background: color-mix(in srgb, var(--text) 5%, transparent); outline: none; color: var(--text); }
+.pc-light-menu [role="menuitemradio"]:active { background: color-mix(in srgb, var(--text) 8%, transparent); }
+@media (prefers-reduced-motion: reduce) { .pc-light-menu, .pc-light-menu.is-open { transition: opacity 1ms; transform: none; } .pc-light-chev { transition: none; } }
+@media (max-width: 600px) { .pc-light-btn { padding: 0 6px; gap: 6px; } }
+@media (max-width: 360px) { .pc-light-sep, .pc-light-greet { display: none; } }
+
+/* case studies: the control sits where the moon toggle was, with the language button beside it */
+body.case-floating-nav .case-corner {
+  position: fixed !important;
+  top: 48px;
+  right: 16px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+body.case-floating-nav .case-corner .case-lang-toggle {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+}
+@media (max-width: 768px) {
+  body.case-floating-nav .case-corner { top: 14px !important; right: 12px !important; }
+  body.case-floating-nav .pc-light-sep,
+  body.case-floating-nav .pc-light-greet { display: none; }
+}

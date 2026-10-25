@@ -6,6 +6,7 @@ function getTheme() {
 }
 
 function applyTheme(theme) {
+  if (html.hasAttribute('data-tod')) return;
   if (theme === 'dark') {
     html.setAttribute('data-theme', 'dark');
   } else if (theme === 'light') {

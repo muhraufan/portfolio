@@ -290,10 +290,9 @@
 (function () {
   const html = document.documentElement;
   const theme = localStorage.getItem('theme') || 'light';
-  if (theme === 'dark') {
-    html.setAttribute('data-theme', 'dark');
-  } else {
-    html.setAttribute('data-theme', 'light');
+  if (!html.hasAttribute('data-tod')) {
+    if (theme === 'dark') html.setAttribute('data-theme', 'dark');
+    else html.setAttribute('data-theme', 'light');
   }
 
   // View Transition wavefront — see style.css ::view-transition-new(root).
