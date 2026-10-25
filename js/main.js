@@ -733,22 +733,38 @@ function getLang() {
   return localStorage.getItem('lang') || 'en';
 }
 
+const EN_FONT = "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif";
+const JA_FONT = "'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans CJK JP', 'Yu Gothic', Meiryo, sans-serif";
+
+function wireHighlights(root) {
+  if (!window.spawnConfetti || !root || !root.querySelectorAll) return;
+  root.querySelectorAll('.m-highlight').forEach(h => {
+    if (h._confettiWired) return;
+    h._confettiWired = true;
+    h.addEventListener('mouseenter', () => window.spawnConfetti(h));
+  });
+}
+
+function langPieces() {
+  const stacks = [...document.querySelectorAll('.lang-stack')];
+  const els = [...document.querySelectorAll('[data-en], [data-en-html]')].filter(el => !el.closest('.lang-stack'));
+  return { stacks, els };
+}
+
 function applyLang(lang, animate) {
-  // Show the OTHER language as the toggle label (what you'll switch TO)
   document.querySelectorAll('.m-lang-toggle, .lang-toggle').forEach(btn => {
     btn.textContent = lang === 'ja' ? 'EN' : 'JA';
   });
+  if (lang === 'ja' && window.__loadNotoSansJP) window.__loadNotoSansJP();
 
-  const els = document.querySelectorAll('[data-en], [data-en-html]');
-  if (!animate || !els.length) {
-    // Non-animated: switch font + content together
+  const { stacks, els } = langPieces();
+  if (!animate || (!stacks.length && !els.length)) {
     html.setAttribute('data-lang', lang);
     swapText(lang, els);
     return;
   }
 
-  // Animated: do NOT switch data-lang yet — keep current font during scramble
-  scrambleAll(lang, els);
+  scrambleAll(lang, els, stacks);
 }
 
 // ---- Scramble engine ----
@@ -800,12 +816,27 @@ function scrambleText(el, target, done) {
   requestAnimationFrame(tick);
 }
 
-function scrambleAll(lang, els) {
+function scrambleAll(lang, els, stacks) {
   let pending = 0;
   const tasks = [];
   const pinned = [];
+  const stackState = [];
 
-  // Phase 1: snapshot and pin every element's current dimensions BEFORE anything changes
+  stacks.forEach(stack => {
+    const from = lang === 'ja' ? 'en' : 'ja';
+    const visible = stack.querySelector('.lang-layer[lang="' + from + '"]');
+    const target = stack.querySelector('.lang-layer[lang="' + lang + '"]');
+    if (!visible || !target) return;
+    stack.style.height = stack.offsetHeight + 'px';
+    stack.style.overflow = 'hidden';
+    stackState.push({
+      stack,
+      visible,
+      saved: visible.innerHTML,
+      targetText: target.textContent || ''
+    });
+  });
+
   els.forEach(el => {
     const htmlVal = el.getAttribute('data-' + lang + '-html');
     const textVal = el.getAttribute('data-' + lang);
@@ -813,7 +844,6 @@ function scrambleAll(lang, els) {
     const targetRaw = isHtml ? htmlVal : textVal;
     if (targetRaw === null) return;
 
-    // Pin current size — exact height and width, not min
     const h = el.offsetHeight;
     const w = el.offsetWidth;
     el.style.height = h + 'px';
@@ -833,81 +863,109 @@ function scrambleAll(lang, els) {
     tasks.push({ el, isHtml, htmlVal, targetText });
   });
 
-  if (!tasks.length) {
+  if (!tasks.length && !stackState.length) {
     html.setAttribute('data-lang', lang);
     window.dispatchEvent(new CustomEvent('langchange', { detail: { lang } }));
     return;
   }
 
-  // Phase 2: run scrambles (font hasn't changed yet — data-lang still old)
-  pending = tasks.length;
+  pending = tasks.length + stackState.length;
+
+  function doneOne() {
+    pending--;
+    if (pending === 0) finishScramble(lang, pinned, stackState);
+  }
+
+  stackState.forEach(state => scrambleText(state.visible, state.targetText, doneOne));
+
   tasks.forEach(({ el, isHtml, htmlVal, targetText }) => {
     scrambleText(el, targetText, () => {
       if (isHtml) {
         el.innerHTML = htmlVal;
-        if (window.spawnConfetti) {
-          el.querySelectorAll('.m-highlight').forEach(h => {
-            h.addEventListener('mouseenter', () => window.spawnConfetti(h));
-          });
-        }
+        wireHighlights(el);
       }
-      pending--;
-      if (pending === 0) {
-        // Phase 3: all scrambles done — now switch the font
-        html.setAttribute('data-lang', lang);
-
-        // Phase 4: smoothly transition to new natural height
-        requestAnimationFrame(() => {
-          // Measure each element's new natural height with font switched
-          const targets = pinned.map(el => {
-            const pinnedH = parseFloat(el.style.height);
-            el.style.height = '';
-            el.style.width = '';
-            const naturalH = el.offsetHeight;
-            // Re-pin to old height so we can transition
-            el.style.height = pinnedH + 'px';
-            el.style.overflow = 'hidden';
-            return { el, naturalH };
-          });
-
-          // Force layout so the re-pin takes effect before transition
-          void document.body.offsetHeight;
-
-          // Apply transition and animate to new height
-          pinned.forEach(el => {
-            el.style.transition = 'height 0.25s ease';
-          });
-          targets.forEach(({ el, naturalH }) => {
-            el.style.height = naturalH + 'px';
-          });
-
-          // Clean up after transition
-          const cleanup = () => {
-            pinned.forEach(el => {
-              el.style.transition = '';
-              el.style.height = '';
-              el.style.width = '';
-              el.style.overflow = 'hidden';
-            });
-            window.dispatchEvent(new CustomEvent('langchange', { detail: { lang } }));
-          };
-          // Use transitionend on first pinned element, with timeout fallback
-          if (pinned.length > 0) {
-            let cleaned = false;
-            const onEnd = () => {
-              if (cleaned) return;
-              cleaned = true;
-              cleanup();
-            };
-            pinned[0].addEventListener('transitionend', onEnd, { once: true });
-            setTimeout(onEnd, 350); // fallback if no transition fires
-          } else {
-            cleanup();
-          }
-        });
-      }
+      doneOne();
     });
   });
+}
+
+function finishScramble(lang, pinned, stackState) {
+  const proceed = () => {
+    stackState.forEach(state => {
+      state.visible.innerHTML = state.saved;
+      wireHighlights(state.visible);
+    });
+    html.setAttribute('data-lang', lang);
+
+    requestAnimationFrame(() => {
+      const targets = pinned.map(el => {
+        const pinnedH = parseFloat(el.style.height);
+        el.style.height = '';
+        el.style.width = '';
+        const naturalH = el.offsetHeight;
+        el.style.height = pinnedH + 'px';
+        el.style.overflow = 'hidden';
+        return { el, naturalH };
+      });
+      stackState.forEach(state => {
+        const pinnedH = parseFloat(state.stack.style.height);
+        state.stack.style.height = 'auto';
+        const naturalH = state.stack.offsetHeight;
+        state.stack.style.height = pinnedH + 'px';
+        targets.push({ el: state.stack, naturalH });
+      });
+
+      void document.body.offsetHeight;
+
+      targets.forEach(({ el }) => {
+        el.style.transition = 'height 0.25s ease';
+      });
+      targets.forEach(({ el, naturalH }) => {
+        el.style.height = naturalH + 'px';
+      });
+
+      const cleanup = () => {
+        pinned.forEach(el => {
+          el.style.transition = '';
+          el.style.height = '';
+          el.style.width = '';
+          el.style.overflow = 'hidden';
+        });
+        stackState.forEach(state => {
+          state.stack.style.transition = '';
+          state.stack.style.height = '';
+          state.stack.style.overflow = '';
+        });
+        window.dispatchEvent(new CustomEvent('langchange', { detail: { lang } }));
+      };
+      if (pinned.length || stackState.length) {
+        let cleaned = false;
+        const onEnd = () => {
+          if (cleaned) return;
+          cleaned = true;
+          cleanup();
+        };
+        const host = (pinned[0] || (stackState[0] && stackState[0].stack));
+        if (host) host.addEventListener('transitionend', onEnd, { once: true });
+        setTimeout(onEnd, 350);
+      } else {
+        cleanup();
+      }
+    });
+  };
+
+  if (lang === 'ja' && window.__loadNotoSansJP) {
+    let settled = false;
+    const go = () => {
+      if (settled) return;
+      settled = true;
+      proceed();
+    };
+    window.__loadNotoSansJP().then(go, go);
+    setTimeout(go, 1800);
+  } else {
+    proceed();
+  }
 }
 
 function swapText(lang, els) {
@@ -915,11 +973,7 @@ function swapText(lang, els) {
     const htmlVal = el.getAttribute('data-' + lang + '-html');
     if (htmlVal !== null) {
       el.innerHTML = htmlVal;
-      if (window.spawnConfetti) {
-        el.querySelectorAll('.m-highlight').forEach(h => {
-          h.addEventListener('mouseenter', () => window.spawnConfetti(h));
-        });
-      }
+      wireHighlights(el);
       return;
     }
     const textVal = el.getAttribute('data-' + lang);
@@ -930,73 +984,63 @@ function swapText(lang, els) {
   window.dispatchEvent(new CustomEvent('langchange', { detail: { lang } }));
 }
 
+function measureClone(el, value, isHtml, fontFamily, nowrap, display) {
+  const clone = el.cloneNode(false);
+  clone.removeAttribute('id');
+  clone.style.position = 'absolute';
+  clone.style.visibility = 'hidden';
+  clone.style.pointerEvents = 'none';
+  clone.style.left = '0';
+  clone.style.top = '0';
+  clone.style.height = 'auto';
+  clone.style.minHeight = '0';
+  clone.style.maxHeight = 'none';
+  clone.style.fontFamily = fontFamily;
+  if (display) clone.style.display = display;
+  if (nowrap) {
+    clone.style.whiteSpace = 'nowrap';
+    clone.style.width = 'auto';
+    clone.style.minWidth = '0';
+    clone.style.maxWidth = 'none';
+  } else {
+    clone.style.width = el.getBoundingClientRect().width + 'px';
+    clone.style.minWidth = '0';
+    clone.style.maxWidth = 'none';
+  }
+  if (isHtml) clone.innerHTML = value;
+  else clone.textContent = value;
+  (el.parentNode || document.body).appendChild(clone);
+  const box = { h: clone.offsetHeight, w: clone.offsetWidth };
+  clone.remove();
+  return box;
+}
+
 // ---- Reserve space for both languages (zero layout shift) ----
+// Block copy on the homepage is a .lang-stack and does not come through
+// here. This pass only sizes the remaining inline labels, off-screen,
+// so the visible bio is never rewritten after first paint.
 function reserveLangSpace() {
   const els = document.querySelectorAll('[data-en], [data-en-html]');
   if (!els.length) return;
 
-  const currentLang = getLang();
-
   const items = [];
   els.forEach(el => {
+    if (el.closest('.lang-stack')) return;
     const enVal = el.getAttribute('data-en-html') || el.getAttribute('data-en');
     const jaVal = el.getAttribute('data-ja-html') || el.getAttribute('data-ja');
     if (!enVal || !jaVal) return;
+    if (el.getBoundingClientRect().width < 1) return;
     const isHtml = el.hasAttribute('data-en-html');
-    // Clear any previous inline sizing so we get natural dimensions
     el.style.minHeight = '';
     el.style.minWidth = '';
-    el.style.height = '';
-    el.style.width = '';
-    items.push({ el, enVal, jaVal, isHtml, savedHTML: el.innerHTML });
+    items.push({ el, enVal, jaVal, isHtml });
   });
 
-  if (!items.length) return;
-
-  // Pass 1: measure EN sizes (with EN font)
-  html.setAttribute('data-lang', 'en');
   items.forEach(it => {
-    if (it.isHtml) it.el.innerHTML = it.enVal; else it.el.textContent = it.enVal;
-  });
-  items.forEach(it => {
-    it.enH = it.el.offsetHeight;
-    it.enW = it.el.offsetWidth;
-  });
-
-  // Pass 2: measure JP sizes (with JP font)
-  html.setAttribute('data-lang', 'ja');
-  items.forEach(it => {
-    if (it.isHtml) it.el.innerHTML = it.jaVal; else it.el.textContent = it.jaVal;
-  });
-  items.forEach(it => {
-    it.jaH = it.el.offsetHeight;
-    it.jaW = it.el.offsetWidth;
-  });
-
-  // Restore original lang + content
-  html.setAttribute('data-lang', currentLang);
-  items.forEach(it => { it.el.innerHTML = it.savedHTML; });
-
-  // The innerHTML restores above replaced the original .m-highlight nodes
-  // with fresh copies — the confetti IIFE's mouseenter listeners are now
-  // orphaned on the old (detached) nodes. Re-attach to the live nodes.
-  if (window.spawnConfetti) {
-    document.querySelectorAll('.m-highlight').forEach(h => {
-      if (h._confettiWired) return;
-      h._confettiWired = true;
-      h.addEventListener('mouseenter', () => window.spawnConfetti(h));
-    });
-  }
-
-  // Apply min sizes — always max of both directions
-  items.forEach(it => {
-    const maxH = Math.max(it.enH, it.jaH);
-    if (maxH > 0) it.el.style.minHeight = maxH + 'px';
-
-    // Allowlist: only short nav / label elements get nowrap + min-width
-    // treatment. Everything else (paragraphs, card bodies, titles, etc.)
-    // should wrap naturally — a blocklist here was fragile and caused
-    // body copy inside <div data-en> to get clamped to a single line.
+    const en = measureClone(it.el, it.enVal, it.isHtml, EN_FONT, false);
+    const ja = measureClone(it.el, it.jaVal, it.isHtml, JA_FONT, false);
+    it.enH = en.h;
+    it.jaH = ja.h;
     const isSingleLine = it.el.matches(
       '.m-badge-soon, .m-badge-ai, ' +
       '.case-back, .case-mobile-back, .article-back, .back-link, ' +
@@ -1004,17 +1048,25 @@ function reserveLangSpace() {
       '.m-lang-toggle, .lang-toggle, .case-lang-toggle'
     );
     if (isSingleLine) {
-      const maxW = Math.max(it.enW, it.jaW);
+      const enW = measureClone(it.el, it.enVal, it.isHtml, EN_FONT, true);
+      const jaW = measureClone(it.el, it.jaVal, it.isHtml, JA_FONT, true);
+      it.enW = enW.w;
+      it.jaW = jaW.w;
+      it.isSingleLine = true;
+    }
+  });
+
+  items.forEach(it => {
+    const maxH = Math.max(it.enH || 0, it.jaH || 0);
+    if (maxH > 0) it.el.style.minHeight = maxH + 'px';
+    if (it.isSingleLine) {
+      const maxW = Math.max(it.enW || 0, it.jaW || 0);
       if (maxW > 0) it.el.style.minWidth = maxW + 'px';
       it.el.style.whiteSpace = 'nowrap';
-      // Only clip overflow when we've forced single-line — multi-line
-      // elements should be able to grow naturally if the measured
-      // min-height underestimates (font swap, responsive width).
       it.el.style.overflow = 'hidden';
     }
   });
 
-  // Reserve space for lang toggle buttons
   document.querySelectorAll('.m-lang-toggle, .lang-toggle').forEach(btn => {
     const saved = btn.textContent;
     btn.textContent = 'JA';
@@ -1024,20 +1076,37 @@ function reserveLangSpace() {
     btn.textContent = saved;
     btn.style.minWidth = Math.max(w1, w2) + 'px';
   });
+
+  // Stacks already hold both languages, so their height is the visible
+  // line box. The previous pass stored offsetHeight (an integer) as
+  // min-height, which is 17px on a 16.5px label. Match that rounding
+  // off-screen so the sections below stay where they were.
+  document.querySelectorAll('.lang-stack').forEach(el => {
+    if (el.getBoundingClientRect().width < 1) return;
+    const en = el.querySelector('.lang-layer[lang="en"]');
+    const ja = el.querySelector('.lang-layer[lang="ja"]');
+    if (!en || !ja) return;
+    const enH = measureClone(el, en.innerHTML, true, EN_FONT, false, 'block').h;
+    const jaH = measureClone(el, ja.innerHTML, true, JA_FONT, false, 'block').h;
+    const maxH = Math.max(enH || 0, jaH || 0);
+    if (maxH > 0) el.style.minHeight = maxH + 'px';
+  });
 }
 
-// Apply saved lang immediately (no animation on load)
 applyLang(getLang(), false);
 
-// Reserve space only after fonts are fully loaded for accurate measurements
-if (document.fonts && document.fonts.ready) {
-  document.fonts.ready.then(() => reserveLangSpace());
-} else {
-  // Fallback: measure now (may be inaccurate if fonts still loading)
-  reserveLangSpace();
+function whenMeasureFonts(cb) {
+  const jobs = [];
+  if (document.fonts && document.fonts.load) {
+    jobs.push(document.fonts.load('400 13px "Plus Jakarta Sans"'));
+    jobs.push(document.fonts.load('500 13px "Plus Jakarta Sans"'));
+  }
+  if (getLang() === 'ja' && window.__loadNotoSansJP) jobs.push(window.__loadNotoSansJP());
+  if (!jobs.length) { cb(); return; }
+  Promise.all(jobs).then(cb, cb);
 }
+whenMeasureFonts(() => reserveLangSpace());
 
-// Wire up all lang toggles
 document.querySelectorAll('.m-lang-toggle, .lang-toggle').forEach(btn => {
   btn?.addEventListener('click', () => {
     const next = getLang() === 'ja' ? 'en' : 'ja';
@@ -1045,6 +1114,7 @@ document.querySelectorAll('.m-lang-toggle, .lang-toggle').forEach(btn => {
     applyLang(next, true);
   });
 });
+
 
 // ---- Active Nav Link ----
 const currentPath = window.location.pathname;
@@ -1272,6 +1342,8 @@ document.querySelectorAll('.nav-links a').forEach(link => {
 
   // Attach to all green highlighted elements
   document.querySelectorAll('.m-highlight').forEach(el => {
+    if (el._confettiWired) return;
+    el._confettiWired = true;
     el.addEventListener('mouseenter', () => spawnConfetti(el));
   });
 

@@ -1,0 +1,638 @@
+(function homepageBirdNudge() {
+      var autoTriggerOK = true;
+      // Easter-egg bird hidden for now. Set BIRD_HIDDEN = false to
+      // restore the auto-trigger. (window.__showBird() still works for
+      // manual replay regardless.)
+      var BIRD_HIDDEN = true;
+      if (BIRD_HIDDEN) autoTriggerOK = false;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) autoTriggerOK = false;
+      if (window.innerWidth < 600) autoTriggerOK = false;
+      try { if (localStorage.getItem('bird-shown-v1') === '1') autoTriggerOK = false; } catch (e) {}
+
+      var style = document.createElement('style');
+      style.textContent = '#homepage-bird{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9996;image-rendering:pixelated;image-rendering:crisp-edges}@media (max-width:600px){#homepage-bird{display:none}}';
+      document.head.appendChild(style);
+      var face = document.createElement('style');
+      face.textContent = "@font-face{font-family:'Press Start 2P';font-style:normal;font-weight:400;font-display:swap;src:url('/assets/fonts/press-start-2p-latin.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}";
+      document.head.appendChild(face);
+      var canvas = document.createElement('canvas');
+      canvas.id = 'homepage-bird';
+      canvas.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(canvas);
+      var ctx = canvas.getContext('2d');
+      var PS  = 3;          // pixel scale — 1 sprite-px = 3 canvas-px
+      function resize() {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+        ctx.imageSmoothingEnabled = false;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      // ─── Palette ─────────────────────────────────────────────────
+      // Yellow finch — distinct enough from the plane's red so the
+      // two characters read as different cast members of the same
+      // show. Banner colours match FlyBy's banner exactly.
+      var C = {
+        body:    '#F2C744',   // yellow body
+        bodyHi:  '#FFE07A',   // highlight
+        bodyLo:  '#B8911A',   // shadow
+        beak:    '#FF8A2A',   // orange beak
+        beakLo:  '#A04F10',
+        eye:     '#1A1A1A',
+        eyeHi:   '#FFFFFF',
+        wing:    '#E8B41A',   // wing — slightly darker than body
+        wingLo:  '#8E6A0F',
+        leg:     '#7E5C20',
+        banner:    '#f7f2ea',
+        bannerLo:  '#dcd4c4',
+        bannerEdge:'#1a1a1a',
+        bannerText:'#1a1a1a',
+        rope:    '#5a4028',
+      };
+
+      function px(x, y, w, h, c) {
+        ctx.fillStyle = c;
+        ctx.fillRect(Math.round(x * PS), Math.round(y * PS), w * PS, h * PS);
+      }
+      function pxRaw(x, y, c) {
+        ctx.fillStyle = c;
+        ctx.fillRect(Math.round(x), Math.round(y), PS, PS);
+      }
+
+      // ─── Bird sprite (16 wide × 11 tall, facing right) ───────────
+      // Three wing frames: 0 = up, 1 = mid, 2 = down. Bob a little
+      // each frame so the body looks like it's lifted by the wings.
+      function drawBird(ox, oy, wingFrame) {
+        // Body (oval-ish, 7 wide × 5 tall)
+        px(ox + 4, oy + 3, 6, 5, C.body);
+        // Body highlight along top
+        px(ox + 5, oy + 3, 4, 1, C.bodyHi);
+        // Body shadow along bottom
+        px(ox + 4, oy + 7, 6, 1, C.bodyLo);
+
+        // Head (3 wide × 3 tall, attached to right of body)
+        px(ox + 9, oy + 2, 3, 3, C.body);
+        px(ox + 9, oy + 2, 3, 1, C.bodyHi);
+        px(ox + 9, oy + 4, 3, 1, C.bodyLo);
+
+        // Eye
+        px(ox + 10, oy + 3, 1, 1, C.eye);
+        px(ox + 10, oy + 3, 1, 1, C.eyeHi);
+        // re-stamp the eye darker on the right half — fakes a pupil
+        ctx.fillStyle = C.eye;
+        ctx.fillRect(Math.round((ox + 10) * PS) + PS - 1, Math.round((oy + 3) * PS), 1, PS);
+
+        // Beak (orange triangle pointing right)
+        px(ox + 12, oy + 3, 2, 1, C.beak);
+        px(ox + 13, oy + 4, 1, 1, C.beak);
+        px(ox + 12, oy + 4, 1, 1, C.beakLo);
+
+        // Tail (left side, narrow fan)
+        px(ox + 2, oy + 4, 2, 3, C.body);
+        px(ox + 1, oy + 5, 1, 1, C.bodyLo);
+        px(ox + 0, oy + 6, 2, 1, C.bodyLo);
+
+        // Wings — flap above/below body depending on frame
+        if (wingFrame === 0) {
+          // Up
+          px(ox + 5, oy + 1, 4, 2, C.wing);
+          px(ox + 5, oy + 0, 4, 1, C.wing);
+          px(ox + 5, oy + 2, 4, 1, C.wingLo);
+        } else if (wingFrame === 1) {
+          // Mid (wings extended horizontally)
+          px(ox + 4, oy + 3, 5, 1, C.wing);
+          px(ox + 3, oy + 3, 1, 1, C.wingLo);
+          px(ox + 9, oy + 3, 1, 1, C.wingLo);
+        } else {
+          // Down
+          px(ox + 5, oy + 6, 4, 2, C.wing);
+          px(ox + 5, oy + 8, 4, 1, C.wingLo);
+        }
+
+        // Tiny legs tucked under (always visible)
+        px(ox + 6, oy + 8, 1, 1, C.leg);
+        px(ox + 8, oy + 8, 1, 1, C.leg);
+      }
+
+      // Front-facing perched bird (~12 wide × 11 tall sprite-px). Used
+      // only while perched — the bird turns to face the visitor like
+      // it's making eye contact while raising the small flag. Body is
+      // symmetric, two eyes visible, beak points down, wings tucked
+      // at the sides.
+      function drawBirdPerched(ox, oy) {
+        // Head/body — symmetric round shape
+        px(ox + 3, oy + 0, 6, 1, C.body);
+        px(ox + 2, oy + 1, 8, 2, C.body);
+        px(ox + 3, oy + 1, 6, 1, C.bodyHi);
+        // Eyes — two dark dots
+        px(ox + 3, oy + 2, 1, 1, C.eye);
+        px(ox + 8, oy + 2, 1, 1, C.eye);
+        // Eye whites (just one pixel each — gives the "looking" feel)
+        px(ox + 4, oy + 2, 1, 1, C.eyeHi);
+        px(ox + 7, oy + 2, 1, 1, C.eyeHi);
+        // Beak — small triangle pointing down between the eyes
+        px(ox + 5, oy + 3, 2, 1, C.beak);
+        px(ox + 5, oy + 4, 2, 1, C.beakLo);
+        // Body widens below head
+        px(ox + 2, oy + 3, 8, 1, C.body);
+        px(ox + 1, oy + 4, 10, 3, C.body);
+        // Body shadow
+        px(ox + 1, oy + 6, 10, 1, C.bodyLo);
+        // Wings tucked at the sides (slightly darker)
+        px(ox + 0, oy + 4, 2, 3, C.wing);
+        px(ox + 0, oy + 5, 2, 2, C.wingLo);
+        px(ox + 10, oy + 4, 2, 3, C.wing);
+        px(ox + 10, oy + 5, 2, 2, C.wingLo);
+        // Lower body / belly
+        px(ox + 2, oy + 7, 8, 1, C.body);
+        px(ox + 3, oy + 8, 6, 1, C.bodyLo);
+        // Legs (two stubs)
+        px(ox + 4, oy + 9, 1, 1, C.leg);
+        px(ox + 7, oy + 9, 1, 1, C.leg);
+        // Feet — small horizontal stubs
+        px(ox + 3, oy + 10, 2, 1, C.leg);
+        px(ox + 7, oy + 10, 2, 1, C.leg);
+      }
+
+      // ─── Banners — two of them ──────────────────────────────────
+      // bannerBig    = two-line trailing banner the bird carries the
+      //                whole flight ("Pick one. They're all good." /
+      //                "and then hire me!")
+      // bannerSmall  = single-line "Pick one!" pop-up flag held above
+      //                the bird's head only during the perch moment
+      //
+      // Both use the same FlyBy banner recipe (cream fill, dark
+      // edge, swallowtail notch on the free end, Press Start 2P).
+      var bannerBig    = document.createElement('canvas');
+      var bannerSmall  = document.createElement('canvas');
+      var bannerBigDims   = { width: 0, height: 0 };
+      var bannerSmallDims = { width: 0, height: 0 };
+
+      var BIG_LINE1   = "Pick one. They're all good.";
+      var BIG_LINE2   = "and then hire me!";
+      var SMALL_TEXT  = "read one, you won't regret!";
+
+      // Shared banner drawer. `lines` is an array of { text, font }
+      // where font is in sprite-px. Renders cream rectangle with
+      // notch + dark border + text; writes to the given offscreen
+      // canvas and returns the sprite-px dimensions.
+      function buildBannerInto(targetCanvas, lines) {
+        var bx   = targetCanvas.getContext('2d');
+        var PADX = 4, PADY = 3, LINE_GAP = 2;
+        var HSP = PADY * 2;
+        for (var li = 0; li < lines.length; li++) {
+          if (li > 0) HSP += LINE_GAP;
+          HSP += lines[li].font;
+        }
+        // Measure widest line at its own font size
+        var maxW = 0;
+        bx.textBaseline = 'top';
+        for (var mi = 0; mi < lines.length; mi++) {
+          bx.font = (lines[mi].font * PS) + 'px "Press Start 2P", monospace';
+          var w = bx.measureText(lines[mi].text).width;
+          if (w > maxW) maxW = w;
+        }
+        var textWSp = Math.ceil(maxW / PS);
+        var WSP = textWSp + PADX * 2;
+
+        targetCanvas.width  = WSP * PS;
+        targetCanvas.height = HSP * PS;
+        bx.imageSmoothingEnabled = false;
+
+        // Background
+        bx.fillStyle = C.banner;
+        bx.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
+        // Bottom shading band
+        bx.fillStyle = C.bannerLo;
+        bx.fillRect(0, (HSP - 2) * PS, targetCanvas.width, 2 * PS);
+        // Dark outline (top, bottom, right edge attached to rope)
+        bx.fillStyle = C.bannerEdge;
+        bx.fillRect(0, 0, targetCanvas.width, PS);
+        bx.fillRect(0, (HSP - 1) * PS, targetCanvas.width, PS);
+        bx.fillRect((WSP - 1) * PS, 0, PS, HSP * PS);
+        // Swallowtail V-notch on free (left) end
+        var NOTCH = 3;
+        bx.clearRect(0, 0, NOTCH * PS, HSP * PS);
+        for (var i = 0; i < NOTCH; i++) {
+          bx.fillStyle = C.banner;
+          bx.fillRect(i * PS, i * PS, (NOTCH - i + 1) * PS, PS);
+          bx.fillRect(i * PS, (HSP - 1 - i) * PS, (NOTCH - i + 1) * PS, PS);
+          bx.fillStyle = C.bannerEdge;
+          bx.fillRect(i * PS, i * PS, PS, PS);
+          bx.fillRect(i * PS, (HSP - 1 - i) * PS, PS, PS);
+        }
+        bx.fillStyle = C.banner;
+        for (var row = NOTCH + 1; row < HSP - NOTCH - 1; row++) {
+          bx.fillRect(0, row * PS, NOTCH * PS, PS);
+        }
+        bx.fillStyle = C.bannerEdge;
+        for (var j = 0; j < NOTCH; j++) {
+          bx.fillRect(j * PS, (NOTCH - j) * PS, PS, PS);
+          bx.fillRect(j * PS, (HSP - 1 - NOTCH + j) * PS, PS, PS);
+        }
+        bx.fillStyle = C.bannerLo;
+        bx.fillRect(0, (HSP - 2) * PS, NOTCH * PS, PS);
+
+        // Lines of text, top-aligned within padding
+        bx.fillStyle = C.bannerText;
+        bx.textAlign = 'left';
+        bx.textBaseline = 'top';
+        var ly = PADY;
+        for (var ti = 0; ti < lines.length; ti++) {
+          bx.font = (lines[ti].font * PS) + 'px "Press Start 2P", monospace';
+          bx.fillText(lines[ti].text, PADX * PS, ly * PS);
+          ly += lines[ti].font;
+          if (ti < lines.length - 1) ly += LINE_GAP;
+        }
+        return { width: WSP, height: HSP };
+      }
+      function buildBanners() {
+        // Smaller font sizes — the original sizes (7/5) felt too big
+        // relative to the bird and to the page. 5/4 reads as a
+        // "small marker" the bird carries, not a billboard.
+        bannerBigDims = buildBannerInto(bannerBig, [
+          { text: BIG_LINE1, font: 5 },
+          { text: BIG_LINE2, font: 4 },
+        ]);
+        bannerSmallDims = buildBannerInto(bannerSmall, [
+          { text: SMALL_TEXT, font: 5 },
+        ]);
+      }
+      var pressStart = (document.fonts && document.fonts.load)
+        ? document.fonts.load('16px "Press Start 2P"')
+        : Promise.resolve();
+      pressStart.then(buildBanners, buildBanners);
+
+      // Banner draw with wave (same recipe as FlyBy). Takes the
+      // offscreen canvas + its dims so we can use it for both the
+      // big trailing banner and the small perch flag. `amp` scales
+      // the wave intensity (the small flag waves less to look held).
+      function drawBanner(srcCanvas, srcDims, leftPx, centerY, t, amp) {
+        if (!srcDims.width) return;
+        if (amp == null) amp = 2.5;
+        var W = srcCanvas.width;
+        var H = srcCanvas.height;
+        var yTop = centerY - H / 2;
+        for (var col = 0; col < W; col += PS) {
+          var dist = (W - col) / W;
+          var phase1 = t * 0.007 + col * 0.030;
+          var phase2 = t * 0.011 + col * 0.060 + 1.3;
+          var wave   = Math.sin(phase1) * 0.85 + Math.sin(phase2) * 0.18;
+          var ampHere = Math.pow(dist, 0.75) * amp;
+          var offset  = Math.round(wave * ampHere) * PS;
+          ctx.drawImage(srcCanvas, col, 0, PS, H, leftPx + col, yTop + offset, PS, H);
+        }
+      }
+
+      // Rope from bird's belly to banner attach point.
+      function drawRope(fromX, fromY, toX, toY, t) {
+        var dx = toX - fromX;
+        var steps = Math.abs(Math.round(dx / PS));
+        for (var i = 0; i < steps; i++) {
+          var u = i / steps;
+          var x = fromX + dx * u;
+          var sag = Math.sin(t * 0.008 + u * 4) * 1.4 * PS * (1 - Math.abs(u - 0.5) * 1.6);
+          var y = fromY + (toY - fromY) * u + sag;
+          pxRaw(x, y, C.rope);
+        }
+      }
+
+      // ─── Animation — phased ──────────────────────────────────────
+      // PHASES:
+      //   FLY_IN          (3000ms)  bird flies from off-screen left
+      //                              in a gentle arc to the perch
+      //                              position above "AI at the edge"
+      //   PERCH_QUIET     (900ms)   bird sits, wings folded
+      //   RAISE_FLAG      (450ms)   pole + banner grow up above bird
+      //   PERCH_WITH_FLAG (2000ms)  bird holds the raised flag
+      //   FLY_OUT         (2800ms)  bird takes off, flies to upper-
+      //                              right, flag trails behind
+      var PH = { FLY_IN: 0, PERCH_QUIET: 1, RAISE_FLAG: 2, PERCH_WITH_FLAG: 3, FLY_OUT: 4, DONE: 5 };
+      var TIMING = {
+        FLY_IN:           5500,   // was 3000 — entrance was rushed
+        PERCH_QUIET:      900,
+        RAISE_FLAG:       450,
+        PERCH_WITH_FLAG:  2000,
+        FLY_OUT:          5500,   // was 2800 — exit was rushed
+      };
+      var BIRD_W_SP = 16;
+      var BIRD_H_SP = 10;
+      var BOB_AMP   = 2.5;   // sprite-px during flight
+      var POLE_H_SP = 9;     // height of the pole holding the flag up
+
+      var state = { active: false, rafId: 0 };
+      var phase, phaseStart, perchX, perchY, flyInStart;
+
+      // Mild ease-out for the fly-in / fly-out paths. Power 1.5 keeps
+      // most of the flight at near-constant speed and only softens
+      // the very end — bird carries momentum into the perch instead
+      // of crawling the final 30%. Cubic (power 3) was too aggressive.
+      function ease(t) { return 1 - Math.pow(1 - t, 1.5); }
+
+      // ─── Perch target ────────────────────────────────────────────
+      // Find the phrase the bird should land on top of. Returns
+      // {x, y} = viewport pixel coords of the centre-top of the
+      // target text, or null if not found.
+      function findPerchTarget() {
+        var phrases = ['AI at the edge', 'AI', '境目'];
+        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+        var node;
+        while ((node = walker.nextNode())) {
+          for (var i = 0; i < phrases.length; i++) {
+            var idx = node.textContent.indexOf(phrases[i]);
+            if (idx >= 0) {
+              var range = document.createRange();
+              range.setStart(node, idx);
+              range.setEnd(node, idx + phrases[i].length);
+              var r = range.getBoundingClientRect();
+              if (r && r.width > 0 && r.height > 0) {
+                return {
+                  x: r.left + r.width / 2,
+                  y: r.top,
+                  rect: r,
+                };
+              }
+            }
+          }
+        }
+        return null;
+      }
+
+      // ─── Phase draws ─────────────────────────────────────────────
+      // Side-view flying bird (16 wide × 10 tall sprite-px). Positioned
+      // by (birdNoseX, birdTopY) — birdNoseX = the right edge.
+      function drawBirdAt(birdNoseX, birdTopY, wingFrame) {
+        var birdW = BIRD_W_SP * PS;
+        var birdOX = (birdNoseX - birdW) / PS;
+        var birdOY = birdTopY / PS;
+        drawBird(birdOX, birdOY, wingFrame);
+      }
+      // Front-facing perched bird (12 wide × 11 tall sprite-px). Used
+      // during the perch. Centered horizontally on `birdCenterX`.
+      var PERCH_W_SP = 12;
+      var PERCH_H_SP = 11;
+      function drawBirdPerchedAt(birdCenterX, birdTopY) {
+        var birdW = PERCH_W_SP * PS;
+        var birdOX = (birdCenterX - birdW / 2) / PS;
+        var birdOY = birdTopY / PS;
+        drawBirdPerched(birdOX, birdOY);
+      }
+      // Pole + small "Pick one!" flag held UP above the bird during
+      // the perch moment. poleProgress 0→1 controls the raise (pole
+      // grows from 0 to full height; flag fades+scales in at the
+      // tail end).
+      // Pole + small flag held UP. Called only during perch phases,
+      // where the bird is in its front-facing pose. Pole anchors
+      // slightly behind the bird's centre so the flag extends to
+      // the visitor's right (off the bird's left "shoulder").
+      function drawRaisedFlag(birdCenterX, birdTopY, poleProgress, t) {
+        // Pole bottom is right behind the front-facing bird's head.
+        var poleBottomX = birdCenterX - 1 * PS;
+        var poleBottomY = birdTopY + 2 * PS;
+        var fullH = POLE_H_SP * PS;
+        var poleH = Math.round(fullH * poleProgress);
+        ctx.fillStyle = C.rope;
+        ctx.fillRect(Math.round(poleBottomX), Math.round(poleBottomY - poleH), PS, poleH);
+        if (poleProgress > 0.55 && bannerSmallDims.width) {
+          var flagScale = Math.min((poleProgress - 0.55) / 0.45, 1);
+          var bw = bannerSmall.width;
+          var bh = bannerSmall.height;
+          var scaledW = Math.round(bw * flagScale);
+          var scaledH = Math.round(bh * flagScale);
+          // Anchor flag at top-right of pole; flag extends RIGHT so
+          // the visitor reads it left-to-right (since the bird now
+          // faces them, not the right).
+          var flagLeft = poleBottomX + PS;
+          var flagTopY = poleBottomY - poleH - scaledH / 2;
+          ctx.drawImage(bannerSmall,
+            Math.round(flagLeft),
+            Math.round(flagTopY),
+            scaledW, scaledH);
+        }
+      }
+      // Big trailing banner — present during fly-in, fly-out, AND
+      // during the perch (where it drapes naturally behind the bird,
+      // waving more gently because the bird isn't moving). amp
+      // controls wave intensity so we can dampen it while perched.
+      function drawTrailingBanner(birdNoseX, birdTopY, t, amp) {
+        if (!bannerBigDims.width) return;
+        var birdW = BIRD_W_SP * PS;
+        var bw = bannerBig.width;
+        var bh = bannerBig.height;
+        var horizontalGap = 8 * PS;
+        var birdTailX = birdNoseX - birdW + 2 * PS;
+        var bannerRightX = birdTailX - horizontalGap;
+        var bannerLeftX  = bannerRightX - bw;
+        var birdBellyY   = birdTopY + 6 * PS;
+        var bannerTopY   = birdBellyY + 4 * PS;
+        var bannerCY     = bannerTopY + bh / 2;
+        drawBanner(bannerBig, bannerBigDims, bannerLeftX, bannerCY, t, amp);
+        drawRope(bannerRightX, bannerTopY, birdTailX, birdBellyY, t);
+      }
+
+      // ─── Phase controller ────────────────────────────────────────
+      function frame(now) {
+        if (!state.active) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        var pe = now - phaseStart;     // phase elapsed
+        var wingFrame = Math.floor(now / 110) % 3;
+        var birdW = BIRD_W_SP * PS;
+        var birdH = BIRD_H_SP * PS;
+
+        // Helper: advance to next phase
+        function advance(nextPhase) {
+          phase = nextPhase;
+          phaseStart = now;
+        }
+
+        if (phase === PH.FLY_IN) {
+          var t = Math.min(pe / TIMING.FLY_IN, 1);
+          var eased = ease(t);
+          // Start position: bird + banner must BOTH be off-screen
+          // left when t=0 so nothing pops in. Banner is ~bannerBig.width
+          // behind the bird, so push the start nose far enough left
+          // that the banner's left edge is also < 0.
+          var horizontalGap = 8 * PS;
+          var bannerW = bannerBig.width || 200;
+          var startX = -(birdW + horizontalGap + bannerW + 40);
+          // Higher start so descent into perch is visible.
+          var startY = perchY - birdH - 220;
+          var endX = perchX + birdW / 2;
+          var endY = perchY - birdH;
+          var noseX = startX + (endX - startX) * eased;
+          var topY  = startY + (endY  - startY) * eased;
+          var bob = Math.sin(now * 0.008) * BOB_AMP * PS * (1 - eased);
+          drawTrailingBanner(noseX, topY + bob, now, 2.5);
+          drawBirdAt(noseX, topY + bob, wingFrame);
+          if (t >= 1) advance(PH.PERCH_QUIET);
+        }
+        else if (phase === PH.PERCH_QUIET) {
+          // Bird turns to face the visitor. Front-facing sprite has
+          // its own dimensions (PERCH_W_SP × PERCH_H_SP). Centre the
+          // bird horizontally over the perch target. Big trailing
+          // banner is HIDDEN during all perch phases (the bird has
+          // "set it down" to show the visitor the small flag).
+          var perchH = PERCH_H_SP * PS;
+          var centerX = perchX;
+          var topY    = perchY - perchH;
+          var settle = pe < 200 ? Math.sin(pe / 200 * Math.PI) * 2 : 0;
+          drawBirdPerchedAt(centerX, topY - settle);
+          if (pe >= TIMING.PERCH_QUIET) advance(PH.RAISE_FLAG);
+        }
+        else if (phase === PH.RAISE_FLAG) {
+          var perchH = PERCH_H_SP * PS;
+          var centerX = perchX;
+          var topY    = perchY - perchH;
+          var t = Math.min(pe / TIMING.RAISE_FLAG, 1);
+          drawRaisedFlag(centerX, topY, ease(t), now);
+          drawBirdPerchedAt(centerX, topY);
+          if (t >= 1) advance(PH.PERCH_WITH_FLAG);
+        }
+        else if (phase === PH.PERCH_WITH_FLAG) {
+          var perchH = PERCH_H_SP * PS;
+          var centerX = perchX;
+          var topY    = perchY - perchH;
+          drawRaisedFlag(centerX, topY, 1, now);
+          drawBirdPerchedAt(centerX, topY);
+          if (pe >= TIMING.PERCH_WITH_FLAG) advance(PH.FLY_OUT);
+        }
+        else if (phase === PH.FLY_OUT) {
+          var t = Math.min(pe / TIMING.FLY_OUT, 1);
+          var startNoseX = perchX + birdW / 2;
+          var startTopY  = perchY - birdH;
+          // End position must push the bird far enough right that the
+          // ENTIRE trailing banner is also off-screen, not just the
+          // bird. Banner sits roughly birdW + ropeGap + bannerW behind
+          // the bird, so add all of that + a buffer.
+          var horizontalGap = 8 * PS;
+          var endNoseX = canvas.width + birdW + horizontalGap
+                       + (bannerBig.width || 200) + 60;
+          // Climb higher on the way out (was -80 → looked truncated).
+          var endTopY  = startTopY - 220;
+          var eased = ease(t);
+          var noseX = startNoseX + (endNoseX - startNoseX) * eased;
+          var topY  = startTopY  + (endTopY  - startTopY)  * eased;
+          var bob = Math.sin(now * 0.008) * BOB_AMP * PS * eased;
+          drawTrailingBanner(noseX, topY + bob, now, 2.5);
+          drawBirdAt(noseX, topY + bob, wingFrame);
+          if (t >= 1) {
+            state.active = false;
+            phase = PH.DONE;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            return;
+          }
+        }
+        state.rafId = requestAnimationFrame(frame);
+      }
+
+      // ─── Fallback (no perch target found) ────────────────────────
+      // If we can't find "AI at the edge" / "AI" / "境目" in the page,
+      // fall back to a simple fly-across so the visitor still gets
+      // something.
+      function runBirdFallback() {
+        var DURATION = 11000;
+        var fallbackStart = performance.now();
+        state.active = true;
+        function fbFrame(now) {
+          if (!state.active) return;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          var t = Math.min((now - fallbackStart) / DURATION, 1);
+          var birdW = BIRD_W_SP * PS;
+          var bannerW = bannerBig.width;
+          var chainLen = birdW + 8 * PS + bannerW;
+          var noseX = (-40) + (canvas.width + chainLen + 80) * t;
+          var topY = window.innerHeight * 0.2;
+          var bob = Math.sin(now * 0.004) * BOB_AMP * PS;
+          drawTrailingBanner(noseX, topY + bob, now, 2.5);
+          drawBirdAt(noseX, topY + bob, Math.floor(now / 110) % 3);
+          if (t >= 1) { state.active = false; ctx.clearRect(0, 0, canvas.width, canvas.height); return; }
+          state.rafId = requestAnimationFrame(fbFrame);
+        }
+        state.rafId = requestAnimationFrame(fbFrame);
+      }
+
+      // Match the case-study FlyBy plane's pacing — that plane crosses
+      // ~1680px in 16000ms ≈ 0.105 px/ms. Compute fly-in / fly-out
+      // durations from actual distances so the bird looks like it's
+      // travelling at the same speed regardless of where the perch
+      // ends up or how wide the viewport is.
+      var BIRD_SPEED = 0.105; // px / ms
+
+      function runBird() {
+        cancelAnimationFrame(state.rafId);
+        var target = findPerchTarget();
+        if (!target) { runBirdFallback(); return; }
+        perchX = target.x;
+        perchY = target.y;
+
+        // Pre-compute the same start/end X positions the phase code
+        // will use, so we can derive distances → durations.
+        var birdW = BIRD_W_SP * PS;
+        var horizontalGap = 8 * PS;
+        var bannerW = bannerBig.width || 200;
+        var flyInStartX  = -(birdW + horizontalGap + bannerW + 40);
+        var flyInEndX    = perchX + birdW / 2;
+        var flyOutEndX   = canvas.width + birdW + horizontalGap + bannerW + 60;
+        TIMING.FLY_IN  = Math.max(4500, Math.min(16000,
+                                  (flyInEndX  - flyInStartX) / BIRD_SPEED));
+        TIMING.FLY_OUT = Math.max(4500, Math.min(16000,
+                                  (flyOutEndX - flyInEndX)   / BIRD_SPEED));
+
+        phase = PH.FLY_IN;
+        phaseStart = performance.now();
+        state.active = true;
+        state.rafId = requestAnimationFrame(frame);
+      }
+
+      // ─── Active-reading gate ─────────────────────────────────────
+      var activeMs = 0, lastTick = performance.now();
+      var visible = !document.hidden, idle = false, idleTimer = null;
+      var cancelled = false, triggered = false;
+
+      document.querySelectorAll('.m-list a').forEach(function (a) {
+        a.addEventListener('click', function () { cancelled = true; }, { once: true });
+      });
+      document.addEventListener('visibilitychange', function () {
+        visible = !document.hidden;
+        lastTick = performance.now();
+      });
+      function resetIdle() {
+        idle = false;
+        lastTick = performance.now();
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(function () { idle = true; }, 30000);
+      }
+      ['scroll', 'mousemove', 'touchstart', 'keydown'].forEach(function (evt) {
+        window.addEventListener(evt, resetIdle, { passive: true });
+      });
+      resetIdle();
+
+      function gateLoop(now) {
+        if (triggered || cancelled) return;
+        if (visible && !idle) activeMs += now - lastTick;
+        lastTick = now;
+        if (activeMs >= 10000) {
+          triggered = true;
+          try { localStorage.setItem('bird-shown-v1', '1'); } catch (e) {}
+          runBird();
+          return;
+        }
+        requestAnimationFrame(gateLoop);
+      }
+      if (autoTriggerOK) requestAnimationFrame(gateLoop);
+
+      // DEV/TEST triggers
+      window.__showBirdNow = runBird;
+      // Swap either line on the fly. Pass null/empty for line 2 to
+      // make it single-line for testing variants.
+      // Swap the trailing big banner OR the perched small flag:
+      //   __birdText(null, null, 'Pick me!')           // small flag
+      //   __birdText('Top line.', 'sub line below.')   // big trailing
+      window.__birdTextNow = function (line1, line2, smallText) {
+        if (line1 != null) BIG_LINE1 = line1;
+        if (line2 != null) BIG_LINE2 = line2;
+        if (smallText != null) SMALL_TEXT = smallText;
+        buildBanners();
+      };
+    })();

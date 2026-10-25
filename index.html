@@ -10,13 +10,49 @@
   <meta property="og:title" content="Raufan Yusup — Product Designer">
   <meta property="og:description" content="Tokyo-based product designer creating products across cultures.">
   <meta property="og:type" content="website">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=39">
+
+<link rel="preload" href="/assets/fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <script>
+(function () {
+  try {
+    var theme = localStorage.getItem('theme') || 'light';
+    if (theme === 'dark' || theme === 'light') document.documentElement.setAttribute('data-theme', theme);
+    if (localStorage.getItem('lang') === 'ja') document.documentElement.setAttribute('data-lang', 'ja');
+  } catch (e) {}
+  window.__loadNotoSansJP = function () {
+    if (window.__notoPromise) return window.__notoPromise;
+    window.__notoPromise = new Promise(function (resolve) {
+      var link = document.getElementById('noto-sans-jp');
+      var finish = function () {
+        if (document.fonts && document.fonts.load) {
+          document.fonts.load('400 16px "Noto Sans JP"').then(function () { resolve(); }, function () { resolve(); });
+        } else resolve();
+      };
+      if (!link) {
+        var pre = document.createElement('link');
+        pre.rel = 'preconnect';
+        pre.href = 'https://fonts.gstatic.com';
+        pre.crossOrigin = 'anonymous';
+        document.head.appendChild(pre);
+        link = document.createElement('link');
+        link.id = 'noto-sans-jp';
+        link.rel = 'stylesheet';
+        link.href = 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&display=swap';
+        document.head.appendChild(link);
+      }
+      if (link.sheet) { finish(); return; }
+      link.addEventListener('load', finish, { once: true });
+      link.addEventListener('error', function () { resolve(); }, { once: true });
+    });
+    return window.__notoPromise;
+  };
+  try { if (localStorage.getItem('lang') === 'ja') window.__loadNotoSansJP(); } catch (e) {}
+})();
+</script>
+
+  <link rel="stylesheet" href="/css/style.css?v=40">
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
-  <link id="gb-stylesheet" rel="stylesheet" href="/components/Guestbook/guestbook.css?v=7">
+  <link id="gb-stylesheet" rel="stylesheet" href="/components/Guestbook/guestbook.css?v=8">
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body class="minimal">
@@ -24,7 +60,16 @@
   <a class="m-skip-link" href="#main-content">Skip to content</a>
 
   <main class="m-page" id="main-content">
-    <script src="./live-polish.js?v=3"></script>
+<script>
+(function () {
+  var h = location.hostname;
+  var dev = window.LIVE_POLISH_ENABLE === true ||
+    h === 'localhost' || h === '127.0.0.1' || h === '0.0.0.0' || h === '' ||
+    h.endsWith('.local') || location.protocol === 'file:';
+  if (!dev) return;
+  document.write('<script src="/live-polish.js?v=4"><\/script>');
+})();
+</script>
 
     <div class="m-top-controls">
       <button class="m-lang-toggle" aria-label="Toggle language">JA</button>
@@ -49,51 +94,73 @@
     <header class="m-header">
       <div class="m-avatar-picker" role="group" aria-label="Choose Raufan's portfolio">
         <button class="m-avatar-card is-active" type="button" data-avatar="smiling" data-profile="design" aria-label="Show Raufan's product design portfolio" aria-pressed="true">
-          <img class="m-avatar" src="/assets/profile-raufan.png" alt="Illustrated portrait of Raufan smiling in a bucket hat" width="2048" height="2048">
+          <picture><source type="image/avif" srcset="/assets/opt/profile-raufan-160.avif 160w, /assets/opt/profile-raufan-240.avif 240w" sizes="70px"><img class="m-avatar" src="/assets/opt/profile-raufan-240.webp" srcset="/assets/opt/profile-raufan-160.webp 160w, /assets/opt/profile-raufan-240.webp 240w" sizes="70px" width="70" height="70" alt="Illustrated portrait of Raufan smiling in a bucket hat" decoding="async"></picture>
         </button>
         <button class="m-avatar-card" type="button" data-avatar="camera" data-profile="photography" aria-label="Show Raufan's photography portfolio" aria-pressed="false">
-          <img class="m-avatar" src="/assets/profile-raufan-camera.png" alt="Illustrated portrait of Raufan holding a camera" width="2048" height="2048">
+          <picture><source type="image/avif" srcset="/assets/opt/profile-raufan-camera-160.avif 160w, /assets/opt/profile-raufan-camera-240.avif 240w" sizes="70px"><img class="m-avatar" src="/assets/opt/profile-raufan-camera-240.webp" srcset="/assets/opt/profile-raufan-camera-160.webp 160w, /assets/opt/profile-raufan-camera-240.webp 240w" sizes="70px" width="70" height="70" alt="Illustrated portrait of Raufan holding a camera" decoding="async"></picture>
         </button>
       </div>
-      <h1 class="m-name" data-en-html='Hey, I&apos;m <a href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener" class="m-name-hover m-highlight"><span class="m-name-prefix">Muhammad </span>Raufan<span class="m-name-suffix"> Yusup</span></a>.' data-ja-html='ヤホー、<a href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener" class="m-name-hover m-highlight"><span class="m-name-prefix">ムハンマド</span>ラウファン<span class="m-name-suffix">ユスップ</span></a>です。'>Hey, I'm <a href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener" class="m-name-hover m-highlight"><span class="m-name-prefix">Muhammad </span>Raufan<span class="m-name-suffix"> Yusup</span></a>.</h1>
+      <h1 class="lang-stack m-name">
+      <span class="lang-layer" lang="en">Hey, I'm <a href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener" class="m-name-hover m-highlight"><span class="m-name-prefix">Muhammad </span>Raufan<span class="m-name-suffix"> Yusup</span></a>.</span>
+      <span class="lang-layer" lang="ja">ヤホー、<a href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener" class="m-name-hover m-highlight"><span class="m-name-prefix">ムハンマド</span>ラウファン<span class="m-name-suffix">ユスップ</span></a>です。</span>
+    </h1>
     </header>
 
     <div class="m-profile-panel is-active" data-profile-panel="design">
-    <p class="m-bio" data-en-html='I&apos;m a Tokyo-based product designer currently working in AI New Business Division at <a href="https://cybozu.co.jp/" target="_blank" rel="noopener" class="m-highlight">Cybozu</a>. Over the past 12+ years, I&apos;ve designed products for people across cultures at <a href="https://apps.apple.com/jp/app/uniqlo%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%A6%E3%83%8B%E3%82%AF%E3%83%AD%E3%82%A2%E3%83%97%E3%83%AA/id460989014" target="_blank" rel="noopener" class="m-highlight-muted">UNIQLO</a>, <a href="https://apps.apple.com/jp/app/%E3%82%B9%E3%83%9E%E3%83%BC%E3%83%88%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9-%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%9D%E3%82%A4%E6%B4%BB-%E3%82%AF%E3%83%BC%E3%83%9D%E3%83%B3-%E5%A4%A9%E6%B0%97/id579581125" target="_blank" rel="noopener" class="m-highlight-muted">SmartNews</a>, <a href="https://apps.apple.com/us/app/tiket-com-flight-hotel-deals/id890405921" target="_blank" rel="noopener" class="m-highlight-muted">tiket.com</a>, and <a href="https://apps.apple.com/id/app/tokopedia/id1001394201" target="_blank" rel="noopener" class="m-highlight-muted">Tokopedia</a>. These days, I&apos;m experimenting with AI to bridge the gap between design and engineering as I grow into a design engineer.' data-ja-html='東京を拠点に、現在は<a href="https://cybozu.co.jp/" target="_blank" rel="noopener" class="m-highlight">サイボウズ</a>のAI新規事業部でプロダクトデザイナーとして働いています。これまで12年以上にわたり、<a href="https://apps.apple.com/jp/app/uniqlo%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%A6%E3%83%8B%E3%82%AF%E3%83%AD%E3%82%A2%E3%83%97%E3%83%AA/id460989014" target="_blank" rel="noopener" class="m-highlight-muted">ユニクロ</a>、<a href="https://apps.apple.com/jp/app/%E3%82%B9%E3%83%9E%E3%83%BC%E3%83%88%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9-%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%9D%E3%82%A4%E6%B4%BB-%E3%82%AF%E3%83%BC%E3%83%9D%E3%83%B3-%E5%A4%A9%E6%B0%97/id579581125" target="_blank" rel="noopener" class="m-highlight-muted">SmartNews</a>、<a href="https://apps.apple.com/us/app/tiket-com-flight-hotel-deals/id890405921" target="_blank" rel="noopener" class="m-highlight-muted">tiket.com</a>、<a href="https://apps.apple.com/id/app/tokopedia/id1001394201" target="_blank" rel="noopener" class="m-highlight-muted">Tokopedia</a>で、文化を越えて人々に使われるプロダクトをデザインしてきました。最近は、デザインとエンジニアリングの距離を縮め、デザインエンジニアへと成長するために、AIを活用した実験に取り組んでいます。'>
-      I'm a Tokyo-based product designer currently working in AI New Business Division at <a href="https://cybozu.co.jp/" target="_blank" rel="noopener" class="m-highlight">Cybozu</a>. Over the past 12+ years, I've designed products for people across cultures at <a href="https://apps.apple.com/jp/app/uniqlo%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%A6%E3%83%8B%E3%82%AF%E3%83%AD%E3%82%A2%E3%83%97%E3%83%AA/id460989014" target="_blank" rel="noopener" class="m-highlight-muted">UNIQLO</a>, <a href="https://apps.apple.com/jp/app/%E3%82%B9%E3%83%9E%E3%83%BC%E3%83%88%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9-%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%9D%E3%82%A4%E6%B4%BB-%E3%82%AF%E3%83%BC%E3%83%9D%E3%83%B3-%E5%A4%A9%E6%B0%97/id579581125" target="_blank" rel="noopener" class="m-highlight-muted">SmartNews</a>, <a href="https://apps.apple.com/us/app/tiket-com-flight-hotel-deals/id890405921" target="_blank" rel="noopener" class="m-highlight-muted">tiket.com</a>, and <a href="https://apps.apple.com/id/app/tokopedia/id1001394201" target="_blank" rel="noopener" class="m-highlight-muted">Tokopedia</a>. These days, I'm experimenting with AI to bridge the gap between design and engineering as I grow into a design engineer.
+    <p class="lang-stack m-bio">
+      <span class="lang-layer" lang="en">I'm a Tokyo-based product designer currently working in AI New Business Division at <a href="https://cybozu.co.jp/" target="_blank" rel="noopener" class="m-highlight">Cybozu</a>. Over the past 12+ years, I've designed products for people across cultures at <a href="https://apps.apple.com/jp/app/uniqlo%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%A6%E3%83%8B%E3%82%AF%E3%83%AD%E3%82%A2%E3%83%97%E3%83%AA/id460989014" target="_blank" rel="noopener" class="m-highlight-muted">UNIQLO</a>, <a href="https://apps.apple.com/jp/app/%E3%82%B9%E3%83%9E%E3%83%BC%E3%83%88%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9-%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%9D%E3%82%A4%E6%B4%BB-%E3%82%AF%E3%83%BC%E3%83%9D%E3%83%B3-%E5%A4%A9%E6%B0%97/id579581125" target="_blank" rel="noopener" class="m-highlight-muted">SmartNews</a>, <a href="https://apps.apple.com/us/app/tiket-com-flight-hotel-deals/id890405921" target="_blank" rel="noopener" class="m-highlight-muted">tiket.com</a>, and <a href="https://apps.apple.com/id/app/tokopedia/id1001394201" target="_blank" rel="noopener" class="m-highlight-muted">Tokopedia</a>. These days, I'm experimenting with AI to bridge the gap between design and engineering as I grow into a design engineer.</span>
+      <span class="lang-layer" lang="ja">東京を拠点に、現在は<a href="https://cybozu.co.jp/" target="_blank" rel="noopener" class="m-highlight">サイボウズ</a>のAI新規事業部でプロダクトデザイナーとして働いています。これまで12年以上にわたり、<a href="https://apps.apple.com/jp/app/uniqlo%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%A6%E3%83%8B%E3%82%AF%E3%83%AD%E3%82%A2%E3%83%97%E3%83%AA/id460989014" target="_blank" rel="noopener" class="m-highlight-muted">ユニクロ</a>、<a href="https://apps.apple.com/jp/app/%E3%82%B9%E3%83%9E%E3%83%BC%E3%83%88%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9-%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%82%A2%E3%83%97%E3%83%AA-%E3%83%9D%E3%82%A4%E6%B4%BB-%E3%82%AF%E3%83%BC%E3%83%9D%E3%83%B3-%E5%A4%A9%E6%B0%97/id579581125" target="_blank" rel="noopener" class="m-highlight-muted">SmartNews</a>、<a href="https://apps.apple.com/us/app/tiket-com-flight-hotel-deals/id890405921" target="_blank" rel="noopener" class="m-highlight-muted">tiket.com</a>、<a href="https://apps.apple.com/id/app/tokopedia/id1001394201" target="_blank" rel="noopener" class="m-highlight-muted">Tokopedia</a>で、文化を越えて人々に使われるプロダクトをデザインしてきました。最近は、デザインとエンジニアリングの距離を縮め、デザインエンジニアへと成長するために、AIを活用した実験に取り組んでいます。</span>
     </p>
 
     <section class="m-experiment-section" aria-labelledby="experiments-heading">
-      <h2 class="m-experiment-label" id="experiments-heading" data-en="Design Engineering Experiments" data-ja="デザインエンジニアの実験">Design Engineering Experiments</h2>
+      <h2 class="lang-stack m-experiment-label" id="experiments-heading">
+      <span class="lang-layer" lang="en">Design Engineering Experiments</span>
+      <span class="lang-layer" lang="ja">デザインエンジニアの実験</span>
+    </h2>
       <ul class="m-experiment-list">
         <li class="m-experiment-item">
           <figure class="m-experiment-preview" aria-hidden="true" style="--preview-position: center 72%;">
-            <img src="/assets/experiments/arsip.png" alt="" width="930" height="1204" loading="lazy">
+            <picture><source type="image/avif" srcset="/assets/opt/arsip-480.avif 480w, /assets/opt/arsip-720.avif 720w, /assets/opt/arsip-930.avif 930w" sizes="min(360px, calc(100vw - 48px))"><img src="/assets/opt/arsip-480.webp" srcset="/assets/opt/arsip-480.webp 480w, /assets/opt/arsip-720.webp 720w, /assets/opt/arsip-930.webp 930w" sizes="min(360px, calc(100vw - 48px))" width="930" height="1204" alt="" loading="lazy" fetchpriority="low" decoding="async"></picture>
           </figure>
           <a href="https://arsip.app/" target="_blank" rel="noopener noreferrer"><span class="m-experiment-name">arsip</span><span class="m-experiment-tagline" data-en=" — Paperwork Organizer." data-ja=" — 書類整理アプリ。"> — Paperwork Organizer.</span></a>
-          <p data-en="A macOS and iOS app to store your documents, then reuse them for every bureaucratic process—all in one organized, private place." data-ja="書類を保存し、さまざまな手続きで繰り返し使えるmacOS・iOSアプリ。整理されたプライベートな場所に、すべてをひとまとめにできます。">A macOS and iOS app to store your documents, then reuse them for every bureaucratic process—all in one organized, private place.</p>
+          <p class="lang-stack">
+      <span class="lang-layer" lang="en">A macOS and iOS app to store your documents, then reuse them for every bureaucratic process—all in one organized, private place.</span>
+      <span class="lang-layer" lang="ja">書類を保存し、さまざまな手続きで繰り返し使えるmacOS・iOSアプリ。整理されたプライベートな場所に、すべてをひとまとめにできます。</span>
+    </p>
         </li>
         <li class="m-experiment-item">
           <figure class="m-experiment-preview" aria-hidden="true" style="--preview-position: center;">
-            <img src="/assets/experiments/riso-kit.png" alt="" width="1280" height="720" loading="lazy">
+            <picture><source type="image/avif" srcset="/assets/opt/riso-kit-480.avif 480w, /assets/opt/riso-kit-720.avif 720w, /assets/opt/riso-kit-1080.avif 1080w" sizes="min(360px, calc(100vw - 48px))"><img src="/assets/opt/riso-kit-480.webp" srcset="/assets/opt/riso-kit-480.webp 480w, /assets/opt/riso-kit-720.webp 720w, /assets/opt/riso-kit-1080.webp 1080w" sizes="min(360px, calc(100vw - 48px))" width="1280" height="720" alt="" loading="lazy" fetchpriority="low" decoding="async"></picture>
           </figure>
           <a href="https://risokit.dev" target="_blank" rel="noopener noreferrer"><span class="m-experiment-name">Riso Kit</span><span class="m-experiment-tagline" data-en=" — A browser-based halftone gradient toolkit." data-ja=" — ブラウザで使えるハーフトーングラデーションツール。"> — A browser-based halftone gradient toolkit.</span></a>
-          <p data-en="Shape print-inspired gradients live, then export them as PNG, GLSL, React, or CSS." data-ja="印刷物のようなグラデーションをリアルタイムでつくり、PNG、GLSL、React、CSSとして書き出せます。">Shape print-inspired gradients live, then export them as PNG, GLSL, React, or CSS.</p>
+          <p class="lang-stack">
+      <span class="lang-layer" lang="en">Shape print-inspired gradients live, then export them as PNG, GLSL, React, or CSS.</span>
+      <span class="lang-layer" lang="ja">印刷物のようなグラデーションをリアルタイムでつくり、PNG、GLSL、React、CSSとして書き出せます。</span>
+    </p>
         </li>
         <li class="m-experiment-item bottom-experiment">
           <figure class="m-experiment-preview" aria-hidden="true" style="--preview-position: center 4%;">
-            <img src="/assets/experiments/tokyo-transit-map.png" alt="" width="930" height="1204" loading="lazy">
+            <picture><source type="image/avif" srcset="/assets/opt/tokyo-transit-map-480.avif 480w, /assets/opt/tokyo-transit-map-720.avif 720w, /assets/opt/tokyo-transit-map-930.avif 930w" sizes="min(360px, calc(100vw - 48px))"><img src="/assets/opt/tokyo-transit-map-480.webp" srcset="/assets/opt/tokyo-transit-map-480.webp 480w, /assets/opt/tokyo-transit-map-720.webp 720w, /assets/opt/tokyo-transit-map-930.webp 930w" sizes="min(360px, calc(100vw - 48px))" width="930" height="1204" alt="" loading="lazy" fetchpriority="low" decoding="async"></picture>
           </figure>
           <a href="/lab/tokyo-transit-map.html"><span class="m-experiment-name">Tokyo Transit Map</span><span class="m-experiment-tagline" data-en=" — Cartography with uncommon care." data-ja=" — 細部までこだわった東京の路線図。"> — Cartography with uncommon care.</span></a>
-          <p data-en="A hand-built study of Tokyo’s rail network, down to every line, interchange, and moving train." data-ja="東京の鉄道網を、一本の路線、乗換駅、走る電車の細部まで手作業でつくり込んだ実験です。">A hand-built study of Tokyo’s rail network, down to every line, interchange, and moving train.</p>
+          <p class="lang-stack">
+      <span class="lang-layer" lang="en">A hand-built study of Tokyo’s rail network, down to every line, interchange, and moving train.</span>
+      <span class="lang-layer" lang="ja">東京の鉄道網を、一本の路線、乗換駅、走る電車の細部まで手作業でつくり込んだ実験です。</span>
+    </p>
         </li>
       </ul>
     </section>
 
     <section class="m-case-section" aria-labelledby="case-studies-heading">
       <div class="m-section-copy">
-        <h2 class="m-experiment-label m-case-section-label" id="case-studies-heading" data-en="Selected case studies" data-ja="主なケーススタディ">Selected case studies</h2>
-        <p class="m-bio" data-en-html='Longer stories that shaped <span class="m-highlight-muted">how I think</span> about design.' data-ja-html='私の<span class="m-medium m-highlight-muted">デザインへの考え方</span>を形づくってくれた、長い物語たちです。'>Longer stories that shaped <span class="m-highlight-muted">how I think</span> about design.</p>
+        <h2 class="lang-stack m-experiment-label m-case-section-label" id="case-studies-heading">
+      <span class="lang-layer" lang="en">Selected case studies</span>
+      <span class="lang-layer" lang="ja">主なケーススタディ</span>
+    </h2>
+        <p class="lang-stack m-bio">
+      <span class="lang-layer" lang="en">Longer stories that shaped <span class="m-highlight-muted">how I think</span> about design.</span>
+      <span class="lang-layer" lang="ja">私の<span class="m-medium m-highlight-muted">デザインへの考え方</span>を形づくってくれた、長い物語たちです。</span>
+    </p>
       </div>
 
       <!-- Folder silhouette and interaction adapted from Fayaz Ahmed's MIT-licensed portfolio template: github.com/fayazara/portfolio-site-template -->
@@ -102,9 +169,9 @@
           <div class="case-folder-shell">
             <svg class="case-folder-back" viewBox="0 0 400 340" aria-hidden="true"><path d="M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26 A34,34 0 0 0 214,60 L370,60 A30,30 0 0 1 400,90 L400,310 A30,30 0 0 1 370,340 L30,340 A30,30 0 0 1 0,310 Z"></path></svg>
             <div class="case-folder-sheets" aria-hidden="true">
-              <figure class="case-sheet" style="--closed-x:-12%;--closed-r:-4deg;--open-x:-52%;--open-r:-8deg"><img src="/work/images/sn-home-light.png" alt="" loading="lazy"></figure>
-              <figure class="case-sheet" style="--closed-x:0%;--closed-r:0deg;--open-x:0%;--open-r:0deg"><img src="/work/images/designer-1.png" alt="" loading="lazy"></figure>
-              <figure class="case-sheet" style="--closed-x:12%;--closed-r:4deg;--open-x:52%;--open-r:8deg"><img src="/work/images/sn-home-dark.png" alt="" loading="lazy"></figure>
+              <figure class="case-sheet" style="--closed-x:-12%;--closed-r:-4deg;--open-x:-52%;--open-r:-8deg"><picture><source type="image/avif" srcset="/work/images/opt/sn-home-light-240.avif 240w, /work/images/opt/sn-home-light-480.avif 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px"><img src="/work/images/opt/sn-home-light-480.webp" srcset="/work/images/opt/sn-home-light-240.webp 240w, /work/images/opt/sn-home-light-480.webp 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px" width="480" height="600" alt="" loading="lazy" fetchpriority="low" decoding="async"></picture></figure>
+              <figure class="case-sheet" style="--closed-x:0%;--closed-r:0deg;--open-x:0%;--open-r:0deg"><picture><source type="image/avif" srcset="/work/images/opt/designer-1-240.avif 240w, /work/images/opt/designer-1-480.avif 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px"><img src="/work/images/opt/designer-1-480.webp" srcset="/work/images/opt/designer-1-240.webp 240w, /work/images/opt/designer-1-480.webp 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px" width="480" height="600" alt="" loading="lazy" fetchpriority="low" decoding="async"></picture></figure>
+              <figure class="case-sheet" style="--closed-x:12%;--closed-r:4deg;--open-x:52%;--open-r:8deg"><picture><source type="image/avif" srcset="/work/images/opt/sn-home-dark-240.avif 240w, /work/images/opt/sn-home-dark-480.avif 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px"><img src="/work/images/opt/sn-home-dark-480.webp" srcset="/work/images/opt/sn-home-dark-240.webp 240w, /work/images/opt/sn-home-dark-480.webp 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px" width="480" height="600" alt="" loading="lazy" fetchpriority="low" decoding="async"></picture></figure>
             </div>
             <div class="case-folder-flap">
               <div class="case-folder-label"><div><strong>SmartNews</strong><span data-en="Design system foundations" data-ja="デザインシステムの基盤">Design system foundations</span></div><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"></path></svg></div>
@@ -116,9 +183,9 @@
           <div class="case-folder-shell">
             <svg class="case-folder-back" viewBox="0 0 400 340" aria-hidden="true"><path d="M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26 A34,34 0 0 0 214,60 L370,60 A30,30 0 0 1 400,90 L400,310 A30,30 0 0 1 370,340 L30,340 A30,30 0 0 1 0,310 Z"></path></svg>
             <div class="case-folder-sheets" aria-hidden="true">
-              <figure class="case-sheet" style="--closed-x:-12%;--closed-r:-4deg;--open-x:-52%;--open-r:-8deg"><img src="/work/images/uniqlo-app-stylehint.PNG" alt="" loading="lazy"></figure>
-              <figure class="case-sheet" style="--closed-x:0%;--closed-r:0deg;--open-x:0%;--open-r:0deg"><img src="/work/images/outfit-detail-full.png" alt="" loading="lazy"></figure>
-              <figure class="case-sheet" style="--closed-x:12%;--closed-r:4deg;--open-x:52%;--open-r:8deg"><img src="/work/images/uniqlo-app-navigation.PNG" alt="" loading="lazy"></figure>
+              <figure class="case-sheet" style="--closed-x:-12%;--closed-r:-4deg;--open-x:-52%;--open-r:-8deg"><picture><source type="image/avif" srcset="/work/images/opt/uniqlo-app-stylehint-240.avif 240w, /work/images/opt/uniqlo-app-stylehint-480.avif 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px"><img src="/work/images/opt/uniqlo-app-stylehint-480.webp" srcset="/work/images/opt/uniqlo-app-stylehint-240.webp 240w, /work/images/opt/uniqlo-app-stylehint-480.webp 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px" width="480" height="600" alt="" loading="lazy" fetchpriority="low" decoding="async"></picture></figure>
+              <figure class="case-sheet" style="--closed-x:0%;--closed-r:0deg;--open-x:0%;--open-r:0deg"><picture><source type="image/avif" srcset="/work/images/opt/outfit-detail-full-240.avif 240w, /work/images/opt/outfit-detail-full-480.avif 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px"><img src="/work/images/opt/outfit-detail-full-480.webp" srcset="/work/images/opt/outfit-detail-full-240.webp 240w, /work/images/opt/outfit-detail-full-480.webp 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px" width="480" height="600" alt="" loading="lazy" fetchpriority="low" decoding="async"></picture></figure>
+              <figure class="case-sheet" style="--closed-x:12%;--closed-r:4deg;--open-x:52%;--open-r:8deg"><picture><source type="image/avif" srcset="/work/images/opt/uniqlo-app-navigation-240.avif 240w, /work/images/opt/uniqlo-app-navigation-480.avif 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px"><img src="/work/images/opt/uniqlo-app-navigation-480.webp" srcset="/work/images/opt/uniqlo-app-navigation-240.webp 240w, /work/images/opt/uniqlo-app-navigation-480.webp 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px" width="480" height="600" alt="" loading="lazy" fetchpriority="low" decoding="async"></picture></figure>
             </div>
             <div class="case-folder-flap">
               <div class="case-folder-label"><div><strong>Uniqlo</strong><span data-en="Outfit &amp; purpose-driven shopping" data-ja="コーデと目的型ショッピング">Outfit &amp; purpose-driven shopping</span></div><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"></path></svg></div>
@@ -130,9 +197,9 @@
           <div class="case-folder-shell">
             <svg class="case-folder-back" viewBox="0 0 400 340" aria-hidden="true"><path d="M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26 A34,34 0 0 0 214,60 L370,60 A30,30 0 0 1 400,90 L400,310 A30,30 0 0 1 370,340 L30,340 A30,30 0 0 1 0,310 Z"></path></svg>
             <div class="case-folder-sheets" aria-hidden="true">
-              <figure class="case-sheet" style="--closed-x:-12%;--closed-r:-4deg;--open-x:-52%;--open-r:-8deg"><img src="/work/images/tiket-discover-1.avif" alt="" loading="lazy"></figure>
-              <figure class="case-sheet" style="--closed-x:0%;--closed-r:0deg;--open-x:0%;--open-r:0deg"><img src="/work/images/tiket-discover-2.avif" alt="" loading="lazy"></figure>
-              <figure class="case-sheet" style="--closed-x:12%;--closed-r:4deg;--open-x:52%;--open-r:8deg"><img src="/work/images/tiket-discover-3.avif" alt="" loading="lazy"></figure>
+              <figure class="case-sheet" style="--closed-x:-12%;--closed-r:-4deg;--open-x:-52%;--open-r:-8deg"><picture><source type="image/avif" srcset="/work/images/opt/tiket-discover-1-240.avif 240w, /work/images/opt/tiket-discover-1-480.avif 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px"><img src="/work/images/opt/tiket-discover-1-480.webp" srcset="/work/images/opt/tiket-discover-1-240.webp 240w, /work/images/opt/tiket-discover-1-480.webp 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px" width="480" height="600" alt="" loading="lazy" fetchpriority="low" decoding="async"></picture></figure>
+              <figure class="case-sheet" style="--closed-x:0%;--closed-r:0deg;--open-x:0%;--open-r:0deg"><picture><source type="image/avif" srcset="/work/images/opt/tiket-discover-2-240.avif 240w, /work/images/opt/tiket-discover-2-480.avif 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px"><img src="/work/images/opt/tiket-discover-2-480.webp" srcset="/work/images/opt/tiket-discover-2-240.webp 240w, /work/images/opt/tiket-discover-2-480.webp 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px" width="480" height="600" alt="" loading="lazy" fetchpriority="low" decoding="async"></picture></figure>
+              <figure class="case-sheet" style="--closed-x:12%;--closed-r:4deg;--open-x:52%;--open-r:8deg"><picture><source type="image/avif" srcset="/work/images/opt/tiket-discover-3-240.avif 240w, /work/images/opt/tiket-discover-3-480.avif 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px"><img src="/work/images/opt/tiket-discover-3-480.webp" srcset="/work/images/opt/tiket-discover-3-240.webp 240w, /work/images/opt/tiket-discover-3-480.webp 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px" width="480" height="600" alt="" loading="lazy" fetchpriority="low" decoding="async"></picture></figure>
             </div>
             <div class="case-folder-flap">
               <div class="case-folder-label"><div><strong>tiket.com</strong><span data-en="Travel discovery" data-ja="旅の発見体験">Travel discovery</span></div><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"></path></svg></div>
@@ -144,9 +211,9 @@
           <div class="case-folder-shell">
             <svg class="case-folder-back" viewBox="0 0 400 340" aria-hidden="true"><path d="M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26 A34,34 0 0 0 214,60 L370,60 A30,30 0 0 1 400,90 L400,310 A30,30 0 0 1 370,340 L30,340 A30,30 0 0 1 0,310 Z"></path></svg>
             <div class="case-folder-sheets" aria-hidden="true">
-              <figure class="case-sheet" style="--closed-x:-12%;--closed-r:-4deg;--open-x:-52%;--open-r:-8deg"><img src="/work/images/ftux-current.png" alt="" loading="lazy"></figure>
-              <figure class="case-sheet" style="--closed-x:0%;--closed-r:0deg;--open-x:0%;--open-r:0deg"><img src="/work/images/Landing.png" alt="" loading="lazy"></figure>
-              <figure class="case-sheet" style="--closed-x:12%;--closed-r:4deg;--open-x:52%;--open-r:8deg"><img src="/work/images/solution-reading-intention.png" alt="" loading="lazy"></figure>
+              <figure class="case-sheet" style="--closed-x:-12%;--closed-r:-4deg;--open-x:-52%;--open-r:-8deg"><picture><source type="image/avif" srcset="/work/images/opt/ftux-current-240.avif 240w, /work/images/opt/ftux-current-480.avif 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px"><img src="/work/images/opt/ftux-current-480.webp" srcset="/work/images/opt/ftux-current-240.webp 240w, /work/images/opt/ftux-current-480.webp 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px" width="480" height="600" alt="" loading="lazy" fetchpriority="low" decoding="async"></picture></figure>
+              <figure class="case-sheet" style="--closed-x:0%;--closed-r:0deg;--open-x:0%;--open-r:0deg"><picture><source type="image/avif" srcset="/work/images/opt/landing-240.avif 240w, /work/images/opt/landing-480.avif 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px"><img src="/work/images/opt/landing-480.webp" srcset="/work/images/opt/landing-240.webp 240w, /work/images/opt/landing-480.webp 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px" width="480" height="600" alt="" loading="lazy" fetchpriority="low" decoding="async"></picture></figure>
+              <figure class="case-sheet" style="--closed-x:12%;--closed-r:4deg;--open-x:52%;--open-r:8deg"><picture><source type="image/avif" srcset="/work/images/opt/solution-reading-intention-240.avif 240w, /work/images/opt/solution-reading-intention-480.avif 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px"><img src="/work/images/opt/solution-reading-intention-480.webp" srcset="/work/images/opt/solution-reading-intention-240.webp 240w, /work/images/opt/solution-reading-intention-480.webp 480w" sizes="(max-width: 600px) calc((100vw - 48px) * 0.44), 150px" width="480" height="600" alt="" loading="lazy" fetchpriority="low" decoding="async"></picture></figure>
             </div>
             <div class="case-folder-flap">
               <div class="case-folder-label"><div><strong>SmartNews FTUX</strong><span data-en="Rethinking onboarding" data-ja="オンボーディング再考">Rethinking onboarding</span></div><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"></path></svg></div>
@@ -158,14 +225,21 @@
     </div>
 
     <div class="m-profile-panel m-photo-profile" data-profile-panel="photography" hidden>
-      <p class="m-bio m-photo-intro" data-en-html='I&apos;m a Tokyo-based film photographer. My work explores change, the mundane, and the beauty of everyday life through a contemplative lens. I&apos;ve published two photobooks and exhibited in solo and group shows across Tokyo. I also make films on <a href="https://www.youtube.com/@notmegapixels" target="_blank" rel="noopener" class="m-link">YouTube</a>, write on <a href="https://notmegapixels.substack.com/" target="_blank" rel="noopener" class="m-link">Substack</a>, and share my love for film photography through <a href="https://shootitwithfilm.com/tag/raufan-yusup/" target="_blank" rel="noopener" class="m-link">Shoot It With Film</a> and <a href="https://www.instagram.com/notmegapixels/" target="_blank" rel="noopener" class="m-link">Notmegapixels</a>.' data-ja-html='東京を拠点に活動するフィルム写真家です。変化や何気ない日常、そして暮らしの中にある美しさを、静かなまなざしで見つめています。これまでに2冊の写真集を出版し、東京各地で個展を開催し、グループ展にも参加してきました。また、<a href="https://www.youtube.com/@notmegapixels" target="_blank" rel="noopener" class="m-link">YouTube</a>で映像をつくり、<a href="https://notmegapixels.substack.com/" target="_blank" rel="noopener" class="m-link">Substack</a>で文章を書き、<a href="https://shootitwithfilm.com/tag/raufan-yusup/" target="_blank" rel="noopener" class="m-link">Shoot It With Film</a>と<a href="https://www.instagram.com/notmegapixels/" target="_blank" rel="noopener" class="m-link">Notmegapixels</a>を通してフィルム写真への愛を発信しています。'>
-        I'm a Tokyo-based film photographer. My work explores change, the mundane, and the beauty of everyday life through a contemplative lens. I've published two photobooks and exhibited in solo and group shows across Tokyo. I also make films on <a href="https://www.youtube.com/@notmegapixels" target="_blank" rel="noopener" class="m-link">YouTube</a>, write on <a href="https://notmegapixels.substack.com/" target="_blank" rel="noopener" class="m-link">Substack</a>, and share my love for film photography through <a href="https://shootitwithfilm.com/tag/raufan-yusup/" target="_blank" rel="noopener" class="m-link">Shoot It With Film</a> and <a href="https://www.instagram.com/notmegapixels/" target="_blank" rel="noopener" class="m-link">Notmegapixels</a>.
-      </p>
+      <p class="lang-stack m-bio m-photo-intro">
+      <span class="lang-layer" lang="en">I'm a Tokyo-based film photographer. My work explores change, the mundane, and the beauty of everyday life through a contemplative lens. I've published two photobooks and exhibited in solo and group shows across Tokyo. I also make films on <a href="https://www.youtube.com/@notmegapixels" target="_blank" rel="noopener" class="m-link">YouTube</a>, write on <a href="https://notmegapixels.substack.com/" target="_blank" rel="noopener" class="m-link">Substack</a>, and share my love for film photography through <a href="https://shootitwithfilm.com/tag/raufan-yusup/" target="_blank" rel="noopener" class="m-link">Shoot It With Film</a> and <a href="https://www.instagram.com/notmegapixels/" target="_blank" rel="noopener" class="m-link">Notmegapixels</a>.</span>
+      <span class="lang-layer" lang="ja">東京を拠点に活動するフィルム写真家です。変化や何気ない日常、そして暮らしの中にある美しさを、静かなまなざしで見つめています。これまでに2冊の写真集を出版し、東京各地で個展を開催し、グループ展にも参加してきました。また、<a href="https://www.youtube.com/@notmegapixels" target="_blank" rel="noopener" class="m-link">YouTube</a>で映像をつくり、<a href="https://notmegapixels.substack.com/" target="_blank" rel="noopener" class="m-link">Substack</a>で文章を書き、<a href="https://shootitwithfilm.com/tag/raufan-yusup/" target="_blank" rel="noopener" class="m-link">Shoot It With Film</a>と<a href="https://www.instagram.com/notmegapixels/" target="_blank" rel="noopener" class="m-link">Notmegapixels</a>を通してフィルム写真への愛を発信しています。</span>
+    </p>
 
       <section class="m-photo-work" aria-labelledby="photography-heading">
         <div class="m-photo-heading">
-          <h2 class="m-experiment-label" id="photography-heading" data-en="Selected photography" data-ja="主な写真作品">Selected photography</h2>
-          <p class="m-photo-note" data-en="Photography archive · 182 photographs." data-ja="写真アーカイブ · 182点。">Photography archive · 182 photographs.</p>
+          <h2 class="lang-stack m-experiment-label" id="photography-heading">
+      <span class="lang-layer" lang="en">Selected photography</span>
+      <span class="lang-layer" lang="ja">主な写真作品</span>
+    </h2>
+          <p class="lang-stack m-photo-note">
+      <span class="lang-layer" lang="en">Photography archive · 182 photographs.</span>
+      <span class="lang-layer" lang="ja">写真アーカイブ · 182点。</span>
+    </p>
         </div>
 
         <div class="m-photo-filters" role="group" aria-label="Filter photographs">
@@ -195,7 +269,7 @@
   </main>
 
   <canvas id="confetti-canvas"></canvas>
-  <script src="/js/main.js?v=33"></script>
+  <script src="/js/main.js?v=35"></script>
   <script src="/components/Stabilo/stabilo.js?v=5" defer></script>
   <script type="module">
     import { GuestbookCard } from '/components/Guestbook/GuestbookCard.js?v=4';
@@ -236,683 +310,40 @@
     }
   </script>
 
-  <!-- HOMEPAGE BIRD NUDGE — Pixel-art yellow finch carries a banner
-       across the upper area of the viewport after 15s of active
-       reading without a case-study click. Same visual idiom as the
-       case-study FlyBy plane (colored sprite, pixel-art banner,
-       Press Start 2P, waving flag, trailing rope) so it feels like
-       the same craft family — just a different character at a
-       different altitude.
+  <!-- HOMEPAGE BIRD NUDGE
+     Pixel-art finch. The font, canvas, and controller load only when
+     window.__showBird() or window.__birdText() runs, so they stay off
+     the first paint. Set BIRD_HIDDEN to false to load the controller
+     up front again (its own gates still decide whether it flies). -->
+<script>
+(function () {
+  var BIRD_HIDDEN = true;
+  var loading = null;
+  function loadBird() {
+    if (window.__birdLoaded) return Promise.resolve();
+    if (loading) return loading;
+    loading = new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = '/js/homepage-bird.js?v=1';
+      s.onload = function () { window.__birdLoaded = true; resolve(); };
+      s.onerror = reject;
+      document.body.appendChild(s);
+    });
+    return loading;
+  }
+  window.__showBird = function () {
+    loadBird().then(function () { if (window.__showBirdNow) window.__showBirdNow(); });
+  };
+  window.__birdText = function (line1, line2, smallText) {
+    loadBird().then(function () {
+      if (window.__birdTextNow) window.__birdTextNow(line1, line2, smallText);
+    });
+  };
+  if (!BIRD_HIDDEN) loadBird();
+})();
+</script>
+<!-- HOMEPAGE BIRD NUDGE END -->
 
-       Self-contained block: font <link>, <style>, <canvas>, <script>.
-       Revert by deleting everything between the two HOMEPAGE BIRD
-       NUDGE markers. -->
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;display=swap" rel="stylesheet">
-  <style>
-    /* Canvas covers the full viewport so the bird can perch on any
-       text in the page (we measure the text's bounding rect with
-       Range.getBoundingClientRect and convert to canvas coords).
-       pointer-events: none keeps links underneath clickable. */
-    #homepage-bird {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 9996;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
-    }
-    @media (max-width: 600px) {
-      #homepage-bird { display: none; }
-    }
-  </style>
-  <canvas id="homepage-bird" aria-hidden="true"></canvas>
-  <script>
-    /* HOMEPAGE BIRD NUDGE — controller.
-       Yellow finch carries a pixel-art banner reading "Pick one!"
-       across the upper-third of the viewport. Same craft level as the
-       case-study FlyBy plane: colored sprite (not silhouette), wings
-       flap, banner uses Press Start 2P, banner waves like a flag,
-       trailing rope.
-
-       Gating: 15s active reading + no case-study click + first visit +
-       not prefers-reduced-motion + viewport ≥ 600px. Gates only
-       suppress the auto-trigger; window.__showBird() always available
-       from devtools for manual replay. */
-    (function homepageBirdNudge() {
-      var autoTriggerOK = true;
-      // Easter-egg bird hidden for now. Set BIRD_HIDDEN = false to
-      // restore the auto-trigger. (window.__showBird() still works for
-      // manual replay regardless.)
-      var BIRD_HIDDEN = true;
-      if (BIRD_HIDDEN) autoTriggerOK = false;
-      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) autoTriggerOK = false;
-      if (window.innerWidth < 600) autoTriggerOK = false;
-      try { if (localStorage.getItem('bird-shown-v1') === '1') autoTriggerOK = false; } catch (e) {}
-
-      var canvas = document.getElementById('homepage-bird');
-      if (!canvas) return;
-      var ctx = canvas.getContext('2d');
-      var PS  = 3;          // pixel scale — 1 sprite-px = 3 canvas-px
-      function resize() {
-        canvas.width  = window.innerWidth;
-        canvas.height = window.innerHeight;
-        ctx.imageSmoothingEnabled = false;
-      }
-      resize();
-      window.addEventListener('resize', resize);
-
-      // ─── Palette ─────────────────────────────────────────────────
-      // Yellow finch — distinct enough from the plane's red so the
-      // two characters read as different cast members of the same
-      // show. Banner colours match FlyBy's banner exactly.
-      var C = {
-        body:    '#F2C744',   // yellow body
-        bodyHi:  '#FFE07A',   // highlight
-        bodyLo:  '#B8911A',   // shadow
-        beak:    '#FF8A2A',   // orange beak
-        beakLo:  '#A04F10',
-        eye:     '#1A1A1A',
-        eyeHi:   '#FFFFFF',
-        wing:    '#E8B41A',   // wing — slightly darker than body
-        wingLo:  '#8E6A0F',
-        leg:     '#7E5C20',
-        banner:    '#f7f2ea',
-        bannerLo:  '#dcd4c4',
-        bannerEdge:'#1a1a1a',
-        bannerText:'#1a1a1a',
-        rope:    '#5a4028',
-      };
-
-      function px(x, y, w, h, c) {
-        ctx.fillStyle = c;
-        ctx.fillRect(Math.round(x * PS), Math.round(y * PS), w * PS, h * PS);
-      }
-      function pxRaw(x, y, c) {
-        ctx.fillStyle = c;
-        ctx.fillRect(Math.round(x), Math.round(y), PS, PS);
-      }
-
-      // ─── Bird sprite (16 wide × 11 tall, facing right) ───────────
-      // Three wing frames: 0 = up, 1 = mid, 2 = down. Bob a little
-      // each frame so the body looks like it's lifted by the wings.
-      function drawBird(ox, oy, wingFrame) {
-        // Body (oval-ish, 7 wide × 5 tall)
-        px(ox + 4, oy + 3, 6, 5, C.body);
-        // Body highlight along top
-        px(ox + 5, oy + 3, 4, 1, C.bodyHi);
-        // Body shadow along bottom
-        px(ox + 4, oy + 7, 6, 1, C.bodyLo);
-
-        // Head (3 wide × 3 tall, attached to right of body)
-        px(ox + 9, oy + 2, 3, 3, C.body);
-        px(ox + 9, oy + 2, 3, 1, C.bodyHi);
-        px(ox + 9, oy + 4, 3, 1, C.bodyLo);
-
-        // Eye
-        px(ox + 10, oy + 3, 1, 1, C.eye);
-        px(ox + 10, oy + 3, 1, 1, C.eyeHi);
-        // re-stamp the eye darker on the right half — fakes a pupil
-        ctx.fillStyle = C.eye;
-        ctx.fillRect(Math.round((ox + 10) * PS) + PS - 1, Math.round((oy + 3) * PS), 1, PS);
-
-        // Beak (orange triangle pointing right)
-        px(ox + 12, oy + 3, 2, 1, C.beak);
-        px(ox + 13, oy + 4, 1, 1, C.beak);
-        px(ox + 12, oy + 4, 1, 1, C.beakLo);
-
-        // Tail (left side, narrow fan)
-        px(ox + 2, oy + 4, 2, 3, C.body);
-        px(ox + 1, oy + 5, 1, 1, C.bodyLo);
-        px(ox + 0, oy + 6, 2, 1, C.bodyLo);
-
-        // Wings — flap above/below body depending on frame
-        if (wingFrame === 0) {
-          // Up
-          px(ox + 5, oy + 1, 4, 2, C.wing);
-          px(ox + 5, oy + 0, 4, 1, C.wing);
-          px(ox + 5, oy + 2, 4, 1, C.wingLo);
-        } else if (wingFrame === 1) {
-          // Mid (wings extended horizontally)
-          px(ox + 4, oy + 3, 5, 1, C.wing);
-          px(ox + 3, oy + 3, 1, 1, C.wingLo);
-          px(ox + 9, oy + 3, 1, 1, C.wingLo);
-        } else {
-          // Down
-          px(ox + 5, oy + 6, 4, 2, C.wing);
-          px(ox + 5, oy + 8, 4, 1, C.wingLo);
-        }
-
-        // Tiny legs tucked under (always visible)
-        px(ox + 6, oy + 8, 1, 1, C.leg);
-        px(ox + 8, oy + 8, 1, 1, C.leg);
-      }
-
-      // Front-facing perched bird (~12 wide × 11 tall sprite-px). Used
-      // only while perched — the bird turns to face the visitor like
-      // it's making eye contact while raising the small flag. Body is
-      // symmetric, two eyes visible, beak points down, wings tucked
-      // at the sides.
-      function drawBirdPerched(ox, oy) {
-        // Head/body — symmetric round shape
-        px(ox + 3, oy + 0, 6, 1, C.body);
-        px(ox + 2, oy + 1, 8, 2, C.body);
-        px(ox + 3, oy + 1, 6, 1, C.bodyHi);
-        // Eyes — two dark dots
-        px(ox + 3, oy + 2, 1, 1, C.eye);
-        px(ox + 8, oy + 2, 1, 1, C.eye);
-        // Eye whites (just one pixel each — gives the "looking" feel)
-        px(ox + 4, oy + 2, 1, 1, C.eyeHi);
-        px(ox + 7, oy + 2, 1, 1, C.eyeHi);
-        // Beak — small triangle pointing down between the eyes
-        px(ox + 5, oy + 3, 2, 1, C.beak);
-        px(ox + 5, oy + 4, 2, 1, C.beakLo);
-        // Body widens below head
-        px(ox + 2, oy + 3, 8, 1, C.body);
-        px(ox + 1, oy + 4, 10, 3, C.body);
-        // Body shadow
-        px(ox + 1, oy + 6, 10, 1, C.bodyLo);
-        // Wings tucked at the sides (slightly darker)
-        px(ox + 0, oy + 4, 2, 3, C.wing);
-        px(ox + 0, oy + 5, 2, 2, C.wingLo);
-        px(ox + 10, oy + 4, 2, 3, C.wing);
-        px(ox + 10, oy + 5, 2, 2, C.wingLo);
-        // Lower body / belly
-        px(ox + 2, oy + 7, 8, 1, C.body);
-        px(ox + 3, oy + 8, 6, 1, C.bodyLo);
-        // Legs (two stubs)
-        px(ox + 4, oy + 9, 1, 1, C.leg);
-        px(ox + 7, oy + 9, 1, 1, C.leg);
-        // Feet — small horizontal stubs
-        px(ox + 3, oy + 10, 2, 1, C.leg);
-        px(ox + 7, oy + 10, 2, 1, C.leg);
-      }
-
-      // ─── Banners — two of them ──────────────────────────────────
-      // bannerBig    = two-line trailing banner the bird carries the
-      //                whole flight ("Pick one. They're all good." /
-      //                "and then hire me!")
-      // bannerSmall  = single-line "Pick one!" pop-up flag held above
-      //                the bird's head only during the perch moment
-      //
-      // Both use the same FlyBy banner recipe (cream fill, dark
-      // edge, swallowtail notch on the free end, Press Start 2P).
-      var bannerBig    = document.createElement('canvas');
-      var bannerSmall  = document.createElement('canvas');
-      var bannerBigDims   = { width: 0, height: 0 };
-      var bannerSmallDims = { width: 0, height: 0 };
-
-      var BIG_LINE1   = "Pick one. They're all good.";
-      var BIG_LINE2   = "and then hire me!";
-      var SMALL_TEXT  = "read one, you won't regret!";
-
-      // Shared banner drawer. `lines` is an array of { text, font }
-      // where font is in sprite-px. Renders cream rectangle with
-      // notch + dark border + text; writes to the given offscreen
-      // canvas and returns the sprite-px dimensions.
-      function buildBannerInto(targetCanvas, lines) {
-        var bx   = targetCanvas.getContext('2d');
-        var PADX = 4, PADY = 3, LINE_GAP = 2;
-        var HSP = PADY * 2;
-        for (var li = 0; li < lines.length; li++) {
-          if (li > 0) HSP += LINE_GAP;
-          HSP += lines[li].font;
-        }
-        // Measure widest line at its own font size
-        var maxW = 0;
-        bx.textBaseline = 'top';
-        for (var mi = 0; mi < lines.length; mi++) {
-          bx.font = (lines[mi].font * PS) + 'px "Press Start 2P", monospace';
-          var w = bx.measureText(lines[mi].text).width;
-          if (w > maxW) maxW = w;
-        }
-        var textWSp = Math.ceil(maxW / PS);
-        var WSP = textWSp + PADX * 2;
-
-        targetCanvas.width  = WSP * PS;
-        targetCanvas.height = HSP * PS;
-        bx.imageSmoothingEnabled = false;
-
-        // Background
-        bx.fillStyle = C.banner;
-        bx.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
-        // Bottom shading band
-        bx.fillStyle = C.bannerLo;
-        bx.fillRect(0, (HSP - 2) * PS, targetCanvas.width, 2 * PS);
-        // Dark outline (top, bottom, right edge attached to rope)
-        bx.fillStyle = C.bannerEdge;
-        bx.fillRect(0, 0, targetCanvas.width, PS);
-        bx.fillRect(0, (HSP - 1) * PS, targetCanvas.width, PS);
-        bx.fillRect((WSP - 1) * PS, 0, PS, HSP * PS);
-        // Swallowtail V-notch on free (left) end
-        var NOTCH = 3;
-        bx.clearRect(0, 0, NOTCH * PS, HSP * PS);
-        for (var i = 0; i < NOTCH; i++) {
-          bx.fillStyle = C.banner;
-          bx.fillRect(i * PS, i * PS, (NOTCH - i + 1) * PS, PS);
-          bx.fillRect(i * PS, (HSP - 1 - i) * PS, (NOTCH - i + 1) * PS, PS);
-          bx.fillStyle = C.bannerEdge;
-          bx.fillRect(i * PS, i * PS, PS, PS);
-          bx.fillRect(i * PS, (HSP - 1 - i) * PS, PS, PS);
-        }
-        bx.fillStyle = C.banner;
-        for (var row = NOTCH + 1; row < HSP - NOTCH - 1; row++) {
-          bx.fillRect(0, row * PS, NOTCH * PS, PS);
-        }
-        bx.fillStyle = C.bannerEdge;
-        for (var j = 0; j < NOTCH; j++) {
-          bx.fillRect(j * PS, (NOTCH - j) * PS, PS, PS);
-          bx.fillRect(j * PS, (HSP - 1 - NOTCH + j) * PS, PS, PS);
-        }
-        bx.fillStyle = C.bannerLo;
-        bx.fillRect(0, (HSP - 2) * PS, NOTCH * PS, PS);
-
-        // Lines of text, top-aligned within padding
-        bx.fillStyle = C.bannerText;
-        bx.textAlign = 'left';
-        bx.textBaseline = 'top';
-        var ly = PADY;
-        for (var ti = 0; ti < lines.length; ti++) {
-          bx.font = (lines[ti].font * PS) + 'px "Press Start 2P", monospace';
-          bx.fillText(lines[ti].text, PADX * PS, ly * PS);
-          ly += lines[ti].font;
-          if (ti < lines.length - 1) ly += LINE_GAP;
-        }
-        return { width: WSP, height: HSP };
-      }
-      function buildBanners() {
-        // Smaller font sizes — the original sizes (7/5) felt too big
-        // relative to the bird and to the page. 5/4 reads as a
-        // "small marker" the bird carries, not a billboard.
-        bannerBigDims = buildBannerInto(bannerBig, [
-          { text: BIG_LINE1, font: 5 },
-          { text: BIG_LINE2, font: 4 },
-        ]);
-        bannerSmallDims = buildBannerInto(bannerSmall, [
-          { text: SMALL_TEXT, font: 5 },
-        ]);
-      }
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(buildBanners);
-      } else {
-        buildBanners();
-      }
-
-      // Banner draw with wave (same recipe as FlyBy). Takes the
-      // offscreen canvas + its dims so we can use it for both the
-      // big trailing banner and the small perch flag. `amp` scales
-      // the wave intensity (the small flag waves less to look held).
-      function drawBanner(srcCanvas, srcDims, leftPx, centerY, t, amp) {
-        if (!srcDims.width) return;
-        if (amp == null) amp = 2.5;
-        var W = srcCanvas.width;
-        var H = srcCanvas.height;
-        var yTop = centerY - H / 2;
-        for (var col = 0; col < W; col += PS) {
-          var dist = (W - col) / W;
-          var phase1 = t * 0.007 + col * 0.030;
-          var phase2 = t * 0.011 + col * 0.060 + 1.3;
-          var wave   = Math.sin(phase1) * 0.85 + Math.sin(phase2) * 0.18;
-          var ampHere = Math.pow(dist, 0.75) * amp;
-          var offset  = Math.round(wave * ampHere) * PS;
-          ctx.drawImage(srcCanvas, col, 0, PS, H, leftPx + col, yTop + offset, PS, H);
-        }
-      }
-
-      // Rope from bird's belly to banner attach point.
-      function drawRope(fromX, fromY, toX, toY, t) {
-        var dx = toX - fromX;
-        var steps = Math.abs(Math.round(dx / PS));
-        for (var i = 0; i < steps; i++) {
-          var u = i / steps;
-          var x = fromX + dx * u;
-          var sag = Math.sin(t * 0.008 + u * 4) * 1.4 * PS * (1 - Math.abs(u - 0.5) * 1.6);
-          var y = fromY + (toY - fromY) * u + sag;
-          pxRaw(x, y, C.rope);
-        }
-      }
-
-      // ─── Animation — phased ──────────────────────────────────────
-      // PHASES:
-      //   FLY_IN          (3000ms)  bird flies from off-screen left
-      //                              in a gentle arc to the perch
-      //                              position above "AI at the edge"
-      //   PERCH_QUIET     (900ms)   bird sits, wings folded
-      //   RAISE_FLAG      (450ms)   pole + banner grow up above bird
-      //   PERCH_WITH_FLAG (2000ms)  bird holds the raised flag
-      //   FLY_OUT         (2800ms)  bird takes off, flies to upper-
-      //                              right, flag trails behind
-      var PH = { FLY_IN: 0, PERCH_QUIET: 1, RAISE_FLAG: 2, PERCH_WITH_FLAG: 3, FLY_OUT: 4, DONE: 5 };
-      var TIMING = {
-        FLY_IN:           5500,   // was 3000 — entrance was rushed
-        PERCH_QUIET:      900,
-        RAISE_FLAG:       450,
-        PERCH_WITH_FLAG:  2000,
-        FLY_OUT:          5500,   // was 2800 — exit was rushed
-      };
-      var BIRD_W_SP = 16;
-      var BIRD_H_SP = 10;
-      var BOB_AMP   = 2.5;   // sprite-px during flight
-      var POLE_H_SP = 9;     // height of the pole holding the flag up
-
-      var state = { active: false, rafId: 0 };
-      var phase, phaseStart, perchX, perchY, flyInStart;
-
-      // Mild ease-out for the fly-in / fly-out paths. Power 1.5 keeps
-      // most of the flight at near-constant speed and only softens
-      // the very end — bird carries momentum into the perch instead
-      // of crawling the final 30%. Cubic (power 3) was too aggressive.
-      function ease(t) { return 1 - Math.pow(1 - t, 1.5); }
-
-      // ─── Perch target ────────────────────────────────────────────
-      // Find the phrase the bird should land on top of. Returns
-      // {x, y} = viewport pixel coords of the centre-top of the
-      // target text, or null if not found.
-      function findPerchTarget() {
-        var phrases = ['AI at the edge', 'AI', '境目'];
-        var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-        var node;
-        while ((node = walker.nextNode())) {
-          for (var i = 0; i < phrases.length; i++) {
-            var idx = node.textContent.indexOf(phrases[i]);
-            if (idx >= 0) {
-              var range = document.createRange();
-              range.setStart(node, idx);
-              range.setEnd(node, idx + phrases[i].length);
-              var r = range.getBoundingClientRect();
-              if (r && r.width > 0 && r.height > 0) {
-                return {
-                  x: r.left + r.width / 2,
-                  y: r.top,
-                  rect: r,
-                };
-              }
-            }
-          }
-        }
-        return null;
-      }
-
-      // ─── Phase draws ─────────────────────────────────────────────
-      // Side-view flying bird (16 wide × 10 tall sprite-px). Positioned
-      // by (birdNoseX, birdTopY) — birdNoseX = the right edge.
-      function drawBirdAt(birdNoseX, birdTopY, wingFrame) {
-        var birdW = BIRD_W_SP * PS;
-        var birdOX = (birdNoseX - birdW) / PS;
-        var birdOY = birdTopY / PS;
-        drawBird(birdOX, birdOY, wingFrame);
-      }
-      // Front-facing perched bird (12 wide × 11 tall sprite-px). Used
-      // during the perch. Centered horizontally on `birdCenterX`.
-      var PERCH_W_SP = 12;
-      var PERCH_H_SP = 11;
-      function drawBirdPerchedAt(birdCenterX, birdTopY) {
-        var birdW = PERCH_W_SP * PS;
-        var birdOX = (birdCenterX - birdW / 2) / PS;
-        var birdOY = birdTopY / PS;
-        drawBirdPerched(birdOX, birdOY);
-      }
-      // Pole + small "Pick one!" flag held UP above the bird during
-      // the perch moment. poleProgress 0→1 controls the raise (pole
-      // grows from 0 to full height; flag fades+scales in at the
-      // tail end).
-      // Pole + small flag held UP. Called only during perch phases,
-      // where the bird is in its front-facing pose. Pole anchors
-      // slightly behind the bird's centre so the flag extends to
-      // the visitor's right (off the bird's left "shoulder").
-      function drawRaisedFlag(birdCenterX, birdTopY, poleProgress, t) {
-        // Pole bottom is right behind the front-facing bird's head.
-        var poleBottomX = birdCenterX - 1 * PS;
-        var poleBottomY = birdTopY + 2 * PS;
-        var fullH = POLE_H_SP * PS;
-        var poleH = Math.round(fullH * poleProgress);
-        ctx.fillStyle = C.rope;
-        ctx.fillRect(Math.round(poleBottomX), Math.round(poleBottomY - poleH), PS, poleH);
-        if (poleProgress > 0.55 && bannerSmallDims.width) {
-          var flagScale = Math.min((poleProgress - 0.55) / 0.45, 1);
-          var bw = bannerSmall.width;
-          var bh = bannerSmall.height;
-          var scaledW = Math.round(bw * flagScale);
-          var scaledH = Math.round(bh * flagScale);
-          // Anchor flag at top-right of pole; flag extends RIGHT so
-          // the visitor reads it left-to-right (since the bird now
-          // faces them, not the right).
-          var flagLeft = poleBottomX + PS;
-          var flagTopY = poleBottomY - poleH - scaledH / 2;
-          ctx.drawImage(bannerSmall,
-            Math.round(flagLeft),
-            Math.round(flagTopY),
-            scaledW, scaledH);
-        }
-      }
-      // Big trailing banner — present during fly-in, fly-out, AND
-      // during the perch (where it drapes naturally behind the bird,
-      // waving more gently because the bird isn't moving). amp
-      // controls wave intensity so we can dampen it while perched.
-      function drawTrailingBanner(birdNoseX, birdTopY, t, amp) {
-        if (!bannerBigDims.width) return;
-        var birdW = BIRD_W_SP * PS;
-        var bw = bannerBig.width;
-        var bh = bannerBig.height;
-        var horizontalGap = 8 * PS;
-        var birdTailX = birdNoseX - birdW + 2 * PS;
-        var bannerRightX = birdTailX - horizontalGap;
-        var bannerLeftX  = bannerRightX - bw;
-        var birdBellyY   = birdTopY + 6 * PS;
-        var bannerTopY   = birdBellyY + 4 * PS;
-        var bannerCY     = bannerTopY + bh / 2;
-        drawBanner(bannerBig, bannerBigDims, bannerLeftX, bannerCY, t, amp);
-        drawRope(bannerRightX, bannerTopY, birdTailX, birdBellyY, t);
-      }
-
-      // ─── Phase controller ────────────────────────────────────────
-      function frame(now) {
-        if (!state.active) return;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        var pe = now - phaseStart;     // phase elapsed
-        var wingFrame = Math.floor(now / 110) % 3;
-        var birdW = BIRD_W_SP * PS;
-        var birdH = BIRD_H_SP * PS;
-
-        // Helper: advance to next phase
-        function advance(nextPhase) {
-          phase = nextPhase;
-          phaseStart = now;
-        }
-
-        if (phase === PH.FLY_IN) {
-          var t = Math.min(pe / TIMING.FLY_IN, 1);
-          var eased = ease(t);
-          // Start position: bird + banner must BOTH be off-screen
-          // left when t=0 so nothing pops in. Banner is ~bannerBig.width
-          // behind the bird, so push the start nose far enough left
-          // that the banner's left edge is also < 0.
-          var horizontalGap = 8 * PS;
-          var bannerW = bannerBig.width || 200;
-          var startX = -(birdW + horizontalGap + bannerW + 40);
-          // Higher start so descent into perch is visible.
-          var startY = perchY - birdH - 220;
-          var endX = perchX + birdW / 2;
-          var endY = perchY - birdH;
-          var noseX = startX + (endX - startX) * eased;
-          var topY  = startY + (endY  - startY) * eased;
-          var bob = Math.sin(now * 0.008) * BOB_AMP * PS * (1 - eased);
-          drawTrailingBanner(noseX, topY + bob, now, 2.5);
-          drawBirdAt(noseX, topY + bob, wingFrame);
-          if (t >= 1) advance(PH.PERCH_QUIET);
-        }
-        else if (phase === PH.PERCH_QUIET) {
-          // Bird turns to face the visitor. Front-facing sprite has
-          // its own dimensions (PERCH_W_SP × PERCH_H_SP). Centre the
-          // bird horizontally over the perch target. Big trailing
-          // banner is HIDDEN during all perch phases (the bird has
-          // "set it down" to show the visitor the small flag).
-          var perchH = PERCH_H_SP * PS;
-          var centerX = perchX;
-          var topY    = perchY - perchH;
-          var settle = pe < 200 ? Math.sin(pe / 200 * Math.PI) * 2 : 0;
-          drawBirdPerchedAt(centerX, topY - settle);
-          if (pe >= TIMING.PERCH_QUIET) advance(PH.RAISE_FLAG);
-        }
-        else if (phase === PH.RAISE_FLAG) {
-          var perchH = PERCH_H_SP * PS;
-          var centerX = perchX;
-          var topY    = perchY - perchH;
-          var t = Math.min(pe / TIMING.RAISE_FLAG, 1);
-          drawRaisedFlag(centerX, topY, ease(t), now);
-          drawBirdPerchedAt(centerX, topY);
-          if (t >= 1) advance(PH.PERCH_WITH_FLAG);
-        }
-        else if (phase === PH.PERCH_WITH_FLAG) {
-          var perchH = PERCH_H_SP * PS;
-          var centerX = perchX;
-          var topY    = perchY - perchH;
-          drawRaisedFlag(centerX, topY, 1, now);
-          drawBirdPerchedAt(centerX, topY);
-          if (pe >= TIMING.PERCH_WITH_FLAG) advance(PH.FLY_OUT);
-        }
-        else if (phase === PH.FLY_OUT) {
-          var t = Math.min(pe / TIMING.FLY_OUT, 1);
-          var startNoseX = perchX + birdW / 2;
-          var startTopY  = perchY - birdH;
-          // End position must push the bird far enough right that the
-          // ENTIRE trailing banner is also off-screen, not just the
-          // bird. Banner sits roughly birdW + ropeGap + bannerW behind
-          // the bird, so add all of that + a buffer.
-          var horizontalGap = 8 * PS;
-          var endNoseX = canvas.width + birdW + horizontalGap
-                       + (bannerBig.width || 200) + 60;
-          // Climb higher on the way out (was -80 → looked truncated).
-          var endTopY  = startTopY - 220;
-          var eased = ease(t);
-          var noseX = startNoseX + (endNoseX - startNoseX) * eased;
-          var topY  = startTopY  + (endTopY  - startTopY)  * eased;
-          var bob = Math.sin(now * 0.008) * BOB_AMP * PS * eased;
-          drawTrailingBanner(noseX, topY + bob, now, 2.5);
-          drawBirdAt(noseX, topY + bob, wingFrame);
-          if (t >= 1) {
-            state.active = false;
-            phase = PH.DONE;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            return;
-          }
-        }
-        state.rafId = requestAnimationFrame(frame);
-      }
-
-      // ─── Fallback (no perch target found) ────────────────────────
-      // If we can't find "AI at the edge" / "AI" / "境目" in the page,
-      // fall back to a simple fly-across so the visitor still gets
-      // something.
-      function runBirdFallback() {
-        var DURATION = 11000;
-        var fallbackStart = performance.now();
-        state.active = true;
-        function fbFrame(now) {
-          if (!state.active) return;
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          var t = Math.min((now - fallbackStart) / DURATION, 1);
-          var birdW = BIRD_W_SP * PS;
-          var bannerW = bannerBig.width;
-          var chainLen = birdW + 8 * PS + bannerW;
-          var noseX = (-40) + (canvas.width + chainLen + 80) * t;
-          var topY = window.innerHeight * 0.2;
-          var bob = Math.sin(now * 0.004) * BOB_AMP * PS;
-          drawTrailingBanner(noseX, topY + bob, now, 2.5);
-          drawBirdAt(noseX, topY + bob, Math.floor(now / 110) % 3);
-          if (t >= 1) { state.active = false; ctx.clearRect(0, 0, canvas.width, canvas.height); return; }
-          state.rafId = requestAnimationFrame(fbFrame);
-        }
-        state.rafId = requestAnimationFrame(fbFrame);
-      }
-
-      // Match the case-study FlyBy plane's pacing — that plane crosses
-      // ~1680px in 16000ms ≈ 0.105 px/ms. Compute fly-in / fly-out
-      // durations from actual distances so the bird looks like it's
-      // travelling at the same speed regardless of where the perch
-      // ends up or how wide the viewport is.
-      var BIRD_SPEED = 0.105; // px / ms
-
-      function runBird() {
-        cancelAnimationFrame(state.rafId);
-        var target = findPerchTarget();
-        if (!target) { runBirdFallback(); return; }
-        perchX = target.x;
-        perchY = target.y;
-
-        // Pre-compute the same start/end X positions the phase code
-        // will use, so we can derive distances → durations.
-        var birdW = BIRD_W_SP * PS;
-        var horizontalGap = 8 * PS;
-        var bannerW = bannerBig.width || 200;
-        var flyInStartX  = -(birdW + horizontalGap + bannerW + 40);
-        var flyInEndX    = perchX + birdW / 2;
-        var flyOutEndX   = canvas.width + birdW + horizontalGap + bannerW + 60;
-        TIMING.FLY_IN  = Math.max(4500, Math.min(16000,
-                                  (flyInEndX  - flyInStartX) / BIRD_SPEED));
-        TIMING.FLY_OUT = Math.max(4500, Math.min(16000,
-                                  (flyOutEndX - flyInEndX)   / BIRD_SPEED));
-
-        phase = PH.FLY_IN;
-        phaseStart = performance.now();
-        state.active = true;
-        state.rafId = requestAnimationFrame(frame);
-      }
-
-      // ─── Active-reading gate ─────────────────────────────────────
-      var activeMs = 0, lastTick = performance.now();
-      var visible = !document.hidden, idle = false, idleTimer = null;
-      var cancelled = false, triggered = false;
-
-      document.querySelectorAll('.m-list a').forEach(function (a) {
-        a.addEventListener('click', function () { cancelled = true; }, { once: true });
-      });
-      document.addEventListener('visibilitychange', function () {
-        visible = !document.hidden;
-        lastTick = performance.now();
-      });
-      function resetIdle() {
-        idle = false;
-        lastTick = performance.now();
-        clearTimeout(idleTimer);
-        idleTimer = setTimeout(function () { idle = true; }, 30000);
-      }
-      ['scroll', 'mousemove', 'touchstart', 'keydown'].forEach(function (evt) {
-        window.addEventListener(evt, resetIdle, { passive: true });
-      });
-      resetIdle();
-
-      function gateLoop(now) {
-        if (triggered || cancelled) return;
-        if (visible && !idle) activeMs += now - lastTick;
-        lastTick = now;
-        if (activeMs >= 10000) {
-          triggered = true;
-          try { localStorage.setItem('bird-shown-v1', '1'); } catch (e) {}
-          runBird();
-          return;
-        }
-        requestAnimationFrame(gateLoop);
-      }
-      if (autoTriggerOK) requestAnimationFrame(gateLoop);
-
-      // DEV/TEST triggers
-      window.__showBird = runBird;
-      // Swap either line on the fly. Pass null/empty for line 2 to
-      // make it single-line for testing variants.
-      // Swap the trailing big banner OR the perched small flag:
-      //   __birdText(null, null, 'Pick me!')           // small flag
-      //   __birdText('Top line.', 'sub line below.')   // big trailing
-      window.__birdText = function (line1, line2, smallText) {
-        if (line1 != null) BIG_LINE1 = line1;
-        if (line2 != null) BIG_LINE2 = line2;
-        if (smallText != null) SMALL_TEXT = smallText;
-        buildBanners();
-      };
-    })();
-  </script>
-  <!-- HOMEPAGE BIRD NUDGE END -->
 
 </body>
 </html>

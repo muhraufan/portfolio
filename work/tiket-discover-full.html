@@ -7,13 +7,49 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <title>tiket.com Discover (Full Case Study) — Raufan Yusup</title>
   <meta name="description" content="Full case study: Turning tiket.com into a destination for travel discovery.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=28">
+
+<link rel="preload" href="/assets/fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <script>
+(function () {
+  try {
+    var theme = localStorage.getItem('theme') || 'light';
+    if (theme === 'dark' || theme === 'light') document.documentElement.setAttribute('data-theme', theme);
+    if (localStorage.getItem('lang') === 'ja') document.documentElement.setAttribute('data-lang', 'ja');
+  } catch (e) {}
+  window.__loadNotoSansJP = function () {
+    if (window.__notoPromise) return window.__notoPromise;
+    window.__notoPromise = new Promise(function (resolve) {
+      var link = document.getElementById('noto-sans-jp');
+      var finish = function () {
+        if (document.fonts && document.fonts.load) {
+          document.fonts.load('400 16px "Noto Sans JP"').then(function () { resolve(); }, function () { resolve(); });
+        } else resolve();
+      };
+      if (!link) {
+        var pre = document.createElement('link');
+        pre.rel = 'preconnect';
+        pre.href = 'https://fonts.gstatic.com';
+        pre.crossOrigin = 'anonymous';
+        document.head.appendChild(pre);
+        link = document.createElement('link');
+        link.id = 'noto-sans-jp';
+        link.rel = 'stylesheet';
+        link.href = 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&display=swap';
+        document.head.appendChild(link);
+      }
+      if (link.sheet) { finish(); return; }
+      link.addEventListener('load', finish, { once: true });
+      link.addEventListener('error', function () { resolve(); }, { once: true });
+    });
+    return window.__notoPromise;
+  };
+  try { if (localStorage.getItem('lang') === 'ja') window.__loadNotoSansJP(); } catch (e) {}
+})();
+</script>
+
+  <link rel="stylesheet" href="/css/style.css?v=40">
   <link rel="stylesheet" href="/css/case.css?v=153">
-  <link rel="stylesheet" href="/components/FlyBy/flyby.css?v=4">
+  <link rel="stylesheet" href="/components/FlyBy/flyby.css?v=5">
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
   <!-- FLOATING NAV (experimental — single case study only) -->
   <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=31">
@@ -648,7 +684,7 @@
     <img class="lightbox-img" id="lightbox-img" src="" alt="">
   </div>
 
-  <script src="/js/case.js?v=12"></script>
+  <script src="/js/case.js?v=13"></script>
   <script>
   (function() {
     var container = document.getElementById('labyrinth');
@@ -1238,10 +1274,19 @@
   })();
   </script>
   <canvas id="flyby-surprise"></canvas>
-  <script src="/components/FlyBy/flyby.js?v=4" defer></script>
+  <script src="/components/FlyBy/flyby.js?v=5" defer></script>
   <script src="/components/Stabilo/stabilo.js?v=5" defer></script>
   <!-- FLOATING NAV (experimental) -->
   <script src="/components/FloatingNav/floating-nav.js?v=15" defer></script>
-  <script src="/live-polish.js?v=3"></script>
+<script>
+(function () {
+  var h = location.hostname;
+  var dev = window.LIVE_POLISH_ENABLE === true ||
+    h === 'localhost' || h === '127.0.0.1' || h === '0.0.0.0' || h === '' ||
+    h.endsWith('.local') || location.protocol === 'file:';
+  if (!dev) return;
+  document.write('<script src="/live-polish.js?v=4"><\/script>');
+})();
+</script>
 </body>
 </html>

@@ -439,13 +439,13 @@ window.FlyBy = (function () {
     ctx.drawImage(signCanvas, Math.round(canvasX), Math.round(canvasY));
   }
 
-  // Build both pre-rendered sprites after the font is ready so the
-  // text metrics are accurate.
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(() => { buildBanner(); buildSign(); });
-  } else {
-    buildBanner(); buildSign();
-  }
+  // Build both pre-rendered sprites after Press Start 2P is ready so
+  // the text metrics are accurate. fonts.ready is not enough: nothing
+  // else on the page uses this face, so it is not in the load set yet.
+  const pressStartReady = (document.fonts && document.fonts.load)
+    ? document.fonts.load('16px "Press Start 2P"')
+    : Promise.resolve();
+  pressStartReady.then(() => { buildBanner(); buildSign(); }, () => { buildBanner(); buildSign(); });
 
   // ═══ ROPE (between plane tail and trailing banner) ══════════════════
   function drawRope(fromX, fromY, toX, toY, t) {

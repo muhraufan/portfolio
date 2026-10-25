@@ -1998,6 +1998,15 @@
   </script>
 
   <script src="/components/Stabilo/stabilo.js?v=5" defer></script>
-  <script src="/live-polish.js?v=3"></script>
+<script>
+(function () {
+  var h = location.hostname;
+  var dev = window.LIVE_POLISH_ENABLE === true ||
+    h === 'localhost' || h === '127.0.0.1' || h === '0.0.0.0' || h === '' ||
+    h.endsWith('.local') || location.protocol === 'file:';
+  if (!dev) return;
+  document.write('<script src="/live-polish.js?v=4"><\/script>');
+})();
+</script>
 </body>
 </html>
