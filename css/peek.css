@@ -1,0 +1,17 @@
+/* Peek & land — the Postcard homepage.
+   The content under the postcard dissolves into the page (alpha mask, no colour of its own).
+   Scroll and the postcard is laid down on the desk while the content rises and lands
+   on a soft detent. Everything is tied to scroll position, transform/opacity only. */
+
+/* v2: the fade is an alpha mask on the content itself (set in peek.js), so it has no colour of its own. */
+
+html.peek-on { scroll-behavior: auto; } /* the site's smooth scroll-behavior would double-ease the settle */
+
+/* stable compositor layers for as long as the moment exists. Toggling will-change on every
+   scroll start/stop re-creates and re-rasters the layers, which is exactly the jank we don't want. */
+html.peek-on .pc-card { will-change: transform, opacity; }
+html.peek-on .peek-soft { will-change: filter; }
+html.peek-on [data-profile-panel] { -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; }
+.pc-hero .pc-card { transform-origin: 50% 100%; }
+
+

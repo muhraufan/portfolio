@@ -8,7 +8,7 @@
   var scene = front.querySelector('.ls-scene'), sceneCanvas = scene.querySelector('canvas');
   var print = front.querySelector('.pc-print'), topFrame = print.querySelector('.pc-top'), nextFrame = print.querySelector('.pc-next'), unders = print.querySelectorAll('.pc-under');
   var cap = fig.querySelector('.ls-caption'), who = cap.querySelector('.ls-who'), who2 = cap.querySelector('.ls-who2');
-  var noteWrap = cap.querySelector('.pc-note-wrap'), note = cap.querySelector('.pc-note'), thanks = cap.querySelector('.pc-thanks');
+  var noteWrap = cap.querySelector('.pc-note-wrap'), note = cap.querySelector('.pc-note'), thanks = cap.querySelector('.pc-thanks'), tl = cap.querySelector('.pc-tl');
   var msg = back.querySelector('textarea'), nameIn = back.querySelector('.pc-from input');
   var sig = back.querySelector('.pc-sig canvas'), clearBtn = back.querySelector('.pc-clear');
   var post = back.querySelector('.pc-post'), closeBtn = back.querySelector('.pc-close');
@@ -21,11 +21,11 @@
 
   // ---------- strings ----------
   var T = {
-    en: { note: 'Leave a note', thanks: 'Thanks for the note', label: 'Guest card', title: 'Thank you for visiting! -Raufan',
+    en: { note: 'Leave a note', tl: 'Earlier sightings', thanks: 'Thanks for the note', label: 'Guest card', title: 'Thank you for visiting! -Raufan',
       message: 'Message', messagePh: 'Leave a short note', signature: 'Signature', from: 'From', namePh: 'Your name',
       to: 'To', toName: 'Raufan', close: 'Close', post: 'Post it', clear: 'Clear', form: 'Leave a note for Raufan',
       who: ['Muhammad ', 'Raufan', ' Yusup'], shot: ['Last shot by ', ''], shot2: ['Shot by ', ''], shuffle: 'Shuffle', shuffleLabel: 'Shuffle the prints', toPhoto: 'Photography', toDesign: 'Design', credit: ['Last seen · niko and ... Shibuya · Tokyo', 'Photograph · Raufan Yusup'], err: "Couldn't send. Try again." },
-    ja: { note: 'ひとこと残す', thanks: 'ありがとう、届きました', label: 'Guest card', title: '来てくれてありがとう！ -Raufan',
+    ja: { note: 'ひとこと残す', tl: 'これまでの足あと', thanks: 'ありがとう、届きました', label: 'Guest card', title: '来てくれてありがとう！ -Raufan',
       message: 'メッセージ', messagePh: 'ひとことどうぞ', signature: 'サイン', from: 'From', namePh: 'お名前（任意）',
       to: '', toName: 'ラウファン 様', close: '閉じる', post: '投函する', clear: '消す', form: 'ラウファンにひとこと残す',
       who: ['ムハンマド', 'ラウファン', 'ユスップ'], shot: ['', 'が最後に撮った一枚'], shot2: ['', 'が撮った一枚'], shuffle: 'もう一枚', shuffleLabel: '写真をめくる', toPhoto: '写真', toDesign: 'デザイン', credit: ['Last seen · niko and ... Shibuya · Tokyo', 'Photograph · Raufan Yusup'], err: '送れませんでした。もう一度。' }
@@ -37,7 +37,7 @@
     var s = t();
     setWho(who, s); setWho(who2, s);
     if (typeof applyShot === 'function' && shotTitle) applyShot();
-    note.textContent = s.note; thanks.textContent = s.thanks;
+    note.textContent = s.note; thanks.textContent = s.thanks; if (tl) tl.textContent = s.tl;
     back.setAttribute('aria-label', s.form);
     back.querySelector('.pc-label').textContent = s.label;
     back.querySelector('.pc-title').textContent = s.title;
@@ -48,6 +48,35 @@
     back.querySelector('.pc-to').textContent = s.to; back.querySelector('.pc-to-name').textContent = s.toName;
     closeBtn.textContent = s.close; post.textContent = s.post; clearBtn.textContent = s.clear;
     hintText();
+    tidyDots();
+  }
+  // a wrapped line never starts with a separator: where the browser wraps before a "· item" group, that group's dot goes
+  // and a hard break holds the wrap where it was, so the line can't pull back up without its dot
+  function tidyDots() {
+    cap.querySelectorAll('.pc-br').forEach(function (b) { b.remove(); });
+    cap.querySelectorAll('.is-lead').forEach(function (g) { g.classList.remove('is-lead'); });
+    var w = document.createTreeWalker(cap, NodeFilter.SHOW_TEXT), r = document.createRange(), prev = null, n;
+    while ((n = w.nextNode())) {
+      if (!/\S/.test(n.data) || !n.parentElement.getClientRects().length || n.parentElement.closest('.pc-sr, .pc-thanks')) continue;
+      var el = n.parentElement;
+      if (el.classList.contains('ls-dot') && prev) {
+        r.setStart(prev, prev.data.replace(/\s+$/, '').length - 1); r.setEnd(prev, prev.data.replace(/\s+$/, '').length);
+        var a = r.getBoundingClientRect(), d = el.getBoundingClientRect();
+        if (d.top > a.top + a.height / 2) { var g = el.parentElement; g.classList.add('is-lead'); var br = document.createElement('br'); br.className = 'pc-br'; g.parentNode.insertBefore(br, g); }
+      }
+      prev = n;
+    }
+  }
+  var tidyRaf = 0;
+  window.addEventListener('resize', function () { cancelAnimationFrame(tidyRaf); tidyRaf = requestAnimationFrame(tidyDots); });
+  if (document.fonts) document.fonts.addEventListener('loadingdone', tidyDots);
+  var nameMoving = 0, nameRaf = 0;
+  function nameFrame() { tidyDots(); nameRaf = nameMoving > 0 ? requestAnimationFrame(nameFrame) : 0; }
+  cap.addEventListener('transitionrun', function (e) { if (e.propertyName !== 'max-width') return; nameMoving++; if (!nameRaf) nameRaf = requestAnimationFrame(nameFrame); });
+  ['transitionend', 'transitioncancel'].forEach(function (t) { cap.addEventListener(t, function (e) { if (e.propertyName !== 'max-width') return; nameMoving = Math.max(0, nameMoving - 1); if (!nameMoving) tidyDots(); }); });
+  if (tl) {
+    tl.addEventListener('pointerdown', function () { tl.classList.add('is-press'); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (e) { tl.addEventListener(e, function () { tl.classList.remove('is-press'); }); });
   }
   cap.addEventListener('lastseen:caption', applyStrings);
   LastSeen.caption(cap);
@@ -307,7 +336,8 @@
   }
   scene.addEventListener('lastseen:exit', function (e) { exitAt = e.detail; showCue(false); });
   if (reduce.matches) requestAnimationFrame(function () { showCue(true); });
-  function gone() { if (cueDone) return; if (window.scrollY > 4) { cueDone = true; steps.classList.add('is-gone'); window.removeEventListener('scroll', gone); } }
+  // the trail is tied to scroll: it fades out over the first 90px and comes back at the top, so an early nudge never cancels it
+  function gone() { var u = Math.min(1, Math.max(0, window.scrollY / 90)); steps.style.opacity = u > 0 && !steps.classList.contains('is-away') ? (1 - u).toFixed(3) : ''; steps.style.transition = u > 0 ? 'none' : ''; }
   window.addEventListener('scroll', gone, { passive: true });
   window.addEventListener('resize', function () { if (cueShown && !cueDone) { trail(); steps.querySelectorAll('.pc-step').forEach(function (s) { s.classList.add('is-in'); }); steps.classList.add('is-static'); } });
 
@@ -430,9 +460,9 @@
     if (open) setOpen(false);
   }
   function swapCaption(apply, animate) {
-    if (!animate || reduce.matches) { apply(); return; }
+    if (!animate || reduce.matches) { apply(); tidyDots(); return; }
     cap.classList.add('is-swapping');
-    setTimeout(function () { apply(); requestAnimationFrame(function () { cap.classList.remove('is-swapping'); }); }, 140);
+    setTimeout(function () { apply(); tidyDots(); requestAnimationFrame(function () { cap.classList.remove('is-swapping'); }); }, 140);
   }
   new MutationObserver(function () { setPersona(body.dataset.profile === 'photography' ? 'photography' : 'design', true); })
     .observe(body, { attributes: true, attributeFilter: ['data-profile'] });

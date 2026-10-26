@@ -1,0 +1,232 @@
+/* Timeline 3 — one journal list. The site's own type (13px/26px, 1px tracking; 11px tracked labels), paper and ink.
+   Spacing is a 4px scale: 4 8 12 16 24 32 48. The only floating surface is the site's menu surface (light menu, calendar, bubble). */
+.tl3 { --barH: 76px; --rowH: 76px; --thW: 80px; --thH: 60px; --dateW: 88px; --gap: 16px; --mhH: 48px; --edge: 0px;
+  --hover: color-mix(in srgb, var(--ink) 4%, transparent); --press: color-mix(in srgb, var(--ink) 7%, transparent);
+  --wash: color-mix(in srgb, var(--ink) 6%, var(--pg)); --bleed: 16px;
+  --surface-shadow: 0 0 0 1px var(--border), 0 1px 2px rgba(20, 16, 12, .05), 0 6px 14px -4px rgba(20, 16, 12, .08), 0 18px 40px -12px rgba(20, 16, 12, .16); }
+[data-theme="dark"] .tl3 { --surface-shadow: 0 0 0 1px rgba(255, 255, 255, .07), 0 1px 2px rgba(0, 0, 0, .3), 0 18px 40px -12px rgba(0, 0, 0, .6); }
+html { overflow-anchor: none; scrollbar-gutter: stable; }
+html[data-tod] body.tl3 { background: var(--pg); }
+body.tl3 { margin: 0; min-height: 100vh; -webkit-tap-highlight-color: transparent; overscroll-behavior-x: none; }
+.tl3 img { -webkit-user-drag: none; user-select: none; -webkit-user-select: none; }
+.tl-pre .t3-list, .tl-pre .t3-lede, .tl-pre .t3-controls, .tl-pre .t3-foot, .tl-pre .t3-scrub, .tl-pre .t3-ticks { visibility: hidden; }
+
+/* ---------- the site's top bar and footer ---------- */
+.t3-top { position: fixed; inset: 0 0 auto 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; padding: 32px 32px 0; pointer-events: none; }
+.t3-top > * { pointer-events: auto; }
+.t3-home { display: inline-flex; align-items: center; gap: 14px; color: inherit; text-decoration: none; }
+.t3-av { width: 42px; height: 44px; box-sizing: border-box; padding: 2px 2px 4px; border-radius: 12px; background: #fff; transform: rotate(-1.5deg);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.05), 0 1px 2px rgba(24,24,24,.08), 0 3px 8px rgba(24,24,24,.08); transition: transform 420ms cubic-bezier(0.2, 0, 0, 1), scale 120ms cubic-bezier(0.2, 0, 0, 1); }
+.t3-av img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 9px; }
+html[data-tod="golden"] .t3-av { background: #fffaf3; } html[data-tod="morning"] .t3-av { background: #fcfdfe; }
+.t3-home:hover .t3-av { transform: rotate(-4deg) translate(-1px, -1px); }
+.t3-home:active .t3-av { scale: .94; }
+.t3-home-label { font-size: 11px; line-height: 1.5; letter-spacing: .14em; text-transform: uppercase; color: var(--pg-cap); transition: color 160ms ease-out; }
+.t3-home:hover .t3-home-label { color: var(--text); }
+.t3-home:focus-visible { outline: none; } .t3-home:focus-visible .t3-av { outline: 1.5px solid var(--ink); outline-offset: 3px; }
+.t3-controls { display: flex; align-items: center; gap: 10px; }
+.t3-foot { position: fixed; inset: auto 0 0 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 0 24px calc(20px + env(safe-area-inset-bottom)); pointer-events: none; }
+.t3-foot > * { pointer-events: auto; }
+.t3-badge { font-size: 11px; line-height: 1.5; letter-spacing: .06em; color: var(--pg-cap); }
+.t3-badge:empty { display: none; }
+.t3-badge a { color: var(--text); text-decoration: underline; text-decoration-color: var(--pg-muted); text-underline-offset: 3px; }
+.t3-badge a:hover { text-decoration-color: currentColor; }
+.t3-sound { font: inherit; font-size: 11px; line-height: 1.5; letter-spacing: .14em; text-transform: uppercase; color: var(--pg-cap); background: none; border: 0; padding: 8px 0; cursor: pointer; transition: color 160ms ease-out; }
+.t3-sound:hover, .t3-sound[aria-pressed="true"] { color: var(--text); }
+:is(.t3-sound, .t3-badge a):focus-visible { outline: 1.5px solid var(--ink); outline-offset: 2px; border-radius: 4px; }
+/* rows scroll under the fixed bar: a plain band of paper over the column, the height of the bar, nothing more */
+.t3-mask { position: fixed; z-index: 4; top: 0; height: var(--barH); left: 50%; width: 744px; margin-left: -372px; background: var(--pg); pointer-events: none; }
+
+/* ---------- the column: the homepage bio's width and rhythm ---------- */
+.t3 { max-width: 720px; margin: 0 auto; padding: 120px 24px 160px; box-sizing: border-box; }
+.t3-intro { margin-bottom: 32px; }
+.t3-title { margin: 0; font-size: 11px; font-weight: 500; line-height: 1.5; letter-spacing: .14em; text-transform: uppercase; color: var(--pg-cap); }
+.t3-lede { margin: 8px 0 0; color: var(--pg-bio); }
+.t3-list { position: relative; }
+
+/* a month: sticky header + its rows. Skipped by the renderer when far off screen; its size is exact, so nothing moves */
+.t3-m { content-visibility: auto; margin: 0 calc(-1 * var(--bleed)); padding: 0 var(--bleed); }   /* the site gives every section 56px below; months set their own. content-visibility clips paint to this box, so it carries the row wash's bleed */
+.t3-m + .t3-m { margin-top: 32px; }
+.t3-mh { position: sticky; top: var(--barH); z-index: 3; height: var(--mhH); display: flex; align-items: center; margin: 0 calc(-1 * var(--bleed)); padding: 0 var(--bleed); background: var(--pg); }
+.t3-mh-t { display: inline-flex; align-items: center; gap: 8px; height: 32px; margin: 0 -8px; padding: 0 8px; border: 0; border-radius: 8px; background: none; font: inherit; letter-spacing: inherit; color: var(--text); }
+.t3-mh-n { font-weight: 500; }
+.t3-mh-c { color: var(--pg-cap); font-variant-numeric: tabular-nums; }
+.t3-chev { color: var(--pg-cap); transition: transform 200ms cubic-bezier(0.2, 0, 0, 1); }
+button.t3-mh-t { cursor: pointer; transition: background-color 120ms ease-out; }
+button.t3-mh-t:hover { background: var(--hover); }
+button.t3-mh-t:active { background: var(--press); }
+button.t3-mh-t[aria-expanded="true"] { background: var(--hover); }
+button.t3-mh-t[aria-expanded="true"] .t3-chev { transform: rotate(180deg); }
+.t3-mh-t:not(button) .t3-chev { display: none; }
+
+.t3-rows { list-style: none; margin: 0; padding: 0; }
+.t3-r { position: relative; }
+.t3-rb { position: relative; isolation: isolate; display: grid; grid-template-columns: var(--dateW) minmax(0, 1fr) var(--thW); column-gap: var(--gap); align-items: center; box-sizing: border-box;
+  width: 100%; height: var(--rowH); margin: 0; padding: 0; border: 0; border-radius: 0; background: none; color: inherit;
+  font: inherit; letter-spacing: inherit; line-height: inherit; text-align: left; cursor: pointer; }
+/* hover / press / landing all share one wash: it bleeds --bleed past the content on BOTH sides, so text never moves and never touches its edge */
+.t3-rb::before { content: ''; position: absolute; z-index: -1; top: 0; bottom: 0; left: calc(-1 * var(--bleed)); right: calc(-1 * var(--bleed)); border-radius: 12px;
+  background: var(--wash); opacity: 0; transition: opacity 160ms cubic-bezier(0.2, 0, 0, 1); pointer-events: none; }
+@media (hover: hover) { .t3-rb:hover::before { opacity: .65; } }
+.t3-rb:active::before { opacity: 1; transition-duration: 60ms; }
+.t3-r.is-open > .t3-rb::before { opacity: 0; }
+@media (hover: hover) { .t3-r.is-open > .t3-rb:hover::before { opacity: .65; } }
+.t3-rb > span { display: block; min-width: 0; }
+.t3-l1, .t3-l2 { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.t3-l2 { color: var(--pg-cap); }
+.t3-d { font-variant-numeric: tabular-nums; }
+html[data-lang="ja"] .tl3 { --dateW: 104px; }
+@media (max-width: 600px) { html[data-lang="ja"] .tl3 { --dateW: 76px; } }
+.t3-tag { margin-left: 8px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--pg-dot); }
+.t3-tag-m { display: none; margin: 0 8px 0 0; }
+@media (max-width: 600px) { .t3-l1 > .t3-tag { display: none; } .t3-tag-m { display: inline; } }   /* on a phone the tag drops to the second line so the name keeps its width */
+.t3-now { margin-left: 8px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 500; color: var(--ink); }
+/* the thumbnail is the home postcard, small: the same 4:3 scene with its torn-paper vignette baked into the still's alpha */
+.t3-th { position: relative; width: var(--thW); height: var(--thH); }
+.t3-th img { display: block; width: 100%; height: 100%; }
+.t3-r.is-open .t3-th { visibility: hidden; }
+/* the day a jump landed on: one quiet beat. The same wash, fading in quickly, holding a moment, then letting go slowly */
+.t3-r.is-hit > .t3-rb::before { animation: t3-hit 1500ms both; }
+@keyframes t3-hit { 0% { opacity: 0; animation-timing-function: cubic-bezier(0.2, 0, 0, 1); } 14% { opacity: 1; } 40% { opacity: 1; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); } 100% { opacity: 0; } }
+
+/* the open row: the thumbnail, grown into the live scene */
+.t3-o { padding: 4px 0 24px; }
+.t3-f { position: relative; width: 100%; aspect-ratio: 4 / 3; transform-origin: 0 0; }   /* no box: the scene's own edge is the shape, so it scales from the thumbnail without a pop */
+.t3-f img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.t3-f .t3-fl { opacity: 0; transition: opacity 160ms ease-out; }
+.t3-f .t3-fl.is-in { opacity: 1; }
+.t3-live { position: absolute; inset: 0; opacity: 0; transition: opacity 200ms ease-out; }
+.t3-live.is-in { opacity: 1; }
+.t3-live .ls-scene { position: absolute; inset: 0; } .t3-live canvas { display: block; width: 100%; height: 100%; }
+.t3-live .ls-fade { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; }
+.t3-oc { margin: 8px 0 0; color: var(--pg-cap); font-variant-numeric: tabular-nums; }
+.t3-ghost { position: absolute; z-index: 2; left: 0; top: 0; transform-origin: 0 0; pointer-events: none; }
+.t3-ghost img { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* focus: the site's ring */
+.tl3 :is(.t3-rb, .t3-mh-t, .t3-cal button):focus { outline: none; }
+html[data-input="kbd"] .tl3 :is(.t3-rb, .t3-mh-t, .t3-cal button):focus-visible { outline: 1.5px solid var(--ink); outline-offset: 2px; }
+html[data-input="kbd"] .tl3 .t3-rb:focus-visible { outline: none; }
+html[data-input="kbd"] .tl3 .t3-rb:focus-visible::before { opacity: 1; background: transparent; box-shadow: inset 0 0 0 1.5px var(--ink); }
+
+/* ---------- the floating surface (same as the light menu) ---------- */
+.t3-bubble { position: fixed; z-index: 40; left: 0; top: 0; display: flex; gap: 8px; align-items: baseline; height: 32px; padding: 0 12px; box-sizing: border-box; line-height: 32px; white-space: nowrap;
+  background: var(--pg-menu); border-radius: 8px; box-shadow: var(--surface-shadow); pointer-events: none; opacity: 0; font-variant-numeric: tabular-nums;
+  transition: opacity 100ms ease-out, scale 100ms ease-out; scale: .96; }
+.t3-bubble.is-on { opacity: 1; scale: 1; transition: opacity 120ms cubic-bezier(0.2, 0, 0, 1), scale 160ms cubic-bezier(0.2, 0, 0, 1); }
+.t3-b1 { color: var(--text); } .t3-b2 { color: var(--pg-cap); }
+
+/* ---------- jump 1: the edge month index ---------- */
+.t3-scrub { position: fixed; z-index: 5; right: 16px; top: calc(var(--barH) + 48px); bottom: 72px; width: 56px; box-sizing: border-box; padding: 0 16px 0 0;
+  display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; touch-action: none; user-select: none; -webkit-user-select: none; cursor: default; outline: none; }
+.t3-sm { display: block; font-size: 11px; line-height: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--pg-muted); transition: color 120ms ease-out; white-space: nowrap; }
+.t3-sm.is-y { letter-spacing: .06em; font-variant-numeric: tabular-nums; }
+.t3-sm .t3-dot { display: none; }
+.t3-scrub:is(:hover, .is-live, :focus-visible) .t3-sm { color: var(--pg-cap); }
+.t3-scrub .t3-sm.is-on { color: var(--ink); font-weight: 500; }
+html[data-input="kbd"] .t3-scrub:focus-visible { outline: 1.5px solid var(--ink); outline-offset: 4px; border-radius: 8px; }
+
+/* ---------- jump 3: margin day ticks ---------- */
+.t3-ticks { position: fixed; z-index: 5; top: calc(var(--barH) + 48px); bottom: 72px; left: calc(50% - 360px - 40px); width: 44px; touch-action: none; user-select: none; -webkit-user-select: none; outline: none; }
+.t3-ticks::before { content: ''; position: absolute; top: 0; bottom: 0; left: 22px; width: 1px; background: var(--pg-muted); }
+.t3-tk { position: absolute; left: 22px; width: 6px; height: 1px; margin-top: -.5px; background: var(--pg-muted); transition: background-color 120ms ease-out, width 120ms ease-out; }
+.t3-tk.is-m { width: 12px; }
+.t3-ticks:is(:hover, .is-live, :focus-visible) .t3-tk { background: var(--pg-cap); }
+.t3-ticks .t3-tk.is-on { background: var(--ink); width: 16px; }
+html[data-input="kbd"] .t3-ticks:focus-visible { outline: 1.5px solid var(--ink); outline-offset: 4px; border-radius: 8px; }
+
+/* ---------- jump 2: the header calendar ---------- */
+.t3-cal { position: fixed; z-index: 25; left: 0; top: 0; width: 304px; box-sizing: border-box; padding: 12px; background: var(--pg-menu); border-radius: 12px; box-shadow: var(--surface-shadow);
+  transform-origin: 16px -4px; opacity: 0; transform: scale(.95); transition: opacity 100ms ease-out, transform 100ms ease-out; }
+.t3-cal.is-open { opacity: 1; transform: none; transition: opacity 140ms cubic-bezier(0.2, 0, 0, 1), transform 200ms cubic-bezier(0.2, 0, 0, 1); }
+.t3-cal button { font: inherit; letter-spacing: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; border-radius: 8px; transition: background-color 120ms ease-out; }
+.t3-cal button:not([aria-disabled="true"]):not(:disabled):hover { background: var(--hover); }
+.t3-cal button:not([aria-disabled="true"]):not(:disabled):active { background: var(--press); }
+.t3-ch { display: flex; align-items: center; justify-content: space-between; height: 32px; }
+.t3-ct { font-weight: 500; padding: 0 8px; }
+.t3-cn { width: 32px; height: 32px; display: grid; place-items: center; color: var(--pg-cap); }
+.t3-cn:disabled { color: var(--pg-muted); cursor: default; }
+.t3-cy { display: flex; gap: 4px; margin: 4px 0 8px; }
+.t3-cy button { height: 24px; padding: 0 8px; font-size: 11px; letter-spacing: .06em; color: var(--pg-cap); font-variant-numeric: tabular-nums; }
+.t3-cy button[aria-pressed="true"] { color: var(--text); font-weight: 500; }
+.t3-cw, .t3-cg { display: grid; grid-template-columns: repeat(7, 40px); }
+.t3-cw span { height: 24px; display: grid; place-items: center; font-size: 11px; letter-spacing: .06em; color: var(--pg-cap); }
+.t3-cg button, .t3-cg span { width: 40px; height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; letter-spacing: 0; }
+.t3-cg button[aria-disabled="true"] { color: var(--pg-muted); cursor: default; }
+.t3-cg button.is-v { color: var(--text); font-weight: 500; }
+.t3-cg button.is-v[aria-current="date"] { box-shadow: inset 0 0 0 1px var(--border2); }
+.t3-ce { margin: 4px 8px 0; color: var(--pg-cap); }
+.t3-ce:empty { display: none; }
+
+/* ---------- phones ---------- */
+@media (max-width: 600px) {
+  .tl3 { --barH: 68px; --rowH: 64px; --thW: 56px; --thH: 42px; --dateW: 56px; --gap: 10px; --bleed: 12px; }
+  .t3-top { padding: 24px 18px 0; } .t3-home-label { display: none; }
+  .t3-mask { left: 0; width: 100%; margin: 0; }
+  .t3 { padding: 104px 24px calc(120px + env(safe-area-inset-bottom)); }
+  html:not([data-jump="calendar"]) .t3 { padding-right: 48px; }
+  html:is([data-jump="rail"], [data-jump="ticks"]) .t3 { padding-right: 52px; }   /* the wash (12px bleed) ends 22px clear of the resting ticks */
+  .t3-foot { padding: 0 16px calc(12px + env(safe-area-inset-bottom)); align-items: flex-end; }
+  .t3-foot::before { content: ''; position: absolute; inset: -8px 0 0 0; z-index: -1; background: var(--pg); }
+  .t3-scrub { right: 0; width: 44px; padding: 0; align-items: center; top: calc(var(--barH) + 56px); bottom: calc(64px + env(safe-area-inset-bottom)); }
+  .t3-sm:not(.is-y) { font-size: 0; width: 4px; height: 4px; border-radius: 2px; background: currentColor; }
+  .t3-ticks { left: auto; right: 0; top: calc(var(--barH) + 56px); bottom: calc(64px + env(safe-area-inset-bottom)); }
+  .t3-ticks::before, .t3-tk { left: auto; right: 21px; }
+  .t3-cal { width: calc(100vw - 24px); max-width: 366px; }
+  .t3-cw, .t3-cg { grid-template-columns: repeat(7, 1fr); }
+  .t3-cg button, .t3-cg span { width: 100%; height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .t3-cal, .t3-cal.is-open, .t3-bubble, .t3-bubble.is-on { transition: opacity 1ms; transform: none; scale: 1; }
+  .t3-chev, .t3-rb { transition: none; }
+  .t3-r.is-hit > .t3-rb::before { animation-duration: 1200ms; }
+  .t3-rb::before { transition: none; }
+}
+/* between phone and wide desktop, the edge controls get their own gutter so they never sit on the rows */
+@media (min-width: 601px) and (max-width: 880px) { html:not([data-jump="calendar"]) .t3 { padding-right: 80px; } }
+@media (min-width: 601px) and (max-width: 880px) { .t3-ticks { left: auto; right: 16px; } }
+
+/* ---------- the day rail (rail.js): ?jump=rail (default, the only jump control) and ?jump=ticks ---------- */
+.t3-rail { position: fixed; z-index: 5; left: 0; top: 0; width: 44px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; outline: none; cursor: default; }
+.t3-rail { --th: 1.5px; }
+@media (pointer: fine) { .t3-rail { cursor: none; } }      /* inside the rail the snapped tick is the cursor */
+/* ticks: --th thick (whole device pixels), round-capped; translateY is snapped in rail.js so they stay crisp at 1x and 2x */
+.t3-rt { position: absolute; right: -8px; top: 0; width: 48px; height: var(--th); background: var(--ink); pointer-events: none; }   /* 34px of tick + 14px of room on the inner side for a rightward lean; clip draws the visible part */
+.t3-hd { position: absolute; right: 6px; top: 0; width: 18px; height: 2px; border-radius: 1px; background: var(--ink); pointer-events: none; transition: opacity 120ms ease-out; }
+.t3-yr { position: absolute; right: 48px; top: 0; margin-top: -8px; font-size: 11px; line-height: 16px; letter-spacing: .14em; color: var(--pg-cap); font-variant-numeric: tabular-nums; pointer-events: none; transition: color 160ms ease-out, opacity 120ms ease-out; }
+.t3-rail.is-focus .t3-yr { color: var(--pg-cap); }
+html[data-rail="edge"] .t3-yr { display: none; }
+html[data-input="kbd"] .t3-rail:focus-visible { outline: 1.5px solid var(--ink); outline-offset: 2px; border-radius: 8px; }
+.tl-pre .t3-rail { visibility: hidden; }
+
+/* the caption: two right-aligned lines, date over place; no surface in the empty margin, a paper chip over the rows at the edge */
+.t3-cap { position: fixed; z-index: 41; left: 0; top: 0; width: 0; height: 20px; pointer-events: none; opacity: 0; transform-origin: 100% 25%; white-space: nowrap; }
+.t3-cap.is-on { opacity: 1; }
+.t3-cd, .t3-cp, .t3-cm { position: absolute; right: 0; display: flex; justify-content: flex-end; }
+.t3-cd { top: 0; width: 0; height: 20px; line-height: 20px; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
+.t3-cp { top: 20px; height: 18px; line-height: 18px; color: var(--pg-cap); }
+.t3-cs { position: absolute; right: 0; top: 0; width: 0; height: 20px; transition: transform 200ms cubic-bezier(0.2, 0, 0, 1); }
+.t3-cg1 { position: absolute; right: 0; top: 0; will-change: opacity, filter, transform; }
+.t3-cw1 { position: absolute; right: 0; top: 0; will-change: opacity, filter, transform; }
+.t3-cm { visibility: hidden; top: 0; font-variant-numeric: tabular-nums; }
+.t3-cm.t3-cd-m { font-weight: 500; }
+.t3-cbw { position: absolute; right: -12px; top: -6px; width: 480px; height: 50px; display: none; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .06)) drop-shadow(0 4px 12px rgba(0, 0, 0, .08)); }
+html[data-theme="dark"] .t3-cbw { filter: drop-shadow(0 4px 12px rgba(0, 0, 0, .4)); }
+.t3-cbg { position: absolute; inset: 0; background: var(--pg); transition: clip-path 200ms cubic-bezier(0.2, 0, 0, 1); }
+html[data-rail="edge"] .t3-cbw { display: block; }
+
+/* the day ruler (long-press) */
+.t3-ru { position: fixed; z-index: 42; width: 220px; overflow: hidden; transform-origin: 100% 50%; pointer-events: none; }
+.t3-ru.is-over { background: var(--pg); border-radius: 12px; box-shadow: var(--surface-shadow); }
+.t3-ru-in { position: absolute; left: 0; right: 0; top: 0; }
+.t3-ru-d, .t3-ru-m { height: var(--pitch); display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding-right: 16px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.t3-ru-d > b { font-weight: 400; font-size: 11px; color: var(--pg-cap); min-width: 2ch; text-align: right; }
+.t3-ru-d > b > em { display: none; font-style: normal; }
+.t3-ru-d > span { display: none; color: var(--pg-cap); overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+.t3-ru-d.is-sel > b { font-size: 13px; font-weight: 500; color: var(--text); }
+.t3-ru-d.is-sel > b > em, .t3-ru-d.is-sel > span { display: inline; }
+.t3-ru-m { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--pg-cap); }
+.t3-ru-x { position: fixed; z-index: 42; height: 1px; margin-top: -.5px; background: var(--ink); opacity: .5; pointer-events: none; }
+html[data-rail="edge"] .t3-ru { width: min(260px, calc(100vw - 84px)); }
+html[data-rail="edge"] .t3-ru-d > span { max-width: 170px; }
+@media (prefers-reduced-motion: reduce) { .t3-hd, .t3-yr, .t3-cs, .t3-cbg { transition: none; } }

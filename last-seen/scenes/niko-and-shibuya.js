@@ -306,10 +306,10 @@
     // The one signature beat: someone in a bucket hat steps out with a bag and walks off.
     signature: {
       delay: .1,
-      person: { coat: 'hoodie', legs: 'legsDark', hair: 'hairDark', hat: 'hat', bag: 'bag', bagMark: 'bagMark' },
-      emerge: { x: 205, foot0: 231, foot1: 264, s0: .82, s1: 1.25, dur: .8, fade: .2, stepRate: 16 },
-      // brisk walk off toward the bottom-right corner; the footprints carry on from where the vignette swallows them
-      walk: { pause: .1, accel: .35, speed: 70, dir: 1, dy: .16, ds: .0011, exitX: 356 },
+      person: { coat: 'hoodie', legs: 'legsDark', hair: 'hairDark', hat: 'hat', bag: 'bag', bagMark: 'bagMark', stride: 12 },
+      emerge: { x: 205, foot0: 231, foot1: 264, s0: .82, s1: 1.25, dur: 1.25, fade: .3, stepRate: 11 },
+      // an unhurried walk off toward the bottom-right corner; the footprints carry on from where the vignette swallows them
+      walk: { pause: .45, accel: .7, speed: 30, dir: 1, dy: .16, ds: .0011, exitX: 356 },
       still: { x: 205, t: 2 }
     }
   });

@@ -51,8 +51,9 @@
 
   <link rel="stylesheet" href="/css/style.css?v=47">
   <link rel="stylesheet" href="/css/light.css?v=1">
-  <link rel="stylesheet" href="/css/postcard.css?v=1">
+  <link rel="stylesheet" href="/css/postcard.css?v=2">
   <link rel="stylesheet" href="/last-seen/last-seen.css?v=1">
+  <link rel="stylesheet" href="/css/peek.css?v=1">
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
@@ -123,7 +124,30 @@
             </form>
           </div>
         </div>
-        <figcaption class="ls-caption" data-format="short" data-tpl-en="{who} was last seen at {place}" data-tpl-ja="最後に{who}を見かけたのは {place}"><span class="pc-cap-scene"><span class="ls-where"><span class="ls-pre"></span><a class="ls-who m-name-hover m-highlight" href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener"><span class="m-name-prefix">Muhammad </span><span class="m-name-core">Raufan</span><span class="m-name-suffix"> Yusup</span></a><span class="ls-post"> was last seen at niko and ... Shibuya</span></span> <span><span class="ls-dot">&middot;</span> <time datetime="2026-10-25T18:56:00+09:00">2h ago</time></span></span><span class="pc-cap-photo"><span class="pc-shot"><span class="pc-shot-pre">Last shot by </span><a class="ls-who2 m-name-hover m-highlight" href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener"><span class="m-name-prefix">Muhammad </span><span class="m-name-core">Raufan</span><span class="m-name-suffix"> Yusup</span></a><span class="pc-shot-post"></span></span> <span><span class="ls-dot">&middot;</span> <span class="pc-shot-title"></span></span> <span class="pc-shuffle-wrap"><span class="ls-dot">&middot;</span> <button type="button" class="pc-shuffle">Shuffle</button></span><span class="pc-sr pc-live" aria-live="polite"></span></span> <span class="pc-note-wrap"><span class="ls-dot">&middot;</span> <button type="button" class="pc-note" aria-controls="pc-back" aria-expanded="false">Leave a note</button><span class="pc-thanks" aria-live="polite">Thanks for the note</span></span></figcaption>
+        <figcaption class="ls-caption" data-format="short" data-tpl-en="{who} was last seen at {place}" data-tpl-ja="最後に{who}を見かけたのは {place}"><span class="pc-cap-scene"><span class="ls-where"><span class="ls-pre"></span><a class="ls-who m-name-hover m-highlight" href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener"><span class="m-name-prefix">Muhammad </span><span class="m-name-core">Raufan</span><span class="m-name-suffix"> Yusup</span></a><span class="ls-post"> was last seen at niko&nbsp;and&nbsp;...&nbsp;Shibuya</span></span> <span><span class="ls-dot">&middot;</span> <time datetime="2026-10-25T18:56:00+09:00">2h ago</time></span></span><span class="pc-cap-photo"><span class="pc-shot"><span class="pc-shot-pre">Last shot by </span><a class="ls-who2 m-name-hover m-highlight" href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener"><span class="m-name-prefix">Muhammad </span><span class="m-name-core">Raufan</span><span class="m-name-suffix"> Yusup</span></a><span class="pc-shot-post"></span></span> <span><span class="ls-dot">&middot;</span> <span class="pc-shot-title"></span></span> <span class="pc-shuffle-wrap"><span class="ls-dot">&middot;</span> <button type="button" class="pc-shuffle">Shuffle</button></span><span class="pc-sr pc-live" aria-live="polite"></span></span> <span class="pc-tl-wrap"><span class="ls-dot">&middot;</span> <a class="pc-tl" href="/timeline/">Earlier sightings</a></span> <span class="pc-note-wrap"><span class="ls-dot">&middot;</span> <button type="button" class="pc-note" aria-controls="pc-back" aria-expanded="false">Leave a note</button><span class="pc-thanks" aria-live="polite">Thanks for the note</span></span></figcaption>
+<script>
+(function () {
+  var cap = document.querySelector('.ls-caption');
+  if (!cap) return;
+  var seen = Date.parse('2026-10-25T18:56:00+09:00');
+  var lang = document.documentElement.getAttribute('data-lang') === 'ja' ? 'ja' : 'en';
+  var diff = Math.max(0, (Date.now() - seen) / 1000);
+  var rtf = (lang === 'ja') ? new Intl.RelativeTimeFormat('ja', { numeric: 'auto' })
+    : { format: function (n, u) { return Math.abs(n) + ({ minute: 'm', hour: 'h', day: 'd' })[u] + ' ago'; } };
+  var ago = diff < 3600 ? rtf.format(-Math.max(1, Math.floor(diff / 60)), 'minute')
+    : diff < 86400 ? rtf.format(-Math.floor(diff / 3600), 'hour') : rtf.format(-Math.floor(diff / 86400), 'day');
+  var place = (lang === 'ja' ? 'niko and ... 渋谷' : 'niko and ... Shibuya').replace(/ /g, '\u00a0');
+  var tpl = cap.getAttribute('data-tpl-' + lang) || cap.getAttribute('data-tpl-en');
+  var pre = cap.querySelector('.ls-pre'), post = cap.querySelector('.ls-post');
+  if (tpl && pre && post) {
+    var parts = tpl.replace('{place}', place).split('{who}');
+    pre.textContent = parts[0];
+    post.textContent = parts[1] || '';
+  }
+  var tm = cap.querySelector('time');
+  if (tm) tm.textContent = ago;
+})();
+</script>
       </figure>
       <svg class="pc-steps" aria-hidden="true"></svg>
     </section>
@@ -293,9 +317,10 @@
   <canvas id="confetti-canvas"></canvas>
   <script src="/js/main.js?v=36"></script>
   <script src="/js/light-menu.js?v=1" defer></script>
-  <script src="/last-seen/last-seen.js?v=1" defer></script>
-  <script src="/last-seen/scenes/niko-and-shibuya.js?v=1" defer></script>
-  <script src="/js/postcard.js?v=1" defer></script>
+  <script src="/last-seen/last-seen.js?v=2" defer></script>
+  <script src="/last-seen/scenes/niko-and-shibuya.js?v=2" defer></script>
+  <script src="/js/postcard.js?v=2" defer></script>
+  <script src="/js/peek.js?v=1" defer></script>
   <script src="/components/Stabilo/stabilo.js?v=5" defer></script>
 
   <!-- HOMEPAGE BIRD NUDGE

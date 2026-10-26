@@ -46,6 +46,8 @@
 }
 .pc-hero .ls { width: var(--sw); margin-inline: calc((100% - var(--sw)) / 2); position: relative; z-index: 1; }
 .pc-hero .ls-caption { text-align: center; margin-top: 8px; text-wrap: balance; }
+/* desktop: the caption may run a little past the card, so the name opening up on hover never knocks the line into two */
+@media (min-width: 601px) { .pc-hero .ls-caption { margin-inline: calc(-1 * max(0px, min(160px, (100vw - var(--sw)) / 2 - 64px))); } }
 .pc .m-profile-panel[data-profile-panel="design"] { padding-top: 0; }
 .pc .m-profile-panel[data-profile-panel="photography"] { padding-top: 0; }
 
@@ -53,15 +55,18 @@
 .pc .ls-caption .ls-where { white-space: normal; }
 .pc .ls-who { color: inherit; }
 .pc-note-wrap { white-space: nowrap; position: relative; display: inline-block; }
-.pc-note {
+/* "Earlier sightings": a real link to the Timeline, dressed exactly like "Leave a note" */
+.pc-tl-wrap { white-space: nowrap; }
+.ls-caption.is-photo .pc-tl-wrap { display: none; }
+.pc-note, .pc-tl {
   font: inherit; letter-spacing: inherit; line-height: inherit; color: var(--text);
   border: 0; background: none; padding: 0; margin: 0;
   display: inline-block; transition: transform 120ms cubic-bezier(0.2, 0, 0, 1), opacity 160ms ease-out;
 }
-.pc-note { text-decoration: underline dashed #C8DDD4; text-decoration-thickness: 2px; text-underline-offset: 4px; cursor: pointer; }
-.pc-note:hover { text-decoration-color: #a9c8bb; }
-.pc-note:active, .pc-note.is-press { transform: translateY(1px); }
-.pc-note:focus-visible { outline: 1px dashed currentColor; outline-offset: 4px; border-radius: 2px; }
+.pc-note, .pc-tl { text-decoration: underline dashed #C8DDD4; text-decoration-thickness: 2px; text-underline-offset: 4px; cursor: pointer; }
+.pc-note:hover, .pc-tl:hover { text-decoration-color: #a9c8bb; }
+.pc-note:active, .pc-note.is-press, .pc-tl:active, .pc-tl.is-press { transform: translateY(1px); }
+.pc-note:focus-visible, .pc-tl:focus-visible { outline: 1px dashed currentColor; outline-offset: 4px; border-radius: 2px; }
 .pc-thanks { position: absolute; left: 0; top: 0; white-space: nowrap; color: var(--text); opacity: 0; transform: translateY(4px); pointer-events: none;
   transition: opacity 220ms ease-out, transform 320ms cubic-bezier(0.2, 0, 0, 1); }
 .pc-note-wrap.is-thanks .pc-note { opacity: 0; }
@@ -185,6 +190,9 @@
   .pc-actions { grid-area: actions; margin: 0; align-self: end; gap: 12px; }
   .pc-post { padding: 6px 12px; }
 }
+
+/* a separator never starts a wrapped line (postcard.js tidyDots marks the group that wrapped) */
+.ls-caption .is-lead > .ls-dot { display: none; }
 
 /* caption swaps with the persona */
 .ls-caption { transition: opacity 140ms ease-out; }

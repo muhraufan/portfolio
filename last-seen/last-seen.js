@@ -5,12 +5,12 @@
    rendered at any t (used for the reduced-motion still and the preview). */
 (function () {
   'use strict';
-  var scenes = [], curK = 1;
+  var scenes = [], byId = {}, curK = 1;
   var LS = window.LastSeen = window.LastSeen || {};
-  LS.scene = function (s) { scenes.push(s); };
-  LS.newest = function () {
-    return scenes.slice().sort(function (a, b) { return Date.parse(b.seenAt) - Date.parse(a.seenAt); })[0];
-  };
+  LS.scene = function (s) { scenes.push(s); if (s.id) byId[s.id] = s; };
+  LS.byId = function (id) { return byId[id] || null; };
+  LS.all = function () { return scenes.slice().sort(function (a, b) { return Date.parse(b.seenAt) - Date.parse(a.seenAt); }); };
+  LS.newest = function () { return LS.all()[0]; };
 
   // ---------- small helpers ----------
   function rng(seed) { // mulberry32
@@ -93,6 +93,50 @@
           var f = 1 - hi / p.n;
           ctx.globalAlpha = p.a; ctx.beginPath(); ctx.ellipse(p.x, p.y, p.rx * f, p.ry * f, 0, 0, Math.PI * 2); ctx.fill();
         }
+        ctx.globalAlpha = 1;
+        return;
+      }
+      if (p.t === 'line') {
+        ctx.beginPath();
+        for (var li = 0; li < p.pts.length; li += 2) li ? ctx.lineTo(p.pts[li], p.pts[li + 1]) : ctx.moveTo(p.pts[li], p.pts[li + 1]);
+        ctx.strokeStyle = pal[p.fill] || p.fill; ctx.lineWidth = p.lw || 1; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke();
+        ctx.globalAlpha = 1;
+        return;
+      }
+      if (p.t === 'ring') {
+        ctx.beginPath(); ctx.ellipse(p.x, p.y, p.r, p.ry || p.r, p.rot || 0, 0, Math.PI * 2);
+        ctx.strokeStyle = pal[p.fill] || p.fill; ctx.lineWidth = p.lw || 1; ctx.stroke();
+        ctx.globalAlpha = 1;
+        return;
+      }
+      if (p.t === 'blob') {
+        function blobPath(clumps) {
+          ctx.beginPath();
+          clumps.forEach(function (cl) { ctx.ellipse(cl[0], cl[1], Math.max(.1, cl[2]), Math.max(.1, cl[3]), cl[4] || 0, 0, Math.PI * 2); });
+        }
+        function clumpBox(clumps) {
+          var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+          clumps.forEach(function (cl) {
+            x0 = Math.min(x0, cl[0] - cl[2]); y0 = Math.min(y0, cl[1] - cl[3]);
+            x1 = Math.max(x1, cl[0] + cl[2]); y1 = Math.max(y1, cl[1] + cl[3]);
+          });
+          return [x0, y0, Math.max(1, x1 - x0), Math.max(1, y1 - y0)];
+        }
+        function paintBlob(node) {
+          ctx.fillStyle = pal[node.fill]; blobPath(node.clumps); ctx.fill();
+          if (!node.shade) return;
+          ctx.save(); blobPath(node.clumps); ctx.clip();
+          var box = clumpBox(node.clumps);
+          [].concat(node.shade).forEach(function (sh) { stipple(ctx, box, sh, pal[sh.c], rand, dot); });
+          ctx.restore();
+        }
+        paintBlob(p);
+        (p.inner || []).forEach(function (inn) {
+          ctx.save(); blobPath(p.clumps); ctx.clip();
+          ctx.globalAlpha = inn.a == null ? 1 : inn.a;
+          paintBlob(inn);
+          ctx.restore();
+        });
         ctx.globalAlpha = 1;
         return;
       }
@@ -256,13 +300,18 @@
   };
 
   // ---------- the component ----------
-  LS.mount = function (root, S) {
+  LS.mount = function (root, S, opts) {
+    opts = opts || {};
     S = S || LS.newest();
     var W = S.size[0], H = S.size[1];
     var cv = root.querySelector('canvas'), ctx = cv.getContext('2d');
     var layers = null, mask = null, frameBuf = null, leafSprites = null, k = 1, theme = null, vkey = null;
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-    var exitedFor = null, sigStart = null, clock = 0, last = null, raf = 0, visible = false, played = false;
+    var exitedFor = null, sigStart = null, clock = 0, last = null, raf = 0, visible = false, played = false, held = false;
+    function periodNow() {
+      if (opts.tod && S.variants && S.variants[opts.tod]) return opts.tod;
+      return LS.period(S);
+    }
 
     root.setAttribute('aria-label', S.alt);
     function V() { return S.variants ? S.variants[vkey] : { palette: S.palette[theme], add: {} }; }
@@ -281,7 +330,7 @@
       var cw = Math.max(1, Math.round(rect.width * dpr)), ch = Math.round(cw * H / W);
       cv.width = cw; cv.height = ch;
       k = curK = cw / W; theme = isDark() ? 'dark' : 'light';
-      var prevKey = vkey; vkey = LS.period(S);
+      var prevKey = vkey; vkey = periodNow();
       if (prevKey !== vkey) root.dispatchEvent(new CustomEvent('lastseen:variant', { bubbles: true, detail: { period: vkey, palette: V().palette } }));
       var v = V(), pal = v.palette, dot = Math.max(.55, 1.15 / k), add = v.add || {};
       layers = {};
@@ -294,7 +343,7 @@
         layers[name] = c;
       });
       // agave leaves: one stippled sprite per plant, drawn per leaf with rotation
-      leafSprites = S.agaves.map(function (ag, gi) {
+      leafSprites = (S.agaves || []).map(function (ag, gi) {
         var rand = rng(S.seed + 300 + gi);
         return ag.leaves.map(function (lf) {
           var L = lf.len, w = lf.w, c = canvas(Math.ceil((w + 2) * k), Math.ceil((L + 2) * k)), x = c.getContext('2d');
@@ -310,6 +359,12 @@
 
     function draw(t, st) {
       var v = V(), pal = v.palette, f = frameBuf.getContext('2d'), lt = v.light;
+      function runAnim(layer) {
+        (S.anim || []).forEach(function (a) {
+          if ((a.layer || 'front') !== layer || !a.draw) return;
+          f.save(); f.setTransform(k, 0, 0, k, 0, 0); a.draw(f, t, pal, v); f.restore();
+        });
+      }
       function rimFor(g) {
         if (!lt) return null;
         var d = g.x - lt.x, amt = clamp(1 - Math.abs(d) / lt.r, 0, 1) * (g.inside ? .6 : 1);
@@ -318,8 +373,9 @@
       f.setTransform(1, 0, 0, 1, 0, 0);
       f.globalCompositeOperation = 'source-over';
       f.clearRect(0, 0, frameBuf.width, frameBuf.height);
-      f.drawImage(layers.back, 0, 0);
+      if (layers.back) f.drawImage(layers.back, 0, 0);
       f.setTransform(k, 0, 0, k, 0, 0);
+      runAnim('back');
       // the shop's light breathes, very slowly
       var br = Object.assign({}, S.breathe, v.breathe || {});
       f.globalAlpha = br.a + br.amp * Math.sin(t / br.period * Math.PI * 2);
@@ -354,10 +410,11 @@
         figs.push({ P: sig.person, x: sig.still.x, foot: sig.emerge.foot1, s: sig.emerge.s1, dist: 0, facing: 'front', alpha: 1 });
       }
       figs.filter(function (g) { return g.inside; }).forEach(function (g) { person(f, g.P, pal, g.x, g.foot, g.s, g.dist, g.facing, g.alpha, rimFor(g)); });
-      // facade over the interior
-      f.setTransform(1, 0, 0, 1, 0, 0); f.drawImage(layers.facade, 0, 0); f.setTransform(k, 0, 0, k, 0, 0);
+      // facade over the interior (a place with nothing in front of the interior skips the layer)
+      if (layers.facade) { f.setTransform(1, 0, 0, 1, 0, 0); f.drawImage(layers.facade, 0, 0); }
+      f.setTransform(k, 0, 0, k, 0, 0);
       // agave leaves sway from their base
-      S.agaves.forEach(function (ag, gi) {
+      (S.agaves || []).forEach(function (ag, gi) {
         ag.leaves.forEach(function (lf, li) {
           var sway = Math.sin(t * ag.rate + li * .7 + gi * 2) * ag.amp * (lf.len / 40);
           var spr = leafSprites[gi][li];
@@ -366,7 +423,9 @@
           f.restore();
         });
       });
-      f.setTransform(1, 0, 0, 1, 0, 0); f.drawImage(layers.front, 0, 0); f.setTransform(k, 0, 0, k, 0, 0);
+      if (layers.front) { f.setTransform(1, 0, 0, 1, 0, 0); f.drawImage(layers.front, 0, 0); }
+      f.setTransform(k, 0, 0, k, 0, 0);
+      runAnim('front');
       // passers-by on the sidewalk
       (v.passersby || S.passersby).forEach(function (pb) {
         if (t < pb.start) return;
@@ -398,7 +457,7 @@
       if (now - lastPaint < 31) { schedule(); return; }
       lastPaint = now; frame(now);
     }
-    function schedule() { if (!raf && visible && !document.hidden && !reduce.matches) raf = requestAnimationFrame(tick); }
+    function schedule() { if (!opts.manual && !raf && visible && !held && !document.hidden && !reduce.matches) raf = requestAnimationFrame(tick); }
     function still() { draw(S.signature.still.t, 'still'); }
 
     function play() { sigStart = clock + S.signature.delay; played = true; }
@@ -408,20 +467,26 @@
       last = null; schedule();
     }
 
-    function rebuild() { build(); reduce.matches || !visible ? still() : draw(clock, sigStart); }
+    function rebuild() {
+      build();
+      if (opts.manual) { draw(clock, sigStart == null ? 'still' : sigStart); return; }
+      reduce.matches || !visible ? still() : draw(clock, sigStart);
+    }
     build(); still();
 
-    new IntersectionObserver(function (es) {
-      visible = es[0].isIntersecting && es[0].intersectionRatio >= .5;
-      if (visible) start(); else if (raf) { cancelAnimationFrame(raf); raf = 0; }
-    }, { threshold: [0, .5] }).observe(root);
-    document.addEventListener('visibilitychange', function () { if (!document.hidden) { last = null; schedule(); } });
-    reduce.addEventListener('change', function () { reduce.matches ? still() : start(); });
-    root.addEventListener('click', function () {
-      if (reduce.matches) return;
-      var e = S.signature, dur = e.emerge.dur + e.walk.pause + e.walk.accel + (W / 2 + 40) / e.walk.speed;
-      if (sigStart == null || clock - sigStart > dur || clock < sigStart) { sigStart = clock + .15; }
-    });
+    if (!opts.manual) {
+      new IntersectionObserver(function (es) {
+        visible = es[0].isIntersecting && es[0].intersectionRatio >= .5;
+        if (visible) start(); else if (raf) { cancelAnimationFrame(raf); raf = 0; }
+      }, { threshold: [0, .5] }).observe(root);
+      document.addEventListener('visibilitychange', function () { if (!document.hidden) { last = null; schedule(); } });
+      reduce.addEventListener('change', function () { reduce.matches ? still() : start(); });
+      root.addEventListener('click', function () {
+        if (reduce.matches) return;
+        var e = S.signature, dur = e.emerge.dur + e.walk.pause + e.walk.accel + (W / 2 + 40) / e.walk.speed;
+        if (sigStart == null || clock - sigStart > dur || clock < sigStart) { sigStart = clock + .15; }
+      });
+    }
     function themeSwap() {
       // keep the old frame on top and fade it out, so day turns into night without a flash.
       // Golden ↔ night must not opacity-blend: warm paper over black averages to a muddy grey.
@@ -450,17 +515,29 @@
       }); });
     }
     // the period can change while the page is open: check each minute, crossfade like a theme change
-    setInterval(function () { if (LS.period(S) !== vkey) themeSwap(); }, 60000);
-    new MutationObserver(function () { if ((isDark() ? 'dark' : 'light') !== theme || LS.period(S) !== vkey) themeSwap(); })
-      .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-tod'] });
+    if (!opts.manual) {
+      setInterval(function () { if (periodNow() !== vkey) themeSwap(); }, 60000);
+      new MutationObserver(function () { if ((isDark() ? 'dark' : 'light') !== theme || periodNow() !== vkey) themeSwap(); })
+        .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-tod'] });
+    }
     var ro = new ResizeObserver(function () { if (Math.round(cv.getBoundingClientRect().width * Math.min(window.devicePixelRatio || 1, 2)) !== cv.width) rebuild(); });
     ro.observe(cv);
     if (document.fonts) document.fonts.ready.then(rebuild);
 
-    // deterministic hook for previews/tests
-    LS._renderAt = function (t, st) { clock = t; draw(t, st == null ? sigStart : st); };
-    LS._variant = function () { return vkey; };
-    LS._pause = function () { visible = false; if (raf) cancelAnimationFrame(raf); raf = 0; };
+    var api = {
+      opts: opts,
+      renderAt: function (t, st) { clock = t; draw(t, st == null ? sigStart : st); },
+      rebuild: rebuild,
+      replay: function () { sigStart = clock + (S.signature ? S.signature.delay : 0); played = true; exitedFor = null; },
+      pause: function () { visible = false; if (raf) cancelAnimationFrame(raf); raf = 0; }
+    };
+    if (!opts.manual) {
+      LS._renderAt = api.renderAt;
+      LS._variant = function () { return vkey; };
+      LS._hold = function (h) { h = !!h; if (h === held) return; held = h; if (h) { if (raf) cancelAnimationFrame(raf); raf = 0; } else { last = null; schedule(); } };
+      LS._pause = api.pause;
+    }
+    return api;
   };
 
   // caption: "Last seen at <place> · N hours ago", localized with the site's lang toggle
