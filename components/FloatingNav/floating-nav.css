@@ -297,19 +297,28 @@ body.case-floating-nav .case-page {
   padding: 6px;
   opacity: 0;
   /* -100% of its own width + the 60px gap to viewport edge = fully
-     off-screen to the left. The "hiding behind the page edge" feel. */
+     off-screen to the left. The "hiding behind the page edge" feel.
+     visibility waits out the close so the slide still plays, then
+     the links leave the tab order. */
+  visibility: hidden;
   transform: translateX(calc(-100% - 70px));
   transform-origin: top left;
   pointer-events: none;
   transition:
     opacity   260ms ease,
-    transform 360ms var(--ease-out);
+    transform 360ms var(--ease-out),
+    visibility 0s linear 360ms;
   font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
 }
 .case-fn-popover.is-open {
   opacity: 1;
   transform: translateX(0);
   pointer-events: auto;
+  visibility: visible;
+  transition:
+    opacity   260ms ease,
+    transform 360ms var(--ease-out),
+    visibility 0s linear 0s;
 }
 
 .case-fn-popover-list {
@@ -747,9 +756,13 @@ body.case-floating-nav .case-theme-toggle svg {
   /* Popover: fade in place instead of sliding from the page edge. */
   .case-fn-popover {
     transform: none;
-    transition: opacity 200ms ease;
+    transition: opacity 200ms ease, visibility 0s linear 200ms;
   }
-  .case-fn-popover.is-open { transform: none; }
+  .case-fn-popover.is-open {
+    transform: none;
+    visibility: visible;
+    transition: opacity 200ms ease, visibility 0s linear 0s;
+  }
 
   /* Toolbar labels: reveal instantly, no typewriter stagger. */
   .case-fn-btn:hover .case-fn-btn-label,

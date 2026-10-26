@@ -10,7 +10,6 @@
   var stage = root.querySelector('.vn-stage');
   var countEl = root.querySelector('.vn-n');
   var allLink = root.querySelector('.vn-all');
-  var stateEl = root.querySelector('.vn-state');
   var reduce = matchMedia('(prefers-reduced-motion: reduce)');
   var OUT = 'cubic-bezier(0.2, 0, 0, 1)';
 
@@ -38,6 +37,7 @@
   var total = 0;
   function paintCount() {
     if (!countEl) return;
+    countEl.classList.remove('is-wait');
     countEl.textContent = String(total);
     if (allLink) allLink.setAttribute('aria-label', t().see + ' ' + total);
   }
@@ -213,8 +213,17 @@
   }
 
   var shown = [];
-  function render(list) {
+  function render(list, fresh) {
+    var cards = fan.querySelectorAll('.vn-card');
+    if (!fresh && cards.length === list.length) {
+      list.forEach(function (note, i) {
+        cards[i].setAttribute('aria-label', t().open(note.name || t().anon));
+        cards[i].innerHTML = body(note);
+      });
+      return;
+    }
     fan.textContent = '';
+    fan.removeAttribute('aria-hidden');
     fan.classList.remove('is-in');
     list.forEach(function (note) {
       var a = document.createElement('a');
@@ -230,25 +239,19 @@
     if (!reduce.matches) requestAnimationFrame(function () { fan.classList.add('is-in'); });
   }
 
-  function showState(kind) {
+  function showFallback() {
     stage.setAttribute('aria-busy', 'false');
-    root.classList.add(kind === 'empty' ? 'is-empty' : 'is-error');
-    root.classList.remove(kind === 'empty' ? 'is-error' : 'is-empty');
-    var s = t();
-    stateEl.hidden = false;
-    if (kind === 'empty') {
-      stateEl.innerHTML = esc(s.empty) + ' <a href="/?guestcard=open">' + esc(s.emptyCta) + '</a>';
-    } else {
-      stateEl.innerHTML = esc(s.error) + ' <button type="button" class="vn-retry">' + esc(s.retry) + '</button>';
-      var btn = stateEl.querySelector('.vn-retry');
-      btn.style.cssText = 'font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px;text-decoration-color:color-mix(in srgb, currentColor 30%, transparent)';
-      btn.addEventListener('click', function () { location.reload(); });
-    }
+    root.classList.add('is-fallback');
+    fan.textContent = '';
+    var fb = root.querySelector('.vn-fallback');
+    if (fb) fb.hidden = false;
+    root.removeAttribute('aria-labelledby');
   }
 
   function refreshLang() {
+    if (root.classList.contains('is-fallback')) return;
     paintCount();
-    if (shown.length && !root.classList.contains('is-empty') && !root.classList.contains('is-error')) render(shown);
+    if (shown.length) render(shown, false);
   }
 
   function boot() {
@@ -273,35 +276,23 @@
       total = notes.length;
       paintCount();
       var deck = notes.slice(0, 3);
-      if (!deck.length) { showState('empty'); return; }
-      return Promise.all(deck.map(function (n) {
-        return processSig(n.raw).then(function (sig) { n.sig = sig; });
-      })).then(function () {
-        return Promise.all([paintPaper(), paintStamps(deck)]);
-      }).then(function () {
-        shown = deck;
-        render(deck);
+      if (!deck.length) { showFallback(); return; }
+      shown = deck;
+      render(deck, true);
+      return Promise.all([
+        paintPaper(),
+        paintStamps(deck),
+        Promise.all(deck.map(function (n) {
+          return processSig(n.raw).then(function (sig) { n.sig = sig; });
+        }))
+      ]).then(function () {
+        if (!root.classList.contains('is-fallback')) render(deck, false);
       });
     }).catch(function () {
-      total = 0;
-      paintCount();
-      showState('error');
+      showFallback();
     });
   }
 
   new MutationObserver(refreshLang).observe(html, { attributes: true, attributeFilter: ['data-lang', 'data-tod', 'data-theme'] });
-  var started = false;
-  function start() {
-    if (started) return;
-    started = true;
-    boot();
-  }
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (entries) {
-      if (entries.some(function (e) { return e.isIntersecting; })) { io.disconnect(); start(); }
-    }, { rootMargin: '240px' });
-    io.observe(root);
-  }
-  var idle = window.requestIdleCallback || function (fn) { setTimeout(fn, 1200); };
-  idle(function () { start(); }, { timeout: 2500 });
+  boot();
 })();

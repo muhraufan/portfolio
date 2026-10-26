@@ -1,40 +1,45 @@
 /* Phase 2 case system. Folder material on the homepage is untouched.
    This file is the shared gate, ending, ink, and dark-surface layer. */
 
+/* While the password is on, the page is the title, a short public brief,
+   then the gate. The article body stays in the DOM for unlock. */
 .case-fade { display: none; }
-body.is-paywalled .case-fade {
-  display: block;
-  position: relative;
-  z-index: 4;
-  height: 280px;
-  margin: -280px -24px 0;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    var(--pg, var(--bg)) 42%,
-    var(--pg, var(--bg)) 100%
-  );
-  pointer-events: none;
+
+body.is-paywalled .case-content {
+  max-height: none !important;
+  overflow: visible;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
 }
-@media (min-width: 900px) {
-  body.is-paywalled .case-fade { margin-left: -64px; margin-right: -24px; }
+body.is-paywalled .case-content > :not(.case-header) {
+  display: none !important;
 }
+body.is-paywalled .case-header { margin-bottom: 32px; }
+body.is-paywalled .case-cover-video { display: none; }
 
 .case-gate {
   position: relative;
   z-index: 6;
-  max-width: 520px;
-  margin: -168px auto 56px;
+  width: 100%;
+  max-width: none;
+  margin: 0 0 48px;
 }
 body:not(.is-paywalled) .case-gate { display: none; }
 
 .case-brief {
-  margin: 0 0 20px;
-  padding: 18px 18px 4px;
+  margin: 0 0 28px;
+  padding: 0;
   color: var(--text);
 }
-.case-brief-kicker {
-  margin: 0 0 12px;
+.case-brief p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  letter-spacing: 0;
+  color: var(--text);
+}
+.case-brief p.case-brief-kicker {
+  margin: 0 0 8px;
   color: var(--text3, #84817c);
   font-size: 11px;
   font-weight: 500;
@@ -42,55 +47,29 @@ body:not(.is-paywalled) .case-gate { display: none; }
   line-height: 1.5;
   text-transform: uppercase;
 }
-.case-brief dl {
-  margin: 0 0 14px;
-  display: grid;
-  grid-template-columns: 92px minmax(0, 1fr);
-  gap: 6px 12px;
-}
-.case-brief dt,
-.case-brief dd {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.6;
-}
-.case-brief dt { color: var(--text3, #84817c); }
-.case-brief dd { color: var(--text); }
-.case-brief p,
-.case-brief li {
+.case-brief p.case-brief-meta {
+  margin: 0 0 8px;
+  color: var(--text3, #84817c);
   font-size: 14px;
-  line-height: 1.7;
-  color: var(--text);
-}
-.case-brief ul {
-  margin: 8px 0 0;
-  padding: 0;
-  list-style: none;
-}
-.case-brief li {
-  position: relative;
-  padding-left: 14px;
-  margin: 0 0 6px;
-}
-.case-brief li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.65em;
-  width: 5px;
-  height: 1px;
-  background: currentColor;
-  opacity: 0.45;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
 }
 
 .case-gate .pw-paywall {
   position: relative;
-  margin: 0 auto;
-  min-height: 292px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  min-height: 0;
+  box-sizing: border-box;
 }
 
 .pw-lock { color: var(--text3, #8a8680); }
 .pw-input:focus { border-color: var(--text); outline: none; }
+.pw-input:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 3px;
+}
 
 .case-end {
   margin: 8px 0 24px;

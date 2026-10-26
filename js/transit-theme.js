@@ -20,8 +20,16 @@
     } catch (e) {}
     return 'auto';
   }
+  function override() {
+    try {
+      var o = new URLSearchParams(location.search).get('tod');
+      if (STATES.indexOf(o) >= 0) return o;
+    } catch (e) {}
+    return null;
+  }
+  var o = override();
   var c = choice();
-  var s = c === 'auto' ? (dark.matches ? 'night' : clock()) : c;
+  var s = o || (c === 'auto' ? (dark.matches ? 'night' : clock()) : c);
   html.setAttribute('data-tod', s);
   html.setAttribute('data-theme', s === 'night' ? 'dark' : 'light');
   function bind() {
