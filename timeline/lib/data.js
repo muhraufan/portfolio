@@ -8,9 +8,26 @@
     { scene: 'tsuchiya-kaban-nakameguro', seenAt: '2026-10-25T13:45:00+09:00', name: { en: 'Tsuchiya Kaban', ja: '土屋鞄' }, area: { en: 'Nakameguro, Tokyo', ja: '東京・中目黒' } },
     { scene: 'fuglen-noborito', seenAt: '2026-10-23T13:40:00+09:00', name: { en: 'Fuglen Coffee Roasters', ja: 'フグレン コーヒー ロースターズ' }, area: { en: 'Noborito, Kawasaki', ja: '川崎・登戸' } },
     { scene: 'tokyo-camii', seenAt: '2026-10-23T12:20:00+09:00', name: { en: 'Tokyo Camii', ja: '東京ジャーミイ' }, area: { en: 'Yoyogi-Uehara, Tokyo', ja: '東京・代々木上原' } },
+    { scene: 'lifefit-yurigaoka', seenAt: '2026-10-21T17:47:00+09:00', name: { en: 'LifeFit', ja: 'ライフフィット' }, area: { en: 'Yurigaoka, Kawasaki', ja: '川崎・百合ヶ丘' } },
     { scene: 'yoyogi-park', seenAt: '2026-10-18T11:30:00+09:00', name: { en: 'Yoyogi Park', ja: '代々木公園' }, area: { en: 'Yoyogi, Tokyo', ja: '東京・代々木' } },
-    { scene: 'tokyo-big-sight', seenAt: '2026-10-17T14:00:00+09:00', name: { en: 'Tokyo Big Sight', ja: '東京ビッグサイト' }, area: { en: 'Ariake, Tokyo', ja: '東京・有明' } }
+    { scene: 'tokyo-big-sight', seenAt: '2026-10-17T14:00:00+09:00', name: { en: 'Tokyo Big Sight', ja: '東京ビッグサイト' }, area: { en: 'Ariake, Tokyo', ja: '東京・有明' } },
+    { scene: 'mufg-park', seenAt: '2026-10-11T11:00:00+09:00', name: { en: 'MUFG PARK', ja: 'MUFG PARK' }, area: { en: 'Yanagisawa, Nishitokyo', ja: '西東京・柳沢' } },
+    { scene: 'stayful-life-store', seenAt: '2026-10-03T17:10:00+09:00', name: { en: 'STAYFUL LIFE STORE', ja: 'ステイフル ライフ ストア' }, area: { en: 'Nakacho, Musashino', ja: '武蔵野・中町' } },
+    { scene: 'nadoya-no-katte', seenAt: '2026-10-02T13:15:00+09:00', name: { en: 'nadoya no kaTte', ja: 'ナドヤノカッテ' }, area: { en: 'Yoyogi-Uehara, Tokyo', ja: '東京・代々木上原' } },
+    { scene: 'et-cultural-coffeehouse', seenAt: '2026-09-12T15:17:00+09:00', name: { en: 'Et', ja: 'エト' }, area: { en: 'Shimokitazawa, Tokyo', ja: '東京・下北沢' } }
   ];
+  // Optional `with: [{ name, url }]` on a row. No row sets it.
+  // ?withdemo=1 / ?withdemo=2 borrow a local example for niko and ... only.
+  TL2.companyFor = function (sceneId) {
+    var row = null, i, demo;
+    for (i = 0; i < REAL.length; i++) if (REAL[i].scene === sceneId) row = REAL[i];
+    if (row && row.with && row.with.length) return row.with;
+    if (sceneId === 'niko-and-shibuya' && window.LastSeen && LastSeen.demoCompany) {
+      demo = LastSeen.demoCompany();
+      if (demo && demo.length) return demo;
+    }
+    return [];
+  };
   TL2.FALLBACK = 'niko-and-shibuya';
 
   // The miniature on a visitor note. The latest place whose last-seen time is
@@ -49,8 +66,9 @@
     all.sort(function (a, b) { return Date.parse(b.seenAt) - Date.parse(a.seenAt); });
     return all.map(function (p, i) {
       var S = have(p.scene) || have(TL2.FALLBACK), next = all[i - 1], from = new Date(p.seenAt);
+      var company = (p.with && p.with.length) ? p.with : TL2.companyFor(p.scene);
       return { i: i, id: p.scene + '-' + from.getTime().toString(36), scene: S ? S.id : null, S: S, example: false,
-        name: p.name, area: p.area,
+        name: p.name, area: p.area, with: company.length ? company : null,
         from: from, to: next ? new Date(next.seenAt) : null, current: i === 0, at: TL2.ymd(from) };
     });
   };

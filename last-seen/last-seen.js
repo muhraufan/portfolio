@@ -778,6 +778,46 @@
     return api;
   };
 
+  // Optional company on a place: [{ name, url }]. Nothing in the data uses it yet.
+  // ?withdemo=1 is Brian, ?withdemo=2 is Brian and Aya. Local only, not stored.
+  function escHtml(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  LS.demoCompany = function () {
+    var q = '';
+    try { q = new URLSearchParams(location.search).get('withdemo'); } catch (e) { return null; }
+    if (q === '1') return [{ name: 'Brian', url: 'https://x.com/brian' }];
+    if (q === '2') return [{ name: 'Brian', url: 'https://x.com/brian' }, { name: 'Aya', url: 'https://x.com/aya' }];
+    return null;
+  };
+  LS.companyOf = function (S) {
+    var id = S && (S.id || S.scene);
+    var list = (S && S.with && S.with.length) ? S.with : null;
+    if (!list && window.TL2 && TL2.companyFor) {
+      var from = TL2.companyFor(id);
+      if (from && from.length) list = from;
+    }
+    if (!list && id === 'niko-and-shibuya') list = LS.demoCompany();
+    return list || [];
+  };
+  function companyBits(list, lang, linkClass) {
+    if (!list || !list.length) return null;
+    function plain(p) { return String(p.name); }
+    function linked(p) {
+      var name = escHtml(p.name);
+      if (!p.url) return name;
+      return '<a class="' + linkClass + '" href="' + escHtml(p.url) + '" target="_blank" rel="noopener">' + name + '</a>';
+    }
+    function phrase(names, ja) {
+      if (ja) return '、' + names.join('と') + 'と一緒に';
+      if (names.length === 1) return ' with ' + names[0];
+      if (names.length === 2) return ' with ' + names[0] + ' and ' + names[1];
+      return ' with ' + names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
+    }
+    var ja = lang === 'ja';
+    return { text: phrase(list.map(plain), ja), html: '<span class="ls-with">' + phrase(list.map(linked), ja) + '</span>' };
+  }
+  LS.withHTML = function (list, lang, linkClass) { var b = companyBits(list, lang, linkClass || 'ls-with-a'); return b ? b.html : ''; };
+  LS.withText = function (list, lang) { var b = companyBits(list, lang, 'ls-with-a'); return b ? b.text : ''; };
+
   // caption: "Last seen at <place> · N hours ago", localized with the site's lang toggle
   LS.caption = function (el, S) {
     S = S || LS.newest();
@@ -793,13 +833,18 @@
         : diff < 86400 ? rtf.format(-Math.floor(diff / 3600), 'hour') : rtf.format(-Math.floor(diff / 86400), 'day');
       var place = (S.place[lang] || S.place.en).replace(/ /g, '\u00a0');
       var tpl = el.getAttribute('data-tpl-' + lang) || el.getAttribute('data-tpl-en');
+      var holder = null;
       if (tpl && pre && post) {
         var parts = tpl.replace('{place}', place).split('{who}');
         pre.textContent = parts[0]; post.textContent = parts[1] || '';
+        holder = post;
       } else {
         var c = S.caption[lang] || S.caption.en;
-        el.querySelector('.ls-where').textContent = c.replace('{place}', place);
+        holder = el.querySelector('.ls-where');
+        holder.textContent = c.replace('{place}', place);
       }
+      var withHtml = LS.withHTML(LS.companyOf(S), lang);
+      if (withHtml && holder) holder.insertAdjacentHTML('beforeend', withHtml);
       var tm = el.querySelector('time'); tm.textContent = ago; tm.dateTime = S.seenAt;
       el.dispatchEvent(new CustomEvent('lastseen:caption', { detail: { lang: lang } }));
     }

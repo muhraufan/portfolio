@@ -12,7 +12,7 @@
   function ja() { return TL.lang() === 'ja'; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function tod() { return html.getAttribute('data-tod') || 'midday'; }
-  function img(p, sz) { return '/timeline/img/' + p.scene + '-' + tod() + '-' + sz + '.webp?v=2'; }
+  function img(p, sz) { return '/timeline/img/' + p.scene + '-' + tod() + '-' + sz + '.webp?v=3'; }
   function small() { return innerWidth <= 600; }
   function barH() { return small() ? 68 : 76; }
   function mhH() { return 48; }
@@ -48,7 +48,7 @@
       return '<section class="t3-m" id="m-' + M.key + '" data-k="' + M.key + '" aria-label="' + esc(TL2.monthTitle(M.y, M.m)) + '"><div class="t3-mh">' + headHTML(M) + '</div><ul class="t3-rows">' + M.list.map(rowHTML).join('') + '</ul></section>';
     }).join('');
     months.forEach(function (M) { M.sec = document.getElementById('m-' + M.key); M.head = M.sec.querySelector('.t3-mh'); M.btn = M.sec.querySelector('.t3-mh-t'); sizeMonth(M); });
-    P.forEach(function (p) { p.li = document.getElementById('r-' + p.i); p.btn = p.li.firstChild; });
+    P.forEach(function (p) { p.li = document.getElementById('r-' + p.i); p.btn = p.li.querySelector('.t3-rb'); });
     tops = null;
   }
   function paintStrings() {
@@ -121,7 +121,13 @@
   var liveBox = document.createElement('div'); liveBox.className = 't3-live';
   function openHTML(p) {
     var ex = p.example ? '<p class="t3-oc"><span class="t3-tag">' + (ja() ? '例（実在しません）' : 'Example, not real') + '</span></p>' : '';
-    return '<div class="t3-o" id="o-' + p.i + '"><div class="t3-f"><img class="t3-fs" alt="" src="' + img(p, 's') + '"><img class="t3-fl" alt="" decoding="async"></div>' + ex + '</div>';
+    var cap = '';
+    if (p.with && window.LastSeen && LastSeen.withHTML) {
+      var lang = ja() ? 'ja' : 'en';
+      var place = (p.S && p.S.place && (p.S.place[lang] || p.S.place.en)) || TL2.s(p.name);
+      cap = '<p class="t3-oc">' + esc(lang === 'ja' ? '最後に見かけたのは ' + place : 'Last seen at ' + place) + LastSeen.withHTML(p.with, lang, 't3-with-a') + '</p>';
+    }
+    return '<div class="t3-o" id="o-' + p.i + '"><div class="t3-f"><img class="t3-fs" alt="" src="' + img(p, 's') + '"><img class="t3-fl" alt="" decoding="async"></div>' + ex + cap + '</div>';
   }
   function poster(fr, p) { var L = fr.querySelector('.t3-fl'), u = img(p, 'l'); if (L.getAttribute('src') !== u) { L.classList.remove('is-in'); L.onload = function () { L.classList.add('is-in'); }; L.src = u; if (L.complete && L.naturalWidth) L.classList.add('is-in'); } }
   function prefetch(p) { if (p._pf === tod()) return; p._pf = tod(); new Image().src = img(p, 'l'); }

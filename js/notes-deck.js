@@ -170,7 +170,7 @@
     if (needKit && !(window.LastSeenKit)) chain = chain.then(function () { return loadScript('/last-seen/scenes/_kit.js?v=2'); });
     keys.forEach(function (key) {
       if (!key || (window.LastSeen && LastSeen.byId && LastSeen.byId(key))) return;
-      chain = chain.then(function () { return loadScript('/last-seen/scenes/' + key + '.js?v=2'); });
+      chain = chain.then(function () { return loadScript('/last-seen/scenes/' + key + '.js?v=3'); });
     });
     return chain.catch(function () {});
   }
@@ -255,7 +255,7 @@
   }
 
   function boot() {
-    var dataReady = (window.TL2 && TL2.stampFor) ? Promise.resolve() : loadScript('/timeline/lib/data.js?v=2');
+    var dataReady = (window.TL2 && TL2.stampFor) ? Promise.resolve() : loadScript('/timeline/lib/data.js?v=4');
     dataReady.then(function () {
       return import('/components/Guestbook/guestbookService.js?v=3');
     }).then(function (mod) {
