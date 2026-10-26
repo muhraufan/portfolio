@@ -172,6 +172,17 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () 
 
 // ---- Photography filters + native-ratio archive grid ----
 (async function photographyGallery() {
+  if (document.body.dataset.profile !== 'photography') {
+    await new Promise((resolve) => {
+      const obs = new MutationObserver(() => {
+        if (document.body.dataset.profile === 'photography') {
+          obs.disconnect();
+          resolve();
+        }
+      });
+      obs.observe(document.body, { attributes: true, attributeFilter: ['data-profile'] });
+    });
+  }
   const grid = document.querySelector('.m-photo-grid');
   const filters = [...document.querySelectorAll('[data-photo-filter]')];
   if (!grid) return;

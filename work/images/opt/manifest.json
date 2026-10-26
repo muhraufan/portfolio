@@ -1,0 +1,598 @@
+{
+  "designer-1.png": {
+    "file": "designer-1.png",
+    "width": 786,
+    "height": 602,
+    "variants": [
+      {
+        "w": 640,
+        "h": 490,
+        "webp": "/work/images/opt/designer-1-640.webp",
+        "avif": "/work/images/opt/designer-1-640.avif"
+      },
+      {
+        "w": 786,
+        "h": 602,
+        "webp": "/work/images/opt/designer-1-786.webp",
+        "avif": "/work/images/opt/designer-1-786.avif"
+      }
+    ]
+  },
+  "designer-2.png": {
+    "file": "designer-2.png",
+    "width": 786,
+    "height": 602,
+    "variants": [
+      {
+        "w": 640,
+        "h": 490,
+        "webp": "/work/images/opt/designer-2-640.webp",
+        "avif": "/work/images/opt/designer-2-640.avif"
+      },
+      {
+        "w": 786,
+        "h": 602,
+        "webp": "/work/images/opt/designer-2-786.webp",
+        "avif": "/work/images/opt/designer-2-786.avif"
+      }
+    ]
+  },
+  "Destination.png": {
+    "file": "Destination.png",
+    "width": 540,
+    "height": 4011,
+    "variants": [
+      {
+        "w": 540,
+        "h": 4010,
+        "webp": "/work/images/opt/destination-540.webp",
+        "avif": "/work/images/opt/destination-540.avif"
+      }
+    ]
+  },
+  "destination.png": {
+    "file": "Destination.png",
+    "width": 540,
+    "height": 4011,
+    "variants": [
+      {
+        "w": 540,
+        "h": 4010,
+        "webp": "/work/images/opt/destination-540.webp",
+        "avif": "/work/images/opt/destination-540.avif"
+      }
+    ]
+  },
+  "discover-menu-category.png": {
+    "file": "discover-menu-category.png",
+    "width": 804,
+    "height": 1748,
+    "variants": [
+      {
+        "w": 640,
+        "h": 1390,
+        "webp": "/work/images/opt/discover-menu-category-640.webp",
+        "avif": "/work/images/opt/discover-menu-category-640.avif"
+      },
+      {
+        "w": 804,
+        "h": 1748,
+        "webp": "/work/images/opt/discover-menu-category-804.webp",
+        "avif": "/work/images/opt/discover-menu-category-804.avif"
+      }
+    ]
+  },
+  "discover-menu-outfit.png": {
+    "file": "discover-menu-outfit.png",
+    "width": 804,
+    "height": 1748,
+    "variants": [
+      {
+        "w": 640,
+        "h": 1390,
+        "webp": "/work/images/opt/discover-menu-outfit-640.webp",
+        "avif": "/work/images/opt/discover-menu-outfit-640.avif"
+      },
+      {
+        "w": 804,
+        "h": 1748,
+        "webp": "/work/images/opt/discover-menu-outfit-804.webp",
+        "avif": "/work/images/opt/discover-menu-outfit-804.avif"
+      }
+    ]
+  },
+  "entry-point-option-a.png": {
+    "file": "entry-point-option-a.png",
+    "width": 402,
+    "height": 928,
+    "variants": [
+      {
+        "w": 402,
+        "h": 928,
+        "webp": "/work/images/opt/entry-point-option-a-402.webp",
+        "avif": "/work/images/opt/entry-point-option-a-402.avif"
+      }
+    ]
+  },
+  "entry-point-option-b.png": {
+    "file": "entry-point-option-b.png",
+    "width": 804,
+    "height": 1748,
+    "variants": [
+      {
+        "w": 640,
+        "h": 1390,
+        "webp": "/work/images/opt/entry-point-option-b-640.webp",
+        "avif": "/work/images/opt/entry-point-option-b-640.avif"
+      },
+      {
+        "w": 804,
+        "h": 1748,
+        "webp": "/work/images/opt/entry-point-option-b-804.webp",
+        "avif": "/work/images/opt/entry-point-option-b-804.avif"
+      }
+    ]
+  },
+  "evolution-control.png": {
+    "file": "evolution-control.png",
+    "width": 590,
+    "height": 1313,
+    "variants": [
+      {
+        "w": 590,
+        "h": 1312,
+        "webp": "/work/images/opt/evolution-control-590.webp",
+        "avif": "/work/images/opt/evolution-control-590.avif"
+      }
+    ]
+  },
+  "evolution-final.png": {
+    "file": "evolution-final.png",
+    "width": 590,
+    "height": 1313,
+    "variants": [
+      {
+        "w": 590,
+        "h": 1312,
+        "webp": "/work/images/opt/evolution-final-590.webp",
+        "avif": "/work/images/opt/evolution-final-590.avif"
+      }
+    ]
+  },
+  "evolution-sketch.png": {
+    "file": "evolution-sketch.png",
+    "width": 590,
+    "height": 1313,
+    "variants": [
+      {
+        "w": 590,
+        "h": 1312,
+        "webp": "/work/images/opt/evolution-sketch-590.webp",
+        "avif": "/work/images/opt/evolution-sketch-590.avif"
+      }
+    ]
+  },
+  "ftux-current.png": {
+    "file": "ftux-current.png",
+    "width": 590,
+    "height": 1278,
+    "variants": [
+      {
+        "w": 590,
+        "h": 1278,
+        "webp": "/work/images/opt/ftux-current-590.webp",
+        "avif": "/work/images/opt/ftux-current-590.avif"
+      }
+    ]
+  },
+  "future-live-shopping.png": {
+    "file": "future-live-shopping.png",
+    "width": 804,
+    "height": 1748,
+    "variants": [
+      {
+        "w": 640,
+        "h": 1390,
+        "webp": "/work/images/opt/future-live-shopping-640.webp",
+        "avif": "/work/images/opt/future-live-shopping-640.avif"
+      },
+      {
+        "w": 804,
+        "h": 1748,
+        "webp": "/work/images/opt/future-live-shopping-804.webp",
+        "avif": "/work/images/opt/future-live-shopping-804.avif"
+      }
+    ]
+  },
+  "future-page-expand.png": {
+    "file": "future-page-expand.png",
+    "width": 590,
+    "height": 1311,
+    "variants": [
+      {
+        "w": 590,
+        "h": 1310,
+        "webp": "/work/images/opt/future-page-expand-590.webp",
+        "avif": "/work/images/opt/future-page-expand-590.avif"
+      }
+    ]
+  },
+  "future-page.png": {
+    "file": "future-page.png",
+    "width": 590,
+    "height": 1311,
+    "variants": [
+      {
+        "w": 590,
+        "h": 1310,
+        "webp": "/work/images/opt/future-page-590.webp",
+        "avif": "/work/images/opt/future-page-590.avif"
+      }
+    ]
+  },
+  "Landing.png": {
+    "file": "Landing.png",
+    "width": 540,
+    "height": 4448,
+    "variants": [
+      {
+        "w": 540,
+        "h": 4448,
+        "webp": "/work/images/opt/landing-540.webp",
+        "avif": "/work/images/opt/landing-540.avif"
+      }
+    ]
+  },
+  "landing.png": {
+    "file": "Landing.png",
+    "width": 540,
+    "height": 4448,
+    "variants": [
+      {
+        "w": 540,
+        "h": 4448,
+        "webp": "/work/images/opt/landing-540.webp",
+        "avif": "/work/images/opt/landing-540.avif"
+      }
+    ]
+  },
+  "outfit-detail-full.png": {
+    "file": "outfit-detail-full.png",
+    "width": 804,
+    "height": 3412,
+    "variants": [
+      {
+        "w": 640,
+        "h": 2716,
+        "webp": "/work/images/opt/outfit-detail-full-640.webp",
+        "avif": "/work/images/opt/outfit-detail-full-640.avif"
+      },
+      {
+        "w": 804,
+        "h": 3412,
+        "webp": "/work/images/opt/outfit-detail-full-804.webp",
+        "avif": "/work/images/opt/outfit-detail-full-804.avif"
+      }
+    ]
+  },
+  "sn-home-dark.png": {
+    "file": "sn-home-dark.png",
+    "width": 1179,
+    "height": 2622,
+    "variants": [
+      {
+        "w": 640,
+        "h": 1422,
+        "webp": "/work/images/opt/sn-home-dark-640.webp",
+        "avif": "/work/images/opt/sn-home-dark-640.avif"
+      },
+      {
+        "w": 1178,
+        "h": 2620,
+        "webp": "/work/images/opt/sn-home-dark-1178.webp",
+        "avif": "/work/images/opt/sn-home-dark-1178.avif"
+      }
+    ]
+  },
+  "sn-home-light.png": {
+    "file": "sn-home-light.png",
+    "width": 1179,
+    "height": 2622,
+    "variants": [
+      {
+        "w": 640,
+        "h": 1422,
+        "webp": "/work/images/opt/sn-home-light-640.webp",
+        "avif": "/work/images/opt/sn-home-light-640.avif"
+      },
+      {
+        "w": 1178,
+        "h": 2620,
+        "webp": "/work/images/opt/sn-home-light-1178.webp",
+        "avif": "/work/images/opt/sn-home-light-1178.avif"
+      }
+    ]
+  },
+  "solution-dynamic-curation.png": {
+    "file": "solution-dynamic-curation.png",
+    "width": 591,
+    "height": 1313,
+    "variants": [
+      {
+        "w": 590,
+        "h": 1310,
+        "webp": "/work/images/opt/solution-dynamic-curation-590.webp",
+        "avif": "/work/images/opt/solution-dynamic-curation-590.avif"
+      }
+    ]
+  },
+  "solution-reading-intention.png": {
+    "file": "solution-reading-intention.png",
+    "width": 590,
+    "height": 1311,
+    "variants": [
+      {
+        "w": 590,
+        "h": 1310,
+        "webp": "/work/images/opt/solution-reading-intention-590.webp",
+        "avif": "/work/images/opt/solution-reading-intention-590.avif"
+      }
+    ]
+  },
+  "solution-smart-grouping.png": {
+    "file": "solution-smart-grouping.png",
+    "width": 591,
+    "height": 1313,
+    "variants": [
+      {
+        "w": 590,
+        "h": 1310,
+        "webp": "/work/images/opt/solution-smart-grouping-590.webp",
+        "avif": "/work/images/opt/solution-smart-grouping-590.avif"
+      }
+    ]
+  },
+  "solution-smart-skip.png": {
+    "file": "solution-smart-skip.png",
+    "width": 591,
+    "height": 1313,
+    "variants": [
+      {
+        "w": 590,
+        "h": 1310,
+        "webp": "/work/images/opt/solution-smart-skip-590.webp",
+        "avif": "/work/images/opt/solution-smart-skip-590.avif"
+      }
+    ]
+  },
+  "spectrum-autumn.png": {
+    "file": "spectrum-autumn.png",
+    "width": 540,
+    "height": 3708,
+    "variants": [
+      {
+        "w": 540,
+        "h": 3708,
+        "webp": "/work/images/opt/spectrum-autumn-540.webp",
+        "avif": "/work/images/opt/spectrum-autumn-540.avif"
+      }
+    ]
+  },
+  "spectrum-backpacking.png": {
+    "file": "spectrum-backpacking.png",
+    "width": 540,
+    "height": 3095,
+    "variants": [
+      {
+        "w": 540,
+        "h": 3094,
+        "webp": "/work/images/opt/spectrum-backpacking-540.webp",
+        "avif": "/work/images/opt/spectrum-backpacking-540.avif"
+      }
+    ]
+  },
+  "spectrum-influencer.png": {
+    "file": "spectrum-influencer.png",
+    "width": 540,
+    "height": 4686,
+    "variants": [
+      {
+        "w": 540,
+        "h": 4686,
+        "webp": "/work/images/opt/spectrum-influencer-540.webp",
+        "avif": "/work/images/opt/spectrum-influencer-540.avif"
+      }
+    ]
+  },
+  "spectrum-local-travel.png": {
+    "file": "spectrum-local-travel.png",
+    "width": 540,
+    "height": 3870,
+    "variants": [
+      {
+        "w": 540,
+        "h": 3870,
+        "webp": "/work/images/opt/spectrum-local-travel-540.webp",
+        "avif": "/work/images/opt/spectrum-local-travel-540.avif"
+      }
+    ]
+  },
+  "spectrum-nye.png": {
+    "file": "spectrum-nye.png",
+    "width": 540,
+    "height": 4034,
+    "variants": [
+      {
+        "w": 540,
+        "h": 4034,
+        "webp": "/work/images/opt/spectrum-nye-540.webp",
+        "avif": "/work/images/opt/spectrum-nye-540.avif"
+      }
+    ]
+  },
+  "spectrum-quick-escape.png": {
+    "file": "spectrum-quick-escape.png",
+    "width": 540,
+    "height": 4232,
+    "variants": [
+      {
+        "w": 540,
+        "h": 4232,
+        "webp": "/work/images/opt/spectrum-quick-escape-540.webp",
+        "avif": "/work/images/opt/spectrum-quick-escape-540.avif"
+      }
+    ]
+  },
+  "uniqlo-app-navigation.PNG": {
+    "file": "uniqlo-app-navigation.PNG",
+    "width": 1179,
+    "height": 2556,
+    "variants": [
+      {
+        "w": 640,
+        "h": 1386,
+        "webp": "/work/images/opt/uniqlo-app-navigation-640.webp",
+        "avif": "/work/images/opt/uniqlo-app-navigation-640.avif"
+      },
+      {
+        "w": 1178,
+        "h": 2554,
+        "webp": "/work/images/opt/uniqlo-app-navigation-1178.webp",
+        "avif": "/work/images/opt/uniqlo-app-navigation-1178.avif"
+      }
+    ]
+  },
+  "uniqlo-app-navigation.png": {
+    "file": "uniqlo-app-navigation.PNG",
+    "width": 1179,
+    "height": 2556,
+    "variants": [
+      {
+        "w": 640,
+        "h": 1386,
+        "webp": "/work/images/opt/uniqlo-app-navigation-640.webp",
+        "avif": "/work/images/opt/uniqlo-app-navigation-640.avif"
+      },
+      {
+        "w": 1178,
+        "h": 2554,
+        "webp": "/work/images/opt/uniqlo-app-navigation-1178.webp",
+        "avif": "/work/images/opt/uniqlo-app-navigation-1178.avif"
+      }
+    ]
+  },
+  "uniqlo-app-size-guidance.PNG": {
+    "file": "uniqlo-app-size-guidance.PNG",
+    "width": 1179,
+    "height": 2556,
+    "variants": [
+      {
+        "w": 640,
+        "h": 1386,
+        "webp": "/work/images/opt/uniqlo-app-size-guidance-640.webp",
+        "avif": "/work/images/opt/uniqlo-app-size-guidance-640.avif"
+      },
+      {
+        "w": 1178,
+        "h": 2554,
+        "webp": "/work/images/opt/uniqlo-app-size-guidance-1178.webp",
+        "avif": "/work/images/opt/uniqlo-app-size-guidance-1178.avif"
+      }
+    ]
+  },
+  "uniqlo-app-size-guidance.png": {
+    "file": "uniqlo-app-size-guidance.PNG",
+    "width": 1179,
+    "height": 2556,
+    "variants": [
+      {
+        "w": 640,
+        "h": 1386,
+        "webp": "/work/images/opt/uniqlo-app-size-guidance-640.webp",
+        "avif": "/work/images/opt/uniqlo-app-size-guidance-640.avif"
+      },
+      {
+        "w": 1178,
+        "h": 2554,
+        "webp": "/work/images/opt/uniqlo-app-size-guidance-1178.webp",
+        "avif": "/work/images/opt/uniqlo-app-size-guidance-1178.avif"
+      }
+    ]
+  },
+  "uniqlo-app-stylehint.PNG": {
+    "file": "uniqlo-app-stylehint.PNG",
+    "width": 1179,
+    "height": 2556,
+    "variants": [
+      {
+        "w": 640,
+        "h": 1386,
+        "webp": "/work/images/opt/uniqlo-app-stylehint-640.webp",
+        "avif": "/work/images/opt/uniqlo-app-stylehint-640.avif"
+      },
+      {
+        "w": 1178,
+        "h": 2554,
+        "webp": "/work/images/opt/uniqlo-app-stylehint-1178.webp",
+        "avif": "/work/images/opt/uniqlo-app-stylehint-1178.avif"
+      }
+    ]
+  },
+  "uniqlo-app-stylehint.png": {
+    "file": "uniqlo-app-stylehint.PNG",
+    "width": 1179,
+    "height": 2556,
+    "variants": [
+      {
+        "w": 640,
+        "h": 1386,
+        "webp": "/work/images/opt/uniqlo-app-stylehint-640.webp",
+        "avif": "/work/images/opt/uniqlo-app-stylehint-640.avif"
+      },
+      {
+        "w": 1178,
+        "h": 2554,
+        "webp": "/work/images/opt/uniqlo-app-stylehint-1178.webp",
+        "avif": "/work/images/opt/uniqlo-app-stylehint-1178.avif"
+      }
+    ]
+  },
+  "uniqlo-membership-barcode.PNG": {
+    "file": "uniqlo-membership-barcode.PNG",
+    "width": 1179,
+    "height": 2556,
+    "variants": [
+      {
+        "w": 640,
+        "h": 1386,
+        "webp": "/work/images/opt/uniqlo-membership-barcode-640.webp",
+        "avif": "/work/images/opt/uniqlo-membership-barcode-640.avif"
+      },
+      {
+        "w": 1178,
+        "h": 2554,
+        "webp": "/work/images/opt/uniqlo-membership-barcode-1178.webp",
+        "avif": "/work/images/opt/uniqlo-membership-barcode-1178.avif"
+      }
+    ]
+  },
+  "uniqlo-membership-barcode.png": {
+    "file": "uniqlo-membership-barcode.PNG",
+    "width": 1179,
+    "height": 2556,
+    "variants": [
+      {
+        "w": 640,
+        "h": 1386,
+        "webp": "/work/images/opt/uniqlo-membership-barcode-640.webp",
+        "avif": "/work/images/opt/uniqlo-membership-barcode-640.avif"
+      },
+      {
+        "w": 1178,
+        "h": 2554,
+        "webp": "/work/images/opt/uniqlo-membership-barcode-1178.webp",
+        "avif": "/work/images/opt/uniqlo-membership-barcode-1178.avif"
+      }
+    ]
+  }
+}

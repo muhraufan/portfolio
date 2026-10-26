@@ -250,7 +250,7 @@ body.minimal {
 }
 
 body.minimal ::selection {
-  background: #C8DDD4;
+  background: color-mix(in srgb, var(--text) 18%, transparent);
   color: var(--text);
 }
 
@@ -1520,6 +1520,9 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 }
 
 .m-experiment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1531,15 +1534,8 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
   isolation: isolate;
 }
 
-.m-experiment-list li + li {
-  margin-top: 40px;
-}
-
 .m-experiment-list a {
   display: inline-block;
-  min-height: 40px;
-  margin: -8px 0;
-  padding: 8px 0;
   color: var(--text);
   font-size: 15px;
   font-weight: 500;
@@ -1550,9 +1546,9 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 
 .m-experiment-name {
   text-decoration-line: underline;
-  text-decoration-color: rgba(0, 0, 0, 0.18);
+  text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
   text-decoration-thickness: 1px;
-  text-underline-offset: 5px;
+  text-underline-offset: 3px;
   transition: text-decoration-color 180ms ease;
 }
 
@@ -1595,6 +1591,7 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
   .m-profile-panel > .m-bio,
   .m-page > .m-case-section,
   .m-profile-panel > .m-case-section,
+  .m-profile-panel > .vn,
   .m-page > .m-spacer,
   .m-page > .m-footer,
   .m-experiment-label,
@@ -1609,6 +1606,7 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
   body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .m-profile-panel > .m-bio,
   body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .m-page > .m-case-section,
   body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .m-profile-panel > .m-case-section,
+  body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .m-profile-panel > .vn,
   body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .m-page > .m-spacer,
   body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .m-page > .m-footer,
   body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .m-experiment-label,
@@ -1673,7 +1671,7 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 }
 
 [data-theme="dark"] .m-experiment-name {
-  text-decoration-color: rgba(255, 255, 255, 0.22);
+  text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
 }
 
 [data-theme="dark"] .m-experiment-tagline {
@@ -1687,7 +1685,7 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .m-experiment-label,
   :root:not([data-theme="light"]) .m-experiment-list p { color: #aaa7a0; }
-  :root:not([data-theme="light"]) .m-experiment-name { text-decoration-color: rgba(255, 255, 255, 0.22); }
+  :root:not([data-theme="light"]) .m-experiment-name { text-decoration-color: color-mix(in srgb, currentColor 30%, transparent); }
   :root:not([data-theme="light"]) .m-experiment-tagline { color: #c2bfb8; }
   :root:not([data-theme="light"]) .m-experiment-preview img { outline-color: rgba(255, 255, 255, 0.1); }
 }
@@ -1722,9 +1720,11 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 }
 
 .case-folder:focus-visible {
-  border-radius: 26px;
-  outline: 2px solid var(--text);
-  outline-offset: 5px;
+  outline: none;
+}
+.case-folder:focus-visible .case-folder-back path {
+  stroke: var(--text);
+  stroke-width: 8;
 }
 
 .case-folder:active {
@@ -1849,7 +1849,7 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 .case-folder-label span {
   margin-top: 2px;
   color: #747474;
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.45;
   letter-spacing: 0;
 }
@@ -1916,6 +1916,25 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
   }
 }
 
+.case-folder:focus-visible .case-folder-flap {
+  transform: rotateX(-30deg);
+  transition-duration: 550ms;
+  transition-timing-function: var(--ease-folder-open);
+}
+.case-folder:focus-visible .case-sheet {
+  transform: translateX(calc(-50% + var(--open-x))) translateY(-24%) rotate(var(--open-r));
+  transition-duration: 550ms, 220ms;
+  transition-timing-function: var(--ease-folder-open), var(--ease-out);
+}
+.case-folder:focus-visible .case-folder-label svg {
+  color: #252525;
+  transform: translate(1px, -1px);
+}
+[data-theme="dark"] .case-folder:focus-visible .case-folder-label svg,
+:root:not([data-theme="light"]) .case-folder:focus-visible .case-folder-label svg {
+  color: #f0f0f0;
+}
+
 [data-theme="dark"] .case-folder-back path {
   fill: #262626;
   stroke: rgba(255, 255, 255, 0.08);
@@ -1949,14 +1968,19 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
   color: var(--text);
   text-decoration: underline;
   text-decoration-thickness: 1px;
-  text-underline-offset: 0.22em;
-  text-decoration-color: color-mix(in srgb, var(--text) 55%, transparent);
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, var(--text) 30%, transparent);
   transition: color 0.15s, text-decoration-color 0.15s;
 }
 
 .m-link:hover {
   color: var(--text);
   text-decoration-color: var(--text);
+}
+
+.m-link:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 3px;
 }
 
 /* ---- Green highlight — minimalist dashed underline ---- */
@@ -1977,10 +2001,10 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
   text-decoration-line: underline;
   text-decoration-style: solid;
   text-decoration-thickness: 1px;
-  text-underline-offset: 0.22em;
+  text-underline-offset: 3px;
 }
 .m-photo-intro .m-link {
-  text-decoration-color: color-mix(in srgb, var(--text) 55%, transparent);
+  text-decoration-color: color-mix(in srgb, var(--text) 30%, transparent);
 }
 .m-photo-intro .m-link:hover {
   text-decoration-color: var(--text);
@@ -1996,13 +2020,22 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
   padding: 0;
 }
 
-[data-theme="dark"] .m-highlight-muted {
-  text-decoration-color: rgba(240, 240, 240, 0.18);
+a.m-highlight-muted {
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
+  text-underline-offset: 3px;
 }
+a.m-highlight-muted:hover { text-decoration-color: currentColor; }
+a.m-highlight-muted:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .m-highlight-muted {
     text-decoration-color: rgba(240, 240, 240, 0.18);
+  }
+  :root:not([data-theme="light"]) a.m-highlight-muted {
+    text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
   }
 }
 
@@ -2022,16 +2055,16 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.5px;
-  color: #4a6b5c;
-  border: 1px solid #C8DDD4;
+  color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--text) 28%, transparent);
   padding: 1px 6px;
   margin-left: 4px;
   vertical-align: middle;
 }
 
 [data-theme="dark"] .m-badge-ai {
-  color: #b5ccc3;
-  border-color: rgba(200, 221, 212, 0.35);
+  color: var(--text2);
+  border-color: color-mix(in srgb, var(--text) 28%, transparent);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -2481,13 +2514,13 @@ section {
 }
 
 .badge.available {
-  background: rgba(200, 221, 212, 0.08);
-  border-color: rgba(200, 221, 212, 0.2);
-  color: #4a6b5c;
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+  border-color: color-mix(in srgb, var(--text) 18%, transparent);
+  color: var(--text);
 }
 
 .badge.available .badge-dot {
-  background: var(--green);
+  background: var(--text);
 }
 
 .hero-bio {
@@ -3340,6 +3373,7 @@ footer {
   .m-profile-panel > .m-bio,
   .m-page > .m-case-section,
   .m-profile-panel > .m-case-section,
+  .m-profile-panel > .vn,
   .m-page > .m-spacer,
   .m-page > .m-footer,
   .m-experiment-label,

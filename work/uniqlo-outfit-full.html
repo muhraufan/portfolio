@@ -49,12 +49,12 @@
 })();
 </script>
 
-  <link rel="stylesheet" href="/css/style.css?v=47">
+  <link rel="stylesheet" href="/css/style.css?v=49">
   <link rel="stylesheet" href="/css/light.css?v=1">
-  <link rel="stylesheet" href="/css/case.css?v=156">
+  <link rel="stylesheet" href="/css/case.css?v=157">
   <link rel="stylesheet" href="/components/FlyBy/flyby.css?v=5">
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
-  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=34">
+  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=36">
   <style>
     /* ============================================================
        MEDIUM-STYLE PAYWALL — clip + fade the article, then drop a
@@ -147,12 +147,12 @@
     .pw-lock {
       width: 26px;
       height: 26px;
-      color: #C8DDD4;
+      color: color-mix(in srgb, var(--text) 28%, transparent);
       margin: 0 auto 16px;
       display: block;
     }
     [data-theme="dark"] .pw-lock,
-    :root:not([data-theme="light"]) .pw-lock { color: #8FB7A4; }
+    :root:not([data-theme="light"]) .pw-lock { color: var(--text3); }
 
     .pw-title {
       font-size: 18px;
@@ -189,7 +189,7 @@
       outline: none;
       transition: border-color 0.2s;
     }
-    .pw-input:focus { border-color: #C8DDD4; }
+    .pw-input:focus { border-color: color-mix(in srgb, var(--text) 28%, transparent); }
     .pw-input.is-error { border-color: #ff6b6b; }
     .pw-error {
       color: #ff6b6b;
@@ -708,7 +708,7 @@
     }
     .pain-card-bar-fill {
       height: 100%;
-      background: #C8DDD4;
+      background: color-mix(in srgb, var(--text) 28%, transparent);
       border-radius: 100px;
       width: 0;
       transition: width 600ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -753,12 +753,12 @@
       font-weight: 600;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: #5a9072;
-      background: #e9f7f1;
+      color: var(--text);
+      background: color-mix(in srgb, var(--text) 14%, transparent);
       padding: 3px 10px;
       border-radius: 100px;
       margin-bottom: 10px;
-      box-shadow: rgb(0 131 75 / 22%) 0px 0.225px 0px 0px, rgb(0 131 75 / 24%) 0px 0px 0px 1px, rgba(255, 255, 255, 0.75) 0px 1px 1px 0px inset, rgb(0 131 75 / 8%) 0px -1px 1px 0px inset;
+      box-shadow: rgb(0 0 0 / 10%) 0px 0.225px 0px 0px, rgb(0 0 0 / 12%) 0px 0px 0px 1px, rgba(255, 255, 255, 0.75) 0px 1px 1px 0px inset, rgb(0 0 0 / 6%) 0px -1px 1px 0px inset;
     }
     [data-theme="dark"] .pain-response-most-tag {
       color: #9fd8b6;
@@ -1317,6 +1317,8 @@
     }
   </style>
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
+
+  <link rel="stylesheet" href="/css/case-phase2.css?v=3">
 </head>
 <body class="minimal is-paywalled case-floating-nav">
 
@@ -1617,8 +1619,8 @@
               <button type="button" class="design-tab-btn" data-design-tab="outfit" role="tab" aria-selected="false">コーディネートセット</button>
             </div>
             <div class="design-phone-frame" id="design-discover-phone">
-              <img src="/work/images/discover-menu-category.png" alt="Discover menu — category view" data-design-img="category" class="is-active">
-              <img src="/work/images/discover-menu-outfit.png" alt="Discover menu — outfit view" data-design-img="outfit">
+              <picture><source type="image/avif" srcset="/work/images/opt/discover-menu-category-640.avif 640w, /work/images/opt/discover-menu-category-804.avif 804w" sizes="(max-width: 720px) calc(100vw - 48px), 560px"><img src="/work/images/opt/discover-menu-category-804.webp" alt="Discover menu — category view" data-design-img="category" class="is-active" srcset="/work/images/opt/discover-menu-category-640.webp 640w, /work/images/opt/discover-menu-category-804.webp 804w" sizes="(max-width: 720px) calc(100vw - 48px), 560px" width="804" height="1748" loading="lazy" decoding="async"></picture>
+              <picture><source type="image/avif" srcset="/work/images/opt/discover-menu-outfit-640.avif 640w, /work/images/opt/discover-menu-outfit-804.avif 804w" sizes="(max-width: 720px) calc(100vw - 48px), 560px"><img src="/work/images/opt/discover-menu-outfit-804.webp" alt="Discover menu — outfit view" data-design-img="outfit" srcset="/work/images/opt/discover-menu-outfit-640.webp 640w, /work/images/opt/discover-menu-outfit-804.webp 804w" sizes="(max-width: 720px) calc(100vw - 48px), 560px" width="804" height="1748" loading="lazy" decoding="async"></picture>
             </div>
           </div>
 
@@ -1640,7 +1642,7 @@
           <div class="design-scroll-stage" id="design-outfit-stage">
             <div class="design-scroll-phone">
               <div class="design-scroll-phone-inner" id="design-outfit-scroll">
-                <img src="/work/images/outfit-detail-full.png" alt="Outfit detail page — full scroll">
+                <picture><source type="image/avif" srcset="/work/images/opt/outfit-detail-full-640.avif 640w, /work/images/opt/outfit-detail-full-804.avif 804w" sizes="(max-width: 720px) calc(100vw - 48px), 560px"><img src="/work/images/opt/outfit-detail-full-804.webp" alt="Outfit detail page — full scroll" srcset="/work/images/opt/outfit-detail-full-640.webp 640w, /work/images/opt/outfit-detail-full-804.webp 804w" sizes="(max-width: 720px) calc(100vw - 48px), 560px" width="804" height="3412" loading="lazy" decoding="async"></picture>
               </div>
               <div class="spectrum-scroll-hint" id="design-outfit-hint">
                 <span data-en="Scroll to explore" data-ja="スクロールして見てみる">Scroll to explore</span>
@@ -1694,8 +1696,8 @@
             <div class="choose-row">
               <div class="choose-card is-static">
                 <div class="choose-card-img-wrap">
-                  <img src="/work/images/entry-point-option-a.png" alt="Inside 着用アイテム mockup">
-                  <button type="button" class="choose-expand-icon" aria-label="Expand" data-fs-src="/work/images/entry-point-option-a.png" data-fs-name="Inside 着用アイテム">
+                  <picture><source type="image/avif" srcset="/work/images/opt/entry-point-option-a-402.avif 402w" sizes="(max-width: 720px) calc(100vw - 48px), 560px"><img src="/work/images/opt/entry-point-option-a-402.webp" alt="Inside 着用アイテム mockup" srcset="/work/images/opt/entry-point-option-a-402.webp 402w" sizes="(max-width: 720px) calc(100vw - 48px), 560px" width="402" height="928" loading="lazy" decoding="async"></picture>
+                  <button type="button" class="choose-expand-icon" aria-label="Expand" data-fs-src="/work/images/opt/entry-point-option-a-402.webp" data-fs-name="Inside 着用アイテム">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
                   </button>
                 </div>
@@ -1704,8 +1706,8 @@
               </div>
               <div class="choose-card is-static">
                 <div class="choose-card-img-wrap">
-                  <img src="/work/images/entry-point-option-b.png" alt="Standalone outfit section mockup">
-                  <button type="button" class="choose-expand-icon" aria-label="Expand" data-fs-src="/work/images/entry-point-option-b.png" data-fs-name="Standalone section">
+                  <picture><source type="image/avif" srcset="/work/images/opt/entry-point-option-b-640.avif 640w, /work/images/opt/entry-point-option-b-804.avif 804w" sizes="(max-width: 720px) calc(100vw - 48px), 560px"><img src="/work/images/opt/entry-point-option-b-804.webp" alt="Standalone outfit section mockup" srcset="/work/images/opt/entry-point-option-b-640.webp 640w, /work/images/opt/entry-point-option-b-804.webp 804w" sizes="(max-width: 720px) calc(100vw - 48px), 560px" width="804" height="1748" loading="lazy" decoding="async"></picture>
+                  <button type="button" class="choose-expand-icon" aria-label="Expand" data-fs-src="/work/images/opt/entry-point-option-b-804.webp" data-fs-name="Standalone section">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
                   </button>
                 </div>
@@ -1763,7 +1765,7 @@
               id: 'inside-styling',
               name: 'Inside 着用アイテム',
               nameJa: '「着用アイテム」の中',
-              image: '/work/images/entry-point-option-a.png',
+              image: '/work/images/opt/entry-point-option-a-402.webp',
               description: 'Extends the existing styling section with outfit recommendations',
               descriptionJa: '既存の着用アイテム セクションを拡張し、アウトフィット提案を加える',
               wasChosen: true,
@@ -1776,7 +1778,7 @@
               id: 'standalone',
               name: 'Standalone section',
               nameJa: '独立したセクション',
-              image: '/work/images/entry-point-option-b.png',
+              image: '/work/images/opt/entry-point-option-b-804.webp',
               description: 'A dedicated outfit section below the product details',
               descriptionJa: '商品詳細の下に、アウトフィット専用のセクションを独立して配置する',
               wasChosen: false,
@@ -2240,7 +2242,7 @@
               id: 'live-shopping',
               title: 'Live Shopping',
               titleJa: 'ライブショッピング',
-              image: '/work/images/future-live-shopping.png',
+              image: '/work/images/opt/future-live-shopping-804.webp',
               description: 'Live shopping is already widely adopted across Asia. UNIQLO already invests in fashion shows, seasonal styling, and editorial visuals. Live Shopping simply turns existing brand moments into shoppable outfit experiences — capturing attention at peak inspiration and letting users shop outfits instantly.',
               descriptionJa: 'ライブショッピングは、すでにアジア全域で広く定着している。UNIQLO もまた、ファッションショー、シーズン毎のスタイリング、エディトリアル・ビジュアルに投資している。ライブショッピングは、こうした既存のブランド・モーメントを、アウトフィットごと買える体験へと変えるだけのこと——インスピレーションが最も高まる瞬間に注意を引き、その場でコーディネートごと購入できるようにする。'
             },
@@ -2383,7 +2385,7 @@
           transform: scale(0.96);
         }
         .success-chip.is-selected {
-          background: #C8DDD4;
+          background: color-mix(in srgb, var(--text) 28%, transparent);
           border-color: transparent;
           color: #1A1A1A;
         }
@@ -2424,8 +2426,8 @@
            so rationales across the case study read as one family. */
         .success-reveal {
           margin: 0;
-          background: rgba(200, 221, 212, 0.06);
-          border: 1px dashed #C8DDD4;
+          background: color-mix(in srgb, var(--text) 8%, transparent);
+          border: 1px dashed color-mix(in srgb, var(--text) 28%, transparent);
           border-radius: 8px;
           padding: 0 24px;
           max-height: 0;
@@ -2448,7 +2450,7 @@
           font-weight: 600;
           letter-spacing: 0.5px;
           line-height: 1.4;
-          color: #4a6b5c;
+          color: var(--text);
           margin: 0 0 14px;
         }
         [data-theme="dark"] .success-reveal-title {
@@ -2636,14 +2638,27 @@
         <p data-en="Thank you for reading!" data-ja="読んでくださって、ありがとうございました！">Thank you for reading!</p>
       </section>
 
-      <footer class="case-footer">
-        <a href="/work/uniqlo-outfit.html" class="m-link" data-en="← Back to summary" data-ja="← サマリーに戻る">← Back to summary</a>
-      </footer>
-
     </article>
 
-    <!-- Medium-style paywall card. Visible only when body.is-paywalled. -->
-    <aside class="pw-paywall" id="pw-wall" aria-label="Password gate">
+    <div class="case-fade" aria-hidden="true"></div>
+    <script>
+    (function () {
+      if (!document.body.classList.contains('is-paywalled')) return;
+      var cut = document.querySelector('[data-paywall-cut]');
+      var content = document.querySelector('.case-content');
+      if (!cut || !content) return;
+      var next = cut.nextElementSibling;
+      var anchorTop = next ? next.offsetTop : (cut.offsetTop + cut.offsetHeight);
+      content.style.maxHeight = (anchorTop + 140) + 'px';
+      if (next) next.style.visibility = 'hidden';
+    })();
+    </script>
+    <div class="case-gate">
+      <section class="case-brief" aria-label="In brief">
+        <p class="case-brief-kicker" data-en="In brief" data-ja="ひとことで">In brief</p>
+        <p data-en="In my first month I only opened the app at the register, to show my barcode and collect points. I shop with outfits in mind, not individual items, and that’s what I’m designing for." data-ja="入社して最初の月、アプリを開くのはレジでメンバーシップのバーコードを見せてポイントを貯めるときだけでした。自分はアイテム単位ではなくアウトフィット単位で買い物をしているので、見つけ方もそこから考え直しています。">In my first month I only opened the app at the register, to show my barcode and collect points. I shop with outfits in mind, not individual items, and that’s what I’m designing for.</p>
+      </section>
+      <aside class="pw-paywall" id="pw-wall" aria-label="Password gate">
       <svg class="pw-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
         <rect x="3" y="11" width="18" height="11" rx="2"/>
         <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -2661,6 +2676,25 @@
       </form>
       <a href="/" class="pw-back" data-en="← Back to home" data-ja="← 戻る">← Back to home</a>
     </aside>
+    </div>
+
+    <nav class="case-end" aria-label="Continue">
+      <a class="case-next" href="/work/tiket-discover.html">
+        <span class="case-next-kicker">Next case study</span>
+        <span class="case-next-row">
+          <img src="/work/images/opt/tiket-discover-1-480.webp" alt="" width="72" height="90">
+          <span class="case-next-copy">
+            <span class="case-next-title">tiket.com</span>
+            <span class="case-next-meta">2021</span>
+          </span>
+        </span>
+      </a>
+      <p class="case-end-links">
+        <a href="/">← Back to the postcard</a>
+        <span class="case-end-thanks">Thanks for reading · <a href="/?guestcard=open">Leave a note</a></span>
+      </p>
+    </nav>
+
 
   </div>
 
@@ -2788,7 +2822,7 @@
     var APP_TODAY = [
       {
         id: 'size-guidance',
-        image: '/work/images/uniqlo-app-size-guidance.PNG',
+        image: '/work/images/opt/uniqlo-app-size-guidance-1178.webp',
         verdict: 'good',
         mark: '\u2713',
         verdictLabelEn: 'Works well',
@@ -2800,7 +2834,7 @@
       },
       {
         id: 'stylehint',
-        image: '/work/images/uniqlo-app-stylehint.PNG',
+        image: '/work/images/opt/uniqlo-app-stylehint-1178.webp',
         verdict: 'partial',
         mark: '\u25D0',
         verdictLabelEn: 'Partially addressed',
@@ -2812,7 +2846,7 @@
       },
       {
         id: 'navigation',
-        image: '/work/images/uniqlo-app-navigation.PNG',
+        image: '/work/images/opt/uniqlo-app-navigation-1178.webp',
         verdict: 'gap',
         mark: '\u25CB',
         verdictLabelEn: 'Gap identified',

@@ -297,19 +297,28 @@ body.case-floating-nav .case-page {
   padding: 6px;
   opacity: 0;
   /* -100% of its own width + the 60px gap to viewport edge = fully
-     off-screen to the left. The "hiding behind the page edge" feel. */
+     off-screen to the left. The "hiding behind the page edge" feel.
+     visibility waits out the close so the slide still plays, then
+     the links leave the tab order. */
+  visibility: hidden;
   transform: translateX(calc(-100% - 70px));
   transform-origin: top left;
   pointer-events: none;
   transition:
     opacity   260ms ease,
-    transform 360ms var(--ease-out);
+    transform 360ms var(--ease-out),
+    visibility 0s linear 360ms;
   font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
 }
 .case-fn-popover.is-open {
   opacity: 1;
   transform: translateX(0);
   pointer-events: auto;
+  visibility: visible;
+  transition:
+    opacity   260ms ease,
+    transform 360ms var(--ease-out),
+    visibility 0s linear 0s;
 }
 
 .case-fn-popover-list {
@@ -359,7 +368,7 @@ body.case-floating-nav .case-page {
 .case-fn-top-progress-fill {
   display: block;
   height: 100%;
-  background: #5a9072;
+  background: var(--text);
   transform-origin: left center;
   transform: scaleX(var(--scroll-progress, 0));
   transition: transform 80ms linear;
@@ -432,12 +441,11 @@ body.case-floating-nav::after {
      `backdrop-filter: blur` on the toolbar buttons (defined in
      `.case-fn-btn`) keeps them legible against the now-mostly-
      transparent overlay. */
-  height: 56px;
+  height: 108px;
   background: linear-gradient(180deg,
-    var(--bg)                                                 0%,
-    color-mix(in srgb, var(--bg) 78%, transparent)            28%,
-    color-mix(in srgb, var(--bg) 48%, transparent)            55%,
-    color-mix(in srgb, var(--bg) 18%, transparent)            80%,
+    var(--pg, var(--bg))                                      0%,
+    color-mix(in srgb, var(--pg, var(--bg)) 88%, transparent) 42%,
+    color-mix(in srgb, var(--pg, var(--bg)) 46%, transparent) 70%,
     transparent                                              100%
   );
   z-index: 99;
@@ -664,8 +672,8 @@ body.case-floating-nav .case-theme-toggle svg {
     top: 0;
     left: 0;
     right: 0;
-    height: 60px;
-    background: var(--bg);
+    height: 76px;
+    background: var(--pg, var(--bg));
     box-shadow: 0 1px 0 rgb(0 0 0 / 5%);
     z-index: -1;
     pointer-events: none;
@@ -748,9 +756,13 @@ body.case-floating-nav .case-theme-toggle svg {
   /* Popover: fade in place instead of sliding from the page edge. */
   .case-fn-popover {
     transform: none;
-    transition: opacity 200ms ease;
+    transition: opacity 200ms ease, visibility 0s linear 200ms;
   }
-  .case-fn-popover.is-open { transform: none; }
+  .case-fn-popover.is-open {
+    transform: none;
+    visibility: visible;
+    transition: opacity 200ms ease, visibility 0s linear 0s;
+  }
 
   /* Toolbar labels: reveal instantly, no typewriter stagger. */
   .case-fn-btn:hover .case-fn-btn-label,

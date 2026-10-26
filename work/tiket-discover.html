@@ -46,14 +46,17 @@
 })();
 </script>
 
-  <link rel="stylesheet" href="/css/style.css?v=47">
+  <link rel="stylesheet" href="/css/style.css?v=49">
   <link rel="stylesheet" href="/css/light.css?v=1">
-  <link rel="stylesheet" href="/css/case.css?v=156">
+  <link rel="stylesheet" href="/css/case.css?v=157">
   <link rel="stylesheet" href="/components/FlyBy/flyby.css?v=5">
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
   <!-- FLOATING NAV (experimental — applied to both tiket pages) -->
-  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=34">
+  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=36">
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
+
+  <link rel="stylesheet" href="/css/case-phase2.css?v=3">
+  <script src="/js/case-cover.js?v=1" defer></script>
 </head>
 <body class="minimal case-floating-nav">
 
@@ -141,8 +144,8 @@
        once seen). Dismissed on any click, on hover of the switch
        button, or on first scroll. -->
   <div class="case-fn-tooltip" id="case-fn-tooltip" role="status" aria-live="polite">
-    <span data-en="Want the deep dive? Click here for the full case study."
-          data-ja="詳しく知りたい方はこちらから完全版へ。">Want the deep dive? Click here for the full case study.</span>
+    <span data-en="The full study covers the research, the labyrinth, and what shipped."
+          data-ja="完全版には、リサーチと迷宮、そして届いたものまで書いてあります。">The full study covers the research, the labyrinth, and what shipped.</span>
   </div>
 
   <div class="case-page">
@@ -197,7 +200,7 @@
         <p class="case-meta" data-en="tiket.com · 2021 · 5 months" data-ja="tiket.com · 2021年 · 5ヶ月">tiket.com · 2021 · 5 months</p>
         <h1 class="case-title" data-en="From dreaming to booking: designing tiket.com's new travel discovery experience." data-ja="夢を描くところから予約まで——tiket.com の新しい旅の発見体験をデザインする。">From dreaming to booking: designing tiket.com's new travel discovery experience.</h1>
         <p class="case-role" data-en="Product Designer & Researcher" data-ja="プロダクトデザイナー ＆ リサーチャー">Product Designer & Researcher</p>
-        <video class="case-cover-video" autoplay loop muted playsinline>
+        <video class="case-cover-video" loop muted playsinline preload="none" poster="/work/images/opt/tiket-discover-cover-poster.webp" width="1002" height="720">
           <source src="/work/images/tiket-discover-cover.mp4" type="video/mp4">
         </video>
       </header>
@@ -329,13 +332,13 @@
           <div class="page-tab-phone-outer">
             <div class="page-tab-phone" id="page-tab-phone">
               <div class="page-tab-frame is-active" data-ptab="0">
-                <img src="/work/images/Landing.png" alt="Landing Page design">
+                <picture><source type="image/avif" srcset="/work/images/opt/landing-540.avif 540w" sizes="(max-width: 720px) calc(100vw - 48px), 560px"><img src="/work/images/opt/landing-540.webp" alt="Landing Page design" srcset="/work/images/opt/landing-540.webp 540w" sizes="(max-width: 720px) calc(100vw - 48px), 560px" width="540" height="4448" loading="lazy" decoding="async"></picture>
               </div>
               <div class="page-tab-frame" data-ptab="1">
-                <img src="/work/images/spectrum-local-travel.png" alt="Curation Page design">
+                <picture><source type="image/avif" srcset="/work/images/opt/spectrum-local-travel-540.avif 540w" sizes="(max-width: 720px) calc(100vw - 48px), 560px"><img src="/work/images/opt/spectrum-local-travel-540.webp" alt="Curation Page design" srcset="/work/images/opt/spectrum-local-travel-540.webp 540w" sizes="(max-width: 720px) calc(100vw - 48px), 560px" width="540" height="3870" loading="lazy" decoding="async"></picture>
               </div>
               <div class="page-tab-frame" data-ptab="2">
-                <img src="/work/images/Destination.png" alt="Destination Page design">
+                <picture><source type="image/avif" srcset="/work/images/opt/destination-540.avif 540w" sizes="(max-width: 720px) calc(100vw - 48px), 560px"><img src="/work/images/opt/destination-540.webp" alt="Destination Page design" srcset="/work/images/opt/destination-540.webp 540w" sizes="(max-width: 720px) calc(100vw - 48px), 560px" width="540" height="4010" loading="lazy" decoding="async"></picture>
               </div>
               <div class="page-tab-scrollbar" id="page-tab-scrollbar">
                 <div class="page-tab-scroll-thumb" id="page-tab-scroll-thumb"></div>
@@ -410,22 +413,22 @@
           <div class="spectrum-annotation" id="spectrum-annotation"></div>
           <div class="spectrum-preview" id="spectrum-preview">
             <div class="spectrum-preview-frame is-active" data-frame="0">
-              <img class="spectrum-preview-img" src="/work/images/spectrum-local-travel.png" alt="Local Travel curation page">
+              <picture><source type="image/avif" srcset="/work/images/opt/spectrum-local-travel-540.avif 540w" sizes="280px"><img class="spectrum-preview-img" src="/work/images/opt/spectrum-local-travel-540.webp" alt="Local Travel curation page" srcset="/work/images/opt/spectrum-local-travel-540.webp 540w" sizes="280px" width="540" height="3870" loading="lazy" decoding="async"></picture>
             </div>
             <div class="spectrum-preview-frame" data-frame="1">
-              <img class="spectrum-preview-img" src="/work/images/spectrum-autumn.png" alt="Autumn Holiday curation page">
+              <picture><source type="image/avif" srcset="/work/images/opt/spectrum-autumn-540.avif 540w" sizes="280px"><img class="spectrum-preview-img" src="/work/images/opt/spectrum-autumn-540.webp" alt="Autumn Holiday curation page" srcset="/work/images/opt/spectrum-autumn-540.webp 540w" sizes="280px" width="540" height="3708" loading="lazy" decoding="async"></picture>
             </div>
             <div class="spectrum-preview-frame" data-frame="2">
-              <img class="spectrum-preview-img" src="/work/images/spectrum-backpacking.png" alt="Backpacking curation page">
+              <picture><source type="image/avif" srcset="/work/images/opt/spectrum-backpacking-540.avif 540w" sizes="280px"><img class="spectrum-preview-img" src="/work/images/opt/spectrum-backpacking-540.webp" alt="Backpacking curation page" srcset="/work/images/opt/spectrum-backpacking-540.webp 540w" sizes="280px" width="540" height="3094" loading="lazy" decoding="async"></picture>
             </div>
             <div class="spectrum-preview-frame" data-frame="3">
-              <img class="spectrum-preview-img" src="/work/images/spectrum-quick-escape.png" alt="Quick Escape curation page">
+              <picture><source type="image/avif" srcset="/work/images/opt/spectrum-quick-escape-540.avif 540w" sizes="280px"><img class="spectrum-preview-img" src="/work/images/opt/spectrum-quick-escape-540.webp" alt="Quick Escape curation page" srcset="/work/images/opt/spectrum-quick-escape-540.webp 540w" sizes="280px" width="540" height="4232" loading="lazy" decoding="async"></picture>
             </div>
             <div class="spectrum-preview-frame" data-frame="4">
-              <img class="spectrum-preview-img" src="/work/images/spectrum-influencer.png" alt="Influencer Recommendations curation page">
+              <picture><source type="image/avif" srcset="/work/images/opt/spectrum-influencer-540.avif 540w" sizes="280px"><img class="spectrum-preview-img" src="/work/images/opt/spectrum-influencer-540.webp" alt="Influencer Recommendations curation page" srcset="/work/images/opt/spectrum-influencer-540.webp 540w" sizes="280px" width="540" height="4686" loading="lazy" decoding="async"></picture>
             </div>
             <div class="spectrum-preview-frame" data-frame="5">
-              <img class="spectrum-preview-img" src="/work/images/spectrum-nye.png" alt="New Year Eve curation page">
+              <picture><source type="image/avif" srcset="/work/images/opt/spectrum-nye-540.avif 540w" sizes="280px"><img class="spectrum-preview-img" src="/work/images/opt/spectrum-nye-540.webp" alt="New Year Eve curation page" srcset="/work/images/opt/spectrum-nye-540.webp 540w" sizes="280px" width="540" height="4034" loading="lazy" decoding="async"></picture>
             </div>
 
             <!-- Custom scroll indicator -->
@@ -470,9 +473,23 @@
         </ul>
       </section>
 
-      <footer class="case-footer">
-        <a href="/" class="m-link" data-en="← Back to home" data-ja="← トップに戻る">← Back to home</a>
-      </footer>
+      <nav class="case-end" aria-label="Continue">
+      <a class="case-next" href="/work/smartnews-ftux.html">
+        <span class="case-next-kicker">Next case study</span>
+        <span class="case-next-row">
+          <img src="/work/images/opt/ftux-current-480.webp" alt="" width="72" height="90">
+          <span class="case-next-copy">
+            <span class="case-next-title">SmartNews FTUX</span>
+            <span class="case-next-meta">2025 · Password protected</span>
+          </span>
+        </span>
+      </a>
+      <p class="case-end-links">
+        <a href="/">← Back to the postcard</a>
+        <span class="case-end-thanks">Thanks for reading · <a href="/?guestcard=open">Leave a note</a></span>
+      </p>
+    </nav>
+
 
     </article>
 
@@ -1324,15 +1341,27 @@
           });
         }
 
-        // Show after 4s.
-        setTimeout(function () {
-          if (dismissed) return;
+        tip.hidden = true;
+        var shown = false;
+        var wait = 0;
+        function reveal() {
+          if (shown || dismissed || window.scrollY < 120) return;
+          shown = true;
+          tip.hidden = false;
           positionTip();
+          var top = parseFloat(getComputedStyle(tip).top) || 0;
+          if (top < 96) tip.style.setProperty('--anchor-top', '96px');
           tip.classList.add('is-visible');
           attachDismissers();
-          // Auto-dismiss after 8s of being visible if untouched.
           setTimeout(dismiss, 8000);
-        }, 4000);
+          window.removeEventListener('scroll', arm);
+        }
+        function arm() {
+          clearTimeout(wait);
+          if (window.scrollY < 120) return;
+          wait = setTimeout(reveal, 700);
+        }
+        window.addEventListener('scroll', arm, { passive: true });
 
         window.addEventListener('resize', positionTip);
       }
