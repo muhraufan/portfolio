@@ -12,7 +12,7 @@
   function ja() { return TL.lang() === 'ja'; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function tod() { return html.getAttribute('data-tod') || 'midday'; }
-  function img(p, sz) { return '/timeline/img/' + p.scene + '-' + tod() + '-' + sz + '.webp?v=3'; }
+  function img(p, sz) { return '/timeline/img/' + p.scene + '-' + tod() + '-' + sz + '.webp?v=4'; }
   function small() { return innerWidth <= 600; }
   function barH() { return small() ? 68 : 76; }
   function mhH() { return 48; }
@@ -124,8 +124,7 @@
     var cap = '';
     if (p.with && window.LastSeen && LastSeen.withHTML) {
       var lang = ja() ? 'ja' : 'en';
-      var place = (p.S && p.S.place && (p.S.place[lang] || p.S.place.en)) || TL2.s(p.name);
-      cap = '<p class="t3-oc">' + esc(lang === 'ja' ? '最後に見かけたのは ' + place : 'Last seen at ' + place) + LastSeen.withHTML(p.with, lang, 't3-with-a') + '</p>';
+      cap = '<p class="t3-oc">' + LastSeen.withHTML(p.with, lang, 't3-with-a', true) + '</p>';
     }
     return '<div class="t3-o" id="o-' + p.i + '"><div class="t3-f"><img class="t3-fs" alt="" src="' + img(p, 's') + '"><img class="t3-fl" alt="" decoding="async"></div>' + ex + cap + '</div>';
   }

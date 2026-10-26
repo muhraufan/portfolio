@@ -798,7 +798,7 @@
     if (!list && id === 'niko-and-shibuya') list = LS.demoCompany();
     return list || [];
   };
-  function companyBits(list, lang, linkClass) {
+  function companyBits(list, lang, linkClass, standalone) {
     if (!list || !list.length) return null;
     function plain(p) { return String(p.name); }
     function linked(p) {
@@ -807,16 +807,17 @@
       return '<a class="' + linkClass + '" href="' + escHtml(p.url) + '" target="_blank" rel="noopener">' + name + '</a>';
     }
     function phrase(names, ja) {
-      if (ja) return '、' + names.join('と') + 'と一緒に';
-      if (names.length === 1) return ' with ' + names[0];
-      if (names.length === 2) return ' with ' + names[0] + ' and ' + names[1];
-      return ' with ' + names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
+      if (ja) return (standalone ? '' : '、') + names.join('と') + 'と一緒に';
+      var head = standalone ? 'With ' : ' with ';
+      if (names.length === 1) return head + names[0];
+      if (names.length === 2) return head + names[0] + ' and ' + names[1];
+      return head + names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
     }
     var ja = lang === 'ja';
     return { text: phrase(list.map(plain), ja), html: '<span class="ls-with">' + phrase(list.map(linked), ja) + '</span>' };
   }
-  LS.withHTML = function (list, lang, linkClass) { var b = companyBits(list, lang, linkClass || 'ls-with-a'); return b ? b.html : ''; };
-  LS.withText = function (list, lang) { var b = companyBits(list, lang, 'ls-with-a'); return b ? b.text : ''; };
+  LS.withHTML = function (list, lang, linkClass, standalone) { var b = companyBits(list, lang, linkClass || 'ls-with-a', standalone); return b ? b.html : ''; };
+  LS.withText = function (list, lang, standalone) { var b = companyBits(list, lang, 'ls-with-a', standalone); return b ? b.text : ''; };
 
   // caption: "Last seen at <place> · N hours ago", localized with the site's lang toggle
   LS.caption = function (el, S) {

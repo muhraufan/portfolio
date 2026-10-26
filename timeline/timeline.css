@@ -76,6 +76,7 @@ button.t3-mh-t[aria-expanded="true"] .t3-chev { transform: rotate(180deg); }
 .t3-l2 { color: var(--pg-cap); }
 .t3-oc .t3-with-a { color: inherit; font-weight: 500; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 30%, transparent); }
 .t3-oc .t3-with-a:hover { text-decoration-color: currentColor; }
+.t3-oc .t3-with-a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 .t3-d { font-variant-numeric: tabular-nums; }
 html[data-lang="ja"] .tl3 { --dateW: 104px; }
 @media (max-width: 600px) { html[data-lang="ja"] .tl3 { --dateW: 76px; } }

@@ -14,7 +14,7 @@
     { scene: 'mufg-park', seenAt: '2026-10-11T11:00:00+09:00', name: { en: 'MUFG PARK', ja: 'MUFG PARK' }, area: { en: 'Yanagisawa, Nishitokyo', ja: '西東京・柳沢' } },
     { scene: 'stayful-life-store', seenAt: '2026-10-03T17:10:00+09:00', name: { en: 'STAYFUL LIFE STORE', ja: 'ステイフル ライフ ストア' }, area: { en: 'Nakacho, Musashino', ja: '武蔵野・中町' } },
     { scene: 'nadoya-no-katte', seenAt: '2026-10-02T13:15:00+09:00', name: { en: 'nadoya no kaTte', ja: 'ナドヤノカッテ' }, area: { en: 'Yoyogi-Uehara, Tokyo', ja: '東京・代々木上原' } },
-    { scene: 'et-cultural-coffeehouse', seenAt: '2026-09-12T15:17:00+09:00', name: { en: 'Et', ja: 'エト' }, area: { en: 'Shimokitazawa, Tokyo', ja: '東京・下北沢' } }
+    { scene: 'et-cultural-coffeehouse', seenAt: '2026-09-12T15:17:00+09:00', name: { en: 'Et · The Cultural Coffeehouse', ja: 'Et · The Cultural Coffeehouse' }, area: { en: 'Shimokitazawa, Tokyo', ja: '東京・下北沢' } }
   ];
   // Optional `with: [{ name, url }]` on a row. No row sets it.
   // ?withdemo=1 / ?withdemo=2 borrow a local example for niko and ... only.
@@ -81,13 +81,5 @@
   TL2.fullDate = function (y, m, d) { return TL.lang() === 'ja' ? y + '年' + m + '月' + d + '日' : d + ' ' + MONTH[m - 1] + ' ' + y; };
   TL2.edge = function (a) { return (a.d < 10 ? '0' : '') + a.d + ' ' + MON.en[a.m - 1].toUpperCase() + ' ' + String(a.y).slice(2); };   // film edge code: 25 OCT 26
   TL2.back = function (a) { var z = function (n) { return (n < 10 ? '0' : '') + n; }; return "'" + String(a.y).slice(2) + ' ' + z(a.m) + ' ' + z(a.d); };   // date-back: '26 10 25
-  TL2.span = function (p) {
-    var ja = TL.lang() === 'ja', A = p.at, day = function (a) { return ja ? a.m + '月' + a.d + '日' : MON.en[a.m - 1] + ' ' + a.d; };
-    var time = function (a) { return (a.h < 10 ? '0' : '') + a.h + ':' + (a.mi < 10 ? '0' : '') + a.mi; };
-    if (p.current) return day(A) + ' ' + time(A);
-    var B = TL2.ymd(p.to), same = A.y === B.y && A.m === B.m && A.d === B.d;
-    if (same) return day(A) + (ja ? ' ' : ', ') + time(A) + '–' + time(B);
-    return day(A) + (A.y !== B.y ? ' ' + A.y : '') + ' – ' + day(B) + ' ' + B.y;
-  };
   TL2.s = function (o) { return o ? (o[TL.lang()] || o.en) : ''; };
 })();
