@@ -47,14 +47,6 @@ body:not(.is-paywalled) .case-gate { display: none; }
   line-height: 1.5;
   text-transform: uppercase;
 }
-.case-brief p.case-brief-meta {
-  margin: 0 0 8px;
-  color: var(--text3, #84817c);
-  font-size: 14px;
-  line-height: 1.6;
-  letter-spacing: 0.02em;
-}
-
 .case-gate .pw-paywall {
   position: relative;
   width: 100%;

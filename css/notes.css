@@ -66,9 +66,10 @@
 }
 .vn-card,
 .vn-fan .gc-skel {
+  --vn-w: 158px;
   position: absolute;
   bottom: 0;
-  width: 158px;
+  width: var(--vn-w);
   aspect-ratio: 4 / 3;
   margin: 0;
   transform-origin: 50% 100%;
@@ -122,8 +123,8 @@
 /* The gallery card, at deck size. Kept in step with gallery.css .gc. */
 .vn .gc {
   display: block;
-  container-type: inline-size;
   border-radius: 5px;
+  overflow: hidden;
   color: var(--pc-ink);
   background: var(--pc-paper) var(--paper-sm, none) var(--bp, 50% 50%) / 112% 112% no-repeat;
   box-shadow: var(--vn-sh);
@@ -155,6 +156,19 @@
   to { transform: translateX(120%); }
 }
 
+/* The interior is a gallery card (the size where the FROM name still fits),
+   scaled down to the fan. Type, the FROM label, and “Raufan” shrink together. */
+.vn .gc-fit {
+  --vn-ref: 400px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--vn-ref);
+  height: calc(var(--vn-ref) * 3 / 4);
+  transform: scale(calc(var(--vn-w) / var(--vn-ref)));
+  transform-origin: top left;
+  container-type: inline-size;
+}
 .vn .gc-body {
   position: absolute; inset: 0; display: grid;
   grid-template-columns: minmax(0, 1fr) 1px 28%;
@@ -247,7 +261,7 @@ html[data-lang="ja"] .vn .gc-toname { font-size: clamp(11px, 4.4cqw, 14px); }
 @media (max-width: 420px) {
   .vn { margin-bottom: 56px; }
   .vn-stage { height: 118px; }
-  .vn-card, .vn-fan .gc-skel { width: 132px; }
+  .vn-card, .vn-fan .gc-skel { --vn-w: 132px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

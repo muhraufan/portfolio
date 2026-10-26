@@ -218,7 +218,7 @@
     if (!fresh && cards.length === list.length) {
       list.forEach(function (note, i) {
         cards[i].setAttribute('aria-label', t().open(note.name || t().anon));
-        cards[i].innerHTML = body(note);
+        cards[i].innerHTML = '<span class="gc-fit">' + body(note) + '</span>';
       });
       return;
     }
@@ -232,7 +232,7 @@
       a.setAttribute('aria-label', t().open(note.name || t().anon));
       var u = hash(String(note.id));
       a.style.setProperty('--bp', Math.round(u * 100) + '% ' + Math.round(hash(note.id + 'p') * 100) + '%');
-      a.innerHTML = body(note);
+      a.innerHTML = '<span class="gc-fit">' + body(note) + '</span>';
       fan.appendChild(a);
     });
     stage.setAttribute('aria-busy', 'false');
