@@ -11,22 +11,23 @@ body.tl3 { margin: 0; min-height: 100vh; -webkit-tap-highlight-color: transparen
 .tl3 img { -webkit-user-drag: none; user-select: none; -webkit-user-select: none; }
 .tl-pre .t3-list, .tl-pre .t3-lede, .tl-pre .t3-controls, .tl-pre .t3-foot, .tl-pre .t3-scrub, .tl-pre .t3-ticks { visibility: hidden; }
 
-/* ---------- the site's top bar and footer ---------- */
-.t3-top { position: fixed; inset: 0 0 auto 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; padding: 32px 32px 0; pointer-events: none; }
-.t3-top > * { pointer-events: auto; }
-.t3-home { display: inline-flex; align-items: center; gap: 14px; color: inherit; text-decoration: none; }
-.t3-av { width: 42px; height: 44px; box-sizing: border-box; padding: 2px 2px 4px; border-radius: 12px; background: #fff; transform: rotate(-1.5deg);
-  box-shadow: 0 0 0 1px rgba(0,0,0,.05), 0 1px 2px rgba(24,24,24,.08), 0 3px 8px rgba(24,24,24,.08); transition: transform 420ms cubic-bezier(0.2, 0, 0, 1), scale 120ms cubic-bezier(0.2, 0, 0, 1); }
-.t3-av img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 9px; }
-html[data-tod="golden"] .t3-av { background: #fffaf3; } html[data-tod="morning"] .t3-av { background: #fcfdfe; }
+/* ---------- the site's top bar and footer ----------
+   The bar is the homepage header: .pc .m-page (max-width, side padding) with .m-header and .m-top-controls.
+   It is fixed so the list can scroll under it, but the box is the viewport, same as the homepage's centering. */
+.t3-top { position: fixed; inset: 0 0 auto 0; z-index: 30; pointer-events: none; }
+/* Center in the visual viewport. scrollbar-gutter shrinks the fixed box, and the homepage has no gutter, so auto margins would sit 7.5px left of it. */
+.t3-top .m-page, .t3-foot .m-page { width: min(720px, 100vw); max-width: none; margin-left: max(0px, calc((100vw - 720px) / 2)); margin-right: 0; }
+.t3-top .m-page { pointer-events: none; }
+.t3-top .m-header, .t3-top .m-top-controls { pointer-events: auto; }
+.t3-home { color: inherit; text-decoration: none; }
 .t3-home:hover .t3-av { transform: rotate(-4deg) translate(-1px, -1px); }
 .t3-home:active .t3-av { scale: .94; }
 .t3-home-label { font-size: 11px; line-height: 1.5; letter-spacing: .14em; text-transform: uppercase; color: var(--pg-cap); transition: color 160ms ease-out; }
 .t3-home:hover .t3-home-label { color: var(--text); }
 .t3-home:focus-visible { outline: none; } .t3-home:focus-visible .t3-av { outline: 1.5px solid var(--ink); outline-offset: 3px; }
-.t3-controls { display: flex; align-items: center; gap: 10px; }
-.t3-foot { position: fixed; inset: auto 0 0 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 0 24px calc(20px + env(safe-area-inset-bottom)); pointer-events: none; }
-.t3-foot > * { pointer-events: auto; }
+.t3-foot { position: fixed; inset: auto 0 0 0; z-index: 20; pointer-events: none; }
+.t3-foot .m-page { padding-top: 0; padding-bottom: calc(20px + env(safe-area-inset-bottom)); pointer-events: none; }
+.t3-foot .t3-sound { pointer-events: auto; }
 .t3-badge { font-size: 11px; line-height: 1.5; letter-spacing: .06em; color: var(--pg-cap); }
 .t3-badge:empty { display: none; }
 .t3-badge a { color: var(--text); text-decoration: underline; text-decoration-color: var(--pg-muted); text-underline-offset: 3px; }
@@ -163,12 +164,12 @@ html[data-input="kbd"] .t3-ticks:focus-visible { outline: 1.5px solid var(--ink)
 /* ---------- phones ---------- */
 @media (max-width: 600px) {
   .tl3 { --barH: 68px; --rowH: 64px; --thW: 56px; --thH: 42px; --dateW: 56px; --gap: 10px; --bleed: 12px; }
-  .t3-top { padding: 24px 18px 0; } .t3-home-label { display: none; }
+  .t3-home-label { display: none; }
   .t3-mask { left: 0; width: 100%; margin: 0; }
   .t3 { padding: 104px 24px calc(120px + env(safe-area-inset-bottom)); }
   html:not([data-jump="calendar"]) .t3 { padding-right: 48px; }
   html:is([data-jump="rail"], [data-jump="ticks"]) .t3 { padding-right: 52px; }   /* the wash (12px bleed) ends 22px clear of the resting ticks */
-  .t3-foot { padding: 0 16px calc(12px + env(safe-area-inset-bottom)); align-items: flex-end; }
+  .t3-foot .m-page { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
   .t3-foot::before { content: ''; position: absolute; inset: -8px 0 0 0; z-index: -1; background: var(--pg); }
   .t3-scrub { right: 0; width: 44px; padding: 0; align-items: center; top: calc(var(--barH) + 56px); bottom: calc(64px + env(safe-area-inset-bottom)); }
   .t3-sm:not(.is-y) { font-size: 0; width: 4px; height: 4px; border-radius: 2px; background: currentColor; }
