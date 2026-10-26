@@ -82,9 +82,10 @@
 
   // ---------------- geometry ----------------
   var G = { side: 'margin', top: 0, h: 0, right: 0, ys: [], ms: [], touch: false };
+  function viewW() { return document.documentElement.offsetWidth || document.documentElement.clientWidth; }   // fixed boxes are laid out in offsetWidth; clientWidth still includes the scrollbar gutter
   function layout() {
     setThick();
-    var col = document.getElementById('t3-list').getBoundingClientRect(), W = document.documentElement.clientWidth;
+    var col = document.getElementById('t3-list').getBoundingClientRect(), W = viewW();
     G.touch = matchMedia('(pointer: coarse)').matches;
     G.side = (col.left >= 280 && !G.touch && W > 600) ? 'margin' : 'edge';
     html.dataset.rail = G.side;
@@ -353,7 +354,7 @@
     var cyy = clamp(clientY, L.barH() + h / 2 + 8, innerHeight - h / 2 - 8);
     S.ruler = { k: k, k0: k, y0: clientY, pitch: pitch, rowOf: rowOf, cy: cyy, half: h / 2, h: h, off: Spr(1400, 1, 0), raf: 0 };
     var right = G.side === 'margin' ? G.right - K.maxLen - 12 : G.right - 44 - 8;
-    ruler.style.height = h + 'px'; ruler.style.top = Math.round(cyy - h / 2) + 'px'; ruler.style.left = 'auto'; ruler.style.right = (document.documentElement.clientWidth - right) + 'px';
+    ruler.style.height = h + 'px'; ruler.style.top = Math.round(cyy - h / 2) + 'px'; ruler.style.left = 'auto'; ruler.style.right = (viewW() - right) + 'px';
     ruler.hidden = false; ruler.classList.toggle('is-over', G.side !== 'margin');
     ruX.style.top = Math.round(cyy) + 'px'; ruX.style.left = right + 'px'; ruX.style.width = Math.max(4, G.right - right) + 'px'; ruX.hidden = false;
     S.ruler.off.x = S.ruler.off.to = -rowOf[k] * pitch; paintRuler();

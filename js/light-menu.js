@@ -20,10 +20,11 @@
                            : d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   }
   function paintLight() {
-    var d = new Date(), s = lt(), now = html.getAttribute('data-tod'), c = L.choice(), timeEl = lightBtn.querySelector('.pc-light-time');
+    var d = new Date(), s = lt(), period = L.clock(d), c = L.choice(), timeEl = lightBtn.querySelector('.pc-light-time');
+    var greet = s.greet[period];   // the words follow the visitor's clock, even when the light is forced to another period
     timeEl.textContent = clockText(d); timeEl.setAttribute('datetime', d.toTimeString().slice(0, 5));
-    lightBtn.querySelector('.pc-light-greet').textContent = s.greet[now];
-    lightBtn.setAttribute('aria-label', clockText(d) + ', ' + s.greet[now] + '. ' + s.label);
+    lightBtn.querySelector('.pc-light-greet').textContent = greet;
+    lightBtn.setAttribute('aria-label', clockText(d) + ', ' + greet + '. ' + s.label);
     menu.querySelector('.pc-light-label').textContent = s.label;
     menu.querySelectorAll('[role="menuitemradio"]').forEach(function (it) {
       var k = it.dataset.light; it.querySelector('.pc-li-name').textContent = s.name[k];
