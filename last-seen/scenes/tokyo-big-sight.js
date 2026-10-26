@@ -64,7 +64,7 @@
     breathe: { x: 172, y: 162, w: 56, h: 70 },
     shoppers: [[182, 238, .3, 'coatD'], [262, 239, .31, 'coatA'], [330, 240, .32, 'coatB']].map(function (p, i) { return { keys: [[0, p[0]], [8 + i, p[0]], [12 + i, p[0] + (i % 2 ? 8 : -8)], [19 + i, p[0] + (i % 2 ? 8 : -8)], [24 + i, p[0]]], period: 24 + i, offset: i * 3.7,
       foot: p[1], s: p[2], coat: p[3], legs: i % 2 ? 'legsDark' : 'legsDenim', hair: i % 2 ? 'hairDark' : 'hairBrown', alpha: .9, shadow: false }; }),
-    passersby: [{ start: 5, every: 22, dir: -1, speed: 26, foot: 286, s: 1.24, coat: 'coatC', legs: 'legsDark', hair: 'hairDark' }],
+    passersby: [{ start: 5, every: 22, dir: -1, speed: 26, foot: 286, s: 1.24, coat: 'coatC', legs: 'legsDark', hair: 'hairDark', carry: 'backpack', carryC: 'coatD' }],
     sig: { emerge: { x: 200, foot0: 232, foot1: 264, s0: .42, s1: 1.25, dur: 1.15 } },
     build: function (L, F, P) {
       L.push(r(0, 0, 400, 244, 'sky', { shade: grain('skyShade', .12, 'up', 1.7) }));

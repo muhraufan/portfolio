@@ -195,59 +195,297 @@
   }
 
   // ---------- people ----------
-  // Flat, faceless: head dot, coat, two legs. Leg phase comes from distance
-  // walked, so feet never slide.
+  // Painted by the same hand as the place: flat shapes, a shadow side in two steps, the house stipple grain
+  // and an edge of the scene's light. Each figure is drawn into a small scratch sprite in device pixels, shaded
+  // and grained there, then composited once (so a fading figure never shows its own overlaps).
+  // The gait is a pure function of distance walked: a planted foot stays put on the ground, the hip rides
+  // over it (that is the bob), and the arms swing against the legs with a little follow-through.
+  var FIG = { a: canvas(8, 8), b: canvas(8, 8), pat: {}, n: 0 }, DUTY = .56;
+  function figFit(c, w, h) { if (c.width < w || c.height < h) { c.width = Math.max(c.width, w); c.height = Math.max(c.height, h); } }
+  function figGrain(ctx, col, px, cover, seed) {     // one tile of the house stipple per colour/dot size, made once
+    var key = col + '|' + px.toFixed(2) + '|' + cover, p = FIG.pat[key];
+    if (p) return p;
+    if (++FIG.n > 96) { FIG.pat = {}; FIG.n = 1; }
+    var T = 96, c = canvas(T, T), x = c.getContext('2d'), r = rng(seed || 5), n = Math.round(T * T * cover / (px * px));
+    x.fillStyle = col;
+    for (var i = 0; i < n; i++) x.fillRect(r() * (T - px), r() * (T - px), px, px);
+    return (FIG.pat[key] = ctx.createPattern(c, 'repeat'));
+  }
+  function figMix(a, b, t) { var A = parseInt(a.slice(1), 16), B = parseInt(b.slice(1), 16), o = 0;
+    for (var i = 16; i >= 0; i -= 8) { var x = A >> i & 255, y = B >> i & 255; o = o * 256 + Math.round(x + (y - x) * t); }
+    return '#' + (o + 0x1000000).toString(16).slice(1); }
+  // where a foot is in its cycle c ∈ [0,1): planted and sliding back under the body, then an eased swing forward
+  function footAt(c, half) {
+    if (c < DUTY) return { x: half * (1 - 2 * c / DUTY), lift: 0 };
+    var v = (c - DUTY) / (1 - DUTY), e = v * v * (3 - 2 * v);
+    return { x: half * (2 * e - 1), lift: Math.sin(Math.PI * v) };
+  }
+  function knee(hx, hy, fx, fy, T, S) {              // two-bone leg, knee bends forward (+x)
+    var dx = fx - hx, dy = fy - hy, d = Math.min(Math.hypot(dx, dy), T + S - .001), a = Math.atan2(dy, dx);
+    var k = Math.acos(clamp((T * T + d * d - S * S) / (2 * T * d), -1, 1));
+    return [hx + Math.cos(a - k) * T, hy + Math.sin(a - k) * T];
+  }
+  function stroke(x, pts, w, col) {
+    x.strokeStyle = col; x.lineWidth = w; x.beginPath(); x.moveTo(pts[0], pts[1]);
+    for (var i = 2; i < pts.length; i += 2) x.lineTo(pts[i], pts[i + 1]);
+    x.stroke();
+  }
+  function blob(x, col, a, fn) { x.globalAlpha = a; x.fillStyle = col; x.beginPath(); fn(); x.fill(); x.globalAlpha = 1; }
+
   function person(ctx, P, pal, x, foot, s, dist, facing, alpha, rim) {
-    if (rim && rim.amt > .02) {
-      var rc = rim.c, flat = new Proxy({}, { get: function () { return rc; } });
-      ctx.save(); ctx.translate(rim.dx * s, -.5 * s);
-      person(ctx, Object.assign({}, P, { shadow: false, bagMark: P.bagMark && 'x' }), flat, x, foot, s * 1.02, dist, facing, (alpha == null ? 1 : alpha) * rim.amt);
+    alpha = alpha == null ? 1 : alpha;
+    if (alpha <= .01) return;
+    var m = ctx.getTransform(), k = Math.hypot(m.a, m.b), ks = k * s, flip = facing === 'left' ? -1 : 1;
+    var front = facing === 'front', walking = facing !== 'stand', fine = ks >= 2.1;
+    var X = m.a * x + m.c * foot + m.e, Y = m.b * x + m.d * foot + m.f;
+    var sh = pal.shadow || '#3a2e25', skin = pal.skin || '#c9a88a', coat = pal[P.coat], legs = pal[P.legs], hair = pal[P.hair] || legs;
+    // contact shadow, straight onto the scene
+    if (P.shadow !== false) {
+      ctx.save(); ctx.translate(x, foot); ctx.scale(s, s); ctx.fillStyle = sh;
+      ctx.globalAlpha = .12 * alpha; ctx.beginPath(); ctx.ellipse(0, 0, front ? 8 : 9.5, 1.7, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = .12 * alpha; ctx.beginPath(); ctx.ellipse(.4, 0, 5, 1, 0, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
     }
-    var walking = facing !== 'stand';
-    var ph = dist / (P.stride || 9) * Math.PI;
-    var bob = walking ? Math.abs(Math.sin(ph)) * .5 : 0;
-    ctx.save();
-    ctx.globalAlpha = alpha == null ? 1 : alpha;
-    ctx.translate(x, foot);
-    ctx.scale(s * (facing === 'left' ? -1 : 1), s);
-    var legH = 15, hip = -legH - bob;
-    // shadow
-    if (P.shadow !== false) { ctx.fillStyle = pal.shadow; ctx.globalAlpha *= .16; ctx.beginPath(); ctx.ellipse(0, 0, 9, 1.8, 0, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = alpha == null ? 1 : alpha; }
-    // legs
-    ctx.fillStyle = pal[P.legs];
-    if (facing === 'front') {
-      var lift = walking ? Math.sin(ph) : 0;
-      ctx.beginPath(); ctx.roundRect(-4.2, hip - Math.max(0, lift) * 1.6, 3.4, legH + Math.min(0, -Math.max(0, lift) * 0) , 1.6); ctx.fill();
-      ctx.beginPath(); ctx.roundRect(0.8, hip - Math.max(0, -lift) * 1.6, 3.4, legH, 1.6); ctx.fill();
+    // the sprite: foot point lands on whole device pixels plus its own fraction, so the grain stays crisp
+    var ox = Math.ceil(14 * ks) + 4, oy = Math.ceil(51 * ks) + 4, w = ox * 2, h = oy + Math.ceil(3 * ks) + 4;
+    figFit(FIG.a, w, h); figFit(FIG.b, w, h);
+    var A = FIG.a.getContext('2d'), fx0 = Math.floor(X), fy0 = Math.floor(Y);
+    A.setTransform(1, 0, 0, 1, 0, 0); A.globalCompositeOperation = 'source-over'; A.globalAlpha = 1; A.clearRect(0, 0, w, h);
+    A.setTransform(ks * flip, 0, 0, ks, ox + X - fx0, oy + Y - fy0);
+    A.lineCap = 'round'; A.lineJoin = 'round';
+
+    var L = 15, R = L + .1, T = R * .5, Sh = R * .5, stride = P.stride || 9, half = stride * DUTY;
+    var cA = (((dist || 0) / (2 * stride)) % 1 + 1) % 1, cB = (cA + .5) % 1;
+    var fa = walking ? footAt(cA, half) : { x: -1.3, lift: 0 }, fb = walking ? footAt(cB, half) : { x: 1.5, lift: 0 };
+    var hipY, long = P.long || 0, skirt = P.skirt;
+
+    if (!front) {
+      // ---- side view, facing +x ----
+      var xs = Math.max(fa.lift ? 0 : Math.abs(fa.x), fb.lift ? 0 : Math.abs(fb.x));
+      hipY = -(L - Math.max(0, L - Math.sqrt(R * R - xs * xs)) * .5);
+      var lean = walking ? .055 : 0, top = hipY - 21;
+      var ankle = function (f) { return [f.x, -1.1 - f.lift * .95]; };
+      var drawLeg = function (f, far) {
+        var an = ankle(f), hx = far ? -.6 : .6, kn = knee(hx, hipY, an[0], an[1], T, Sh), lw = skirt ? 2 : 2.75;
+        stroke(A, [hx, hipY, kn[0], kn[1]], lw + .45, legs); stroke(A, [kn[0], kn[1], an[0], an[1]], lw, legs);
+        if (!skirt && fine) blob(A, sh, .28, function () { A.rect(an[0] - 1.5, an[1] - .9, 3, .5); });             // the trouser break
+        A.save(); A.translate(an[0], an[1]); A.rotate(-.28 * f.lift);
+        A.fillStyle = legs; A.beginPath(); A.roundRect(-1.4, -.45, 4.4, 1.55, [.7, 1.3, .45, .45]); A.fill();     // shoe, toe forward
+        blob(A, sh, .45, function () { A.roundRect(-1.4, -.45, 4.4, 1.55, [.7, 1.3, .45, .45]); });
+        A.restore();
+        if (far) { A.globalAlpha = .2; stroke(A, [hx, hipY, kn[0], kn[1], an[0], an[1]], lw + .3, sh); A.globalAlpha = 1; }
+      };
+      // arms: the near arm swings against the near leg, a beat late; the far arm mirrors it
+      var holds = !!P.bag, amp = walking ? .34 : 0, sw = Math.cos(2 * Math.PI * (cB - .07));
+      var arm = function (a, bend) {
+        var sx = .3, sy = top + 1.7, ex = sx + Math.sin(a) * 6, ey = sy + Math.cos(a) * 6, b = a + bend, hx2 = ex + Math.sin(b) * 5.4, hy2 = ey + Math.cos(b) * 5.4;
+        return [sx, sy, ex, ey, hx2, hy2];
+      };
+      var near = arm(-amp * (holds ? .32 : 1) * sw + (walking ? .04 : .05), holds ? .04 : .14 + Math.max(0, -amp * sw) * .9);
+      var far = arm(amp * sw + .02, .14 + Math.max(0, amp * sw) * .9);
+      A.save(); A.translate(0, hipY); A.rotate(lean); A.translate(0, -hipY);      // the upper body leans into the walk, from the hip
+      // far arm, behind everything
+      stroke(A, far, 2.6, coat); A.globalAlpha = .26; stroke(A, far, 2.6, sh); A.globalAlpha = 1;
+      blob(A, skin, 1, function () { A.arc(far[4] + .05, far[5] + .5, 1.05, 0, Math.PI * 2); });
+      blob(A, sh, .22, function () { A.arc(far[4] + .05, far[5] + .5, 1.05, 0, Math.PI * 2); });
+      A.restore();
+      drawLeg(fa, true);
+      drawLeg(fb, false);
+      A.save(); A.translate(0, hipY); A.rotate(lean); A.translate(0, -hipY);
+      var hc = [.75, top - 5.3];
+      // neck, then the coat over it
+      blob(A, skin, 1, function () { A.rect(-.3, top - 3.2, 2.3, 4); });
+      blob(A, sh, .18, function () { A.rect(-.3, top - 1.2, 2.3, 2); });
+      var hem = skirt ? hipY - 1.5 : hipY + 2.2 + long, fl = (skirt ? .1 : .5) + long * .06, sway = walking ? Math.sin(2 * Math.PI * cA) * .35 : 0;
+      if (P.carry === 'backpack') {        // sits on the back, behind the coat's line
+        A.fillStyle = pal[P.carryC]; A.beginPath(); A.roundRect(-8.4, top + 1.2, 5, 10.2, [2, 1.2, 1.4, 1.6]); A.fill();
+        blob(A, sh, .2, function () { A.rect(-8.4, top + 7.8, 5, 3.6); });
+      }
+      var coatPath = function () {
+        A.beginPath(); A.moveTo(-3.9, top + 1.3);
+        A.quadraticCurveTo(-4.1, top - .7, -1.4, top - .8); A.lineTo(1.9, top - .8);
+        A.quadraticCurveTo(4.3, top - .6, 4.4, top + 2.2);
+        A.quadraticCurveTo(4.6, (top + hem) / 2, 5.2 + fl + sway, hem - .7);
+        A.quadraticCurveTo(5.3 + fl + sway, hem, 4.5 + fl + sway, hem);
+        A.lineTo(-4.9 - fl + sway * .6, hem);
+        A.quadraticCurveTo(-5.7 - fl + sway * .6, hem, -5.6 - fl + sway * .6, hem - .8);
+        A.quadraticCurveTo(-5.0, (top + hem) / 2 + 2, -4.5, top + 4.5); A.closePath();
+      };
+      if (skirt) {                        // A-line skirt under a short jacket
+        A.fillStyle = pal[P.skirtC || P.legs]; A.beginPath(); A.moveTo(-4.4, hipY - 3); A.lineTo(4.2, hipY - 3); A.lineTo(5.6 + sway, hipY + 6.4); A.lineTo(-5.8 + sway * .6, hipY + 6.4); A.closePath(); A.fill();
+        if (fine) blob(A, sh, .16, function () { A.moveTo(.6, hipY - 1); A.lineTo(1.6 + sway, hipY + 6.4); A.lineTo(-.4 + sway, hipY + 6.4); A.closePath(); });
+      }
+      A.fillStyle = coat; coatPath(); A.fill();
+      A.save(); coatPath(); A.clip();
+      blob(A, sh, .12, function () { A.rect(-8, hem - 1.1, 16, 1.2); });                                   // the hem turns under
+      if (fine) {
+        blob(A, sh, .2, function () { A.moveTo(.9, top - .9); A.lineTo(3.6, top - .7); A.lineTo(1.7, top + 3); A.closePath(); });   // collar
+        A.globalAlpha = .22; stroke(A, [3.3, top + 2.6, 3.9 + fl * .6 + sway, hem], .45, sh); A.globalAlpha = 1;                    // where the coat closes
+        blob(A, sh, .16, function () { A.moveTo(.8 + sway, hem); A.lineTo(1.9, hem - 5.5 - long * .4); A.lineTo(2.9 + sway, hem); A.closePath(); });   // a fold at the hem
+        blob(A, sh, .1, function () { A.moveTo(-3.2 + sway * .6, hem); A.lineTo(-2.4, hem - 4); A.lineTo(-1.6 + sway * .6, hem); A.closePath(); });
+      }
+      A.restore();
+      if (P.carry === 'backpack') { A.globalAlpha = 1; stroke(A, [-3.6, top + .6, 1.2, top + .4, 2.7, top + 2.6, 2.2, top + 8.5], .7, pal[P.carryC]); }
+      if (P.carry === 'tote') {           // on the shoulder, resting on the hip behind the arm
+        var tg = walking ? Math.sin(2 * Math.PI * cA) * .05 : 0;
+        A.save(); A.translate(.6, top + .4); A.rotate(tg);
+        A.globalAlpha = 1; stroke(A, [0, 0, -3.4, 12.6], .7, pal[P.carryC]); stroke(A, [0, 0, 1.6, 12.6], .7, pal[P.carryC]);
+        A.fillStyle = pal[P.carryC]; A.beginPath(); A.roundRect(-4.6, 12.2, 7.4, 8.6, [.4, .4, 1, 1]); A.fill();
+        blob(A, sh, .16, function () { A.rect(-4.6, 18.6, 7.4, 2.2); });
+        A.restore();
+      }
+      // head: skin, hair over the back and top (faceless), then the hat
+      blob(A, skin, 1, function () { A.arc(hc[0], hc[1], 3.7, 0, Math.PI * 2); });
+      A.save(); A.beginPath(); A.moveTo(hc[0] + 3.4, hc[1] - 6); A.lineTo(hc[0] + 1.9, hc[1] - 2.2); A.lineTo(hc[0] - .3, hc[1] + .4); A.lineTo(hc[0] - 1, hc[1] + 6); A.lineTo(hc[0] - 8, hc[1] + 6); A.lineTo(hc[0] - 8, hc[1] - 6); A.closePath(); A.clip();
+      A.fillStyle = hair; A.beginPath(); A.arc(hc[0] - .15, hc[1] - .25, 3.95, 0, Math.PI * 2); A.fill();       // hair over the top and back; the face stays bare
+      A.beginPath(); A.roundRect(hc[0] - 4, hc[1], 3.6, P.longHair ? top - hc[1] + 3.5 : 2.9, [0, 0, 1.2, 1.6]); A.fill(); A.restore();   // the nape (or longer hair, over the collar)
+      var headClip = function () { A.beginPath(); A.arc(hc[0], hc[1], 3.7, 0, Math.PI * 2); A.moveTo(hc[0] + 3.8, hc[1] - .25); A.arc(hc[0] - .15, hc[1] - .25, 3.95, 0, Math.PI * 2); };
+      if (P.hat) {
+        var by = hc[1] - 1.7, hat = pal[P.hat];
+        A.save(); headClip(); A.clip(); blob(A, sh, .2, function () { A.rect(-6, by + .5, 12, 1.5); }); A.restore();   // the brim's shadow on the head
+        A.fillStyle = hat; A.beginPath(); A.moveTo(-3.8, by + .6); A.lineTo(-2.9, by - 4.1);
+        A.quadraticCurveTo(-2.6, by - 5.2, -1.4, by - 5.2); A.lineTo(2.2, by - 5.2); A.quadraticCurveTo(3.4, by - 5.2, 3.6, by - 4.1);
+        A.lineTo(4.6, by + .6); A.closePath(); A.fill();
+        if (fine) blob(A, sh, .14, function () { A.rect(-4, by - .9, 9, 1); });                                // the band
+        var brim = function () { A.beginPath(); A.moveTo(-6.5, by + 1.2); A.quadraticCurveTo(-4, by - .45, .45, by - .45); A.quadraticCurveTo(4.8, by - .45, 7.1, by + 1.3);
+          A.lineTo(6.9, by + 2.05); A.quadraticCurveTo(4.5, by + 1, .45, by + 1); A.quadraticCurveTo(-3.9, by + 1, -6.3, by + 1.95); A.closePath(); };
+        A.fillStyle = hat; brim(); A.fill();
+        A.save(); brim(); A.clip(); blob(A, sh, .26, function () { A.rect(-8, by + .55, 16, 2); }); A.restore();     // its underside
+      } else if (P.cap) {
+        var cy = hc[1] - .6;
+        A.fillStyle = pal[P.cap]; A.beginPath(); A.arc(hc[0] - .4, cy, 4, Math.PI * 1.02, Math.PI * 1.98); A.closePath(); A.fill();
+        A.beginPath(); A.roundRect(2.4, cy - .9, 4.4, 1.15, [.2, .6, .6, .2]); A.fill();
+        A.save(); headClip(); A.clip(); blob(A, sh, .3, function () { A.rect(0, cy + .2, 6, 1.6); }); A.restore();
+      }
+      // near arm (and the bag it carries); a soft shade behind it keeps it off the coat
+      A.globalAlpha = .2; A.save(); A.translate(-.45, .35); stroke(A, near, 3.1, sh); A.restore(); A.globalAlpha = 1;
+      stroke(A, near, 2.6, coat);
+      if (fine) { A.globalAlpha = .12; stroke(A, [near[0] - .7, near[1] + 1.5, near[2] - .8, near[3]], 1, sh); A.globalAlpha = 1; }
+      if (holds) {
+        var bx = near[4] + .2, byy = near[5] + .9, swing = walking ? -(near[2] - near[0]) * .045 + Math.sin(2 * Math.PI * cA) * .03 : 0;
+        A.save(); A.translate(bx, byy); A.rotate(swing);
+        A.globalAlpha = 1; stroke(A, [-.2, -.3, -2.4, 2.6], .6, pal[P.bag]); stroke(A, [.2, -.3, 2.2, 2.6], .6, pal[P.bag]);
+        A.fillStyle = pal[P.bag]; A.beginPath(); A.roundRect(-3.7, 2.4, 7.4, 8.6, [.6, .6, 1, 1]); A.fill();
+        blob(A, sh, .2, function () { A.rect(-3.7, 2.4, 1.5, 8.6); });                                       // its side, in shade
+        blob(A, sh, .14, function () { A.rect(-3.7, 9.6, 7.4, 1.4); });
+        if (P.bagMark) { A.fillStyle = pal[P.bagMark]; A.fillRect(-1.6, 5.6, 3.8, 1.05); }
+        A.restore();
+      }
+      blob(A, skin, 1, function () { A.arc(near[4] + .05, near[5] + .45, 1.08, 0, Math.PI * 2); });
+      A.restore();
     } else {
-      var sw = walking ? Math.sin(ph) * .42 : 0;
-      [sw, -sw].forEach(function (a, i) {
-        ctx.save(); ctx.translate(i ? .4 : -.4, hip + 1); ctx.rotate(a);
-        ctx.beginPath(); ctx.roundRect(-1.7, 0, 3.4, legH, 1.6); ctx.fill(); ctx.restore();
+      // ---- front view: stepping toward us ----
+      var la = walking ? fa.lift : 0, lb = walking ? fb.lift : 0;
+      hipY = -L + .45 * Math.max(la, lb) * (walking ? 1 : 0) - (walking ? .3 : 0);
+      var topF = hipY - 21;
+      [[-1.85, la], [1.85, lb]].forEach(function (g, gi) {
+        var fy = -g[1] * 1.3, lw = skirt ? 2 : 2.9;
+        stroke(A, [g[0] * .9, hipY, g[0], fy - 1.4], lw, legs);
+        A.globalAlpha = .14; stroke(A, [g[0] * .9 - (gi ? 1 : -1) * .7, hipY, g[0] - (gi ? 1 : -1) * .7, fy - 1.4], .9, sh); A.globalAlpha = 1;   // the inner edge in shade
+        if (fine && !skirt) blob(A, sh, .26, function () { A.rect(g[0] - 1.45, fy - 2.1, 2.9, .5); });
+        A.fillStyle = legs; A.beginPath(); A.ellipse(g[0] * 1.06, fy - .75, 1.75 + g[1] * .18, 1 + g[1] * .12, 0, 0, Math.PI * 2); A.fill();
+        blob(A, sh, .45, function () { A.ellipse(g[0] * 1.06, fy - .75, 1.75 + g[1] * .18, 1 + g[1] * .12, 0, 0, Math.PI * 2); });
       });
+      var swf = walking ? Math.cos(2 * Math.PI * (cA - .07)) : 0;
+      var armF = function (side, d) {          // sleeves lie along the coat's sides; the one swinging toward us reads a touch shorter and wider
+        var len = 10.4 - Math.max(0, d) * .9, sx = side * 4.6, ex = side * (5.5 + Math.max(0, d) * .25), wd = 2.5 + Math.max(0, d) * .25;
+        stroke(A, [sx, topF + 1.9, ex, topF + 1.9 + len], wd, coat);
+        A.globalAlpha = .16; stroke(A, [sx - side * wd * .42, topF + 3.2, ex - side * wd * .42, topF + 1.9 + len], .55, sh); A.globalAlpha = 1;   // where sleeve meets body
+        return [ex + side * .05, topF + 2.5 + len];
+      };
+      blob(A, skin, 1, function () { A.rect(-1.15, topF - 3.2, 2.3, 4); });
+      var hemF = skirt ? hipY - 1.5 : hipY + 2.2 + long, flF = (skirt ? .2 : .6) + long * .07;
+      if (skirt) { A.fillStyle = pal[P.skirtC || P.legs]; A.beginPath(); A.moveTo(-4.6, hipY - 3); A.lineTo(4.6, hipY - 3); A.lineTo(6.2, hipY + 6.4); A.lineTo(-6.2, hipY + 6.4); A.closePath(); A.fill(); }
+      var coatF = function () {
+        A.beginPath(); A.moveTo(-5.4, topF + 2.6); A.quadraticCurveTo(-5.2, topF - .7, -2.4, topF - .8); A.lineTo(2.4, topF - .8);
+        A.quadraticCurveTo(5.2, topF - .7, 5.4, topF + 2.6); A.quadraticCurveTo(5.6, (topF + hemF) / 2, 6.1 + flF, hemF - .7);
+        A.quadraticCurveTo(6.2 + flF, hemF, 5.4 + flF, hemF); A.lineTo(-5.4 - flF, hemF); A.quadraticCurveTo(-6.2 - flF, hemF, -6.1 - flF, hemF - .7);
+        A.quadraticCurveTo(-5.6, (topF + hemF) / 2, -5.4, topF + 2.6); A.closePath();
+      };
+      A.fillStyle = coat; coatF(); A.fill();
+      A.save(); coatF(); A.clip();
+      blob(A, sh, .12, function () { A.rect(-9, hemF - 1.1, 18, 1.2); });
+      blob(A, skin, 1, function () { A.moveTo(-1.5, topF - .9); A.lineTo(1.5, topF - .9); A.lineTo(0, topF + 2.2); A.closePath(); });
+      if (fine) {
+        A.globalAlpha = .26; stroke(A, [-1.5, topF - .9, 0, topF + 2.3, 1.5, topF - .9], .5, sh); A.globalAlpha = 1;
+        A.globalAlpha = .2; stroke(A, [.35, topF + 2.4, .5, hemF], .45, sh); A.globalAlpha = 1;
+        blob(A, sh, .14, function () { A.moveTo(-4.2, hemF); A.lineTo(-3.3, hemF - 5 - long * .4); A.lineTo(-2.4, hemF); A.closePath(); });
+        blob(A, sh, .14, function () { A.moveTo(2.6, hemF); A.lineTo(3.4, hemF - 4.2); A.lineTo(4.2, hemF); A.closePath(); });
+      }
+      A.restore();
+      if (P.carry === 'tote') { stroke(A, [-3.2, topF - .6, -6.2, hipY - 4], .7, pal[P.carryC]); A.fillStyle = pal[P.carryC]; A.beginPath(); A.roundRect(-8.8, hipY - 4.4, 4.6, 8, .6); A.fill(); }
+      var lh = armF(-1, swf * .5), rh = armF(1, P.bag ? 0 : -swf * .5);
+      if (P.carry === 'backpack') { A.globalAlpha = 1; stroke(A, [-3, topF - .6, -3.3, topF + 9], .95, pal[P.carryC]); stroke(A, [3, topF - .6, 3.3, topF + 9], .95, pal[P.carryC]); }
+      if (P.bag) {
+        A.save(); A.translate(rh[0] + .3, rh[1] + .5); A.rotate(walking ? Math.sin(2 * Math.PI * cA) * .04 : 0);
+        stroke(A, [-.3, -.2, -1.8, 2.4], .6, pal[P.bag]); stroke(A, [.3, -.2, 1.8, 2.4], .6, pal[P.bag]);
+        A.fillStyle = pal[P.bag]; A.beginPath(); A.roundRect(-2.6, 2.2, 5.6, 8.4, [.6, .6, 1, 1]); A.fill();       // seen end-on: narrower
+        blob(A, sh, .16, function () { A.rect(-2.6, 9.2, 5.6, 1.4); });
+        if (P.bagMark && fine) { A.fillStyle = pal[P.bagMark]; A.fillRect(-1.1, 5.4, 2.4, 1); }
+        A.restore();
+      }
+      [lh, rh].forEach(function (hd) { blob(A, skin, 1, function () { A.arc(hd[0], hd[1], 1.08, 0, Math.PI * 2); }); });
+      var hf = [0, topF - 5.2];
+      blob(A, skin, 1, function () { A.ellipse(hf[0], hf[1], 3.5, 3.8, 0, 0, Math.PI * 2); });
+      A.fillStyle = hair; A.beginPath(); A.ellipse(hf[0], hf[1] - .6, 3.85, 3.6, 0, Math.PI * .93, Math.PI * 2.07); A.closePath(); A.fill();
+      A.save(); A.beginPath(); A.ellipse(hf[0], hf[1], 3.95, 4.1, 0, 0, Math.PI * 2); A.clip(); A.fillStyle = hair; A.beginPath(); A.rect(-5, hf[1] - 5, 1.9, 6.8); A.rect(3.1, hf[1] - 5, 1.9, 6.8); A.fill(); A.restore();   // hair over the ears frames a faceless face
+      if (!P.hat && !P.cap && fine) blob(A, sh, .12, function () { A.rect(-.3, hf[1] - 4, .6, 1.6); });           // a parting
+      var faceClip = function () { A.beginPath(); A.ellipse(hf[0], hf[1], 3.5, 3.8, 0, 0, Math.PI * 2); };
+      if (P.hat) {
+        var byF = hf[1] - 1.6, hatF = pal[P.hat];
+        A.save(); faceClip(); A.clip(); blob(A, sh, .36, function () { A.rect(-5, byF + .4, 10, 2.3); }); A.restore();
+        A.fillStyle = hatF; A.beginPath(); A.moveTo(-4.1, byF + .5); A.lineTo(-3.3, byF - 4.2); A.quadraticCurveTo(-3, byF - 5.3, -1.8, byF - 5.3);
+        A.lineTo(1.8, byF - 5.3); A.quadraticCurveTo(3, byF - 5.3, 3.3, byF - 4.2); A.lineTo(4.1, byF + .5); A.closePath(); A.fill();
+        if (fine) blob(A, sh, .14, function () { A.rect(-4.2, byF - 1, 8.4, 1); });
+        A.fillStyle = hatF; A.beginPath(); A.ellipse(0, byF + .7, 6.9, 1.55, 0, 0, Math.PI * 2); A.fill();
+        A.save(); A.beginPath(); A.ellipse(0, byF + .7, 6.9, 1.55, 0, 0, Math.PI * 2); A.clip(); blob(A, sh, .24, function () { A.rect(-8, byF + .8, 16, 2); }); A.restore();
+      } else if (P.cap) {
+        A.fillStyle = pal[P.cap]; A.beginPath(); A.ellipse(0, hf[1] - 1.2, 4, 3.4, 0, Math.PI, Math.PI * 2); A.closePath(); A.fill();
+        A.beginPath(); A.ellipse(0, hf[1] - 1, 3.6, 1, 0, 0, Math.PI * 2); A.fill();
+        A.save(); faceClip(); A.clip(); blob(A, sh, .3, function () { A.rect(-5, hf[1] - .2, 10, 1.6); }); A.restore();
+      }
     }
-    // coat
-    ctx.fillStyle = pal[P.coat];
-    ctx.beginPath(); ctx.roundRect(-5.6, hip - 21, 11.2, 23 + (P.long || 0), [4.5, 4.5, 2, 2]); ctx.fill();
-    // bag (hangs from the hand, swings a touch with the step)
-    if (P.bag) {
-      ctx.save(); ctx.translate(facing === 'front' ? 6.4 : 2.8, hip - 6);
-      ctx.rotate(walking ? Math.sin(ph) * .1 : 0);
-      ctx.fillStyle = pal[P.bag];
-      ctx.fillRect(-.5, 0, 1, 3.2);                 // handle
-      ctx.beginPath(); ctx.roundRect(-4, 3, 8, 9.5, .8); ctx.fill();
-      if (P.bagMark) { ctx.fillStyle = pal[P.bagMark]; ctx.fillRect(-2.2, 6.4, 4.4, 1.1); }
-      ctx.restore();
+
+    // ---- paint passes, in device pixels over the whole sprite ----
+    A.setTransform(1, 0, 0, 1, 0, 0);
+    var lit = rim && rim.amt > .02 ? (rim.dx >= 0 ? 1 : -1) : -1, cx = ox + X - fx0;
+    var dot = Math.max(.55 * k, 1.15);
+    A.globalCompositeOperation = 'source-atop';
+    // the shadow side, in two flat steps like the scene's posterised light
+    A.fillStyle = sh;
+    A.globalAlpha = .12; A.fillRect(lit > 0 ? 0 : cx + .4 * ks, 0, lit > 0 ? cx - .4 * ks : w, h);
+    A.globalAlpha = .09; A.fillRect(lit > 0 ? 0 : cx + 2.9 * ks, 0, lit > 0 ? cx - 2.9 * ks : w, h);
+    // grain: multiplied, so every colour gets dots of its own darker self (cream stays cream), as the scene's shade
+    // grain does; a sparse veil all over, denser on the shadow side. Then trimmed back to the silhouette.
+    var B = FIG.b.getContext('2d'), gc = /^#[0-9a-f]{6}$/i.test(sh) ? figMix('#ffffff', sh, .42) : '#9d958c';
+    B.setTransform(1, 0, 0, 1, 0, 0); B.globalCompositeOperation = 'copy'; B.globalAlpha = 1; B.drawImage(FIG.a, 0, 0, w, h, 0, 0, w, h); B.globalCompositeOperation = 'source-over';
+    A.globalCompositeOperation = 'multiply';
+    A.fillStyle = figGrain(A, gc, dot, .09, 11); A.globalAlpha = .45; A.fillRect(0, 0, w, h);
+    A.fillStyle = figGrain(A, gc, dot, .13, 23); A.globalAlpha = .5; A.fillRect(lit > 0 ? 0 : cx + .4 * ks, 0, lit > 0 ? cx - .4 * ks : w, h);
+    A.globalCompositeOperation = 'destination-in'; A.globalAlpha = 1; A.drawImage(FIG.b, 0, 0, w, h, 0, 0, w, h);
+    A.globalCompositeOperation = 'source-atop';
+    // light: an edge band where the scene light meets the figure, with a stippled falloff inside it
+    var lc = rim && rim.amt > .02 ? rim.c : pal.rim || '#fff2d8', la2 = rim && rim.amt > .02 ? rim.amt : .3;
+    var bw = Math.max(1, .6 * ks);
+    var edge = function (dx, dy, fill, a) {
+      B.setTransform(1, 0, 0, 1, 0, 0); B.globalCompositeOperation = 'source-over'; B.globalAlpha = 1; B.clearRect(0, 0, w, h);
+      B.drawImage(FIG.a, 0, 0, w, h, 0, 0, w, h);
+      B.globalCompositeOperation = 'source-in'; B.fillStyle = fill; B.fillRect(0, 0, w, h);
+      B.globalCompositeOperation = 'destination-out'; B.drawImage(FIG.a, 0, 0, w, h, dx, dy, w, h);
+      A.globalAlpha = a; A.drawImage(FIG.b, 0, 0, w, h, 0, 0, w, h);
+    };
+    if (rim && rim.amt > .02) {
+      edge(-lit * bw * 2.4, bw * 1.1, figGrain(A, lc, dot, .26, 37), la2 * .45);        // the spill, stippled
+      edge(-lit * bw, bw * .5, lc, Math.min(1, la2 * 1.1));                          // the edge itself
+      var back = rim.back || 0;
+      if (back > .05) edge(lit * bw, bw * .5, lc, la2 * .6 * back);                  // lit from behind: both edges catch it
+    } else {
+      edge(0, bw * 1.6, figGrain(A, lc, dot, .35, 41), la2 * .8);                   // soft sky light across the tops, stippled
     }
-    // head
-    ctx.fillStyle = pal[P.hair];
-    ctx.beginPath(); ctx.arc(0, hip - 25.5, 4.4, 0, Math.PI * 2); ctx.fill();
-    if (P.hat) { // bucket hat: crown + brim
-      ctx.fillStyle = pal[P.hat];
-      ctx.beginPath(); ctx.roundRect(-4.4, hip - 32.2, 8.8, 5.6, [3.4, 3.4, 0, 0]); ctx.fill();
-      ctx.beginPath(); ctx.roundRect(-6.6, hip - 27.4, 13.2, 2.2, 1.1); ctx.fill();
-    }
+    A.globalCompositeOperation = 'source-over'; A.globalAlpha = 1;
+    // composite once
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = alpha;
+    ctx.drawImage(FIG.a, 0, 0, w, h, fx0 - ox, fy0 - oy, w, h);
     ctx.restore();
   }
 
@@ -362,13 +600,13 @@
       function runAnim(layer) {
         (S.anim || []).forEach(function (a) {
           if ((a.layer || 'front') !== layer || !a.draw) return;
-          f.save(); f.setTransform(k, 0, 0, k, 0, 0); a.draw(f, t, pal, v); f.restore();
+          f.save(); f.setTransform(k, 0, 0, k, 0, 0); a.draw(f, t, pal, vkey); f.restore();
         });
       }
       function rimFor(g) {
         if (!lt) return null;
         var d = g.x - lt.x, amt = clamp(1 - Math.abs(d) / lt.r, 0, 1) * (g.inside ? .6 : 1);
-        return { c: pal[lt.c], amt: amt * (lt.amt || 1), dx: d > 0 ? -lt.off : lt.off };
+        return { c: pal[lt.c], amt: amt * (lt.amt || 1), dx: d > 0 ? -lt.off : lt.off, back: clamp(1 - Math.abs(d) / 36, 0, 1) };
       }
       f.setTransform(1, 0, 0, 1, 0, 0);
       f.globalCompositeOperation = 'source-over';

@@ -25,7 +25,7 @@
         add: { back: [{ t: 'halo', x: 205, y: 232, rx: 130, ry: 34, n: 7, fill: 'haze', a: .02 }],
           over: [{ t: 'halo', x: 210, y: 190, rx: 120, ry: 70, n: 6, fill: 'pool', a: .02 }, { t: 'halo', x: 88, y: 92, rx: 16, ry: 10, n: 4, fill: 'lamp', a: .05 }, { t: 'halo', x: 334, y: 172, rx: 30, ry: 30, n: 6, fill: 'haze', a: .045 }, { t: 'halo', x: 334, y: 252, rx: 40, ry: 9, n: 5, fill: 'pool', a: .04 }] } } },
     breathe: { x: 186, y: 196, w: 28, h: 36 },
-    passersby: [{ start: 6, every: 24, dir: -1, speed: 26, foot: 286, s: 1.24, coat: 'coatD', legs: 'legsDark', hair: 'hairDark' }],
+    passersby: [{ start: 6, every: 24, dir: -1, speed: 26, foot: 286, s: 1.24, coat: 'coatD', legs: 'legsDark', hair: 'hairBrown', skirt: true, skirtC: 'legsDark', longHair: true }],
     anim: [{ layer: 'front', draw: function (f, t, pal, v) {          // two flags lifting a little in the breeze
       [[151, 'flagRed', 'flagWhite', 0], [251, 'flagWhite', 'flagRed', 1.3]].forEach(function (q) { var x = q[0], y = 151, W = 17, H = 11;
         f.fillStyle = pal[q[1]]; f.globalAlpha = v === 'night' ? .75 : 1; f.beginPath(); f.moveTo(x, y);

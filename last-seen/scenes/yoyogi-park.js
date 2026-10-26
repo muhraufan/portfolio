@@ -36,7 +36,7 @@
     breathe: { x: 0, y: 0, w: 0, h: 0 },
     shoppers: [{ keys: [[0, 186], [9, 210], [12, 210], [21, 186]], period: 21, foot: 170, s: .42, coat: 'coatB', legs: 'legsDark', hair: 'hairDark', alpha: .85, shadow: false },
                { keys: [[0, 222], [8, 202], [11, 202], [19, 222]], period: 19, offset: 6, foot: 182, s: .52, coat: 'coatC', legs: 'legsDenim', hair: 'hairBrown', alpha: .9, shadow: false }],
-    passersby: [{ start: 3, every: 22, dir: 1, speed: 26, foot: 287, s: 1.26, coat: 'coatA', long: 6, legs: 'legsDark', hair: 'hairDark' }],
+    passersby: [{ start: 3, every: 22, dir: 1, speed: 26, foot: 287, s: 1.26, coat: 'coatA', long: 6, legs: 'legsDark', hair: 'hairDark', cap: 'coatB' }],
     anim: [{ layer: 'back', draw: function (f, t, pal, v) {          // the fountain: jets breathing up and down, a glint on the water
       f.fillStyle = pal.spray; for (var hz = 0; hz < 3; hz++) { f.globalAlpha = .07; f.beginPath(); f.ellipse(285, 188 - hz * 2, 46 - hz * 10, 9 - hz * 2, 0, 0, Math.PI * 2); f.fill(); }
       f.fillStyle = pal.jet;

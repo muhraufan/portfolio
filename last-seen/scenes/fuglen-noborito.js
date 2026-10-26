@@ -22,7 +22,7 @@
           r(34, 112, 84, 84, 'shadow', { a: .14 }), r(34, 112, 84, 22, 'shadow', { a: .14 })], over: [{ t: 'halo', x: 200, y: 248, rx: 110, ry: 24, n: 7, fill: 'pool', a: .04 }, { t: 'halo', x: 132, y: 104, rx: 30, ry: 30, n: 6, fill: 'roundel', a: .05 }, { t: 'halo', x: 356, y: 36, rx: 30, ry: 30, n: 6, fill: 'haze', a: .03 }] } } },
     breathe: { x: 176, y: 114, w: 48, h: 120 },
     shoppers: [{ keys: [[0, 160], [6, 160], [9, 158], [15, 158]], period: 15, foot: 228, s: .72, coat: 'coatD', legs: 'legsDark', hair: 'hairBrown', alpha: .5, shadow: false }],
-    passersby: [{ start: 4, every: 21, dir: 1, speed: 27, foot: 286, s: 1.24, coat: 'coatA', long: 6, legs: 'legsDark', hair: 'hairDark' }],
+    passersby: [{ start: 4, every: 21, dir: 1, speed: 27, foot: 286, s: 1.24, coat: 'coatA', long: 6, legs: 'legsDark', hair: 'hairDark', longHair: true, carry: 'tote', carryC: 'coatC' }],
     anim: [{ layer: 'front', draw: function (f, t, pal, v) {         // a wisp of steam from a cup left on the bench
       for (var i = 0; i < 3; i++) { var u = (t * .32 + i / 3) % 1, a = .4 * (1 - u) * Math.min(1, u * 5) * (v === 'night' ? .7 : 1);
         f.globalAlpha = a; f.fillStyle = pal.steam; f.beginPath(); f.arc(87 + Math.sin(u * 5 + i) * 1.4, 224 - u * 15, 1 + u * 1.8, 0, Math.PI * 2); f.fill(); } } }],

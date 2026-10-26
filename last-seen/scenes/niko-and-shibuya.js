@@ -159,7 +159,7 @@
     shadow: '#3a2e25', breathe: '#ffcf8f',
     coatA: '#ebe4d6', coatB: '#7c90a7', coatC: '#c98265', coatD: '#66705f', hoodie: '#a7a198',
     legsDark: '#3a3836', legsDenim: '#58657c', hairDark: '#2e2926', hairBrown: '#5c4638',
-    hat: '#f1e9d4', bag: '#c9a06b', bagMark: '#f6f1e7',
+    hat: '#f1e9d4', bag: '#c9a06b', bagMark: '#f6f1e7', skin: '#d6b394',
     rim: '#fff2d8',
     // the back of the postcard
     paper: '#f3ebdd', paperShade: '#dfcfb6', paperShade2: '#e9dcc6', paperInk: '#2a2827', paperLine: '#c9b99f', paperGlow: '#fff6e6'
@@ -232,7 +232,7 @@
     shadow: '#000000', breathe: '#ffc46e',
     coatA: '#57544f', coatB: '#2c3850', coatC: '#7d4c39', coatD: '#3f4a3c', hoodie: '#4f4b46',
     legsDark: '#111111', legsDenim: '#252d3d', hairDark: '#0c0b0a', hairBrown: '#24190f',
-    hat: '#b5a98f', bag: '#8a6641', bagMark: '#d9ccb4',
+    hat: '#b5a98f', bag: '#8a6641', bagMark: '#d9ccb4', skin: '#6e5442',
     paper: '#2a231c', paperShade: '#17120e', paperShade2: '#211b15', paperInk: '#f0e3cb', paperLine: '#4d4033', paperGlow: '#ffc77a'
   };
   var nightAdd = { back: [], facade: [], over: [] };
@@ -272,7 +272,7 @@
         palette: morning, add: morningAdd,
         breathe: { a: .03, amp: .015 },
         shoppers: [{ keys: [[0, 300], [6, 300], [11, 236], [16, 236], [20, 300]], period: 20, foot: 228, s: .78, coat: 'coatD', legs: 'legsDark', hair: 'hairDark', alpha: .92, shadow: false }],
-        passersby: [{ start: 6.5, every: 26, dir: -1, speed: 34, foot: 285, s: 1.24, coat: 'coatB', legs: 'legsDark', hair: 'hairDark' }]
+        passersby: [{ start: 6.5, every: 26, dir: -1, speed: 34, foot: 285, s: 1.24, coat: 'coatB', legs: 'legsDark', hair: 'hairDark', cap: 'legsDark', carry: 'backpack', carryC: 'coatD' }]
       },
       midday: { palette: light },
       golden: {
@@ -285,7 +285,7 @@
         paperAdd: [{ t: 'halo', x: 200, y: 340, rx: 320, ry: 210, n: 10, fill: 'paperGlow', a: .016 }],   // lamplight on the card
         light: { x: 204, r: 120, c: 'rim', off: .9, amt: .9 },   // rim light from the doorway
         breathe: { a: .06, amp: .035 },
-        passersby: [{ start: 5.2, every: 24, dir: -1, speed: 26, foot: 284, s: 1.24, coat: 'coatA', long: 6, legs: 'legsDark', hair: 'hairDark' }]
+        passersby: [{ start: 5.2, every: 24, dir: -1, speed: 26, foot: 284, s: 1.24, coat: 'coatA', long: 6, legs: 'legsDark', hair: 'hairDark', longHair: true, carry: 'tote', carryC: 'bagMark' }]
       }
     },
     layers: { back: L, facade: F, front: P },
@@ -297,11 +297,11 @@
     breathe: { x: 40, y: 95, w: 320, h: 144, c: 'breathe', a: .05, amp: .03, period: 7 },
     shoppers: [
       { keys: [[0, 150], [5, 150], [8.5, 180], [13, 180], [16.5, 150], [18, 150]], period: 18, foot: 229, s: .8, coat: 'coatD', legs: 'legsDark', hair: 'hairDark', alpha: .92, shadow: false },
-      { keys: [[0, 334], [6, 334], [10, 306], [15, 306], [18, 334]], period: 18, offset: 4, foot: 227, s: .76, coat: 'coatC', legs: 'legsDark', hair: 'hairBrown', alpha: .9, shadow: false }
+      { keys: [[0, 334], [6, 334], [10, 306], [15, 306], [18, 334]], period: 18, offset: 4, foot: 227, s: .76, coat: 'coatC', legs: 'legsDark', hair: 'hairBrown', skirt: true, skirtC: 'legsDark', alpha: .9, shadow: false }
     ],
     passersby: [
-      { start: 3.6, every: 19, dir: 1, speed: 30, foot: 287, s: 1.28, coat: 'coatB', legs: 'legsDenim', hair: 'hairBrown' },
-      { start: 13, every: 19, dir: -1, speed: 26, foot: 279, s: 1.18, coat: 'coatA', long: 6, legs: 'legsDark', hair: 'hairDark' }
+      { start: 3.6, every: 19, dir: 1, speed: 30, foot: 287, s: 1.28, coat: 'coatB', legs: 'legsDenim', hair: 'hairBrown', carry: 'backpack', carryC: 'coatD' },
+      { start: 13, every: 19, dir: -1, speed: 26, foot: 279, s: 1.18, coat: 'coatA', long: 6, legs: 'legsDark', hair: 'hairDark', longHair: true, carry: 'tote', carryC: 'coatC' }
     ],
     // The one signature beat: someone in a bucket hat steps out with a bag and walks off.
     signature: {

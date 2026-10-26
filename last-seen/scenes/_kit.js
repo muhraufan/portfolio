@@ -134,16 +134,25 @@
   function plate(A, x, y, w, h) {   // a small enamel sign plate, lines standing in for words
     w = w || 12; h = h || 6; A.push(r(x, y, w, h, 'plate', { r: .6 })); A.push(r(x + 1.6, y + 1.6, w * .6, .7, 'plateInk')); A.push(r(x + 1.6, y + 3.4, w * .4, .6, 'plateInk', { a: .8 }));
   }
-  function sitter(A, x, seat, s, p) {  // someone sitting on a bench, side on, facing p.dir: rounded back, a forearm, knees, a rim of light
+  function sitter(A, x, seat, s, p) {  // someone sitting on a bench, side on, facing p.dir: drawn like the walkers — shadow side, grain, a rim of light
     s = s || 1; var d = p.dir || 1, X = function (v) { return x + v * d * s; }, Y = function (v) { return seat + v * s; }, mn = function (a, b) { return Math.min(X(a), X(b)); };
-    A.push(r(mn(4, 11), Y(-2.6), 7 * s, 2.8 * s, p.legs || 'legsDark', { r: 1.2 * s }));                       // thigh
-    A.push(r(mn(9, 11.4), Y(-.8), 2.4 * s, 9 * s, p.legs || 'legsDark'));                                     // shin
-    A.push(r(mn(8.6, 13), Y(7.4), 4.4 * s, 1.6 * s, 'legsDark', { r: .6 }));                                 // shoe
-    A.push(r(mn(-3, 4.4), Y(-13.6), 7.4 * s, 12 * s, p.coat, { r: [3.6 * s, 3 * s, 1 * s, 1 * s] }));          // back and torso
+    var back = d > 0 ? 'left' : 'right', lg = p.legs || 'legsDark';
+    A.push(r(mn(4, 11), Y(-2.6), 7 * s, 2.8 * s, lg, { r: 1.2 * s, shade: { c: 'shadow', d: .22, dir: 'down', p: 1.2, a: .3 } }));   // thigh
+    A.push(r(mn(9, 11.4), Y(-.8), 2.4 * s, 9 * s, lg, { r: [0, 0, .6 * s, .6 * s], shade: { c: 'shadow', d: .2, dir: back, p: 1.4, a: .3 } }));   // shin
+    A.push(r(mn(9, 11.4), Y(6.6), 2.4 * s, .5 * s, 'shadow', { a: .22 }));                                   // the trouser break
+    A.push(r(mn(8.6, 13), Y(7.4), 4.4 * s, 1.6 * s, lg, { r: [.6 * s, 1.2 * s, .4 * s, .4 * s] }));          // shoe, rounded at the toe
+    A.push(r(mn(8.6, 13), Y(7.4), 4.4 * s, 1.6 * s, 'shadow', { r: [.6 * s, 1.2 * s, .4 * s, .4 * s], a: .4 }));
+    A.push(r(mn(.4, 2.4), Y(-15.4), 2 * s, 2.6 * s, p.skin || 'skin'));                                      // neck
+    A.push(r(mn(-3, 4.4), Y(-13.6), 7.4 * s, 12 * s, p.coat, { r: [3.6 * s, 3 * s, 1 * s, 1 * s], shade: [{ c: 'shadow', d: .2, dir: back, p: 1.6, a: .26 }, { c: 'shadow', d: .12, dir: 'down', p: 1.4, a: .22 }] }));   // back and torso
+    A.push(r(mn(-3, -1.6), Y(-12.6), 1.4 * s, 10.4 * s, 'shadow', { a: .12 }));                               // the back in shade, two steps
+    A.push(r(mn(-3, -2.2), Y(-12.2), .8 * s, 10 * s, 'shadow', { a: .1 }));
+    A.push(r(mn(.8, 3.2), Y(-13.7), 2.4 * s, 2.6 * s, 'shadow', { a: .16 }));                                 // collar
+    A.push(r(mn(1.2, 8.4), Y(-9.6), 7.2 * s, 2.8 * s, 'shadow', { r: 1 * s, a: .14 }));                       // the forearm's shade on the coat
     A.push(r(mn(1.6, 8.6), Y(-8.6), 7 * s, 2.2 * s, p.coat, { r: 1 * s }));                                   // forearm reaching forward
-    A.push(r(mn(-3, -1.8), Y(-12.6), 1.2 * s, 10 * s, 'shadow', { a: .18 }));                                 // the back in shade
+    A.push(c(X(9.3), Y(-7.5), 1.05 * s, p.skin || 'skin'));                                                    // hand
     A.push(r(mn(3.6, 4.4), Y(-12.4), .8 * s, 10 * s, 'rim', { a: p.rimA == null ? .35 : p.rimA }));          // light on the front edge
-    A.push(c(X(1.4), Y(-16.6), 2.7 * s, p.skin || 'skin')); A.push(c(X(.6), Y(-17.2), 2.8 * s, p.hair || 'hairDark'));
+    A.push(c(X(1.6), Y(-16.8), 2.7 * s, p.skin || 'skin'));                                                    // head: the face stays bare
+    A.push(c(X(.5), Y(-17.3), 2.85 * s, p.hair || 'hairDark')); A.push(r(mn(-2.2, .2), Y(-17), 2.4 * s, 2.6 * s, p.hair || 'hairDark', { r: [0, 0, .8 * s, .8 * s] }));
     if (p.cup) A.push(r(mn(8.2, 10.4), Y(-10.4), 2.2 * s, 2.8 * s, 'cup', { r: [.3, .3, .8, .8] }));
   }
   function leaves(A, x0, x1, y0, y1, n, seed, cols) {  // fallen leaves, scattered
