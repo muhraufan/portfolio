@@ -1,8 +1,8 @@
 /* Timeline 3 — sound and touch. On by default, but nothing sounds before the first touch or key; one footer toggle,
-   remembered in localStorage 'tl-feedback'. Every cue is synthesized, very short and quiet:
+   remembered in localStorage 'tl-feedback'. Every cue is synthesized and very short; ratchet clicks are crisp and clearly audible:
    tick  – one month (or day) crossed while scrubbing: a dry 4 ms click
-   hover – a day passed under a hovering mouse: a 4 ms hush of a click, a touch firmer (hover2) on a month boundary;
-           at most one per 30 ms and quieter the faster the sweep, so a fling reads as a soft purr, not a buzz
+   hover – a day passed under a hovering mouse: a 4 ms click, a touch firmer (hover2) on a month boundary;
+           at most one per 30 ms and up to 2.5 dB softer the faster the sweep, so a fling reads as a purr, not a buzz
    open  – a row opening: a soft low breath      close – the same, shorter */
 (function () {
   var KEY = 'tl-feedback', ctx = null, master = null, lastTick = 0, lastHover = 0, primed = false, noiseBuf = null;
@@ -36,36 +36,37 @@
   // input modality: focus rings only for keyboard users, also on things focused from script
   window.addEventListener('keydown', function (e) { if (!e.metaKey && !e.ctrlKey) document.documentElement.dataset.input = 'kbd'; }, true);
   window.addEventListener('pointerdown', function () { document.documentElement.dataset.input = 'ptr'; }, true);
-  function noise(c) { if (!noiseBuf) { noiseBuf = c.createBuffer(1, c.sampleRate * .2, c.sampleRate); var d = noiseBuf.getChannelData(0); for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; } return noiseBuf; }
-  function burst(c, t, dur, f, q, g, type) {
+  // seeded (xorshift32) so a ratchet click has the same level on every visit; Math.random noise made one hover differ from the next by up to 8 dB
+  function noise(c) { if (!noiseBuf) { noiseBuf = c.createBuffer(1, c.sampleRate * .2, c.sampleRate); var d = noiseBuf.getChannelData(0), x = 0x2f6b1d3a; for (var i = 0; i < d.length; i++) { x ^= x << 13; x ^= x >>> 17; x ^= x << 5; d[i] = (x >>> 0) / 2147483648 - 1; } } return noiseBuf; }
+  function burst(c, t, dur, f, q, g, type, off) {   // off: fixed start in the noise (ratchet clicks), else random
     var s = c.createBufferSource(), bp = c.createBiquadFilter(), v = c.createGain();
     s.buffer = noise(c); bp.type = type || 'bandpass'; bp.frequency.value = f; bp.Q.value = q;
-    v.gain.setValueAtTime(g, t); v.gain.exponentialRampToValueAtTime(.0001, t + dur);
-    s.connect(bp); bp.connect(v); v.connect(master); s.start(t, Math.random() * .15); s.stop(t + dur + .01);
+    v.gain.setValueAtTime(g, t); v.gain.exponentialRampToValueAtTime(Math.max(.0001, g * .001), t + dur);   // fall 60 dB below its own peak, so loudness tracks g 1:1
+    s.connect(bp); bp.connect(v); v.connect(master); if (off != null) s.playbackRate.value = 1 + (Math.random() - .5) * .04; s.start(t, off != null ? off : Math.random() * .15); s.stop(t + dur + .01);
   }
   function tone(c, t, f0, f1, dur, g) {
     var o = c.createOscillator(), v = c.createGain(); o.type = 'sine';
     o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur);
-    v.gain.setValueAtTime(.0001, t); v.gain.exponentialRampToValueAtTime(g, t + .003); v.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    var lo = Math.max(.0001, g * .001); v.gain.setValueAtTime(lo, t); v.gain.exponentialRampToValueAtTime(g, t + .003); v.gain.exponentialRampToValueAtTime(lo, t + dur);
     o.connect(v); v.connect(master); o.start(t); o.stop(t + dur + .02);
   }
   function vib(ms) { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} }
-  TL3.HOVER = { gap: 30, day: .08, mon: .13, slow: .3, floor: .4 };
+  TL3.HOVER = { gap: 30, day: 3.8, mon: 3.47, slow: .15, floor: .75 };   // matched to pengzhe.ng's strip click: a day tick is within 1 dB of theirs both K-weighted (BS.1770) and A-weighted
   TL3.cue = function (kind, o) {
     if (!on() || !primed) return;
     if (kind === 'hover' || kind === 'hover2') {
       var H = TL3.HOVER, n = performance.now(); if (n - lastHover < H.gap) return; lastHover = n;
       var cc = ac(); if (!cc) return; var tt = cc.currentTime + .002;
-      var gv = Math.max(H.floor, Math.min(1, 1 - ((o && o.vel) || 0) * H.slow));     // vel in px/ms: 0 → full, ≥2 px/ms → 40%
-      if (kind === 'hover2') { burst(cc, tt, .005, 3400, 7, H.mon * gv); tone(cc, tt, 1700, 1200, .005, .012 * gv); }
-      else burst(cc, tt, .004, 4200, 8, H.day * gv);
+      var gv = Math.max(H.floor, Math.min(1, 1 - ((o && o.vel) || 0) * H.slow));     // vel in px/ms: 0 → full, ≥1.7 px/ms → 75% (a fling stays audible)
+      if (kind === 'hover2') { burst(cc, tt, .005, 3400, 7, H.mon * gv, null, .11); tone(cc, tt, 1700, 1200, .005, H.mon * .092 * gv); }
+      else burst(cc, tt, .004, 4200, 8, H.day * gv, null, .06);
       return;
     }
     var c = ac(); if (!c) return; var t = c.currentTime + .004, now = performance.now();
     if (kind === 'tick' || kind === 'tick2') {
       if (now - lastTick < 32) return; lastTick = now;   // a fast scrub never buzzes: at most ~30 a second
-      if (kind === 'tick') { burst(c, t, .008, 3000, 6, .2); tone(c, t, 1900, 1100, .008, .025); vib(3); }
-      else burst(c, t, .006, 3600, 7, .095);              // a day crossed (ticks variant): quieter still
+      if (kind === 'tick') { burst(c, t, .008, 3000, 6, 2.46, null, 0); tone(c, t, 1900, 1100, .008, 2.46 * .125); vib(3); }
+      else burst(c, t, .006, 3600, 7, 2.95, null, .02);   // a day crossed while scrubbing: level with a hover, a month a touch firmer
     } else if (kind === 'open') { burst(c, t, .09, 900, .8, .05, 'lowpass'); tone(c, t, 240, 160, .06, .03); vib(5); }
     else if (kind === 'close') { burst(c, t, .06, 760, .8, .04, 'lowpass'); }
     else if (kind === 'land') { burst(c, t, .012, 1800, 4, .12); tone(c, t, 620, 380, .03, .03); vib(6); }

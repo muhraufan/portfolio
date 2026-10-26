@@ -23,11 +23,9 @@
         from: new Date(S.seenAt), to: next ? new Date(next.seenAt) : null, current: i === 0, notes: [] };   // no guest notes yet: never invented
     });
   };
-  // dates read in Tokyo time, where the places are
+  // dates read in Tokyo time, where the places are. A visit shows its date, never the clock.
   var TZ = 'Asia/Tokyo';
-  function parts(d) { var o = {}; new Intl.DateTimeFormat('en-US', { timeZone: TZ, year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(d).forEach(function (p) { o[p.type] = p.value; }); return o; }
   TL.day = function (d) { return TL.lang() === 'ja' ? d.toLocaleDateString('ja-JP', { timeZone: TZ, month: 'long', day: 'numeric' }) : d.toLocaleDateString('en-US', { timeZone: TZ, month: 'short', day: 'numeric' }); };
-  TL.time = function (d) { var p = parts(d); return (p.hour === '24' ? '00' : p.hour) + ':' + p.minute; };
   // ---------- spring: semi-implicit Euler, fixed 120 Hz substeps; low-bounce by default ----------
   TL.Spring = function (v, o) {
     o = o || {}; this.x = v; this.v = 0; this.target = v;
