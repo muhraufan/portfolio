@@ -338,6 +338,7 @@
     document.querySelectorAll('.m-lang-toggle, .lang-toggle').forEach(function(btn) {
       btn.textContent = lang === 'ja' ? 'EN' : 'JA';
     });
+    if (lang === 'ja' && window.__loadNotoSansJP) window.__loadNotoSansJP();
     var els = document.querySelectorAll('[data-en], [data-en-html]');
     if (!animate || !els.length) {
       html.setAttribute('data-lang', lang);
@@ -491,56 +492,57 @@
   function reserveLangSpace() {
     var els = document.querySelectorAll('[data-en], [data-en-html]');
     if (!els.length) return;
-    var currentLang = localStorage.getItem('lang') || 'en';
+    var enFont = "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif";
+    var jaFont = "'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans CJK JP', 'Yu Gothic', Meiryo, sans-serif";
+
+    function measure(el, value, isHtml, fontFamily, nowrap) {
+      var clone = el.cloneNode(false);
+      clone.removeAttribute('id');
+      clone.style.position = 'absolute';
+      clone.style.visibility = 'hidden';
+      clone.style.pointerEvents = 'none';
+      clone.style.left = '0';
+      clone.style.top = '0';
+      clone.style.height = 'auto';
+      clone.style.minHeight = '0';
+      clone.style.maxHeight = 'none';
+      clone.style.fontFamily = fontFamily;
+      if (nowrap) {
+        clone.style.whiteSpace = 'nowrap';
+        clone.style.width = 'auto';
+        clone.style.minWidth = '0';
+        clone.style.maxWidth = 'none';
+      } else {
+        clone.style.width = el.getBoundingClientRect().width + 'px';
+        clone.style.minWidth = '0';
+        clone.style.maxWidth = 'none';
+      }
+      if (isHtml) clone.innerHTML = value;
+      else clone.textContent = value;
+      (el.parentNode || document.body).appendChild(clone);
+      var box = { h: clone.offsetHeight, w: clone.offsetWidth };
+      clone.parentNode.removeChild(clone);
+      return box;
+    }
 
     var items = [];
     els.forEach(function(el) {
       var enVal = el.getAttribute('data-en-html') || el.getAttribute('data-en');
       var jaVal = el.getAttribute('data-ja-html') || el.getAttribute('data-ja');
       if (!enVal || !jaVal) return;
+      if (el.classList.contains('choose-reveal-body')) return;
+      if (el.getBoundingClientRect().width < 1) return;
       var isHtml = el.hasAttribute('data-en-html');
       el.style.minHeight = '';
       el.style.minWidth = '';
-      el.style.height = '';
-      el.style.width = '';
-      // Skip min-height reservation for opt-out elements — useful when an
-      // element collapses/expands and a locked min-height would hold the
-      // collapsed state open (e.g. .choose-reveal-body).
-      if (el.classList.contains('choose-reveal-body')) return;
-      items.push({ el: el, enVal: enVal, jaVal: jaVal, isHtml: isHtml, savedHTML: el.innerHTML });
+      items.push({ el: el, enVal: enVal, jaVal: jaVal, isHtml: isHtml });
     });
 
-    if (!items.length) return;
-
-    html.setAttribute('data-lang', 'en');
     items.forEach(function(it) {
-      if (it.isHtml) it.el.innerHTML = it.enVal; else it.el.textContent = it.enVal;
-    });
-    items.forEach(function(it) {
-      it.enH = it.el.offsetHeight;
-      it.enW = it.el.offsetWidth;
-    });
-
-    html.setAttribute('data-lang', 'ja');
-    items.forEach(function(it) {
-      if (it.isHtml) it.el.innerHTML = it.jaVal; else it.el.textContent = it.jaVal;
-    });
-    items.forEach(function(it) {
-      it.jaH = it.el.offsetHeight;
-      it.jaW = it.el.offsetWidth;
-    });
-
-    html.setAttribute('data-lang', currentLang);
-    items.forEach(function(it) { it.el.innerHTML = it.savedHTML; });
-
-    items.forEach(function(it) {
-      var maxH = Math.max(it.enH, it.jaH);
-      if (maxH > 0) it.el.style.minHeight = maxH + 'px';
-
-      // Allowlist: only short nav / label elements get nowrap + min-width
-      // treatment. Everything else (paragraphs, card bodies, titles, etc.)
-      // should wrap naturally — a blocklist here was fragile and caused
-      // body copy inside <div data-en> to get clamped to a single line.
+      var en = measure(it.el, it.enVal, it.isHtml, enFont, false);
+      var ja = measure(it.el, it.jaVal, it.isHtml, jaFont, false);
+      it.enH = en.h;
+      it.jaH = ja.h;
       var isSingleLine = it.el.matches(
         '.case-back, .case-mobile-back, .pw-back, ' +
         '.case-cta, .case-nav-link, ' +
@@ -549,12 +551,21 @@
         '.design-tab-btn, .pain-card-vote, .success-chip'
       );
       if (isSingleLine) {
-        var maxW = Math.max(it.enW, it.jaW);
+        var enW = measure(it.el, it.enVal, it.isHtml, enFont, true);
+        var jaW = measure(it.el, it.jaVal, it.isHtml, jaFont, true);
+        it.enW = enW.w;
+        it.jaW = jaW.w;
+        it.isSingleLine = true;
+      }
+    });
+
+    items.forEach(function(it) {
+      var maxH = Math.max(it.enH || 0, it.jaH || 0);
+      if (maxH > 0) it.el.style.minHeight = maxH + 'px';
+      if (it.isSingleLine) {
+        var maxW = Math.max(it.enW || 0, it.jaW || 0);
         if (maxW > 0) it.el.style.minWidth = maxW + 'px';
         it.el.style.whiteSpace = 'nowrap';
-        // Only clip overflow when we've forced single-line — multi-line
-        // elements should be able to grow naturally if the measured
-        // min-height underestimates (font swap, responsive width).
         it.el.style.overflow = 'hidden';
       }
     });
@@ -570,11 +581,18 @@
     });
   }
 
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(function() { reserveLangSpace(); });
-  } else {
-    reserveLangSpace();
+  function whenMeasureFonts(cb) {
+    var jobs = [];
+    if (document.fonts && document.fonts.load) {
+      jobs.push(document.fonts.load('400 16px "Plus Jakarta Sans"'));
+      jobs.push(document.fonts.load('500 16px "Plus Jakarta Sans"'));
+    }
+    var lang = localStorage.getItem('lang') || 'en';
+    if (lang === 'ja' && window.__loadNotoSansJP) jobs.push(window.__loadNotoSansJP());
+    if (!jobs.length) { cb(); return; }
+    Promise.all(jobs).then(cb, cb);
   }
+  whenMeasureFonts(function() { reserveLangSpace(); });
 
   document.querySelectorAll('.m-lang-toggle, .lang-toggle').forEach(function(btn) {
     btn.addEventListener('click', function() {
