@@ -80,7 +80,6 @@ html[data-lang="ja"] .tl3 { --dateW: 104px; }
 .t3-tag { margin-left: 8px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--pg-dot); }
 .t3-tag-m { display: none; margin: 0 8px 0 0; }
 @media (max-width: 600px) { .t3-l1 > .t3-tag { display: none; } .t3-tag-m { display: inline; } }   /* on a phone the tag drops to the second line so the name keeps its width */
-.t3-now { margin-left: 8px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 500; color: var(--ink); }
 /* the thumbnail is the home postcard, small: the same 4:3 scene with its torn-paper vignette baked into the still's alpha */
 .t3-th { position: relative; width: var(--thW); height: var(--thH); }
 .t3-th img { display: block; width: 100%; height: 100%; }

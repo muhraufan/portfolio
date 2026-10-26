@@ -33,7 +33,7 @@
   function rowHTML(p) {
     return '<li class="t3-r" id="r-' + p.i + '" data-i="' + p.i + '"><button type="button" class="t3-rb" aria-expanded="false" aria-controls="o-' + p.i + '">' +
       '<span class="t3-d"><span class="t3-l1">' + dayLabel(p.at) + '</span><span class="t3-l2">' + hm(p.at) + '</span></span>' +
-      '<span class="t3-t"><span class="t3-l1">' + esc(TL2.s(p.name)) + (p.current ? '<span class="t3-now">' + (ja() ? '今' : 'Now') + '</span>' : '') + (p.example ? '<span class="t3-tag">' + (ja() ? '例' : 'Example') + '</span>' : '') + '</span>' +
+      '<span class="t3-t"><span class="t3-l1">' + esc(TL2.s(p.name)) + (p.example ? '<span class="t3-tag">' + (ja() ? '例' : 'Example') + '</span>' : '') + '</span>' +
       '<span class="t3-l2">' + (p.example ? '<span class="t3-tag t3-tag-m">' + (ja() ? '例' : 'Example') + '</span>' : '') + esc(TL2.s(p.area)) + '</span></span>' +
       '<span class="t3-th"><img alt="" width="80" height="60" decoding="async" src="' + img(p, 's') + '"></span></button></li>';
   }
@@ -120,8 +120,8 @@
   var openI = -1, anim = 0, spring = null, moving = [], frameA = null, ghosts = [], scrollA = null, LH = null, liveFor = -1;
   var liveBox = document.createElement('div'); liveBox.className = 't3-live';
   function openHTML(p) {
-    return '<div class="t3-o" id="o-' + p.i + '"><div class="t3-f"><img class="t3-fs" alt="" src="' + img(p, 's') + '"><img class="t3-fl" alt="" decoding="async"></div>' +
-      '<p class="t3-oc">' + esc(TL2.span(p)) + (p.example ? '<span class="t3-tag">' + (ja() ? '例（実在しません）' : 'Example, not real') + '</span>' : '') + '</p></div>';
+    var ex = p.example ? '<p class="t3-oc"><span class="t3-tag">' + (ja() ? '例（実在しません）' : 'Example, not real') + '</span></p>' : '';
+    return '<div class="t3-o" id="o-' + p.i + '"><div class="t3-f"><img class="t3-fs" alt="" src="' + img(p, 's') + '"><img class="t3-fl" alt="" decoding="async"></div>' + ex + '</div>';
   }
   function poster(fr, p) { var L = fr.querySelector('.t3-fl'), u = img(p, 'l'); if (L.getAttribute('src') !== u) { L.classList.remove('is-in'); L.onload = function () { L.classList.add('is-in'); }; L.src = u; if (L.complete && L.naturalWidth) L.classList.add('is-in'); } }
   function prefetch(p) { if (p._pf === tod()) return; p._pf = tod(); new Image().src = img(p, 'l'); }

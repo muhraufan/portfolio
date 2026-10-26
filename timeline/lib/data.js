@@ -66,7 +66,7 @@
   TL2.span = function (p) {
     var ja = TL.lang() === 'ja', A = p.at, day = function (a) { return ja ? a.m + '月' + a.d + '日' : MON.en[a.m - 1] + ' ' + a.d; };
     var time = function (a) { return (a.h < 10 ? '0' : '') + a.h + ':' + (a.mi < 10 ? '0' : '') + a.mi; };
-    if (p.current) return day(A) + ' ' + time(A) + (ja ? ' から今まで' : ' – now');
+    if (p.current) return day(A) + ' ' + time(A);
     var B = TL2.ymd(p.to), same = A.y === B.y && A.m === B.m && A.d === B.d;
     if (same) return day(A) + (ja ? ' ' : ', ') + time(A) + '–' + time(B);
     return day(A) + (A.y !== B.y ? ' ' + A.y : '') + ' – ' + day(B) + ' ' + B.y;

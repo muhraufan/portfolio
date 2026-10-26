@@ -31,7 +31,7 @@
   TL.time = function (d) { var p = parts(d); return (p.hour === '24' ? '00' : p.hour) + ':' + p.minute; };
   TL.span = function (p) {
     var ja = TL.lang() === 'ja';
-    if (p.current) return TL.day(p.from) + (ja ? ' から今日まで' : ' – today');
+    if (p.current) return TL.day(p.from) + (ja ? ' ' : ', ') + TL.time(p.from);
     if (sameDay(p.from, p.to)) return TL.day(p.from) + (ja ? ' ' : ', ') + TL.time(p.from) + '–' + TL.time(p.to);    // a stop of a few hours: show the hours
     return TL.day(p.from) + ' – ' + TL.day(p.to);
   };
