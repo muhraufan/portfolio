@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <title>Timeline — Raufan</title>
+  <meta name="description" content="Every place Raufan was last seen, newest first.">
+  <link rel="preload" href="/assets/fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <script>
+(function () {
+  try {
+    (function(){var KEY='light',STATES=['morning','midday','golden','night'],STARTS=[['morning',300],['midday',660],['golden',930],['night',1080]];var html=document.documentElement,dark=window.matchMedia('(prefers-color-scheme: dark)');function clock(d){d=d||new Date();var m=d.getHours()*60+d.getMinutes(),k='night',i;for(i=0;i<STARTS.length;i++)if(m>=STARTS[i][1])k=STARTS[i][0];return m<STARTS[0][1]?'night':k;}function choice(){try{var c=localStorage.getItem(KEY);if(STATES.indexOf(c)>=0)return c;if(!localStorage.getItem('light-migrated')){localStorage.setItem('light-migrated','1');if(localStorage.getItem('theme')==='dark'){localStorage.setItem(KEY,'night');return 'night';}}return 'auto';}catch(e){return 'auto';}}function override(){var o=new URLSearchParams(location.search).get('tod');return STATES.indexOf(o)>=0?o:null;}function resolve(c){var o=override();if(o)return o;c=c||choice();if(c!=='auto')return c;return dark.matches?'night':clock();}function apply(c){var s=resolve(c);html.setAttribute('data-tod',s);html.setAttribute('data-theme',s==='night'?'dark':'light');try{localStorage.setItem('theme',s==='night'?'dark':'light');}catch(e){}return s;}function set(c){try{if(c==='auto')localStorage.removeItem(KEY);else localStorage.setItem(KEY,c);}catch(e){}return apply(c);}var GREET={en:{morning:'Good morning',midday:'Good afternoon',golden:'Golden hour',night:'Good night'},ja:{morning:'\u304a\u306f\u3088\u3046',midday:'\u3053\u3093\u306b\u3061\u306f',golden:'\u5915\u66ae\u308c\u3069\u304d',night:'\u3053\u3093\u3070\u3093\u306f'}};function stamp(){var b=document.getElementById('pc-light-btn');if(!b)return;var d=new Date(),lang=html.getAttribute('data-lang')==='ja'?'ja':'en',now=clock(d);var time=lang==='ja'?d.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',hour12:false}):d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});var te=b.querySelector('.pc-light-time'),ge=b.querySelector('.pc-light-greet');if(te){te.textContent=time;te.setAttribute('datetime',d.toTimeString().slice(0,5));}if(ge)ge.textContent=(GREET[lang]||GREET.en)[now]||'';}window.PCLight={STATES:STATES,clock:clock,choice:choice,override:override,resolve:resolve,apply:apply,set:set,dark:dark,stamp:stamp};apply();})();
+    if (localStorage.getItem('lang') === 'ja') document.documentElement.setAttribute('data-lang', 'ja');
+  } catch (e) {}
+  window.__loadNotoSansJP = function () {
+    if (window.__notoPromise) return window.__notoPromise;
+    window.__notoPromise = new Promise(function (resolve) {
+      var link = document.getElementById('noto-sans-jp');
+      var finish = function () {
+        if (document.fonts && document.fonts.load) {
+          document.fonts.load('400 16px "Noto Sans JP"').then(function () { resolve(); }, function () { resolve(); });
+        } else resolve();
+      };
+      if (!link) {
+        var pre = document.createElement('link');
+        pre.rel = 'preconnect';
+        pre.href = 'https://fonts.gstatic.com';
+        pre.crossOrigin = 'anonymous';
+        document.head.appendChild(pre);
+        link = document.createElement('link');
+        link.id = 'noto-sans-jp';
+        link.rel = 'stylesheet';
+        link.href = 'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&display=swap';
+        document.head.appendChild(link);
+      }
+      if (link.sheet) { finish(); return; }
+      link.addEventListener('load', finish, { once: true });
+      link.addEventListener('error', function () { resolve(); }, { once: true });
+    });
+    return window.__notoPromise;
+  };
+  try { if (localStorage.getItem('lang') === 'ja') window.__loadNotoSansJP(); } catch (e) {}
+})();
+</script>
+  <script>
+    // before first paint: the day rail, and this light's row stills
+    (function () {
+      var h = document.documentElement;
+      h.dataset.jump = 'rail';
+      h.classList.add('tl-pre');
+      var tod = h.getAttribute('data-tod') || 'midday';
+      ['niko-and-shibuya', 'tsuchiya-kaban-nakameguro', 'fuglen-noborito', 'tokyo-camii', 'yoyogi-park', 'tokyo-big-sight'].forEach(function (id) {
+        var l = document.createElement('link');
+        l.rel = 'preload'; l.as = 'image';
+        l.href = '/timeline/img/' + id + '-' + tod + '-s.webp?v=2';
+        document.head.appendChild(l);
+      });
+    })();
+  </script>
+  <link rel="stylesheet" href="/css/style.css?v=47">
+  <link rel="stylesheet" href="/css/light.css?v=1">
+  <link rel="stylesheet" href="/timeline/timeline.css?v=1">
+  <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<body class="minimal tl3">
+  <a class="m-skip-link" href="#t3-list">Skip to the list</a>
+  <header class="t3-top">
+    <a class="t3-home" href="/" aria-label="Back to the homepage">
+      <span class="t3-av"><img src="/assets/opt/profile-raufan-160.webp" alt="" width="160" height="160" decoding="async"></span>
+      <span class="t3-home-label" data-en="&larr; Home" data-ja="&larr; ホーム">&larr; Home</span>
+    </a>
+    <div class="t3-controls"><button class="m-lang-toggle" aria-label="Toggle language">JA</button><div class="pc-light"><button type="button" class="pc-light-btn" id="pc-light-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="pc-light-menu"><time class="pc-light-time"></time><span class="pc-light-sep" aria-hidden="true">&middot;</span><span class="pc-light-greet"></span><svg class="pc-light-chev" width="9" height="6" viewBox="0 0 9 6" aria-hidden="true"><path d="M1 1.2 4.5 4.8 8 1.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="pc-light-menu" id="pc-light-menu" role="menu" aria-labelledby="pc-light-label" hidden><div class="pc-light-label" id="pc-light-label" role="presentation">Change the light</div><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="auto"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="morning"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="midday"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="golden"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="night"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>
+<script>try{PCLight.stamp()}catch(e){}</script>
+    </div>
+  </header>
+  <div class="t3-mask" aria-hidden="true"></div>
+  <main class="t3" id="tl-main">
+    <header class="t3-intro">
+      <h1 class="t3-title" data-en="Timeline" data-ja="タイムライン">Timeline</h1>
+      <p class="t3-lede"></p>
+    </header>
+    <div class="t3-list" id="t3-list"></div>
+  </main>
+  <p class="t3-say m-visually-hidden" aria-live="polite"></p>
+  <div class="t3-foot"><button type="button" class="t3-sound" aria-pressed="true">Sound · on</button></div>
+  <script src="/js/main.js?v=36"></script>
+  <script src="/js/light-menu.js?v=2" defer></script>
+  <script src="/last-seen/last-seen.js?v=3" defer></script>
+  <script src="/last-seen/scenes/niko-and-shibuya.js?v=3" defer></script>
+  <script src="/last-seen/scenes/_kit.js?v=2" defer></script>
+  <script src="/last-seen/scenes/tokyo-big-sight.js?v=2" defer></script>
+  <script src="/last-seen/scenes/yoyogi-park.js?v=2" defer></script>
+  <script src="/last-seen/scenes/tokyo-camii.js?v=2" defer></script>
+  <script src="/last-seen/scenes/fuglen-noborito.js?v=2" defer></script>
+  <script src="/last-seen/scenes/tsuchiya-kaban-nakameguro.js?v=2" defer></script>
+  <script src="/timeline/lib/common.js?v=1" defer></script>
+  <script src="/timeline/lib/data.js?v=2" defer></script>
+  <script src="/timeline/lib/feel.js?v=1" defer></script>
+  <script src="/timeline/lib/live.js?v=1" defer></script>
+  <script src="/timeline/list.js?v=2" defer></script>
+  <script src="/timeline/rail.js?v=2" defer></script>
+</body>
+</html>
