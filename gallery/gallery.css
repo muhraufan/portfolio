@@ -43,17 +43,17 @@ button { font: inherit; color: inherit; }
 :focus-visible { outline: 1.5px solid var(--text); outline-offset: 3px; border-radius: 3px; }
 .g-sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-/* ---------- header (unchanged from the live page) ---------- */
-.g-shell { max-width: 720px; margin: 0 auto; padding: 80px 24px 0; }
+/* ---------- header ----------
+   Same column as the homepage .m-page. scrollbar-gutter would otherwise sit this box 7.5px left of it,
+   so the 720 column is centered in the visual viewport (100vw), the way the timeline bar is. */
+.g-shell { width: min(720px, 100%); max-width: none; margin-left: max(0px, calc((100vw - 720px) / 2)); margin-right: 0; padding: 80px 24px 0; }
 .g-nav { display: flex; align-items: center; justify-content: space-between; min-height: 40px; margin-bottom: 58px; }
-.g-controls { display: flex; align-items: center; gap: 8px; }
-.g-lang, .g-theme { position: relative; min-width: 40px; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; padding: 6px;
-  border: 0; background: transparent; color: var(--text3); font-size: 11px; cursor: pointer; transition: color 160ms ease, transform 140ms var(--ease-out); }
-.g-theme svg { position: absolute; width: 16px; height: 16px; transition: opacity 300ms var(--ease-out), transform 300ms var(--ease-out), filter 300ms var(--ease-out); }
-.g-theme .i-sun, html[data-theme="dark"] .g-theme .i-moon { opacity: 0; transform: scale(.25); filter: blur(4px); }
-.g-theme .i-moon, html[data-theme="dark"] .g-theme .i-sun { opacity: 1; transform: none; filter: none; }
-.g-lang:hover, .g-theme:hover { color: var(--text); }
-.g-lang:active, .g-theme:active { transform: scale(.96); }
+.g-controls { display: flex; align-items: center; gap: 10px; }
+.g-lang { position: relative; min-width: 40px; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; padding: 6px;
+  border: 0; background: transparent; color: var(--text2); font-size: 12px; font-weight: 500; letter-spacing: .03em; cursor: pointer;
+  transition: color 0.2s, transform 140ms var(--ease-out); }
+.g-lang:hover { color: var(--text); }
+.g-lang:active { transform: scale(.96); }
 .g-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 12px 24px; }
 .g-header h1 { font-size: 11px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; }
 .g-count { font-size: 11px; letter-spacing: .04em; color: var(--text3); font-variant-numeric: tabular-nums; text-align: right; min-height: 1.5em; }
@@ -75,9 +75,10 @@ button { font: inherit; color: inherit; }
 @media (min-width: 600px) { .g-grid { --cols: 2; } }
 @media (min-width: 960px) { .g-grid { --cols: 3; } }
 @media (min-width: 1280px) { .g-grid { --cols: 4; } }
-@media (max-width: 640px) { .g-shell { padding: 28px 20px 0; } .g-nav { margin-bottom: 44px; } .g-header { grid-template-columns: 1fr; } .g-count { text-align: left; }
+@media (max-width: 640px) { .g-shell { padding: 28px 24px 0; } .g-nav { margin-bottom: 44px; } .g-header { grid-template-columns: 1fr; } .g-count { text-align: left; }
   .g-intro { font-size: 15px; line-height: 1.75; } .g-grid { padding: 32px 20px 96px; gap: 24px; } }
-@media (max-width: 359px) { .g-shell { padding-inline: 16px; } .g-grid { padding-inline: 16px; } }
+@media (max-width: 600px) { .g-controls { gap: 4px; margin-right: -6px; } }
+@media (max-width: 359px) { .g-grid { padding-inline: 16px; } }
 
 .gc { position: relative; display: block; aspect-ratio: 4 / 3; container-type: inline-size; border-radius: 5px; color: var(--pc-ink);
   background: var(--pc-paper) var(--paper-sm, none) var(--bp, 50% 50%) / 112% 112% no-repeat;
