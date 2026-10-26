@@ -4,7 +4,7 @@
    A note's stamp is the timeline place current when it was written (TL2.stampFor). */
 (function () {
   'use strict';
-  var html = document.documentElement, Q = new URLSearchParams(location.search);
+  var html = document.documentElement;
   var reduce = matchMedia('(prefers-reduced-motion: reduce)');
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var grid = $('#g-grid'), countEl = $('#g-count'), shuffleBtn = $('#g-shuffle'), live = $('#g-live'), stateEl = $('#g-state'), shell = $('.g-shell');
@@ -498,12 +498,18 @@
       if (V.state === 'open' && V.n) { var b = setB(V.n); b.querySelector('.pb').classList.add('is-still'); V.b.replaceWith(b); V.b = b; }
     });
   }
-  $('.g-theme').addEventListener('click', function () {
-    var night = html.getAttribute('data-tod') === 'night', next = night ? (PCLight.clock() === 'night' ? 'midday' : 'auto') : 'night';
-    if (Q.get('tod')) { html.setAttribute('data-tod', night ? 'midday' : 'night'); html.setAttribute('data-theme', night ? 'light' : 'dark'); } else PCLight.set(next);
-    paintPapers(true); restamp();
-  });
-  PCLight.dark.addEventListener && PCLight.dark.addEventListener('change', function () { PCLight.apply(); paintPapers(true); restamp(); });
+  // Menu, an Auto period boundary, and an OS dark-mode change all write data-tod / data-theme.
+  // ?tod= still wins inside PCLight.resolve, so the same attributes are the whole signal. No poll.
+  var lightSerial = 0, repaints = 0;
+  function onLightChange() {
+    var n = ++lightSerial;
+    queueMicrotask(function () {
+      if (n !== lightSerial) return;
+      repaints++;
+      paintPapers(true); restamp();
+    });
+  }
+  new MutationObserver(onLightChange).observe(html, { attributes: true, attributeFilter: ['data-tod', 'data-theme'] });
 
   // ---------- go ----------
   applyLang();
@@ -526,5 +532,5 @@
     grid.hidden = true; grid.setAttribute('aria-busy', 'false'); showState('error');
   });
 
-  window.__g = { open: open, close: close, go: go, shuffle: shuffle, V: V, cards: function () { return cards; }, notes: function () { return notes; } };
+  window.__g = { open: open, close: close, go: go, shuffle: shuffle, V: V, cards: function () { return cards; }, notes: function () { return notes; }, repaints: function () { return repaints; } };
 })();
