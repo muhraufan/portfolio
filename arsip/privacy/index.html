@@ -10,7 +10,7 @@
     --ink: #1c1917;
     --muted: #57534e;
     --faint: #8a847e;
-    --accent: #2e70db;
+    --accent: var(--ink);
     --line: #ece9e3;
     --bg: #ffffff;
   }
@@ -40,8 +40,15 @@
   strong { color: var(--ink); font-weight: 600; }
   ul { color: var(--muted); margin: 0 0 16px; padding-left: 22px; }
   li { margin: 0 0 10px; }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
+  a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.22em;
+    text-decoration-color: color-mix(in srgb, var(--ink) 55%, transparent);
+  }
+  a:hover { text-decoration-color: var(--ink); }
+  a.brand, a.brand:hover { color: var(--ink); text-decoration: none; }
   .lede { font-size: 18px; color: var(--ink); }
   hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
   .foot { color: var(--faint); font-size: 14px; margin-top: 56px; }

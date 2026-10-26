@@ -52,7 +52,9 @@
   --text3:    rgba(17, 17, 17, 0.45);
   --border:   rgba(17, 17, 17, 0.08);
   --border2:  rgba(17, 17, 17, 0.14);
-  --accent:   #0099ff;
+  /* Ink is the only accent. --text flips with the theme, so this stays
+     black on light pages and near-white on dark pages. */
+  --accent:   var(--text);
   --green:    #C8DDD4;
   --radius:   12px;
   --max:      640px;
@@ -111,14 +113,14 @@
 
 /* ---- Focus ring (keyboard users only) ----
    Remove the default UA outline, but only replace it on :focus-visible
-   so mouse/touch users don't see rings on click. The accent-coloured
-   ring with a 3px offset reads as intentional on both light and dark
-   backgrounds. */
+   so mouse/touch users don't see rings on click. The ring is ink — the
+   same colour as the text — with a 3px offset so it stays clear of the
+   control on both light and dark backgrounds. */
 :focus {
   outline: none;
 }
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--text);
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -1721,7 +1723,7 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 
 .case-folder:focus-visible {
   border-radius: 26px;
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--text);
   outline-offset: 5px;
 }
 
@@ -1944,16 +1946,17 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
 /* ---- Underlined links ---- */
 .m-link {
   font-weight: 500;
-  color: var(--text2);
+  color: var(--text);
   text-decoration: underline;
-  text-underline-offset: 3px;
-  text-decoration-color: var(--border2);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: color-mix(in srgb, var(--text) 55%, transparent);
   transition: color 0.15s, text-decoration-color 0.15s;
 }
 
 .m-link:hover {
   color: var(--text);
-  text-decoration-color: #C8DDD4;
+  text-decoration-color: var(--text);
 }
 
 /* ---- Green highlight — minimalist dashed underline ---- */
@@ -1972,10 +1975,15 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
   font-weight: 400;
   color: var(--text);
   text-decoration-line: underline;
-  text-decoration-style: dashed;
-  text-decoration-color: #D8D4D0;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 4px;
+  text-decoration-style: solid;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+}
+.m-photo-intro .m-link {
+  text-decoration-color: color-mix(in srgb, var(--text) 55%, transparent);
+}
+.m-photo-intro .m-link:hover {
+  text-decoration-color: var(--text);
 }
 
 /* ---- Grey highlight — minimalist dashed underline ---- */
@@ -1988,16 +1996,12 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
   padding: 0;
 }
 
-[data-theme="dark"] .m-highlight-muted,
-[data-theme="dark"] .m-photo-intro .m-link,
-[data-theme="dark"] .m-photo-intro .m-link:hover {
+[data-theme="dark"] .m-highlight-muted {
   text-decoration-color: rgba(240, 240, 240, 0.18);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .m-highlight-muted,
-  :root:not([data-theme="light"]) .m-photo-intro .m-link,
-  :root:not([data-theme="light"]) .m-photo-intro .m-link:hover {
+  :root:not([data-theme="light"]) .m-highlight-muted {
     text-decoration-color: rgba(240, 240, 240, 0.18);
   }
 }
@@ -2149,14 +2153,15 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
   line-height: 2;
   color: var(--text);
   text-decoration: underline;
-  text-underline-offset: 2px;
-  text-decoration-color: var(--border2);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: color-mix(in srgb, var(--text) 55%, transparent);
   transition: color 0.15s, text-decoration-color 0.15s;
 }
 
 .m-list a:hover {
   color: var(--text);
-  text-decoration-color: #C8DDD4;
+  text-decoration-color: var(--text);
 }
 
 /* ---- Spotlight hover ----
@@ -2658,13 +2663,19 @@ section {
 }
 
 .outside-item:hover .outside-title {
-  color: var(--accent);
+  color: var(--text);
+  text-decoration-color: var(--text);
 }
 
 .outside-title {
   font-size: 14px;
   font-weight: 500;
-  transition: color 0.15s;
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: color-mix(in srgb, var(--text) 55%, transparent);
+  transition: color 0.15s, text-decoration-color 0.15s;
 }
 
 .outside-meta {
@@ -2695,13 +2706,19 @@ section {
 }
 
 .writing-item:hover .writing-title {
-  color: var(--accent);
+  color: var(--text);
+  text-decoration-color: var(--text);
 }
 
 .writing-title {
   font-size: 14px;
   font-weight: 500;
-  transition: color 0.15s;
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: color-mix(in srgb, var(--text) 55%, transparent);
+  transition: color 0.15s, text-decoration-color 0.15s;
 }
 
 .writing-date {
@@ -2734,14 +2751,17 @@ footer {
 
 .footer-links a {
   font-size: 13px;
-  color: var(--text3);
-  text-decoration: none;
-  transition: color 0.15s;
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: color-mix(in srgb, var(--text) 55%, transparent);
+  transition: color 0.15s, text-decoration-color 0.15s;
 }
 
 .footer-links a:hover {
-  color: var(--accent);
-  text-decoration: none;
+  color: var(--text);
+  text-decoration-color: var(--text);
 }
 
 /* ==================== */
@@ -2920,7 +2940,7 @@ footer {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--text);
   margin-bottom: 10px;
 }
 
@@ -2986,7 +3006,7 @@ footer {
   line-height: 1.45;
   color: var(--text);
   padding: 20px 24px;
-  border-left: 3px solid var(--accent);
+  border-left: 3px solid var(--text);
   background: var(--bg2);
   border-radius: 0 var(--radius) var(--radius) 0;
   margin: 32px 0;
@@ -3050,7 +3070,7 @@ footer {
 .outcome-stat {
   font-size: 20px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--text);
   line-height: 1;
   margin-bottom: 2px;
 }
