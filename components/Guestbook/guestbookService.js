@@ -30,17 +30,12 @@ export const DEFAULT_CARD_COLOR = '#E8541A'; // guestbook orange
  * @returns {Promise<Array<Entry>>}
  */
 export async function getEntries() {
-  try {
-    const { data, error } = await supabase
-      .from('guestbook_entries')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    return data.map(rowToEntry);
-  } catch (err) {
-    console.error('[Guestbook] getEntries failed:', err);
-    return [];
-  }
+  const { data, error } = await supabase
+    .from('guestbook_entries')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data || []).map(rowToEntry);
 }
 
 /**

@@ -493,6 +493,9 @@
   new MutationObserver(function () { if (persona === 'photography') { if (open) { paintPaper(); paintStamp(); } else paperStale = true; } })
     .observe(html, { attributes: true, attributeFilter: ['data-tod'] });
 
+  // the gallery's "Leave a note" lands here with the card already open
+  if (new URLSearchParams(location.search).get('guestcard') === 'open') requestAnimationFrame(function () { setOpen(true); });
+
   // test hooks
   window.__pc = { open: function () { setOpen(true); }, close: function () { setOpen(false); }, cue: showCue, persona: setPersona, shuffle: shuffle, commit: commit };
 })();

@@ -13,6 +13,31 @@
   ];
   TL2.FALLBACK = 'niko-and-shibuya';
 
+  // The miniature on a visitor note. The latest place whose last-seen time is
+  // at or before the note was written; a note older than every place returns
+  // null and the gallery keeps the dated postmark. Adding a row to REAL above
+  // updates the stamps. Times are absolute (the offsets are already Asia/Tokyo).
+  TL2.stampFor = function (createdAt) {
+    var t = Date.parse(createdAt);
+    if (!isFinite(t)) return null;
+    var best = null, bestT = -Infinity, i;
+    for (i = 0; i < REAL.length; i++) {
+      var pt = Date.parse(REAL[i].seenAt);
+      if (pt <= t && pt > bestT) { best = REAL[i]; bestT = pt; }
+    }
+    if (!best) return null;
+    var area = String(best.area && best.area.en || '').split(',').map(function (s) { return s.trim().toUpperCase(); }).filter(Boolean);
+    var name = String(best.name && best.name.en || '').toUpperCase();
+    return {
+      key: best.scene,
+      ring: area.concat([name]).join(' · ') + ' · ',
+      credit: {
+        en: (best.name.en || '') + ' · ' + (best.area.en || ''),
+        ja: (best.name.ja || best.name.en || '') + ' · ' + (best.area.ja || best.area.en || '')
+      }
+    };
+  };
+
   // ---------- Tokyo-time date parts ----------
   var fmt = new Intl.DateTimeFormat('en-US', { timeZone: TZ, year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
   TL2.ymd = function (d) { var o = {}; fmt.formatToParts(d).forEach(function (p) { o[p.type] = +p.value || p.value; }); return { y: +o.year, m: +o.month, d: +o.day, h: +o.hour % 24, mi: +o.minute }; };
