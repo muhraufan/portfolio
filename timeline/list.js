@@ -19,7 +19,6 @@
   function rowH() { return small() ? 64 : 76; }
   function count(n) { return ja() ? n + 'か所' : n + (n === 1 ? ' place' : ' places'); }
   function wd(a) { return new Date(Date.UTC(a.y, a.m - 1, a.d)).getUTCDay(); }
-  function hm(a) { return (a.h < 10 ? '0' : '') + a.h + ':' + (a.mi < 10 ? '0' : '') + a.mi; }
   function dayLabel(a) { return ja() ? a.d + '日（' + WD.ja[wd(a)] + '）' : WD.en[wd(a)] + ' ' + a.d; }
 
   // ---------- months ----------
@@ -32,7 +31,7 @@
 
   function rowHTML(p) {
     return '<li class="t3-r" id="r-' + p.i + '" data-i="' + p.i + '"><button type="button" class="t3-rb" aria-expanded="false" aria-controls="o-' + p.i + '">' +
-      '<span class="t3-d"><span class="t3-l1">' + dayLabel(p.at) + '</span><span class="t3-l2">' + hm(p.at) + '</span></span>' +
+      '<span class="t3-d"><span class="t3-l1">' + dayLabel(p.at) + '</span></span>' +
       '<span class="t3-t"><span class="t3-l1">' + esc(TL2.s(p.name)) + (p.example ? '<span class="t3-tag">' + (ja() ? '例' : 'Example') + '</span>' : '') + '</span>' +
       '<span class="t3-l2">' + (p.example ? '<span class="t3-tag t3-tag-m">' + (ja() ? '例' : 'Example') + '</span>' : '') + esc(TL2.s(p.area)) + '</span></span>' +
       '<span class="t3-th"><img alt="" width="80" height="60" decoding="async" src="' + img(p, 's') + '"></span></button></li>';
