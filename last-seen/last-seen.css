@@ -16,6 +16,9 @@
   color: #7b7975;
 }
 .ls-caption .ls-where { color: #55524e; }
+.ls-with-a { color: inherit; font-weight: 500; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 30%, transparent); }
+.ls-with-a:hover { text-decoration-color: currentColor; }
+.ls-with-a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 .ls-caption > span { white-space: nowrap; }
 .ls-dot { color: #84817c; margin: 0 2px; }
 [data-theme="dark"] .ls-caption { color: #aaa7a0; }

@@ -26,15 +26,8 @@
   // dates read in Tokyo time, where the places are
   var TZ = 'Asia/Tokyo';
   function parts(d) { var o = {}; new Intl.DateTimeFormat('en-US', { timeZone: TZ, year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(d).forEach(function (p) { o[p.type] = p.value; }); return o; }
-  function sameDay(a, b) { var x = parts(a), y = parts(b); return x.year === y.year && x.month === y.month && x.day === y.day; }
   TL.day = function (d) { return TL.lang() === 'ja' ? d.toLocaleDateString('ja-JP', { timeZone: TZ, month: 'long', day: 'numeric' }) : d.toLocaleDateString('en-US', { timeZone: TZ, month: 'short', day: 'numeric' }); };
   TL.time = function (d) { var p = parts(d); return (p.hour === '24' ? '00' : p.hour) + ':' + p.minute; };
-  TL.span = function (p) {
-    var ja = TL.lang() === 'ja';
-    if (p.current) return TL.day(p.from) + (ja ? ' から今日まで' : ' – today');
-    if (sameDay(p.from, p.to)) return TL.day(p.from) + (ja ? ' ' : ', ') + TL.time(p.from) + '–' + TL.time(p.to);    // a stop of a few hours: show the hours
-    return TL.day(p.from) + ' – ' + TL.day(p.to);
-  };
   // ---------- spring: semi-implicit Euler, fixed 120 Hz substeps; low-bounce by default ----------
   TL.Spring = function (v, o) {
     o = o || {}; this.x = v; this.v = 0; this.target = v;

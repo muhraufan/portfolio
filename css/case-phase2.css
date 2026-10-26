@@ -228,3 +228,82 @@ p.case-h2 { margin-top: 0.83em; }
   .case-next-row,
   .transit-page::after { transition: none; }
 }
+
+/* The transit ending sits in a centred footer. Other case endings are left-aligned. */
+.transit-page .case-end { text-align: left; }
+
+/* Station editor: a white workshop in the light, the page's night paper after dark.
+   Fills override the SVG and the markers the script paints. */
+.transit-page {
+  --d4-paper: #ffffff;
+  --d4-line: #f0f0f0;
+  --d4-dot: #e0e0e0;
+  --d4-mark: #ffffff;
+  --d4-label: #444444;
+  --d4-title: #111111;
+  --d4-copy: #555555;
+  --d4-panel: #1f1f24;
+  --d4-panel-line: #333333;
+  --d4-panel-shadow: 0 4px 16px rgba(0, 0, 0, 0.18), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --d4-muted: #888888;
+  --d4-quiet: #666666;
+  --d4-hint: #ffffff;
+  --d4-hint-opacity: 0.4;
+}
+[data-theme="dark"] .transit-page {
+  --d4-paper: #1c1c1c;
+  --d4-line: rgba(255, 255, 255, 0.08);
+  --d4-dot: rgba(241, 239, 235, 0.2);
+  --d4-mark: #111111;
+  --d4-label: #f1efeb;
+  --d4-title: #f1efeb;
+  --d4-copy: #c8c4be;
+  --d4-panel: #2a2a2e;
+  --d4-panel-line: rgba(255, 255, 255, 0.16);
+  --d4-panel-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --d4-muted: #c8c4be;
+  --d4-quiet: #b7b3ac;
+  --d4-hint: #b7b3ac;
+  --d4-hint-opacity: 1;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .transit-page {
+    --d4-paper: #1c1c1c;
+    --d4-line: rgba(255, 255, 255, 0.08);
+    --d4-dot: rgba(241, 239, 235, 0.2);
+    --d4-mark: #111111;
+    --d4-label: #f1efeb;
+    --d4-title: #f1efeb;
+    --d4-copy: #c8c4be;
+    --d4-panel: #2a2a2e;
+    --d4-panel-line: rgba(255, 255, 255, 0.16);
+    --d4-panel-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    --d4-muted: #c8c4be;
+    --d4-quiet: #b7b3ac;
+    --d4-hint: #b7b3ac;
+    --d4-hint-opacity: 1;
+  }
+}
+.transit-page .demo-4 .demo-h { color: var(--d4-title); }
+.transit-page .demo-4 .demo-text { color: var(--d4-copy); }
+.transit-page .demo-4 .demo-box { background: var(--d4-paper); border-color: var(--d4-line); }
+.transit-page #d4-svg > rect:first-of-type { fill: var(--d4-paper); }
+.transit-page #d4-grid circle { fill: var(--d4-dot); }
+.transit-page .demo-4 .d4-station-halo,
+.transit-page .demo-4 .d4-station-marker { fill: var(--d4-mark); }
+.transit-page .demo-4 .d4-station-label { fill: var(--d4-label); }
+.transit-page .demo-4 .d4-panel {
+  background: var(--d4-panel);
+  border-color: var(--d4-panel-line);
+  box-shadow: var(--d4-panel-shadow);
+}
+.transit-page .demo-4 .d4p-title span { color: var(--d4-hint); opacity: var(--d4-hint-opacity); }
+.transit-page .demo-4 .d4p-label,
+.transit-page .demo-4 .d4p-coords,
+.transit-page .demo-4 .d4p-step { color: var(--d4-muted); }
+.transit-page .demo-4 .d4p-ja,
+.transit-page .demo-4 .d4p-empty { color: var(--d4-quiet); }
+.transit-page .demo-4 .d4p-toast {
+  background: var(--d4-panel);
+  border-color: var(--d4-panel-line);
+}
