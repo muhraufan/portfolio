@@ -50,12 +50,12 @@
 })();
 </script>
 
-  <link rel="stylesheet" href="/css/style.css?v=47">
+  <link rel="stylesheet" href="/css/style.css?v=48">
   <link rel="stylesheet" href="/css/light.css?v=1">
-  <link rel="stylesheet" href="/css/case.css?v=156">
+  <link rel="stylesheet" href="/css/case.css?v=157">
   <link rel="stylesheet" href="/components/FlyBy/flyby.css?v=5">
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
-  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=34">
+  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=35">
   <style>
     /* ============================================================
        MEDIUM-STYLE PAYWALL
@@ -186,12 +186,12 @@
     .pw-lock {
       width: 26px;
       height: 26px;
-      color: #C8DDD4;
+      color: color-mix(in srgb, var(--text) 28%, transparent);
       margin: 0 auto 16px;
       display: block;
     }
     [data-theme="dark"] .pw-lock,
-    :root:not([data-theme="light"]) .pw-lock { color: #8FB7A4; }
+    :root:not([data-theme="light"]) .pw-lock { color: var(--text3); }
 
     .pw-title {
       font-size: 18px;
@@ -236,7 +236,7 @@
       outline: none;
       transition: border-color 0.2s;
     }
-    .pw-input:focus { border-color: #C8DDD4; }
+    .pw-input:focus { border-color: color-mix(in srgb, var(--text) 28%, transparent); }
     .pw-input.is-error { border-color: #ff6b6b; }
     .pw-error {
       color: #ff6b6b;
@@ -343,6 +343,8 @@
     }
   </style>
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
+
+  <link rel="stylesheet" href="/css/case-phase2.css?v=1">
 </head>
 <body class="minimal is-paywalled case-floating-nav">
 
@@ -554,7 +556,7 @@
               <figcaption class="spot-diff-label">Designer 1</figcaption>
               <div class="spot-diff-card" data-designer="1" aria-label="Designer 1's interpretation">
                 <div class="spot-diff-card-clip">
-                  <img class="spot-diff-img" src="/work/images/designer-1.png" alt="Designer 1's take on a Kirin Beer ad card">
+                  <picture><source type="image/avif" srcset="/work/images/opt/designer-1-640.avif 640w, /work/images/opt/designer-1-786.avif 786w" sizes="(max-width: 720px) calc(100vw - 48px), 560px"><img class="spot-diff-img" src="/work/images/opt/designer-1-786.webp" alt="Designer 1's take on a Kirin Beer ad card" srcset="/work/images/opt/designer-1-640.webp 640w, /work/images/opt/designer-1-786.webp 786w" sizes="(max-width: 720px) calc(100vw - 48px), 560px" width="786" height="602" loading="lazy" decoding="async"></picture>
                 </div>
                 <!-- All geometry lives in CSS keyed by [data-pos].
                      To move a dot / line / pill, edit the matching block
@@ -588,7 +590,7 @@
               <figcaption class="spot-diff-label">Designer 2</figcaption>
               <div class="spot-diff-card" data-designer="2" aria-label="Designer 2's interpretation">
                 <div class="spot-diff-card-clip">
-                  <img class="spot-diff-img" src="/work/images/designer-2.png" alt="Designer 2's take on the same Kirin Beer ad card">
+                  <picture><source type="image/avif" srcset="/work/images/opt/designer-2-640.avif 640w, /work/images/opt/designer-2-786.avif 786w" sizes="(max-width: 720px) calc(100vw - 48px), 560px"><img class="spot-diff-img" src="/work/images/opt/designer-2-786.webp" alt="Designer 2's take on the same Kirin Beer ad card" srcset="/work/images/opt/designer-2-640.webp 640w, /work/images/opt/designer-2-786.webp 786w" sizes="(max-width: 720px) calc(100vw - 48px), 560px" width="786" height="602" loading="lazy" decoding="async"></picture>
                 </div>
                 <!-- Same minimal markup as D1 — geometry lives in CSS. -->
                 <div class="spot-diff-leaders" aria-hidden="true">
@@ -1823,11 +1825,11 @@
         <div class="framework-stack" aria-label="Three-layer framework">
           <div class="framework-rail" aria-hidden="true"></div>
 
-          <article class="framework-layer" style="--layer-tint: #5a8a72; --layer-bg: rgba(200, 221, 212, 0.25); --layer-border: rgba(200, 221, 212, 0.4);">
+          <article class="framework-layer" style="--layer-tint: var(--text); --layer-bg: color-mix(in srgb, var(--text) 14%, transparent); --layer-border: color-mix(in srgb, var(--text) 28%, transparent);">
             <div class="framework-layer-head">
               <span class="framework-layer-index">01</span>
               <div class="framework-layer-titles">
-                <h4 class="framework-layer-title">Shared naming</h4>
+                <h3 class="framework-layer-title">Shared naming</h3>
                 <span class="framework-layer-sub">Communication</span>
               </div>
             </div>
@@ -1838,7 +1840,7 @@
             <div class="framework-layer-head">
               <span class="framework-layer-index">02</span>
               <div class="framework-layer-titles">
-                <h4 class="framework-layer-title">Shared specs</h4>
+                <h3 class="framework-layer-title">Shared specs</h3>
                 <span class="framework-layer-sub">Specifications</span>
               </div>
             </div>
@@ -1849,7 +1851,7 @@
             <div class="framework-layer-head">
               <span class="framework-layer-index">03</span>
               <div class="framework-layer-titles">
-                <h4 class="framework-layer-title">Shared process</h4>
+                <h3 class="framework-layer-title">Shared process</h3>
                 <span class="framework-layer-sub">Workflow</span>
               </div>
             </div>
@@ -4081,9 +4083,9 @@
             <div class="sni-phone">
               <div class="sni-screen" id="sni-screen">
                 <!-- The actual screenshot — swapped between light/dark by JS. -->
-                <img class="sni-mockup" id="sni-mockup"
-                     src="/work/images/sn-home-light.png"
-                     alt="SmartNews home feed mockup">
+                <picture><source type="image/avif" srcset="/work/images/opt/sn-home-light-640.avif 640w, /work/images/opt/sn-home-light-1178.avif 1178w" sizes="(max-width: 720px) calc(100vw - 48px), 560px"><img class="sni-mockup" id="sni-mockup"
+                     src="/work/images/opt/sn-home-light-1178.webp"
+                     alt="SmartNews home feed mockup" srcset="/work/images/opt/sn-home-light-640.webp 640w, /work/images/opt/sn-home-light-1178.webp 1178w" sizes="(max-width: 720px) calc(100vw - 48px), 560px" width="1178" height="2620" loading="lazy" decoding="async"></picture>
 
                 <!-- Invisible hit-area overlay. Each hotspot is positioned in
                      percentages relative to the 393×1007 image, so it scales
@@ -4142,7 +4144,7 @@
               <aside class="sni-panel" id="sni-panel" aria-live="polite">
                 <p class="sni-panel-empty" id="sni-panel-empty">Click any element on the phone to inspect its design tokens.</p>
                 <div id="sni-panel-content" hidden>
-                  <h4 class="sni-panel-name" id="sni-panel-name">—</h4>
+                  <p class="sni-panel-name" id="sni-panel-name">—</p>
                   <div id="sni-panel-sections"></div>
                 </div>
               </aside>
@@ -4244,8 +4246,8 @@
               const connectorLine = root.querySelector('#sni-connector-line');
 
               const MOCKUPS = {
-                light: '/work/images/sn-home-light.png',
-                dark:  '/work/images/sn-home-dark.png'
+                light: '/work/images/opt/sn-home-light-1178.webp',
+                dark:  '/work/images/opt/sn-home-dark-1178.webp'
               };
 
               let mode = 'light';
@@ -5375,8 +5377,8 @@
                metric reads as a delivered win, not a neutral wireframe
                panel. */
             .sn-results-metric {
-              background: rgba(200, 221, 212, 0.06);
-              border: 1px dashed #C8DDD4;
+              background: color-mix(in srgb, var(--text) 8%, transparent);
+              border: 1px dashed color-mix(in srgb, var(--text) 28%, transparent);
               border-radius: 12px;
               padding: 22px 18px 20px;
               text-align: center;
@@ -5456,8 +5458,8 @@
                the .is-pain-point warm-orange variant so the timeline
                reads green-then-orange = done-then-in-progress. */
             .sn-results-phase {
-              background: rgba(200, 221, 212, 0.06);
-              border: 1px dashed #C8DDD4;
+              background: color-mix(in srgb, var(--text) 8%, transparent);
+              border: 1px dashed color-mix(in srgb, var(--text) 28%, transparent);
               border-radius: 12px;
               padding: 16px 18px 18px;
               display: flex;
@@ -5904,16 +5906,20 @@
         </section>
       </section>
 
-      <footer class="case-footer">
-        <a href="/" class="m-link" data-en="← Back to home" data-ja="← 戻る">← Back to home</a>
-      </footer>
-
     </article>
 
-    <!-- Medium-style paywall card. Visible only when body.is-paywalled.
-         IDs are preserved so the unlock JS at the bottom of the file
-         continues to bind without changes. -->
-    <aside class="pw-paywall" id="pw-wall" aria-label="Password gate">
+    <div class="case-fade" aria-hidden="true"></div>
+    <div class="case-gate">
+      <section class="case-brief" aria-label="Public summary">
+        <p class="case-brief-kicker">In brief</p>
+        <dl>
+          <dt>Role</dt><dd>Lead Product Designer</dd>
+          <dt>When</dt><dd>4 months · shipped across Figma, Android, iOS</dd>
+        </dl>
+        <p>I joined SmartNews in 2021. Two designers shipped the same component for different features, in two styles. Both followed the brand guideline. That was the problem.</p>
+        <p>Design system quality lies in the invisible. The work was shared naming, shared specs, and a shared process — the measured results sit behind the password.</p>
+      </section>
+      <aside class="pw-paywall" id="pw-wall" aria-label="Password gate">
       <svg class="pw-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
         <rect x="3" y="11" width="18" height="11" rx="2"/>
         <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -5931,6 +5937,25 @@
       </form>
       <a href="/" class="pw-back" data-en="← Back to home" data-ja="← 戻る">← Back to home</a>
     </aside>
+    </div>
+
+    <nav class="case-end" aria-label="Continue">
+      <a class="case-next" href="/work/uniqlo-outfit.html">
+        <span class="case-next-kicker">Next case study</span>
+        <span class="case-next-row">
+          <img src="/work/images/opt/outfit-detail-full-480.webp" alt="" width="72" height="90">
+          <span class="case-next-copy">
+            <span class="case-next-title">Uniqlo</span>
+            <span class="case-next-meta">2026 · Password protected</span>
+          </span>
+        </span>
+      </a>
+      <p class="case-end-links">
+        <a href="/">← Back to the postcard</a>
+        <span class="case-end-thanks">Thanks for reading · <a href="/?guestcard=open">Leave a note</a></span>
+      </p>
+    </nav>
+
 
   </div>
 
@@ -6234,7 +6259,7 @@
       {
         id: 'reading-intention',
         name: 'Reading Intention',
-        image: '/work/images/solution-reading-intention.png',
+        image: '/work/images/opt/solution-reading-intention-590.webp',
         description: 'Let users choose their news intention, app curates the rest.',
         wasChosen: true,
         considered: 'A faster path to first read by anchoring onboarding around what users actually came for.',
@@ -6243,7 +6268,7 @@
       {
         id: 'dynamic-curation',
         name: 'Dynamic Curation',
-        image: '/work/images/solution-dynamic-curation.png',
+        image: '/work/images/opt/solution-dynamic-curation-590.webp',
         description: 'Group categories dynamically based on related topics.',
         wasChosen: false,
         considered: 'A lighter version of Reading Intention, working at the broader category level rather than user-stated intent.',
@@ -6252,7 +6277,7 @@
       {
         id: 'smart-skip',
         name: 'Smart Skip',
-        image: '/work/images/solution-smart-skip.png',
+        image: '/work/images/opt/solution-smart-skip-590.webp',
         description: 'Automatically select relevant categories based on demographics and trends.',
         wasChosen: false,
         considered: 'Auto-selecting categories based on demographics and trends \u2014 comparable to Reading Intention in speed.',
@@ -6261,7 +6286,7 @@
       {
         id: 'smart-grouping',
         name: 'Smart Grouping',
-        image: '/work/images/solution-smart-grouping.png',
+        image: '/work/images/opt/solution-smart-grouping-590.webp',
         description: 'Reorganize existing categories into clearer topic clusters.',
         wasChosen: false,
         considered: 'The most MVP-feeling option \u2014 simply reorganizing the existing categories into clearer clusters. Quick to ship, low risk.',

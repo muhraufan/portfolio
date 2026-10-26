@@ -50,12 +50,12 @@
 })();
 </script>
 
-  <link rel="stylesheet" href="/css/style.css?v=47">
+  <link rel="stylesheet" href="/css/style.css?v=48">
   <link rel="stylesheet" href="/css/light.css?v=1">
-  <link rel="stylesheet" href="/css/case.css?v=156">
+  <link rel="stylesheet" href="/css/case.css?v=157">
   <link rel="stylesheet" href="/components/FlyBy/flyby.css?v=5">
   <link rel="stylesheet" href="/components/Stabilo/stabilo.css?v=6">
-  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=34">
+  <link rel="stylesheet" href="/components/FloatingNav/floating-nav.css?v=35">
   <style>
     /* ============================================================
        MEDIUM-STYLE PAYWALL
@@ -154,12 +154,12 @@
     .pw-lock {
       width: 26px;
       height: 26px;
-      color: #C8DDD4;
+      color: color-mix(in srgb, var(--text) 28%, transparent);
       margin: 0 auto 16px;
       display: block;
     }
     [data-theme="dark"] .pw-lock,
-    :root:not([data-theme="light"]) .pw-lock { color: #8FB7A4; }
+    :root:not([data-theme="light"]) .pw-lock { color: var(--text3); }
 
     .pw-title {
       font-size: 18px;
@@ -196,7 +196,7 @@
       outline: none;
       transition: border-color 0.2s;
     }
-    .pw-input:focus { border-color: #C8DDD4; }
+    .pw-input:focus { border-color: color-mix(in srgb, var(--text) 28%, transparent); }
     .pw-input.is-error { border-color: #ff6b6b; }
     .pw-error {
       color: #ff6b6b;
@@ -304,6 +304,8 @@
     }
   </style>
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
+
+  <link rel="stylesheet" href="/css/case-phase2.css?v=1">
 </head>
 <body class="minimal is-paywalled case-floating-nav">
 
@@ -454,7 +456,7 @@
         <div class="annotated-track">
           <div class="annotated-inline">
             <div class="annotated-phone-frame">
-              <img src="/work/images/ftux-current.png" alt="Current SmartNews onboarding screen showing hundreds of categories">
+              <picture><source type="image/avif" srcset="/work/images/opt/ftux-current-590.avif 590w" sizes="(max-width: 720px) calc(100vw - 48px), 560px"><img src="/work/images/opt/ftux-current-590.webp" alt="Current SmartNews onboarding screen showing hundreds of categories" srcset="/work/images/opt/ftux-current-590.webp 590w" sizes="(max-width: 720px) calc(100vw - 48px), 560px" width="590" height="1278" loading="lazy" decoding="async"></picture>
               <div class="annotated-highlight" data-for="categories"></div>
               <div class="annotated-highlight" data-for="value"></div>
               <div class="annotated-highlight" data-for="structure"></div>
@@ -505,7 +507,7 @@
 
         <!-- Interactive "What would you choose?" -->
         <div class="choose-section" id="choose-section">
-          <h2 class="case-h2">From there, we narrowed it down to four directions. What would you have chosen? Pick the one you'd ship.</h2>
+          <p class="case-h2">From there, we narrowed it down to four directions. What would you have chosen? Pick the one you'd ship.</p>
           <hr class="choose-rule">
           <div class="choose-row" id="choose-row"></div>
           <div class="choose-reveal is-initial" id="choose-reveal"></div>
@@ -551,13 +553,13 @@
           <div class="spectrum-preview-outer">
             <div class="spectrum-preview" id="evolution-preview">
               <div class="spectrum-preview-frame is-active" data-frame="0">
-                <img class="spectrum-preview-img" src="/work/images/evolution-control.png" alt="Control — the original SmartNews category selection screen">
+                <picture><source type="image/avif" srcset="/work/images/opt/evolution-control-590.avif 590w" sizes="280px"><img class="spectrum-preview-img" src="/work/images/opt/evolution-control-590.webp" alt="Control — the original SmartNews category selection screen" srcset="/work/images/opt/evolution-control-590.webp 590w" sizes="280px" width="590" height="1312" loading="lazy" decoding="async"></picture>
               </div>
               <div class="spectrum-preview-frame" data-frame="1">
-                <img class="spectrum-preview-img" src="/work/images/evolution-sketch.png" alt="Solution sketch — early concept built around reading intentions">
+                <picture><source type="image/avif" srcset="/work/images/opt/evolution-sketch-590.avif 590w" sizes="280px"><img class="spectrum-preview-img" src="/work/images/opt/evolution-sketch-590.webp" alt="Solution sketch — early concept built around reading intentions" srcset="/work/images/opt/evolution-sketch-590.webp 590w" sizes="280px" width="590" height="1312" loading="lazy" decoding="async"></picture>
               </div>
               <div class="spectrum-preview-frame" data-frame="2">
-                <img class="spectrum-preview-img" src="/work/images/evolution-final.png" alt="Final design — the shipped version with visual intentions">
+                <picture><source type="image/avif" srcset="/work/images/opt/evolution-final-590.avif 590w" sizes="280px"><img class="spectrum-preview-img" src="/work/images/opt/evolution-final-590.webp" alt="Final design — the shipped version with visual intentions" srcset="/work/images/opt/evolution-final-590.webp 590w" sizes="280px" width="590" height="1312" loading="lazy" decoding="async"></picture>
               </div>
             </div>
           </div>
@@ -612,10 +614,10 @@
 
         <div class="future-previews">
           <div class="future-preview-frame">
-            <img src="/work/images/future-page.png" alt="Future home feed concept — context-adaptive layout">
+            <picture><source type="image/avif" srcset="/work/images/opt/future-page-590.avif 590w" sizes="(max-width: 720px) calc(100vw - 48px), 560px"><img src="/work/images/opt/future-page-590.webp" alt="Future home feed concept — context-adaptive layout" srcset="/work/images/opt/future-page-590.webp 590w" sizes="(max-width: 720px) calc(100vw - 48px), 560px" width="590" height="1310" loading="lazy" decoding="async"></picture>
           </div>
           <div class="future-preview-frame">
-            <img src="/work/images/future-page-expand.png" alt="Future home feed expanded state — intent-driven content ranking">
+            <picture><source type="image/avif" srcset="/work/images/opt/future-page-expand-590.avif 590w" sizes="(max-width: 720px) calc(100vw - 48px), 560px"><img src="/work/images/opt/future-page-expand-590.webp" alt="Future home feed expanded state — intent-driven content ranking" srcset="/work/images/opt/future-page-expand-590.webp 590w" sizes="(max-width: 720px) calc(100vw - 48px), 560px" width="590" height="1310" loading="lazy" decoding="async"></picture>
           </div>
         </div>
 
@@ -624,15 +626,20 @@
         <p>By reframing onboarding around intent rather than category, we transformed a cluttered setup into a simple, meaningful experience — helping users feel guided from the start and helping SmartNews connect them to what matters faster.</p>
       </section>
 
-      <footer class="case-footer">
-        <a href="/" class="m-link" data-en="← Back to home" data-ja="← 戻る">← Back to home</a>
-      </footer>
-
     </article>
 
-    <!-- Medium-style paywall card. Visible only when body.is-paywalled.
-         IDs preserved so the unlock JS continues to bind unchanged. -->
-    <aside class="pw-paywall" id="pw-wall" aria-label="Password gate">
+    <div class="case-fade" aria-hidden="true"></div>
+    <div class="case-gate">
+      <section class="case-brief" aria-label="Public summary">
+        <p class="case-brief-kicker">In brief</p>
+        <dl>
+          <dt>Role</dt><dd>Senior Product Designer</dd>
+          <dt>When</dt><dd>2025 · 3 months</dd>
+        </dl>
+        <p>New readers met hundreds of categories. Only 37.9% finished onboarding. The rest skipped it.</p>
+        <p>The public aim was a first session about reading intentions, not a wall of categories. What shipped stays behind the password.</p>
+      </section>
+      <aside class="pw-paywall" id="pw-wall" aria-label="Password gate">
       <svg class="pw-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
         <rect x="3" y="11" width="18" height="11" rx="2"/>
         <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -650,6 +657,25 @@
       </form>
       <a href="/" class="pw-back" data-en="← Back to home" data-ja="← 戻る">← Back to home</a>
     </aside>
+    </div>
+
+    <nav class="case-end" aria-label="Continue">
+      <a class="case-next" href="/lab/tokyo-transit-map.html">
+        <span class="case-next-kicker">Next case study</span>
+        <span class="case-next-row">
+          <img src="/assets/opt/tokyo-transit-map-480.webp" alt="" width="72" height="90">
+          <span class="case-next-copy">
+            <span class="case-next-title">Tokyo Transit Map</span>
+            <span class="case-next-meta">Design engineering</span>
+          </span>
+        </span>
+      </a>
+      <p class="case-end-links">
+        <a href="/">← Back to the postcard</a>
+        <span class="case-end-thanks">Thanks for reading · <a href="/?guestcard=open">Leave a note</a></span>
+      </p>
+    </nav>
+
 
 
   </div>
@@ -916,7 +942,7 @@
       {
         id: 'reading-intention',
         name: 'Reading Intention',
-        image: '/work/images/solution-reading-intention.png',
+        image: '/work/images/opt/solution-reading-intention-590.webp',
         description: 'Let users choose their news intention, app curates the rest.',
         wasChosen: true,
         considered: 'A faster path to first read by anchoring onboarding around what users actually came for.',
@@ -925,7 +951,7 @@
       {
         id: 'dynamic-curation',
         name: 'Dynamic Curation',
-        image: '/work/images/solution-dynamic-curation.png',
+        image: '/work/images/opt/solution-dynamic-curation-590.webp',
         description: 'Group categories dynamically based on related topics.',
         wasChosen: false,
         considered: 'A lighter version of Reading Intention, working at the broader category level rather than user-stated intent.',
@@ -934,7 +960,7 @@
       {
         id: 'smart-skip',
         name: 'Smart Skip',
-        image: '/work/images/solution-smart-skip.png',
+        image: '/work/images/opt/solution-smart-skip-590.webp',
         description: 'Automatically select relevant categories based on demographics and trends.',
         wasChosen: false,
         considered: 'Auto-selecting categories based on demographics and trends \u2014 comparable to Reading Intention in speed.',
@@ -943,7 +969,7 @@
       {
         id: 'smart-grouping',
         name: 'Smart Grouping',
-        image: '/work/images/solution-smart-grouping.png',
+        image: '/work/images/opt/solution-smart-grouping-590.webp',
         description: 'Reorganize existing categories into clearer topic clusters.',
         wasChosen: false,
         considered: 'The most MVP-feeling option \u2014 simply reorganizing the existing categories into clearer clusters. Quick to ship, low risk.',

@@ -369,7 +369,15 @@
     var img = frame.querySelector('img');
     img.alt = p.alt || p.title; img.width = p.width; img.height = p.height;
     img.sizes = '(max-width: 600px) 92vw, 720px';
-    img.srcset = p.src + ' 600w, ' + p.fullSrc + ' ' + p.width + 'w'; img.src = p.fullSrc;
+    // Full files stay off the design persona. The hero shows the place there;
+    // thumbs are enough until the photography side is actually open.
+    if (persona === 'photography') {
+      img.srcset = p.src + ' 600w, ' + p.fullSrc + ' ' + p.width + 'w';
+      img.src = p.fullSrc;
+    } else {
+      img.removeAttribute('srcset');
+      img.src = p.src;
+    }
   }
   function fit(frame, p) {    // every print fits the same box inside the card, whatever its shape
     var r = card.getBoundingClientRect(); if (!r.width || !p) return;
@@ -456,7 +464,11 @@
       paperStale = true;
     };
     heroLayout(photo, animate);                             // the intro starts moving right away, so it settles inside the input window
-    if (photo) loadPhotos().then(function () { swapCaption(apply, animate); }); else swapCaption(apply, animate);
+    if (photo) loadPhotos().then(function () {
+      if (current) setImg(topFrame, current);
+      if (upNext) setImg(nextFrame, upNext);
+      swapCaption(apply, animate);
+    }); else swapCaption(apply, animate);
     if (open) setOpen(false);
   }
   function swapCaption(apply, animate) {
