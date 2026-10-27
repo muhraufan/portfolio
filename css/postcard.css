@@ -88,6 +88,15 @@
 .pc-card.is-photo .pc-print { opacity: 1; transform: none; pointer-events: auto; }
 .pc-card.is-photo .ls-scene { opacity: 0; transform: scale(1.015); }
 .pc-back { transform: rotateY(180deg); }
+/* the face turned away is hidden outright, not just backface-culled: WebKit (iPhone Safari and Chrome) ignores
+   backface-visibility when it paints a flat snapshot (the light-change view transition, headless captures), and the
+   mirrored guest card showed through the scene. Each face hides only once the turn has finished, so the flip looks the same. */
+@media (prefers-reduced-motion: no-preference) {
+  .pc-back { visibility: hidden; transition: visibility 0s linear 500ms; }
+  .pc-card.is-flipped .pc-back { visibility: visible; transition-delay: 0s; }
+  .pc-front { transition: visibility 0s linear 0s; }
+  .pc-card.is-flipped .pc-front { visibility: hidden; transition-delay: 500ms; }
+}
 
 /* reduced motion: a crossfade instead of a flip */
 @media (prefers-reduced-motion: reduce) {
