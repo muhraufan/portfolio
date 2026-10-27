@@ -4,6 +4,7 @@
   var TL2 = window.TL2 = window.TL2 || {};
   var TZ = 'Asia/Tokyo';
   var REAL = [
+    { scene: 'tokyo-nihombashi-tower', seenAt: '2026-10-27T09:49:00+09:00', name: { en: 'Tokyo Nihombashi Tower', ja: '東京日本橋タワー' }, area: { en: 'Nihonbashi, Tokyo', ja: '東京・日本橋' } },
     { scene: 'niko-and-shibuya', seenAt: '2026-10-25T18:56:00+09:00', name: { en: 'niko and ...', ja: 'niko and ...' }, area: { en: 'Shibuya, Tokyo', ja: '東京・渋谷' } },
     { scene: 'tsuchiya-kaban-nakameguro', seenAt: '2026-10-25T13:45:00+09:00', name: { en: 'Tsuchiya Kaban', ja: '土屋鞄' }, area: { en: 'Nakameguro, Tokyo', ja: '東京・中目黒' } },
     { scene: 'fuglen-noborito', seenAt: '2026-10-23T13:40:00+09:00', name: { en: 'Fuglen Coffee Roasters', ja: 'フグレン コーヒー ロースターズ' }, area: { en: 'Noborito, Kawasaki', ja: '川崎・登戸' } },

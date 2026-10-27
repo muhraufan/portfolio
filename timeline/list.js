@@ -12,7 +12,7 @@
   function ja() { return TL.lang() === 'ja'; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function tod() { return html.getAttribute('data-tod') || 'midday'; }
-  function img(p, sz) { return '/timeline/img/' + p.scene + '-' + tod() + '-' + sz + '.webp?v=4'; }
+  function img(p, sz) { return '/timeline/img/' + p.scene + '-' + tod() + '-' + sz + '.webp?v=5'; }
   function small() { return innerWidth <= 600; }
   function barH() { return small() ? 68 : 76; }
   function mhH() { return 48; }

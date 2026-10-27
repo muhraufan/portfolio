@@ -51,10 +51,10 @@
       h.dataset.jump = 'rail';
       h.classList.add('tl-pre');
       var tod = h.getAttribute('data-tod') || 'midday';
-      ['niko-and-shibuya', 'tsuchiya-kaban-nakameguro', 'fuglen-noborito', 'tokyo-camii', 'lifefit-yurigaoka', 'yoyogi-park', 'tokyo-big-sight', 'mufg-park', 'stayful-life-store', 'nadoya-no-katte', 'et-cultural-coffeehouse'].forEach(function (id) {
+      ['tokyo-nihombashi-tower', 'niko-and-shibuya', 'tsuchiya-kaban-nakameguro', 'fuglen-noborito', 'tokyo-camii', 'lifefit-yurigaoka', 'yoyogi-park', 'tokyo-big-sight', 'mufg-park', 'stayful-life-store', 'nadoya-no-katte', 'et-cultural-coffeehouse'].forEach(function (id) {
         var l = document.createElement('link');
         l.rel = 'preload'; l.as = 'image';
-        l.href = '/timeline/img/' + id + '-' + tod + '-s.webp?v=4';
+        l.href = '/timeline/img/' + id + '-' + tod + '-s.webp?v=5';
         document.head.appendChild(l);
       });
     })();
@@ -103,8 +103,9 @@
   <script src="/last-seen/scenes/mufg-park.js?v=4" defer></script>
   <script src="/last-seen/scenes/stayful-life-store.js?v=4" defer></script>
   <script src="/last-seen/scenes/et-cultural-coffeehouse.js?v=4" defer></script>
+  <script src="/last-seen/scenes/tokyo-nihombashi-tower.js?v=1" defer></script>
   <script src="/timeline/lib/common.js?v=4" defer></script>
-  <script src="/timeline/lib/data.js?v=5" defer></script>
+  <script src="/timeline/lib/data.js?v=6" defer></script>
   <script src="/timeline/lib/feel.js?v=1" defer></script>
   <script src="/timeline/lib/live.js?v=1" defer></script>
   <script src="/timeline/list.js?v=6" defer></script>
