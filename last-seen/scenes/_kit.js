@@ -195,7 +195,7 @@
       periods: [['morning', '05:00'], ['midday', '11:00'], ['golden', '15:30'], ['night', '18:00']],
       variants: paperStock(variants(spec.palette, spec.light)), layers: { back: L, facade: F, front: P }, paper: spec.paper || PAPER_LAYERS,
       agaves: [], breathe: Object.assign({ x: 0, y: 0, w: 0, h: 0, c: 'breathe', a: .05, amp: .03, period: 7 }, spec.breathe),
-      shoppers: spec.shoppers || [], passersby: spec.passersby || [], anim: spec.anim || [], signature: signature(spec.sig)
+      shoppers: spec.shoppers || [], passersby: spec.passersby || [], anim: spec.anim || [], signature: signature(spec.sig), stamp: spec.stamp
     });
   }
   function bike(P, x, y, o) {     // a parked city bike, side on: two wheels, a frame, a basket or a child seat

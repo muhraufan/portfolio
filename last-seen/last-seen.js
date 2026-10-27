@@ -603,6 +603,32 @@
   // the palette in use right now (pages use it to tint things that sit beside the scene)
   LS.palette = function (S) { S = S || LS.newest(); var k = LS.period(S); return (S.variants ? S.variants[k] : { palette: S.palette.light }).palette; };
 
+  // the stamp's window onto a scene: the subject (the building and Raufan's standing spot) centred, at the stamp's aspect.
+  // A scene may set `stamp: { x0, y0, x1, y1 }` (scene units) to frame its subject; by default the box is centred on
+  // where the figure stands, from just under the top edge down to his feet. The window covers the box at aspect `ar`,
+  // narrows if it would reach past the torn vignette edge, so the corners stay on paper.
+  LS.stampRect = function (S, ar) {
+    S = S || LS.newest();
+    var W = S.size[0], H = S.size[1], sg = S.signature || {}, em = sg.emerge || {};
+    var fx = (sg.still && sg.still.x) || em.x || W / 2, feet = em.foot1 || H * .88;
+    var b = Object.assign({ x0: fx - 130, x1: fx + 130, y0: 30, y1: feet + 8 }, S.stamp);
+    var safe = { x0: W * .11, x1: W * .89, y0: H * .093, y1: H * .913 };          // inside the vignette's rounded corners
+    var cx = (b.x0 + b.x1) / 2, cy = (b.y0 + b.y1) / 2;
+    var w = Math.max(b.x1 - b.x0, (b.y1 - b.y0) * ar), h = w / ar;
+    // keep the subject's middle in the stamp's middle across (narrowing if the box sits off the scene's centre);
+    // up and down it may slide, so the feet stay in
+    var fit = Math.min(1, 2 * (cx - safe.x0) / w, 2 * (safe.x1 - cx) / w, (safe.y1 - safe.y0) / h); w *= fit; h *= fit;
+    var x = cx - w / 2, y = Math.min(Math.max(cy - h / 2, safe.y0), safe.y1 - h);
+    return { x: x, y: y, w: w, h: h };
+  };
+  // a crop of a photo at aspect `ar` around a focal point (fractions; default a touch above centre for upright frames,
+  // where the faces usually are)
+  LS.focusCrop = function (iw, ih, ar, focus) {
+    var f = focus || [.5, ih > iw ? .4 : .5];
+    var sw = Math.min(iw, ih * ar), sh = sw / ar;
+    return { x: Math.min(Math.max(iw * f[0] - sw / 2, 0), iw - sw), y: Math.min(Math.max(ih * f[1] - sh / 2, 0), ih - sh), w: sw, h: sh };
+  };
+
   // a sheet of the scene's paper: flat colour, the same stipple grain, the same soft vignette edge
   LS.paper = function (cv, prims, pal, S, opts) {
     S = S || LS.newest();
