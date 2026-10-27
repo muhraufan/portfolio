@@ -148,8 +148,19 @@
     if (sctx) { sctx.strokeStyle = P.pencil; sctx.lineWidth = 1.4; redraw(); }
   }
   function pencil() { return persona === 'photography' ? (PRINT[tod()] || PRINT.midday).pencil : pal().paperInk; }
-  scene.addEventListener('lastseen:variant', function () { if (open) { paintPaper(); paintStamp(); } else paperStale = true; });
-  var paperStale = true;
+  scene.addEventListener('lastseen:variant', function () { if (open) { paintPaper(); paintStamp(); } else { paperStale = true; prepaint(); } });
+  var paperStale = true, paperKey = null, prepaintT = 0;
+  // the paper is painted ahead, while the card is closed and the page idle: painting it on the tap held the main thread
+  // for a few hundred ms right as the turn began, and WebKit then dropped or jumped the first frames of the flip
+  function paperSig() { var r = back.getBoundingClientRect(); return [persona, tod(), html.getAttribute('data-theme'), Math.round(r.width), Math.round(r.height), window.devicePixelRatio || 1].join('|'); }
+  function paintPaperIfNeeded() { var k = paperSig(); if (!paperStale && k === paperKey) return; paintPaper(); paperStale = false; paperKey = k; }
+  function prepaint() {
+    clearTimeout(prepaintT);
+    prepaintT = setTimeout(function () {
+      var go = function () { if (!open) paintPaperIfNeeded(); };
+      if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 1500 }); else go();
+    }, 700);
+  }
 
   // ---------- signature pad ----------
   var sctx, strokes = [], cur = null;
@@ -198,7 +209,7 @@
   var open = false, lift = null, timers = [];
   function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
   function clearTimers() { timers.forEach(clearTimeout); timers = []; }
-  back.inert = true;
+  back.inert = true; back.classList.add('is-away'); prepaint();
   function liftCard() {
     if (reduce.matches) return;
     if (lift) lift.cancel();
@@ -207,13 +218,14 @@
   function setOpen(v) {
     if (v === open) return;
     open = v; clearTimers();
-    if (v && paperStale) { paintPaper(); paperStale = false; }
+    if (v) back.classList.remove('is-away');   // the back shows before the turn starts, and hides only once it's over
+    else later(function () { if (!open) back.classList.add('is-away'); }, reduce.matches ? 220 : 560);
     card.classList.toggle('is-flipped', v);
     note.setAttribute('aria-expanded', String(v));
     back.inert = !v; front.inert = v;
     liftCard(); morph(v);
     if (v) {
-      paintPaper(); paintStamp(); sizeSig();
+      paintPaperIfNeeded(); paintStamp(); sizeSig();   // usually already painted while closed (prepaint), so the turn starts at once
       later(function () { if (open) msg.focus({ preventScroll: true }); }, reduce.matches ? 40 : 230);
       document.addEventListener('keydown', onKey);
     } else {
@@ -250,7 +262,7 @@
 
   back.addEventListener('focusin', function (e) {
     if (!window.matchMedia('(pointer: coarse)').matches) return;
-    setTimeout(function () { (e.target.closest('.pc-field') || e.target).scrollIntoView({ block: 'center', behavior: reduce.matches ? 'auto' : 'smooth' }); }, 320);
+    setTimeout(function () { if (!open) return; (e.target.closest('.pc-field') || e.target).scrollIntoView({ block: 'center', behavior: reduce.matches ? 'auto' : 'smooth' }); }, 320);
   });
   if (window.visualViewport) visualViewport.addEventListener('resize', function () {
     if (open && back.contains(document.activeElement)) document.activeElement.scrollIntoView({ block: 'nearest' });
@@ -461,7 +473,7 @@
       cap.classList.toggle('is-photo', photo);
       steps.classList.toggle('is-away', photo);
       hintText(); applyShot();
-      paperStale = true;
+      paperStale = true; prepaint();
     };
     heroLayout(photo, animate);                             // the intro starts moving right away, so it settles inside the input window
     if (photo) loadPhotos().then(function () {
@@ -502,7 +514,7 @@
   }
 
   // the photo back follows the light too
-  new MutationObserver(function () { if (persona === 'photography') { if (open) { paintPaper(); paintStamp(); } else paperStale = true; } })
+  new MutationObserver(function () { if (persona === 'photography') { if (open) { paintPaper(); paintStamp(); } else { paperStale = true; prepaint(); } } })
     .observe(html, { attributes: true, attributeFilter: ['data-tod'] });
 
   // the gallery's "Leave a note" lands here with the card already open
