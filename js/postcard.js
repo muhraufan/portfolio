@@ -24,11 +24,11 @@
     en: { note: 'Leave a note', tl: 'Earlier sightings', thanks: 'Thanks for the note', label: 'Guest card', title: 'Thank you for visiting! -Raufan',
       message: 'Message', messagePh: 'Leave a short note', signature: 'Signature', from: 'From', namePh: 'Your name',
       to: 'To', toName: 'Raufan', close: 'Close', post: 'Post it', clear: 'Clear', form: 'Leave a note for Raufan',
-      who: ['Muhammad ', 'Raufan', ' Yusup'], shot: ['Last shot by ', ''], shot2: ['Shot by ', ''], shuffle: 'Shuffle', shuffleLabel: 'Shuffle the prints', toPhoto: 'Photography', toDesign: 'Design', credit: ['Last seen · Tokyo Nihombashi Tower · Nihonbashi', 'Photograph · Raufan Yusup'], err: "Couldn't send. Try again." },
+      who: ['Muhammad ', 'Raufan', ' Yusup'], shot: ['Last shot by ', ''], shot2: ['Shot by ', ''], shuffle: 'Shuffle', shuffleLabel: 'Shuffle the prints', toPhoto: 'Photography', toDesign: 'Design', credit: ['Last seen · Cinta Jawa Cafe · Shibuya', 'Photograph · Raufan Yusup'], err: "Couldn't send. Try again." },
     ja: { note: 'ひとこと残す', tl: 'これまでの足あと', thanks: 'ありがとう、届きました', label: 'Guest card', title: '来てくれてありがとう！ -Raufan',
       message: 'メッセージ', messagePh: 'ひとことどうぞ', signature: 'サイン', from: 'From', namePh: 'お名前（任意）',
       to: '', toName: 'ラウファン 様', close: '閉じる', post: '投函する', clear: '消す', form: 'ラウファンにひとこと残す',
-      who: ['ムハンマド', 'ラウファン', 'ユスップ'], shot: ['', 'が最後に撮った一枚'], shot2: ['', 'が撮った一枚'], shuffle: 'もう一枚', shuffleLabel: '写真をめくる', toPhoto: '写真', toDesign: 'デザイン', credit: ['Last seen · Tokyo Nihombashi Tower · Nihonbashi', 'Photograph · Raufan Yusup'], err: '送れませんでした。もう一度。' }
+      who: ['ムハンマド', 'ラウファン', 'ユスップ'], shot: ['', 'が最後に撮った一枚'], shot2: ['', 'が撮った一枚'], shuffle: 'もう一枚', shuffleLabel: '写真をめくる', toPhoto: '写真', toDesign: 'デザイン', credit: ['Last seen · Cinta Jawa Cafe · Shibuya', 'Photograph · Raufan Yusup'], err: '送れませんでした。もう一度。' }
   };
   function lang() { return html.getAttribute('data-lang') || 'en'; }
   function t() { return T[lang()] || T.en; }

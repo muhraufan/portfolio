@@ -315,7 +315,8 @@
       // neck, then the coat over it
       blob(A, skin, 1, function () { A.rect(-.3, top - 3.2, 2.3, 4); });
       blob(A, sh, .18, function () { A.rect(-.3, top - 1.2, 2.3, 2); });
-      var hem = skirt ? hipY - 1.5 : hipY + 2.2 + long, fl = (skirt ? .1 : .5) + long * .06, sway = walking ? Math.sin(2 * Math.PI * cA) * .35 : 0;
+      var hood = !!P.hood;                  // a hoodie instead of the coat: hip length, a ribbed hem, the hood lying on the back
+      var hem = skirt ? hipY - 1.5 : hood ? hipY - 5.2 : hipY + 2.2 + long, fl = hood ? -.2 : (skirt ? .1 : .5) + long * .06, sway = walking ? Math.sin(2 * Math.PI * cA) * (hood ? .15 : .35) : 0;
       if (P.carry === 'backpack') {        // sits on the back, behind the coat's line
         A.fillStyle = pal[P.carryC]; A.beginPath(); A.roundRect(-8.4, top + 1.2, 5, 10.2, [2, 1.2, 1.4, 1.6]); A.fill();
         blob(A, sh, .2, function () { A.rect(-8.4, top + 7.8, 5, 3.6); });
@@ -334,16 +335,36 @@
         A.fillStyle = pal[P.skirtC || P.legs]; A.beginPath(); A.moveTo(-4.4, hipY - 3); A.lineTo(4.2, hipY - 3); A.lineTo(5.6 + sway, hipY + 6.4); A.lineTo(-5.8 + sway * .6, hipY + 6.4); A.closePath(); A.fill();
         if (fine) blob(A, sh, .16, function () { A.moveTo(.6, hipY - 1); A.lineTo(1.6 + sway, hipY + 6.4); A.lineTo(-.4 + sway, hipY + 6.4); A.closePath(); });
       }
+      if (hood) {                         // hip-length: the trousers show from the top of the thigh
+        A.fillStyle = legs; A.beginPath(); A.roundRect(-4.3, hem - 1.2, 8.4, hipY - hem + 2.6, [0, 0, 2.2, 2.6]); A.fill();
+        blob(A, sh, .2, function () { A.rect(-4.3, hem - 1.2, 2.2, hipY - hem + 2.6); });
+      }
       A.fillStyle = coat; coatPath(); A.fill();
       A.save(); coatPath(); A.clip();
       blob(A, sh, .12, function () { A.rect(-8, hem - 1.1, 16, 1.2); });                                   // the hem turns under
-      if (fine) {
+      if (hood) {
+        blob(A, sh, .28, function () { A.rect(-8, hem - 1.7, 16, 1.7); });                                   // the ribbed band
+        blob(A, sh, .3, function () { A.rect(-8, hem - 1.9, 16, .35); });
+        if (fine) { A.globalAlpha = .24; stroke(A, [4.6, hem - 4.6, 2.5, hem - 4.2, 1.7, hem - 1.6], .45, sh); A.globalAlpha = 1;   // the kangaroo pocket's mouth
+          blob(A, sh, .1, function () { A.moveTo(-3.6, hem - 1.5); A.lineTo(-2.7, hem - 5); A.lineTo(-1.9, hem - 1.5); A.closePath(); }); }   // a soft fold at the back
+      } else if (fine) {
         blob(A, sh, .2, function () { A.moveTo(.9, top - .9); A.lineTo(3.6, top - .7); A.lineTo(1.7, top + 3); A.closePath(); });   // collar
         A.globalAlpha = .22; stroke(A, [3.3, top + 2.6, 3.9 + fl * .6 + sway, hem], .45, sh); A.globalAlpha = 1;                    // where the coat closes
         blob(A, sh, .16, function () { A.moveTo(.8 + sway, hem); A.lineTo(1.9, hem - 5.5 - long * .4); A.lineTo(2.9 + sway, hem); A.closePath(); });   // a fold at the hem
         blob(A, sh, .1, function () { A.moveTo(-3.2 + sway * .6, hem); A.lineTo(-2.4, hem - 4); A.lineTo(-1.6 + sway * .6, hem); A.closePath(); });
       }
       A.restore();
+      if (hood) {                         // the hood, down: a soft pointed fold on the back of the neck and shoulders
+        var hoodPath = function () { A.beginPath(); A.moveTo(1.3, top - .8); A.quadraticCurveTo(-1.8, top - 3.9, -5.2, top - 2.7);
+          A.quadraticCurveTo(-7.1, top - 1.3, -6.5, top + 2.6); A.quadraticCurveTo(-5.9, top + 5.6, -3.5, top + 6.4); A.quadraticCurveTo(-2.6, top + 3, -.4, top + .6); A.closePath(); };
+        A.fillStyle = coat; hoodPath(); A.fill();
+        A.save(); hoodPath(); A.clip();
+        blob(A, sh, .26, function () { A.moveTo(1.4, top - .7); A.quadraticCurveTo(-1.6, top - 3.1, -4.6, top - 1.9); A.quadraticCurveTo(-3.4, top - .9, -.6, top - .2); A.closePath(); });   // its opening, in shadow
+        blob(A, sh, .16, function () { A.rect(-8, top + 2.6, 5.2, 4); });
+        A.restore();
+        A.globalAlpha = .3; stroke(A, [-6.5, top + 2.6, -5.9, top + 5.6, -3.5, top + 6.4, -2.6, top + 3, -.4, top + .6], .45, sh); A.globalAlpha = 1;   // its edge, lifting off the back
+        if (fine) { A.globalAlpha = .9; stroke(A, [2.4, top - .2, 2.7, top + 3.6], .38, P.string ? pal[P.string] : figMix(coat, '#ffffff', .45)); A.globalAlpha = 1; }   // a drawstring
+      }
       if (P.carry === 'backpack') { A.globalAlpha = 1; stroke(A, [-3.6, top + .6, 1.2, top + .4, 2.7, top + 2.6, 2.2, top + 8.5], .7, pal[P.carryC]); }
       if (P.carry === 'tote') {           // on the shoulder, resting on the hip behind the arm
         var tg = walking ? Math.sin(2 * Math.PI * cA) * .05 : 0;
@@ -375,6 +396,19 @@
         A.fillStyle = pal[P.cap]; A.beginPath(); A.arc(hc[0] - .4, cy, 4, Math.PI * 1.02, Math.PI * 1.98); A.closePath(); A.fill();
         A.beginPath(); A.roundRect(2.4, cy - .9, 4.4, 1.15, [.2, .6, .6, .2]); A.fill();
         A.save(); headClip(); A.clip(); blob(A, sh, .3, function () { A.rect(0, cy + .2, 6, 1.6); }); A.restore();
+      } else if (P.ballcap) {             // a baseball cap: a rounded crown, a short brim curving forward, a button on top
+        var bc = pal[P.ballcap], ux = hc[0], uy = hc[1];
+        A.save(); headClip(); A.clip(); blob(A, sh, .3, function () { A.rect(ux, uy - .6, 6, 1.8); }); A.restore();   // the brim's shadow on the face
+        var crown = function () { A.beginPath(); A.moveTo(ux - 4.25, uy - .1); A.bezierCurveTo(ux - 4.5, uy - 5.6, ux + 4.2, uy - 6.1, ux + 4.05, uy - 1);
+          A.quadraticCurveTo(ux + 1, uy - 1.2, ux - 4.25, uy - .1); A.closePath(); };
+        A.fillStyle = bc; crown(); A.fill();
+        A.save(); crown(); A.clip(); blob(A, sh, .16, function () { A.rect(ux - 6, uy - 1.6, 12, 2); });
+        A.globalAlpha = .22; stroke(A, [ux - .1, uy - 4.8, ux + 1.6, uy - 3.6, ux + 2.6, uy - 1.2], .4, sh); A.globalAlpha = 1; A.restore();   // a panel seam
+        var brim2 = function () { A.beginPath(); A.moveTo(ux + 2.8, uy - 1.5); A.quadraticCurveTo(ux + 6.1, uy - 1.7, ux + 7.5, uy - .5);
+          A.lineTo(ux + 7.3, uy + .2); A.quadraticCurveTo(ux + 5.6, uy - .5, ux + 2.8, uy - .4); A.closePath(); };
+        A.fillStyle = bc; brim2(); A.fill();
+        A.save(); brim2(); A.clip(); blob(A, sh, .3, function () { A.rect(ux + 2, uy - .9, 7, 1.4); }); A.restore();   // its underside
+        blob(A, bc, 1, function () { A.arc(ux - .2, uy - 4.75, .42, 0, Math.PI * 2); });                           // the button
       }
       // near arm (and the bag it carries); a soft shade behind it keeps it off the coat
       A.globalAlpha = .2; A.save(); A.translate(-.45, .35); stroke(A, near, 3.1, sh); A.restore(); A.globalAlpha = 1;
@@ -390,6 +424,7 @@
         if (P.bagMark) { A.fillStyle = pal[P.bagMark]; A.fillRect(-1.6, 5.6, 3.8, 1.05); }
         A.restore();
       }
+      if (P.hood && fine) { A.globalAlpha = .22; stroke(A, [near[2] + (near[4] - near[2]) * .8, near[3] + (near[5] - near[3]) * .8, near[4] - (near[4] - near[2]) * .02, near[5] - (near[5] - near[3]) * .02], 2.65, sh); A.globalAlpha = 1; }   // the ribbed cuff
       blob(A, skin, 1, function () { A.arc(near[4] + .05, near[5] + .45, 1.08, 0, Math.PI * 2); });
       A.restore();
     } else {
@@ -413,7 +448,7 @@
         return [ex + side * .05, topF + 2.5 + len];
       };
       blob(A, skin, 1, function () { A.rect(-1.15, topF - 3.2, 2.3, 4); });
-      var hemF = skirt ? hipY - 1.5 : hipY + 2.2 + long, flF = (skirt ? .2 : .6) + long * .07;
+      var hoodF = !!P.hood, hemF = skirt ? hipY - 1.5 : hoodF ? hipY - 5.2 : hipY + 2.2 + long, flF = hoodF ? -.3 : (skirt ? .2 : .6) + long * .07;
       if (skirt) { A.fillStyle = pal[P.skirtC || P.legs]; A.beginPath(); A.moveTo(-4.6, hipY - 3); A.lineTo(4.6, hipY - 3); A.lineTo(6.2, hipY + 6.4); A.lineTo(-6.2, hipY + 6.4); A.closePath(); A.fill(); }
       var coatF = function () {
         A.beginPath(); A.moveTo(-5.4, topF + 2.6); A.quadraticCurveTo(-5.2, topF - .7, -2.4, topF - .8); A.lineTo(2.4, topF - .8);
@@ -421,19 +456,37 @@
         A.quadraticCurveTo(6.2 + flF, hemF, 5.4 + flF, hemF); A.lineTo(-5.4 - flF, hemF); A.quadraticCurveTo(-6.2 - flF, hemF, -6.1 - flF, hemF - .7);
         A.quadraticCurveTo(-5.6, (topF + hemF) / 2, -5.4, topF + 2.6); A.closePath();
       };
+      if (hoodF) {                        // hip-length: the trousers show from the top of the thigh
+        A.fillStyle = legs; A.beginPath(); A.roundRect(-4.8, hemF - 1.2, 9.6, hipY - hemF + 2.2, [0, 0, 1.6, 1.6]); A.fill();
+        blob(A, sh, .3, function () { A.moveTo(-.5, hipY - 1.4); A.lineTo(.5, hipY - 1.4); A.lineTo(.4, hipY + 1); A.lineTo(-.4, hipY + 1); A.closePath(); });   // the crotch seam
+      }
       A.fillStyle = coat; coatF(); A.fill();
       A.save(); coatF(); A.clip();
+      if (hoodF) {
+        blob(A, sh, .28, function () { A.rect(-9, hemF - 1.7, 18, 1.7); });                                  // the ribbed band
+        blob(A, sh, .3, function () { A.rect(-9, hemF - 1.9, 18, .35); });
+        if (fine) { A.globalAlpha = .24; stroke(A, [-3.6, hemF - 1.5, -2.7, hemF - 5.2, 2.7, hemF - 5.2, 3.6, hemF - 1.5], .45, sh); A.globalAlpha = 1; }   // the kangaroo pocket
+      } else {
       blob(A, sh, .12, function () { A.rect(-9, hemF - 1.1, 18, 1.2); });
       blob(A, skin, 1, function () { A.moveTo(-1.5, topF - .9); A.lineTo(1.5, topF - .9); A.lineTo(0, topF + 2.2); A.closePath(); });
-      if (fine) {
+      }
+      if (fine && !hoodF) {
         A.globalAlpha = .26; stroke(A, [-1.5, topF - .9, 0, topF + 2.3, 1.5, topF - .9], .5, sh); A.globalAlpha = 1;
         A.globalAlpha = .2; stroke(A, [.35, topF + 2.4, .5, hemF], .45, sh); A.globalAlpha = 1;
         blob(A, sh, .14, function () { A.moveTo(-4.2, hemF); A.lineTo(-3.3, hemF - 5 - long * .4); A.lineTo(-2.4, hemF); A.closePath(); });
         blob(A, sh, .14, function () { A.moveTo(2.6, hemF); A.lineTo(3.4, hemF - 4.2); A.lineTo(4.2, hemF); A.closePath(); });
       }
       A.restore();
+      if (hoodF) {                         // the hood, down, seen from the front: a thick soft collar round the neck, its opening dark behind
+        A.fillStyle = coat; A.beginPath(); A.ellipse(0, topF - 1.2, 5, 3.3, 0, 0, Math.PI * 2); A.fill();
+        blob(A, sh, .34, function () { A.ellipse(0, topF - 1.9, 3.5, 2.2, 0, 0, Math.PI * 2); });                // the hood's opening, dark behind the neck
+        blob(A, sh, .16, function () { A.ellipse(0, topF + 1.4, 4.8, 1, 0, 0, Math.PI); });
+        blob(A, skin, 1, function () { A.rect(-1.15, topF - 3.2, 2.3, 2.6); });
+        if (fine) { var dsc = P.string ? pal[P.string] : figMix(coat, '#ffffff', .45); stroke(A, [-.9, topF + .9, -1.1, topF + 4.6], .4, dsc); stroke(A, [.9, topF + .9, 1.1, topF + 4.4], .4, dsc); }   // drawstrings
+      }
       if (P.carry === 'tote') { stroke(A, [-3.2, topF - .6, -6.2, hipY - 4], .7, pal[P.carryC]); A.fillStyle = pal[P.carryC]; A.beginPath(); A.roundRect(-8.8, hipY - 4.4, 4.6, 8, .6); A.fill(); }
       var lh = armF(-1, swf * .5), rh = armF(1, P.bag ? 0 : -swf * .5);
+      if (hoodF && fine) [lh, rh].forEach(function (hd) { blob(A, sh, .24, function () { A.rect(hd[0] - 1.35, hd[1] - 2.2, 2.7, 1.3); }); });   // the ribbed cuffs
       if (P.carry === 'backpack') { A.globalAlpha = 1; stroke(A, [-3, topF - .6, -3.3, topF + 9], .95, pal[P.carryC]); stroke(A, [3, topF - .6, 3.3, topF + 9], .95, pal[P.carryC]); }
       if (P.bag) {
         A.save(); A.translate(rh[0] + .3, rh[1] + .5); A.rotate(walking ? Math.sin(2 * Math.PI * cA) * .04 : 0);
@@ -448,7 +501,7 @@
       blob(A, skin, 1, function () { A.ellipse(hf[0], hf[1], 3.5, 3.8, 0, 0, Math.PI * 2); });
       A.fillStyle = hair; A.beginPath(); A.ellipse(hf[0], hf[1] - .6, 3.85, 3.6, 0, Math.PI * .93, Math.PI * 2.07); A.closePath(); A.fill();
       A.save(); A.beginPath(); A.ellipse(hf[0], hf[1], 3.95, 4.1, 0, 0, Math.PI * 2); A.clip(); A.fillStyle = hair; A.beginPath(); A.rect(-5, hf[1] - 5, 1.9, 6.8); A.rect(3.1, hf[1] - 5, 1.9, 6.8); A.fill(); A.restore();   // hair over the ears frames a faceless face
-      if (!P.hat && !P.cap && fine) blob(A, sh, .12, function () { A.rect(-.3, hf[1] - 4, .6, 1.6); });           // a parting
+      if (!P.hat && !P.cap && !P.ballcap && fine) blob(A, sh, .12, function () { A.rect(-.3, hf[1] - 4, .6, 1.6); });           // a parting
       var faceClip = function () { A.beginPath(); A.ellipse(hf[0], hf[1], 3.5, 3.8, 0, 0, Math.PI * 2); };
       if (P.hat) {
         var byF = hf[1] - 1.6, hatF = pal[P.hat];
@@ -462,6 +515,15 @@
         A.fillStyle = pal[P.cap]; A.beginPath(); A.ellipse(0, hf[1] - 1.2, 4, 3.4, 0, Math.PI, Math.PI * 2); A.closePath(); A.fill();
         A.beginPath(); A.ellipse(0, hf[1] - 1, 3.6, 1, 0, 0, Math.PI * 2); A.fill();
         A.save(); faceClip(); A.clip(); blob(A, sh, .3, function () { A.rect(-5, hf[1] - .2, 10, 1.6); }); A.restore();
+      } else if (P.ballcap) {             // a baseball cap from the front: a domed crown, the brim a shallow arc, a button on top
+        var bcF = pal[P.ballcap], vy = hf[1];
+        A.save(); faceClip(); A.clip(); blob(A, sh, .36, function () { A.rect(-5, vy - .8, 10, 2.2); }); A.restore();
+        A.fillStyle = bcF; A.beginPath(); A.moveTo(-4.15, vy - .9); A.bezierCurveTo(-4.3, vy - 6.4, 4.3, vy - 6.4, 4.15, vy - .9); A.quadraticCurveTo(0, vy - 1.7, -4.15, vy - .9); A.closePath(); A.fill();
+        A.globalAlpha = .2; stroke(A, [0, vy - 5, 0, vy - 1.4], .4, sh); A.globalAlpha = 1;                        // the front seam
+        var brimF = function () { A.beginPath(); A.moveTo(-4.4, vy - 1.1); A.quadraticCurveTo(0, vy + 1.9, 4.4, vy - 1.1); A.quadraticCurveTo(0, vy + .1, -4.4, vy - 1.1); A.closePath(); };
+        A.fillStyle = bcF; brimF(); A.fill();
+        A.save(); brimF(); A.clip(); blob(A, sh, .28, function () { A.rect(-5, vy - .2, 10, 2.4); }); A.restore();
+        blob(A, bcF, 1, function () { A.arc(0, vy - 4.85, .42, 0, Math.PI * 2); });
       }
     }
 
