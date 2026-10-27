@@ -155,8 +155,8 @@
         if (!cv || !cv.width) { host.remove(); return res(null); }
         var W = cv.width, H = cv.height, o = document.createElement('canvas');
         o.width = 300; o.height = Math.round(300 * 3.3 / 4);
-        var sw = W * 260 / 400, sh = sw * o.height / o.width;
-        o.getContext('2d').drawImage(cv, W * 70 / 400, H * 18 / 300, sw, sh, 0, 0, o.width, o.height);
+        var k = W / scene.size[0], b = LastSeen.stampRect ? LastSeen.stampRect(scene, o.width / o.height) : { x: 70, y: 18, w: 260, h: 260 * o.height / o.width };
+        o.getContext('2d').drawImage(cv, b.x * k, b.y * k, b.w * k, b.h * k, 0, 0, o.width, o.height);
         try { api.pause(); } catch (e) {}
         o.toBlob(function (b) { host.remove(); var u = b ? URL.createObjectURL(b) : null; if (u) stampURL[key] = u; res(u); });
       };
@@ -167,7 +167,7 @@
   function ensureScenes(keys) {
     var needKit = keys.some(function (k) { return k && k !== 'niko-and-shibuya'; });
     var chain = Promise.resolve();
-    if (needKit && !(window.LastSeenKit)) chain = chain.then(function () { return loadScript('/last-seen/scenes/_kit.js?v=6'); });
+    if (needKit && !(window.LastSeenKit)) chain = chain.then(function () { return loadScript('/last-seen/scenes/_kit.js?v=7'); });
     keys.forEach(function (key) {
       if (!key || (window.LastSeen && LastSeen.byId && LastSeen.byId(key))) return;
       chain = chain.then(function () { return loadScript('/last-seen/scenes/' + key + '.js?v=4'); });

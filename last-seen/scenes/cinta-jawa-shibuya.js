@@ -80,6 +80,7 @@
                { keys: [[0, 300], [7, 236], [10, 236], [17, 300]], period: 17, offset: 6, foot: 216, s: .4, coat: 'coatA', legs: 'legsDenim', hair: 'hairDark', alpha: .95, shadow: false }],
     passersby: [{ start: 7, every: 25, dir: -1, speed: 23, foot: 285, s: 1.24, coat: 'coatB', legs: 'legsDark', hair: 'hairDark', carry: 'backpack', carryC: 'coatD' },
                 { start: 16, every: 28, dir: 1, speed: 20, foot: 277, s: 1.14, coat: 'coatA', long: 6, legs: 'legsDark', hair: 'hairBrown', longHair: true, carry: 'tote', carryC: 'coatC' }],
+    stamp: { x0: B0 - 4, x1: B1 + 4, y0: 40, y1: 272 },   // the stamp frames the Kokusai Building itself, which sits left of the lane's middle
     sig: { emerge: { x: 200, foot0: 217, foot1: 264, s0: .44, s1: 1.24, dur: 1.3 },
       person: { hood: true, coat: 'nikoHoodie', hat: false, ballcap: 'nikoCap', legs: 'nikoPants', string: 'nikoString' } },
     build: function (L, F, P) {

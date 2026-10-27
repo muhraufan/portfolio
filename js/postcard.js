@@ -157,7 +157,10 @@
   function prepaint() {
     clearTimeout(prepaintT);
     prepaintT = setTimeout(function () {
-      var go = function () { if (!open) paintPaperIfNeeded(); };
+      var go = function () {
+        if (open) return; paintPaperIfNeeded();
+        var pi = topFrame.querySelector('img'); if (persona === 'photography' && (pi.currentSrc || pi.src)) stampSource(pi.currentSrc || pi.src);   // the stamp's copy, decoded ahead
+      };
       if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 1500 }); else go();
     }, 700);
   }
@@ -187,21 +190,30 @@
   msg.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); nameIn.focus(); } });
 
   // ---------- stamp: whatever is on the front right now, in miniature ----------
+  // photos: an <img> with srcset reports a density-corrected naturalWidth (e.g. 359 for a 1545px file on a phone),
+  // while drawImage reads the real pixels, so crop maths on it lands in the top-left corner. Draw from a plain copy.
+  var stampImg = null;
+  function stampSource(src) {
+    if (stampImg && stampImg.src === src) return stampImg;
+    stampImg = new Image(); stampImg.decoding = 'async'; stampImg.onload = paintStamp; stampImg.src = src;
+    return stampImg;
+  }
   function paintStamp() {
     var r = stamp.getBoundingClientRect(), d = Math.min(window.devicePixelRatio || 1, 2);
     if (!r.width) return;
     stamp.width = Math.round(r.width * d); stamp.height = Math.round(r.height * d);
     var c = stamp.getContext('2d'); c.imageSmoothingQuality = 'high';
-    var printImg = topFrame.querySelector('img');
-    if (persona === 'photography' && printImg.naturalWidth) {
-      var iw = printImg.naturalWidth, ih = printImg.naturalHeight, ar = stamp.width / stamp.height, sw = Math.min(iw, ih * ar), sh = sw / ar;
-      c.drawImage(printImg, (iw - sw) / 2, (ih - sh) / 2, sw, sh, 0, 0, stamp.width, stamp.height);
+    var ar = stamp.width / stamp.height, printImg = topFrame.querySelector('img');
+    if (persona === 'photography' && (printImg.currentSrc || printImg.src)) {
+      var im = stampSource(printImg.currentSrc || printImg.src);
+      if (!im.complete || !im.naturalWidth) return;                       // painted from onload
+      var q = LastSeen.focusCrop(im.naturalWidth, im.naturalHeight, ar, current && current.focus);
+      c.drawImage(im, q.x, q.y, q.w, q.h, 0, 0, stamp.width, stamp.height);
       return;
     }
     if (!sceneCanvas.width) return;
-    var W = sceneCanvas.width, H = sceneCanvas.height;
-    var sx = W * 70 / 400, sy = H * 18 / 300, sw2 = W * 260 / 400, sh2 = sw2 * stamp.height / stamp.width;
-    c.drawImage(sceneCanvas, sx, sy, sw2, sh2, 0, 0, stamp.width, stamp.height);
+    var k = sceneCanvas.width / S.size[0], b = LastSeen.stampRect(S, ar);
+    c.drawImage(sceneCanvas, b.x * k, b.y * k, b.w * k, b.h * k, 0, 0, stamp.width, stamp.height);
   }
   var d0 = new Date(); pmDate.textContent = String(d0.getDate()).padStart(2, '0') + '.' + String(d0.getMonth() + 1).padStart(2, '0') + '.' + String(d0.getFullYear()).slice(2);
 
