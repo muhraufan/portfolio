@@ -165,6 +165,22 @@
       emerge: Object.assign({ x: 200, foot0: 231, foot1: 264, s0: .82, s1: 1.25, dur: 1.25, fade: .3, stepRate: 11 }, o.emerge),
       walk: { pause: .45, accel: .7, speed: 30, dir: 1, dy: .16, ds: .0011, exitX: 356 }, still: { x: (o.emerge && o.emerge.x) || 200, t: 2 } };
   }
+  // the guest card stock (postcard back, gallery papers): the same paper as /scenes/niko-and-shibuya.js in every light
+  var PAPER = {
+    midday: { paper: '#f1ede4', paperShade: '#d9d4c8', paperShade2: '#e6e1d6', paperInk: '#2b2d30', paperLine: '#c4c0b5' },
+    morning: { paper: '#f3ebdd', paperShade: '#dfcfb6', paperShade2: '#e9dcc6', paperInk: '#2a2827', paperLine: '#c9b99f', paperGlow: '#fff6e6' },
+    golden: { paper: '#f6e6d0', paperShade: '#e4c6a3', paperShade2: '#eed8bc', paperInk: '#36271e', paperLine: '#d4b792' },
+    night: { paper: '#2a231c', paperShade: '#17120e', paperShade2: '#211b15', paperInk: '#f0e3cb', paperLine: '#4d4033', paperGlow: '#ffc77a' }
+  };
+  function paperStock(V) {
+    Object.keys(PAPER).forEach(function (k) { if (V[k]) Object.assign(V[k].palette, PAPER[k]); });
+    if (V.night && !V.night.paperAdd) V.night.paperAdd = [{ t: 'halo', x: 200, y: 340, rx: 320, ry: 210, n: 10, fill: 'paperGlow', a: .016 }];
+    return V;
+  }
+  var PAPER_LAYERS = [
+    r(0, 0, 400, 300, 'paper', { shade: grain('paperShade', .2, 'down', 1.6) }),
+    r(0, 0, 400, 300, 'paperShade2', { a: 0, shade: grain('paperShade', .12, 'right', 1.2) })
+  ];
   function make(id, spec) {
     var L = [], F = [], P = [];
     spec.build(L, F, P);
@@ -176,7 +192,7 @@
       caption: { en: 'Last seen at {place}', ja: '最後に見かけたのは {place}' },
       size: [400, 300], seed: spec.seed, mask: { inset: 6, round: 5, feather: 2.4, tear: .45, seed: spec.seed % 13 },
       periods: [['morning', '05:00'], ['midday', '11:00'], ['golden', '15:30'], ['night', '18:00']],
-      variants: variants(spec.palette, spec.light), layers: { back: L, facade: F, front: P },
+      variants: paperStock(variants(spec.palette, spec.light)), layers: { back: L, facade: F, front: P }, paper: spec.paper || PAPER_LAYERS,
       agaves: [], breathe: Object.assign({ x: 0, y: 0, w: 0, h: 0, c: 'breathe', a: .05, amp: .03, period: 7 }, spec.breathe),
       shoppers: spec.shoppers || [], passersby: spec.passersby || [], anim: spec.anim || [], signature: signature(spec.sig)
     });
