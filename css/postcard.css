@@ -88,15 +88,15 @@
 .pc-card.is-photo .pc-print { opacity: 1; transform: none; pointer-events: auto; }
 .pc-card.is-photo .ls-scene { opacity: 0; transform: scale(1.015); }
 .pc-back { transform: rotateY(180deg); }
-/* the face turned away is hidden outright, not just backface-culled: WebKit (iPhone Safari and Chrome) ignores
-   backface-visibility when it paints a flat snapshot (the light-change view transition, headless captures), and the
-   mirrored guest card showed through the scene. Each face hides only once the turn has finished, so the flip looks the same. */
-@media (prefers-reduced-motion: no-preference) {
-  .pc-back { visibility: hidden; transition: visibility 0s linear 500ms; }
-  .pc-card.is-flipped .pc-back { visibility: visible; transition-delay: 0s; }
-  .pc-front { transition: visibility 0s linear 0s; }
-  .pc-card.is-flipped .pc-front { visibility: hidden; transition-delay: 500ms; }
-}
+/* each face sits on its own permanent 3D layer (will-change + an explicit transform on the front) so WebKit never
+   re-creates a face's layer mid-turn; a face that gains its layer late is painted flat for a frame or two, ignoring
+   backface-visibility, and the wrong side flashes. The guest card's back is additionally hidden outright, but only
+   once the card is at rest and closed (.is-away, set by postcard.js after the turn): WebKit (iPhone Safari and Chrome)
+   ignores backface-visibility when it paints a flat snapshot (the light-change view transition), and the mirrored
+   guest card showed through the scene. Nothing toggles visibility while the card is turning. */
+.pc-face { will-change: transform; }
+.pc-front { transform: rotateY(0deg); }
+.pc-card:not(.is-flipped) .pc-back.is-away { visibility: hidden; }
 
 /* reduced motion: a crossfade instead of a flip */
 @media (prefers-reduced-motion: reduce) {
