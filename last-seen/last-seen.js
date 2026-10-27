@@ -254,22 +254,41 @@
     A.setTransform(ks * flip, 0, 0, ks, ox + X - fx0, oy + Y - fy0);
     A.lineCap = 'round'; A.lineJoin = 'round';
 
-    var L = 15, R = L + .1, T = R * .5, Sh = R * .5, stride = P.stride || 9, half = stride * DUTY;
+    var L = 15, R = L + .1, T = 13.95 * .5, Sh = T,   /* side legs fit the hip-ankle span when straight (they were longer: a built-in crouch) */ stride = P.stride || 9, half = stride * DUTY;
     var cA = (((dist || 0) / (2 * stride)) % 1 + 1) % 1, cB = (cA + .5) % 1;
     var fa = walking ? footAt(cA, half) : { x: -1.3, lift: 0 }, fb = walking ? footAt(cB, half) : { x: 1.5, lift: 0 };
     var hipY, long = P.long || 0, skirt = P.skirt;
 
     if (!front) {
       // ---- side view, facing +x ----
-      var xs = Math.max(fa.lift ? 0 : Math.abs(fa.x), fb.lift ? 0 : Math.abs(fb.x));
-      hipY = -(L - Math.max(0, L - Math.sqrt(R * R - xs * xs)) * .5);
+      // a real gait: the standing leg stays nearly straight (a touch of give just after heel strike), so the hip rides
+      // highest over mid-stance and lowest in double support; the knee bends mainly in swing (~60deg just after toe-off)
+      // and is straight again as the heel lands. The planted foot never slides: it moves back exactly with the ground.
+      var G = -1.1, LL = T + Sh, gc = function (c) { return c < DUTY ? c / DUTY : -1; };
+      var reachOf = function (deg) { return 2 * T * Math.cos(deg * Math.PI / 360); };          // hip-ankle span for a knee angle
+      var stanceDeg = function (u) { return 4 + 9 * Math.exp(-Math.pow((u - .14) / .09, 2)); };  // loading response, then ~straight
+      var swingDeg = function (v) { return v < .28 ? 34 + 26 * Math.sin(v / .28 * Math.PI / 2) : 3 + 57 * (1 + Math.cos(Math.PI * (v - .28) / .72)) / 2; };
+      if (walking) {
+        var hs = [];
+        [[fa, cA], [fb, cB]].forEach(function (q) { var u = gc(q[1]); if (u >= 0 && u < .88) { var r = reachOf(stanceDeg(u)); hs.push(Math.sqrt(Math.max(0, r * r - q[0].x * q[0].x))); } });
+        var hMid = reachOf(4), hLow = hs.length ? Math.min.apply(null, hs) : hMid;
+        hipY = G - (hMid - .55 * (hMid - hLow));     // heel and toe roll take up part of the drop: a calm bob, not a bounce
+      } else hipY = G - Math.sqrt(LL * LL * .995 - 1.96);
       var lean = walking ? .055 : 0, top = hipY - 21;
-      var ankle = function (f) { return [f.x, -1.1 - f.lift * .95]; };
+      var legOf = function (f, c, hx) {               // the ankle: planted on the ground, or carried by the swing knee
+        if (!walking) return [f.x, G, 0];
+        var u = gc(c), dx = f.x - hx, r, y;
+        if (u >= 0) { r = LL - .002; y = hipY + Math.sqrt(Math.max(0, r * r - dx * dx)); var up = Math.max(0, G - y); return [f.x, Math.min(G, y), u < .5 ? -Math.min(.3, up * .5) : Math.min(.5, up * .5)]; }  // landing: toe still up; leaving: the heel peels (toe down) rather than the leg stretching
+        var v = (c - DUTY) / (1 - DUTY); r = reachOf(swingDeg(v));
+        y = hipY + Math.sqrt(Math.max(0, r * r - dx * dx));
+        return [f.x, Math.min(G, y), .45 * (1 - v) - .22 * Math.sin(Math.PI * Math.min(1, v / .95) / 2) * v];   // toe trails after push-off, lifts for the heel strike
+      };
       var drawLeg = function (f, far) {
-        var an = ankle(f), hx = far ? -.6 : .6, kn = knee(hx, hipY, an[0], an[1], T, Sh), lw = skirt ? 2 : 2.75;
+        var hx = far ? -.6 : .6, an = legOf(f, far ? cA : cB, hx), kn = knee(hx, hipY, an[0], an[1], T, Sh), lw = skirt ? 2 : 2.75;
+
         stroke(A, [hx, hipY, kn[0], kn[1]], lw + .45, legs); stroke(A, [kn[0], kn[1], an[0], an[1]], lw, legs);
         if (!skirt && fine) blob(A, sh, .28, function () { A.rect(an[0] - 1.5, an[1] - .9, 3, .5); });             // the trouser break
-        A.save(); A.translate(an[0], an[1]); A.rotate(-.28 * f.lift);
+        A.save(); A.translate(an[0], an[1]); A.rotate(an[2]);
         A.fillStyle = legs; A.beginPath(); A.roundRect(-1.4, -.45, 4.4, 1.55, [.7, 1.3, .45, .45]); A.fill();     // shoe, toe forward
         blob(A, sh, .45, function () { A.roundRect(-1.4, -.45, 4.4, 1.55, [.7, 1.3, .45, .45]); });
         A.restore();
