@@ -161,7 +161,8 @@
   }
   function signature(o) {
     o = o || {};
-    return { delay: .1, person: { coat: 'hoodie', legs: 'legsDark', hair: 'hairDark', hat: 'hat', bag: 'bag', bagMark: 'bagMark', stride: 12 },
+    // o.person: a per-scene outfit over the default (e.g. { hood: true, coat: 'nikoHoodie', hat: 'nikoHat' }); other scenes keep the coat
+    return { delay: .1, person: Object.assign({ coat: 'hoodie', legs: 'legsDark', hair: 'hairDark', hat: 'hat', bag: 'bag', bagMark: 'bagMark', stride: 12 }, o.person),
       emerge: Object.assign({ x: 200, foot0: 231, foot1: 264, s0: .82, s1: 1.25, dur: 1.25, fade: .3, stepRate: 11 }, o.emerge),
       walk: { pause: .45, accel: .7, speed: 30, dir: 1, dy: .16, ds: .0011, exitX: 356 }, still: { x: (o.emerge && o.emerge.x) || 200, t: 2 } };
   }
