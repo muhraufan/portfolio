@@ -14,6 +14,7 @@
   if (!hero) return;
   var card = hero.querySelector('.pc-card');
   var cap = hero.querySelector('.ls-caption');
+  var stamps = hero.querySelector('.pc-stamps');   // the stamp row fades with the caption
 
   // Tuning A, "Desk": the approved landing.
   var T = { name: 'Desk', tilt: 10, scale: 0.955, lift: 8, k: 520, zeta: 0.84, origin: '50% 100%', blur: 0.75, stay: 0.28, done: 0.68, ck: 900, cz: 0.78, cat: 0.62 };
@@ -34,7 +35,8 @@
   function clamp(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
 
   function clearStyles() {
-    [card, cap, panel].forEach(function (el) { if (el) { el.style.transform = ''; el.style.opacity = ''; } });
+    [card, cap, panel, stamps].forEach(function (el) { if (el) { el.style.transform = ''; el.style.opacity = ''; } });
+    if (stamps) { stamps.style.pointerEvents = ''; stamps.classList.remove('is-leaving'); }
     card.style.pointerEvents = ''; card.style.visibility = ''; card.style.transformOrigin = '';
     soft.forEach(function (el) { el.style.filter = ''; el.style.opacity = ''; el.classList.remove('peek-soft'); });
     if (panel) { panel.style.willChange = ''; setMask(null); }
@@ -196,7 +198,10 @@
     if (ghost !== lastGhost) { lastGhost = ghost; card.style.pointerEvents = ghost ? 'none' : ''; card.style.visibility = ghost === 2 ? 'hidden' : ''; }
     // the caption is text: quantised to 1/10 steps it repaints ~10 times per exit instead of every frame
     var co = Math.round((1 - clamp(h / 0.45)) * 10) / 10;
-    if (cap && co !== lastCap) { lastCap = co; cap.style.opacity = co === 1 ? '' : String(co); }
+    if (cap && co !== lastCap) {
+      lastCap = co; cap.style.opacity = co === 1 ? '' : String(co);
+      if (stamps) { stamps.style.opacity = co === 1 ? '' : String(co); stamps.style.pointerEvents = co < 0.5 ? 'none' : ''; stamps.classList.toggle('is-leaving', co < 1); }
+    }
     if (still) { card.style.transform = ''; panel.style.transform = ''; return; }
     // the card is laid down where it is: it holds back a little (raw scroll, so it never floats),
     // tips its top edge away and settles smaller

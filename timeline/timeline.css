@@ -233,3 +233,8 @@ html[data-rail="edge"] .t3-cbw { display: block; }
 html[data-rail="edge"] .t3-ru { width: min(260px, calc(100vw - 84px)); }
 html[data-rail="edge"] .t3-ru-d > span { max-width: 170px; }
 @media (prefers-reduced-motion: reduce) { .t3-hd, .t3-yr, .t3-cs, .t3-cbg { transition: none; } }
+
+/* arriving from a homepage stamp: the stamp morphs into its entry's thumbnail (cross-document view transition; list.js skips it otherwise) */
+@view-transition { navigation: auto; }
+::view-transition-group(pc-place) { animation-duration: 380ms; animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+@media (prefers-reduced-motion: reduce) { @view-transition { navigation: none; } }
