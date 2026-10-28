@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><title>stamp renderer</title></head><body style="margin:0">
+<!-- Used by scripts/render-stamps.js only: draws every Timeline place at each light and crops it with LastSeen.stampRect. -->
+<script src="/last-seen/last-seen.js"></script>
+<script src="/last-seen/scenes/niko-and-shibuya.js"></script>
+<script src="/last-seen/scenes/_kit.js"></script>
+<script src="/timeline/lib/data.js"></script>
+<script>
+  TL2.places().forEach(function (p) { if (p.place !== 'niko-and-shibuya') document.write('<script src="/last-seen/scenes/' + p.place + '.js"><\/script>'); });
+</script>
+<script>
+// one stamp: the scene at `light`, cropped to the stamp window, `w` px wide, as webp
+window.stamp = async function (id, light, w) {
+  var S = LastSeen.byId(id), ar = 4 / 3.3;
+  var host = document.createElement('div'); host.className = 'ls-scene';
+  host.style.cssText = 'position:fixed;left:0;top:0;width:' + (w * 3) + 'px;height:' + (w * 3 * S.size[1] / S.size[0]) + 'px';
+  host.innerHTML = '<canvas style="width:100%;height:100%;display:block"></canvas>';
+  document.body.appendChild(host);
+  var api = LastSeen.mount(host, S, { manual: true, tod: light });
+  api.renderAt(S.signature && S.signature.still ? S.signature.still.t : 14, 'still');
+  var src = host.querySelector('canvas'), k = src.width / S.size[0], R = LastSeen.stampRect(S, ar);
+  var c = document.createElement('canvas'); c.width = w; c.height = Math.round(w / ar);
+  var x = c.getContext('2d'); x.imageSmoothingQuality = 'high';
+  x.drawImage(src, R.x * k, R.y * k, R.w * k, R.h * k, 0, 0, c.width, c.height);
+  try { api.pause(); } catch (e) {} host.remove();
+  return c.toDataURL('image/webp', 0.86);
+};
+window.sceneIds = function () { return TL2.places().map(function (p) { return p.place; }).filter(function (id) { return LastSeen.byId(id); }); };
+</script></body></html>

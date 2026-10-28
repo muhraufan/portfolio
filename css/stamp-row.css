@@ -1,0 +1,71 @@
+/* Stamp row: earlier places under the postcard, newest first, as tiny perforated stamps.
+   One shared paper label glides between them; the pile at the end is the way into the Timeline.
+   Space is reserved in the markup's height so filling the row never shifts the page. */
+.pc-stamps { position: relative; display: flex; justify-content: center; align-items: center; gap: 10px; height: 40px; margin-top: 14px;
+  transition: opacity 200ms ease-out, visibility 0s linear 0s; }
+.pc-hero .ls:has(.ls-caption.is-photo) .pc-stamps { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 160ms ease-out, visibility 0s linear 160ms; }
+
+.pc-st, .pc-pile { position: relative; display: block; flex: none; width: 48px; aspect-ratio: 4 / 3.3; -webkit-tap-highlight-color: transparent; }
+.pc-st img, .pc-pile img { display: block; width: 100%; height: 100%; object-fit: cover; padding: 3px; box-sizing: border-box; background: #fbf8f1;
+  -webkit-mask: radial-gradient(circle at 2px 2px, transparent 1.1px, #000 1.4px) -2px -2px / 4px 4px round, linear-gradient(#000 0 0) 2px 2px / calc(100% - 4px) calc(100% - 4px) no-repeat;
+          mask: radial-gradient(circle at 2px 2px, transparent 1.1px, #000 1.4px) -2px -2px / 4px 4px round, linear-gradient(#000 0 0) 2px 2px / calc(100% - 4px) calc(100% - 4px) no-repeat; }
+.pc-st { filter: drop-shadow(0 1px 1px rgba(42,36,24,.10)); transition: transform 180ms cubic-bezier(0.2, 0.9, 0.3, 1.15), filter 180ms ease-out; }
+.pc-st:nth-child(odd) { rotate: -1.5deg; } .pc-st:nth-child(even) { rotate: 1.2deg; }
+.pc-st img { filter: saturate(.8); transition: filter 180ms ease-out; }
+.pc-st:is(:hover, :focus-visible) { transform: translateY(-2px) scale(1.04); filter: drop-shadow(0 1px 1px rgba(42,36,24,.10)) drop-shadow(0 6px 10px rgba(42,36,24,.16)); }
+.pc-st:is(:hover, :focus-visible) img { filter: none; }
+.pc-st:active { transform: scale(.97); transition-duration: 90ms; }
+.pc-st:focus-visible, .pc-pile:focus-visible { outline: 1.5px dashed var(--ink); outline-offset: 4px; }
+
+/* the pile: three stamps, splayed a touch on hover */
+.pc-pile { margin-left: 6px; transition: transform 120ms ease-out; }
+.pc-pile img { position: absolute; inset: 0; filter: saturate(.8) drop-shadow(0 1px 1px rgba(42,36,24,.12)); transition: transform 200ms cubic-bezier(0.2, 0, 0, 1); }
+.pc-pile img:nth-child(1) { transform: translate(-2px, 2px) rotate(-6deg); }
+.pc-pile img:nth-child(2) { transform: translate(2px, 0) rotate(3deg); }
+.pc-pile img:nth-child(3) { transform: rotate(-1deg); }
+.pc-pile:is(:hover, :focus-visible) img:nth-child(1) { transform: translate(-7px, 3px) rotate(-11deg); }
+.pc-pile:is(:hover, :focus-visible) img:nth-child(2) { transform: translate(7px, -1px) rotate(8deg); }
+.pc-pile:is(:hover, :focus-visible) img:nth-child(3) { transform: translateY(-2px) rotate(-1deg); }
+.pc-pile:active { transform: scale(.97); }
+
+/* the shared label: one paper outline (drop-shadow) around body and arrow */
+.pc-tt { position: absolute; left: 0; bottom: calc(100% + 9px); z-index: 5; pointer-events: none; transform: translateX(0);
+  opacity: 0; scale: .96; translate: 0 4px; transform-origin: 50% 100%;
+  filter: drop-shadow(0 0 .5px rgba(42,36,24,.45)) drop-shadow(0 3px 6px rgba(42,36,24,.12));
+  transition: transform 220ms cubic-bezier(.2, .8, .2, 1), opacity 120ms ease-in, scale 120ms ease-in, translate 120ms ease-in; }
+.pc-tt.is-on { opacity: 1; scale: 1; translate: 0 0;
+  transition: transform 220ms cubic-bezier(.2, .8, .2, 1), opacity 160ms ease-out, scale 160ms cubic-bezier(.2, 0, 0, 1), translate 160ms cubic-bezier(.2, 0, 0, 1); }
+.pc-tt.no-glide { transition-property: opacity, scale, translate; }
+.pc-stamps.is-leaving .pc-tt { opacity: 0; }
+.pc-tt::after { content: ''; position: absolute; left: 50%; top: 100%; width: 7px; height: 7px; translate: -50% -60%; rotate: 45deg; background: #fbf8f1; }
+.pc-tt-b { position: relative; height: 26px; width: 80px; overflow: hidden; border-radius: 4px; background: #fbf8f1; transition: width 220ms cubic-bezier(.2, .8, .2, 1); }
+.pc-tt-l { position: absolute; left: 50%; top: 50%; white-space: nowrap; font-size: 12px; line-height: 1; letter-spacing: .3px; color: var(--text);
+  transform: translate(-50%, -50%); transition: transform 180ms cubic-bezier(.2, .8, .2, 1), opacity 180ms ease-out, filter 180ms ease-out; }
+.pc-tt-d { margin-left: 6px; color: #8a8680; font-variant-numeric: tabular-nums; }
+.pc-tt-l.from-r, .pc-tt-l.out-r { transform: translate(calc(-50% + 6px), -50%); opacity: 0; filter: blur(2px); }
+.pc-tt-l.from-l, .pc-tt-l.out-l { transform: translate(calc(-50% - 6px), -50%); opacity: 0; filter: blur(2px); }
+
+[data-theme="dark"] :is(.pc-st, .pc-pile) img { background: #ebe2d1; filter: saturate(.8) brightness(.92); }
+[data-theme="dark"] .pc-st { filter: drop-shadow(0 1px 1px rgba(0,0,0,.5)); }
+[data-theme="dark"] .pc-st:is(:hover, :focus-visible) { filter: drop-shadow(0 1px 1px rgba(0,0,0,.5)) drop-shadow(0 6px 12px rgba(0,0,0,.6)); }
+[data-theme="dark"] .pc-tt-b, [data-theme="dark"] .pc-tt::after { background: #2b2925; }
+[data-theme="dark"] .pc-tt { filter: drop-shadow(0 0 .5px rgba(255,255,255,.28)) drop-shadow(0 4px 10px rgba(0,0,0,.55)); }
+[data-theme="dark"] .pc-tt-l { color: #e9e5dd; } [data-theme="dark"] .pc-tt-d { color: #9a968f; }
+
+/* phones: fewer stamps so the row never overflows (5 at 390, 4 at 360) */
+@media (max-width: 600px) { .pc-stamps { gap: 8px; } .pc-st:nth-child(n+6) { display: none; } }
+@media (max-width: 380px) { .pc-st:nth-child(n+5) { display: none; } }
+
+/* a stamp carries its picture into the Timeline entry (cross-document view transition, only for stamp clicks; see stamp-row.js) */
+@view-transition { navigation: auto; }
+::view-transition-group(pc-place) { animation-duration: 380ms; animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  .pc-st, .pc-st img, .pc-pile, .pc-pile img { transition: none; }
+  .pc-st:is(:hover, :focus-visible, :active), .pc-pile:active { transform: none; }
+  .pc-pile:is(:hover, :focus-visible) img:nth-child(n) { transition: none; }
+  .pc-tt, .pc-tt.is-on { transition: opacity 120ms linear; scale: 1; translate: 0 0; }
+  .pc-tt-b { transition: none; }
+  .pc-tt-l, .pc-tt-l.from-r, .pc-tt-l.from-l, .pc-tt-l.out-r, .pc-tt-l.out-l { transform: translate(-50%, -50%); filter: none; transition: opacity 120ms linear; }
+}

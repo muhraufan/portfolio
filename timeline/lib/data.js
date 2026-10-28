@@ -69,7 +69,7 @@
     return all.map(function (p, i) {
       var S = have(p.scene) || have(TL2.FALLBACK), next = all[i - 1], from = new Date(p.seenAt);
       var company = (p.with && p.with.length) ? p.with : TL2.companyFor(p.scene);
-      return { i: i, id: p.scene + '-' + from.getTime().toString(36), scene: S ? S.id : null, S: S, example: false,
+      return { i: i, id: p.scene + '-' + from.getTime().toString(36), place: p.scene, scene: S ? S.id : null, S: S, example: false,
         name: p.name, area: p.area, with: company.length ? company : null,
         from: from, to: next ? new Date(next.seenAt) : null, current: i === 0, at: TL2.ymd(from) };
     });

@@ -55,9 +55,10 @@
 .pc .ls-caption .ls-where { white-space: normal; }
 .pc .ls-who { color: inherit; }
 .pc-note-wrap { white-space: nowrap; position: relative; display: inline-block; }
-/* "Earlier sightings": a real link to the Timeline, dressed exactly like "Leave a note" */
+/* "Earlier sightings": a real link to the Timeline, dressed exactly like "Leave a note" (photo persona, or no stamp row) */
 .pc-tl-wrap { white-space: nowrap; }
-.ls-caption.is-photo .pc-tl-wrap { display: none; }
+/* with the stamp row (design persona) the pile is the way in; the photo persona hides the row and keeps this link */
+.ls.has-stamps .ls-caption:not(.is-photo) .pc-tl-wrap { display: none; }
 .pc-note, .pc-tl {
   font: inherit; letter-spacing: inherit; line-height: inherit; color: var(--text);
   border: 0; background: none; padding: 0; margin: 0;

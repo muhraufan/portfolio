@@ -263,7 +263,12 @@
   P.forEach(function (p) { if (!seen[p.scene]) { seen[p.scene] = 1; firstImgs.push(p.li.querySelector('.t3-th img')); } });
   Promise.race([Promise.all(firstImgs.map(function (im) { return im.decode ? im.decode().catch(function () {}) : null; })), new Promise(function (r) { setTimeout(r, 500); })])
     .then(function () { html.classList.remove('tl-pre'); });
-  var hid = location.hash.slice(1); if (hid) { var hp = P.filter(function (p) { return p.id === hid; })[0]; if (hp) { setOpen(hp.i, { instant: true }); jumpY(placeScrollY(hp)); } }
+  var arrived = null;
+  var hid = location.hash.slice(1); if (hid) { var hp = P.filter(function (p) { return p.id === hid; })[0]; if (hp) { setOpen(hp.i, { instant: true }); jumpY(placeScrollY(hp)); arrive(hp); } }
+  // from a homepage stamp: the entry's thumbnail takes the stamp's view-transition name for the morph, then lets it go
+  function arrive(p) { var th = p.li.querySelector('.t3-th img'); if (!th) return; th.style.viewTransitionName = 'pc-place'; arrived = th; setTimeout(function () { th.style.viewTransitionName = ''; }, 1200); }
+  addEventListener('pagereveal', function (e) { if (e.viewTransition && !arrived) e.viewTransition.skipTransition(); });
+  addEventListener('pageswap', function (e) { if (e.viewTransition) e.viewTransition.skipTransition(); });
 
   TL3.L = { P: P, months: months, barH: barH, mhH: mhH, current: current, monthScrollY: monthScrollY, placeScrollY: placeScrollY, jumpY: jumpY, glideTo: glideTo, travelTo: travelTo, travelDur: travelDur, hit: hit,
     setOpen: setOpen, openI: function () { return openI; }, animating: function () { return !!anim; }, ghosts: function () { return ghosts.length; }, live: function () { return liveFor; },
