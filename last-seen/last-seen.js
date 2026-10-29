@@ -777,25 +777,36 @@
       // signature figure while still inside the doorway
       var sig = S.signature, sp = st == null ? null : (t - st);
       var figs = [];
+      // sig.company: people with him ([{ person, dx, dy, ds, lag }]). Each one steps out of the same door `lag`
+      // seconds after him, fanning out to its own spot beside him (dx, dy in scene units, ds a scale factor), then
+      // walks off with him at his pace. Only he fires the exit.
+      var crew = [{ P: sig.person, dx: 0, dy: 0, ds: 0, lag: 0, lead: true }].concat((sig.company || []).map(function (m) {
+        return { P: m.person, dx: m.dx || 0, dy: m.dy || 0, ds: m.ds || 0, lag: m.lag || 0 }; }));
       if (sp != null && sp >= 0) {
         var e = sig.emerge, w = sig.walk;
-        if (sp < e.dur) {
-          var q = easeOut(sp / e.dur);
-          figs.push({ P: sig.person, x: e.x, foot: e.foot0 + (e.foot1 - e.foot0) * q, s: e.s0 + (e.s1 - e.s0) * q,
-            dist: sp * e.stepRate, facing: 'front', alpha: clamp(sp / e.fade, 0, 1), inside: q < .5 });
-        } else if (sp < e.dur + w.pause) {
-          figs.push({ P: sig.person, x: e.x, foot: e.foot1, s: e.s1, dist: 0, facing: 'stand', alpha: 1 });
-        } else {
-          var tw = sp - e.dur - w.pause, acc = Math.min(1, tw / w.accel);
-          var dist;
-          dist = tw < w.accel ? w.speed * tw * tw / (2 * w.accel) : w.speed * (tw - w.accel / 2);
-          var x = e.x + dist * w.dir, wf = e.foot1 + dist * (w.dy || 0), ws = e.s1 + dist * (w.ds || 0);
-          var gone = w.exitX ? (w.dir > 0 ? x > w.exitX : x < w.exitX) : (x > W + 6 || x < -6);
-          if (gone && exitedFor !== st && typeof st === 'number') { exitedFor = st; root.dispatchEvent(new CustomEvent('lastseen:exit', { bubbles: true, detail: { dir: w.dir, x: x / W, foot: Math.min(wf, H) / H } })); }
-          if (x > -30 && x < W + 30 && wf - ws * 40 < H) figs.push({ P: sig.person, x: x, foot: wf, s: ws, dist: dist, facing: w.dir > 0 ? 'right' : 'left', alpha: 1 });
-        }
+        crew.forEach(function (m) {
+          var ms = sp - m.lag;
+          if (ms < 0) return;
+          if (ms < e.dur) {
+            var q = easeOut(ms / e.dur);
+            figs.push({ P: m.P, x: e.x + m.dx * q, foot: e.foot0 + (e.foot1 - e.foot0) * q + m.dy * q, s: (e.s0 + (e.s1 - e.s0) * q) * (1 + m.ds * q),
+              dist: ms * e.stepRate, facing: 'front', alpha: clamp(ms / e.fade, 0, 1), inside: q < .5 });
+          } else if (sp < e.dur + w.pause) {
+            figs.push({ P: m.P, x: e.x + m.dx, foot: e.foot1 + m.dy, s: e.s1 * (1 + m.ds), dist: 0, facing: 'stand', alpha: 1 });
+          } else {
+            var tw = sp - e.dur - w.pause;
+            var dist = tw < w.accel ? w.speed * tw * tw / (2 * w.accel) : w.speed * (tw - w.accel / 2);
+            var x = e.x + dist * w.dir, wf = e.foot1 + dist * (w.dy || 0), ws = e.s1 + dist * (w.ds || 0);
+            if (m.lead) {
+              var gone = w.exitX ? (w.dir > 0 ? x > w.exitX : x < w.exitX) : (x > W + 6 || x < -6);
+              if (gone && exitedFor !== st && typeof st === 'number') { exitedFor = st; root.dispatchEvent(new CustomEvent('lastseen:exit', { bubbles: true, detail: { dir: w.dir, x: x / W, foot: Math.min(wf, H) / H } })); }
+            }
+            x += m.dx; wf += m.dy; ws *= 1 + m.ds;
+            if (x > -30 && x < W + 30 && wf - ws * 40 < H) figs.push({ P: m.P, x: x, foot: wf, s: ws, dist: dist, facing: w.dir > 0 ? 'right' : 'left', alpha: 1 });
+          }
+        });
       } else if (st === 'still') {
-        figs.push({ P: sig.person, x: sig.still.x, foot: sig.emerge.foot1, s: sig.emerge.s1, dist: 0, facing: 'front', alpha: 1 });
+        crew.forEach(function (m) { figs.push({ P: m.P, x: sig.still.x + m.dx, foot: sig.emerge.foot1 + m.dy, s: sig.emerge.s1 * (1 + m.ds), dist: 0, facing: 'front', alpha: 1 }); });
       }
       figs.filter(function (g) { return g.inside; }).forEach(function (g) { person(f, g.P, pal, g.x, g.foot, g.s, g.dist, g.facing, g.alpha, rimFor(g)); });
       // facade over the interior (a place with nothing in front of the interior skips the layer)
