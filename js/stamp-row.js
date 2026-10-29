@@ -38,20 +38,41 @@
   labels();
   nav.querySelectorAll('img').forEach(function (im) { im.addEventListener('error', function () { var a = im.closest('.pc-st'); if (a) a.hidden = true; else im.hidden = true; }, { once: true }); });
 
-  // ---- light: swap only once the new pictures are decoded, so a change never flashes ----
-  var cur = L0;
+  // ---- light: swap only once the new pictures are decoded, so a change never flashes; the old picture fades out
+  // over the new one (an instant swap under reduced motion). URLs are rebuilt from data-place, never edited in place.
+  var cur = L0, gen = 0, reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  function swapAll(ims, urls) {
+    var todo = ims.map(function (im, i) { return [im, urls[i]]; }).filter(function (x) { return x[0].getAttribute('src') !== x[1]; });
+    if (!todo.length) return;
+    if (reduce.matches || !nav.animate) { todo.forEach(function (x) { x[0].src = x[1]; }); return; }
+    // the pile's fan comes from :nth-child, so hold every picture's own turn before any ghost joins it
+    var held = ims.map(function (im) { var t = getComputedStyle(im).transform; im.style.transform = t === 'none' ? '' : t; return im; });
+    var left = 0, finish = function () { if (--left > 0) return; nav.querySelectorAll('.pc-st-ghost').forEach(function (g) { g.remove(); }); held.forEach(function (im) { im.style.transform = ''; }); };
+    todo.forEach(function (x) {
+      var im = x[0];
+      if (!im.complete || !im.naturalWidth) { im.src = x[1]; return; }
+      var ghost = im.cloneNode(false); left++;
+      ghost.removeAttribute('data-place'); ghost.setAttribute('aria-hidden', 'true'); ghost.className = 'pc-st-ghost';
+      ghost.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;margin:0;pointer-events:none;transition:none;view-transition-name:none;transform:' + (im.style.transform || 'none');
+      im.after(ghost); im.src = x[1];
+      var an = ghost.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: 'ease-out', fill: 'forwards' });
+      an.onfinish = an.oncancel = finish;
+    });
+    if (!left) { left = 1; finish(); }
+  }
   function apply() {
-    var L = light(); if (L === cur) return; cur = L;
-    var ims = nav.querySelectorAll('img');
-    Promise.all(Array.prototype.map.call(ims, function (im) { var p = new Image(); p.src = im.src.replace(/-[a-z]+\.webp$/, '-' + L + '.webp'); return p.decode().then(function () { return p.src; }, function () { return p.src; }); }))
-      .then(function (s) { if (cur === L) ims.forEach(function (im, i) { im.src = s[i]; }); });
+    var L = light(); if (L === cur) return; cur = L; var g = ++gen;
+    var ims = Array.prototype.slice.call(nav.querySelectorAll('img[data-place]'));
+    Promise.all(ims.map(function (im) { var url = src({ place: im.dataset.place }, L), p = new Image(); p.src = url;
+      return (p.decode ? p.decode() : Promise.resolve()).then(function () { return url; }, function () { return url; }); }))
+      .then(function (urls) { if (g === gen) { nav.querySelectorAll('.pc-st-ghost').forEach(function (x) { x.remove(); }); swapAll(ims, urls); } });
   }
   new MutationObserver(function (m) { if (m.some(function (r) { return r.attributeName === 'data-lang'; })) labels(); apply(); })
     .observe(html, { attributes: true, attributeFilter: ['data-tod', 'data-theme', 'data-lang'] });
   setInterval(apply, 60000);                       // the auto light crossing into the next period
   // warm the other lights once the page is idle
   addEventListener('load', function () { (window.requestIdleCallback || setTimeout)(function () {
-    nav.querySelectorAll('img').forEach(function (im) { LIGHTS.forEach(function (L) { if (L !== cur) new Image().src = src({ place: im.dataset.place }, L); }); });
+    nav.querySelectorAll('img[data-place]').forEach(function (im) { LIGHTS.forEach(function (L) { if (L !== cur) new Image().src = src({ place: im.dataset.place }, L); }); });
   }, { timeout: 3000 }); });
 
   // ---- the shared label ----
