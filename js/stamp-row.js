@@ -22,7 +22,7 @@
     if (!t && window.LastSeen) { try { t = LastSeen.period(LastSeen.byId(all[0].place) || LastSeen.newest()); } catch (e) {} }
     return LIGHTS.indexOf(t) >= 0 ? t : (html.getAttribute('data-theme') === 'dark' ? 'night' : 'midday');
   }
-  function src(p, L) { return '/last-seen/stamps/' + p.place + '-' + L + '.webp?v=3'; }
+  function src(p, L) { return '/last-seen/stamps/' + p.place + '-' + L + '.webp?v=4'; }
   function img(p, L) { return '<img src="' + src(p, L) + '" data-place="' + p.place + '" alt="" width="48" height="40" decoding="async">'; }
 
   var L0 = light();
@@ -39,12 +39,12 @@
   nav.querySelectorAll('img').forEach(function (im) { im.addEventListener('error', function () { var a = im.closest('.pc-st'); if (a) a.hidden = true; else im.hidden = true; }, { once: true }); });
 
   // ---- light: swap only once the new pictures are decoded, so a change never flashes; the old picture fades out
-  // over the new one (an instant swap under reduced motion). URLs are rebuilt from data-place, never edited in place.
+  // over the new one (an instant swap under reduced motion, still never a gap). URLs are rebuilt from data-place, never edited in place.
   var cur = L0, gen = 0, reduce = matchMedia('(prefers-reduced-motion: reduce)');
   function swapAll(ims, urls) {
     var todo = ims.map(function (im, i) { return [im, urls[i]]; }).filter(function (x) { return x[0].getAttribute('src') !== x[1]; });
     if (!todo.length) return;
-    if (reduce.matches || !nav.animate) { todo.forEach(function (x) { x[0].src = x[1]; }); return; }
+    var still = reduce.matches || !nav.animate;   // reduced motion: an instant swap, but the old picture stays until the new one is painted
     // the pile's fan comes from :nth-child, so hold every picture's own turn before any ghost joins it
     var held = ims.map(function (im) { var t = getComputedStyle(im).transform; im.style.transform = t === 'none' ? '' : t; return im; });
     var left = 0, finish = function () { if (--left > 0) return; nav.querySelectorAll('.pc-st-ghost').forEach(function (g) { g.remove(); }); held.forEach(function (im) { im.style.transform = ''; }); };
@@ -55,6 +55,7 @@
       ghost.removeAttribute('data-place'); ghost.setAttribute('aria-hidden', 'true'); ghost.className = 'pc-st-ghost';
       ghost.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;margin:0;pointer-events:none;transition:none;view-transition-name:none;transform:' + (im.style.transform || 'none');
       im.after(ghost); im.src = x[1];
+      if (still) { var gone = function () { requestAnimationFrame(finish); }; (im.decode ? im.decode() : Promise.resolve()).then(gone, gone); return; }
       var an = ghost.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, easing: 'ease-out', fill: 'forwards' });
       an.onfinish = an.oncancel = finish;
     });
