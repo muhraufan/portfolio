@@ -339,9 +339,15 @@
         A.quadraticCurveTo(-5.7 - fl + sway * .6, hem, -5.6 - fl + sway * .6, hem - .8);
         A.quadraticCurveTo(-5.0, (top + hem) / 2 + 2, -4.5, top + 4.5); A.closePath();
       };
-      if (skirt) {                        // A-line skirt under a short jacket
-        A.fillStyle = pal[P.skirtC || P.legs]; A.beginPath(); A.moveTo(-4.4, hipY - 3); A.lineTo(4.2, hipY - 3); A.lineTo(5.6 + sway, hipY + 6.4); A.lineTo(-5.8 + sway * .6, hipY + 6.4); A.closePath(); A.fill();
-        if (fine) blob(A, sh, .16, function () { A.moveTo(.6, hipY - 1); A.lineTo(1.6 + sway, hipY + 6.4); A.lineTo(-.4 + sway, hipY + 6.4); A.closePath(); });
+      if (skirt) {                        // A-line skirt under a short jacket; P.skirtLen (from the hip, default 6.4) makes it longer:
+        // ~11.5 is mid-calf. A long one flares more at the hem and opens with the stride, so the legs swing inside it
+        var sl = P.skirtLen || 6.4, sk = hipY + sl, xl = Math.max(0, sl - 6.4), op = walking ? Math.abs(fa.x - fb.x) * .22 * Math.min(1, xl / 4) : 0;
+        var skF = 5.6 + xl * .2 + op + sway, skB = -5.8 - xl * .16 - op * .8 + sway * .6;
+        A.fillStyle = pal[P.skirtC || P.legs]; A.beginPath(); A.moveTo(-4.4, hipY - 3); A.lineTo(4.2, hipY - 3); A.lineTo(skF, sk);
+        if (xl) A.quadraticCurveTo((skF + skB) / 2, sk + .7, skB, sk); else A.lineTo(skB, sk);
+        A.closePath(); A.fill();
+        if (fine) blob(A, sh, .16, function () { A.moveTo(.6, hipY - 1); A.lineTo(1.6 + sway + op * .5, sk); A.lineTo(-.4 + sway, sk); A.closePath(); });
+        if (fine && xl) blob(A, sh, .22, function () { A.moveTo(-4.2, hipY - 2.6); A.lineTo(-2.6, hipY - 2.6); A.lineTo(skB + 1.8, sk); A.lineTo(skB, sk); A.closePath(); });   // the back in shade
       }
       if (hood) {                         // hip-length: the trousers show from the top of the thigh
         A.fillStyle = legs; A.beginPath(); A.roundRect(-4.3, hem - 1.2, 8.4, hipY - hem + 2.6, [0, 0, 2.2, 2.6]); A.fill();
@@ -481,7 +487,14 @@
       };
       blob(A, skin, 1, function () { A.rect(-1.15, topF - 3.2, 2.3, 4); });
       var hoodF = !!P.hood, hemF = skirt ? hipY - 1.5 : hoodF ? hipY - 5.2 : hipY + 2.2 + long, flF = hoodF ? -.3 : (skirt ? .2 : .6) + long * .07;
-      if (skirt) { A.fillStyle = pal[P.skirtC || P.legs]; A.beginPath(); A.moveTo(-4.6, hipY - 3); A.lineTo(4.6, hipY - 3); A.lineTo(6.2, hipY + 6.4); A.lineTo(-6.2, hipY + 6.4); A.closePath(); A.fill(); }
+      if (skirt) {
+        var slF = P.skirtLen || 6.4, skY = hipY + slF, xlF = Math.max(0, slF - 6.4), hw = 6.2 + xlF * .22;
+        A.fillStyle = pal[P.skirtC || P.legs]; A.beginPath(); A.moveTo(-4.6, hipY - 3); A.lineTo(4.6, hipY - 3); A.lineTo(hw, skY);
+        if (xlF) A.quadraticCurveTo(0, skY + .8, -hw, skY); else A.lineTo(-hw, skY);
+        A.closePath(); A.fill();
+        if (fine && xlF) { blob(A, sh, .2, function () { A.moveTo(-4.6, hipY - 3); A.lineTo(-3, hipY - 3); A.lineTo(-hw + 2.2, skY + .5); A.lineTo(-hw, skY); A.closePath(); });   // one side in shade
+          blob(A, sh, .14, function () { A.moveTo(1, hipY - 1); A.lineTo(1.9, skY + .6); A.lineTo(.8, skY + .6); A.closePath(); }); }                                        // a soft fold
+      }
       var coatF = function () {
         A.beginPath(); A.moveTo(-5.4, topF + 2.6); A.quadraticCurveTo(-5.2, topF - .7, -2.4, topF - .8); A.lineTo(2.4, topF - .8);
         A.quadraticCurveTo(5.2, topF - .7, 5.4, topF + 2.6); A.quadraticCurveTo(5.6, (topF + hemF) / 2, 6.1 + flF, hemF - .7);
