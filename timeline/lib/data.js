@@ -4,6 +4,7 @@
   var TL2 = window.TL2 = window.TL2 || {};
   var TZ = 'Asia/Tokyo';
   var REAL = [
+    { scene: 'apple-marunouchi', seenAt: '2026-10-29T12:19:00+09:00', name: { en: 'Apple Marunouchi', ja: 'Apple 丸の内' }, area: { en: 'Marunouchi, Tokyo', ja: '東京・丸の内' } },
     { scene: 'cinta-jawa-shibuya', seenAt: '2026-10-27T19:30:00+09:00', name: { en: 'Cinta Jawa Cafe', ja: 'チンタジャワカフェ' }, area: { en: 'Shibuya, Tokyo', ja: '東京・渋谷' } },
     { scene: 'tokyo-nihombashi-tower', seenAt: '2026-10-27T09:49:00+09:00', name: { en: 'Tokyo Nihombashi Tower', ja: '東京日本橋タワー' }, area: { en: 'Nihonbashi, Tokyo', ja: '東京・日本橋' } },
     { scene: 'niko-and-shibuya', seenAt: '2026-10-25T18:56:00+09:00', name: { en: 'niko and ...', ja: 'niko and ...' }, area: { en: 'Shibuya, Tokyo', ja: '東京・渋谷' } },
