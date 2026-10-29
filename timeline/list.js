@@ -123,9 +123,9 @@
     var cap = '';
     if (p.with && window.LastSeen && LastSeen.withHTML) {
       var lang = ja() ? 'ja' : 'en';
-      cap = '<p class="t3-oc">' + LastSeen.withHTML(p.with, lang, 't3-with-a', true) + '</p>';
+      cap = '<p class="t3-oc t3-ow">' + LastSeen.withHTML(p.with, lang, 't3-with-a', true) + '</p>';   // under the place's name and area, above the scene
     }
-    return '<div class="t3-o" id="o-' + p.i + '"><div class="t3-f"><img class="t3-fs" alt="" src="' + img(p, 's') + '"><img class="t3-fl" alt="" decoding="async"></div>' + ex + cap + '</div>';
+    return '<div class="t3-o" id="o-' + p.i + '">' + cap + '<div class="t3-f"><img class="t3-fs" alt="" src="' + img(p, 's') + '"><img class="t3-fl" alt="" decoding="async"></div>' + ex + '</div>';
   }
   function poster(fr, p) { var L = fr.querySelector('.t3-fl'), u = img(p, 'l'); if (L.getAttribute('src') !== u) { L.classList.remove('is-in'); L.onload = function () { L.classList.add('is-in'); }; L.src = u; if (L.complete && L.naturalWidth) L.classList.add('is-in'); } }
   function prefetch(p) { if (p._pf === tod()) return; p._pf = tod(); new Image().src = img(p, 'l'); }
