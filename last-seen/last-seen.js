@@ -288,9 +288,17 @@
 
         stroke(A, [hx, hipY, kn[0], kn[1]], lw + .45, legs); stroke(A, [kn[0], kn[1], an[0], an[1]], lw, legs);
         if (!skirt && fine) blob(A, sh, .28, function () { A.rect(an[0] - 1.5, an[1] - .9, 3, .5); });             // the trouser break
+        if (P.sock) blob(A, pal[P.sock], 1, function () { A.rect(an[0] - 1.25, an[1] - 1.25, 2.5, .95); });     // a band of sock above the shoe
         A.save(); A.translate(an[0], an[1]); A.rotate(an[2]);
+        if (P.shoe) {                       // trainers: a pale upper, the sole a lighter band, a stripe on the side
+          A.fillStyle = pal[P.shoe]; A.beginPath(); A.roundRect(-1.5, -.75, 4.6, 1.85, [.8, 1.4, .45, .45]); A.fill();
+          blob(A, sh, far ? .34 : .16, function () { A.roundRect(-1.5, -.75, 4.6, 1.85, [.8, 1.4, .45, .45]); });
+          if (P.sole) blob(A, pal[P.sole], 1, function () { A.roundRect(-1.5, .55, 4.6, .55, [0, .3, .45, .45]); });
+          if (P.shoeMark && fine) { A.globalAlpha = far ? .6 : .9; stroke(A, [-.4, -.5, 1, .4, 2.2, -.4], .42, pal[P.shoeMark]); A.globalAlpha = 1; }
+        } else {
         A.fillStyle = legs; A.beginPath(); A.roundRect(-1.4, -.45, 4.4, 1.55, [.7, 1.3, .45, .45]); A.fill();     // shoe, toe forward
         blob(A, sh, .45, function () { A.roundRect(-1.4, -.45, 4.4, 1.55, [.7, 1.3, .45, .45]); });
+        }
         A.restore();
         if (far) { A.globalAlpha = .2; stroke(A, [hx, hipY, kn[0], kn[1], an[0], an[1]], lw + .3, sh); A.globalAlpha = 1; }
       };
@@ -409,6 +417,22 @@
         A.fillStyle = bc; brim2(); A.fill();
         A.save(); brim2(); A.clip(); blob(A, sh, .3, function () { A.rect(ux + 2, uy - .9, 7, 1.4); }); A.restore();   // its underside
         blob(A, bc, 1, function () { A.arc(ux - .2, uy - 4.75, .42, 0, Math.PI * 2); });                           // the button
+      } else if (P.campcap) {             // a five-panel camp cap: a low, flat-topped crown, a contrasting front panel, a flat brim
+        var cc = pal[P.campcap], cf = pal[P.capFront || P.campcap], cb = pal[P.capBrim || P.capFront || P.campcap], qx = hc[0], qy = hc[1];
+        A.save(); headClip(); A.clip(); blob(A, sh, .3, function () { A.rect(qx, qy - .6, 6, 1.8); }); A.restore();   // the brim's shadow on the face
+        var crownC = function () { A.beginPath(); A.moveTo(qx - 4.3, qy - .2); A.bezierCurveTo(qx - 4.6, qy - 4.6, qx - 3.2, qy - 5.3, qx - .2, qy - 5.3);
+          A.bezierCurveTo(qx + 2.6, qy - 5.3, qx + 4.1, qy - 4.4, qx + 4.1, qy - 1.1); A.quadraticCurveTo(qx + 1, qy - 1.3, qx - 4.3, qy - .2); A.closePath(); };
+        A.fillStyle = cc; crownC(); A.fill();
+        A.save(); crownC(); A.clip();
+        A.fillStyle = cf; A.beginPath(); A.moveTo(qx - .9, qy - 6); A.quadraticCurveTo(qx + .5, qy - 3.4, qx + .6, qy); A.lineTo(qx + 6, qy); A.lineTo(qx + 6, qy - 6); A.closePath(); A.fill();   // the front panel
+        blob(A, sh, .16, function () { A.rect(qx - 6, qy - 1.6, 12, 2); });
+        A.globalAlpha = .22; stroke(A, [qx - 2.2, qy - 5.1, qx - 2.5, qy - 1], .35, sh); A.globalAlpha = 1;   // a side seam
+        if (fine) blob(A, figMix(cf, '#ffffff', .55), .9, function () { A.rect(qx + 2.3, qy - 3, 1.5, .55); });   // the small woven label
+        A.restore();
+        var brimC = function () { A.beginPath(); A.moveTo(qx + 3, qy - 1.45); A.lineTo(qx + 7.7, qy - 1.15); A.quadraticCurveTo(qx + 8, qy - .8, qx + 7.6, qy - .55);
+          A.lineTo(qx + 3, qy - .55); A.closePath(); };
+        A.fillStyle = cb; brimC(); A.fill();
+        A.save(); brimC(); A.clip(); blob(A, sh, .3, function () { A.rect(qx + 2, qy - .95, 7, 1.4); }); A.restore();   // its underside
       }
       // near arm (and the bag it carries); a soft shade behind it keeps it off the coat
       A.globalAlpha = .2; A.save(); A.translate(-.45, .35); stroke(A, near, 3.1, sh); A.restore(); A.globalAlpha = 1;
@@ -437,8 +461,16 @@
         stroke(A, [g[0] * .9, hipY, g[0], fy - 1.4], lw, legs);
         A.globalAlpha = .14; stroke(A, [g[0] * .9 - (gi ? 1 : -1) * .7, hipY, g[0] - (gi ? 1 : -1) * .7, fy - 1.4], .9, sh); A.globalAlpha = 1;   // the inner edge in shade
         if (fine && !skirt) blob(A, sh, .26, function () { A.rect(g[0] - 1.45, fy - 2.1, 2.9, .5); });
+        if (P.sock) blob(A, pal[P.sock], 1, function () { A.rect(g[0] - 1.3, fy - 2.05, 2.6, .9); });
+        if (P.shoe) {
+          A.fillStyle = pal[P.shoe]; A.beginPath(); A.ellipse(g[0] * 1.06, fy - .85, 1.9 + g[1] * .18, 1.15 + g[1] * .12, 0, 0, Math.PI * 2); A.fill();
+          blob(A, sh, .16, function () { A.ellipse(g[0] * 1.06 - (gi ? -.5 : .5), fy - .85, 1.4, 1.15, 0, 0, Math.PI * 2); });
+          if (P.sole) blob(A, pal[P.sole], 1, function () { A.rect(g[0] * 1.06 - 1.9, fy - .45, 3.8, .45); });
+          if (P.shoeMark && fine) blob(A, pal[P.shoeMark], .85, function () { A.rect(g[0] * 1.06 + (gi ? .5 : -1.4), fy - 1.6, .9, .7); });
+        } else {
         A.fillStyle = legs; A.beginPath(); A.ellipse(g[0] * 1.06, fy - .75, 1.75 + g[1] * .18, 1 + g[1] * .12, 0, 0, Math.PI * 2); A.fill();
         blob(A, sh, .45, function () { A.ellipse(g[0] * 1.06, fy - .75, 1.75 + g[1] * .18, 1 + g[1] * .12, 0, 0, Math.PI * 2); });
+        }
       });
       var swf = walking ? Math.cos(2 * Math.PI * (cA - .07)) : 0;
       var armF = function (side, d) {          // sleeves lie along the coat's sides; the one swinging toward us reads a touch shorter and wider
@@ -501,7 +533,7 @@
       blob(A, skin, 1, function () { A.ellipse(hf[0], hf[1], 3.5, 3.8, 0, 0, Math.PI * 2); });
       A.fillStyle = hair; A.beginPath(); A.ellipse(hf[0], hf[1] - .6, 3.85, 3.6, 0, Math.PI * .93, Math.PI * 2.07); A.closePath(); A.fill();
       A.save(); A.beginPath(); A.ellipse(hf[0], hf[1], 3.95, 4.1, 0, 0, Math.PI * 2); A.clip(); A.fillStyle = hair; A.beginPath(); A.rect(-5, hf[1] - 5, 1.9, 6.8); A.rect(3.1, hf[1] - 5, 1.9, 6.8); A.fill(); A.restore();   // hair over the ears frames a faceless face
-      if (!P.hat && !P.cap && !P.ballcap && fine) blob(A, sh, .12, function () { A.rect(-.3, hf[1] - 4, .6, 1.6); });           // a parting
+      if (!P.hat && !P.cap && !P.ballcap && !P.campcap && fine) blob(A, sh, .12, function () { A.rect(-.3, hf[1] - 4, .6, 1.6); });           // a parting
       var faceClip = function () { A.beginPath(); A.ellipse(hf[0], hf[1], 3.5, 3.8, 0, 0, Math.PI * 2); };
       if (P.hat) {
         var byF = hf[1] - 1.6, hatF = pal[P.hat];
@@ -524,6 +556,17 @@
         A.fillStyle = bcF; brimF(); A.fill();
         A.save(); brimF(); A.clip(); blob(A, sh, .28, function () { A.rect(-5, vy - .2, 10, 2.4); }); A.restore();
         blob(A, bcF, 1, function () { A.arc(0, vy - 4.85, .42, 0, Math.PI * 2); });
+      } else if (P.campcap) {             // the camp cap from the front: a low crown, the front panel in its own colour, a flat brim
+        var ccF = pal[P.campcap], cfF = pal[P.capFront || P.campcap], cbF = pal[P.capBrim || P.capFront || P.campcap], wy = hf[1];
+        A.save(); faceClip(); A.clip(); blob(A, sh, .36, function () { A.rect(-5, wy - .8, 10, 2.2); }); A.restore();
+        var crF = function () { A.beginPath(); A.moveTo(-4.2, wy - .9); A.bezierCurveTo(-4.4, wy - 5.6, 4.4, wy - 5.6, 4.2, wy - .9); A.quadraticCurveTo(0, wy - 1.6, -4.2, wy - .9); A.closePath(); };
+        A.fillStyle = ccF; crF(); A.fill();
+        A.save(); crF(); A.clip(); A.fillStyle = cfF; A.beginPath(); A.moveTo(-2.7, wy); A.quadraticCurveTo(-2.9, wy - 4, -1.6, wy - 5.2); A.lineTo(1.6, wy - 5.2); A.quadraticCurveTo(2.9, wy - 4, 2.7, wy); A.closePath(); A.fill();
+        if (fine) blob(A, figMix(cfF, '#ffffff', .55), .9, function () { A.rect(-.9, wy - 3.2, 1.8, .55); });
+        A.restore();
+        var brF = function () { A.beginPath(); A.moveTo(-4.5, wy - 1.1); A.quadraticCurveTo(0, wy + 1.3, 4.5, wy - 1.1); A.quadraticCurveTo(0, wy - .2, -4.5, wy - 1.1); A.closePath(); };
+        A.fillStyle = cbF; brF(); A.fill();
+        A.save(); brF(); A.clip(); blob(A, sh, .28, function () { A.rect(-5, wy - .4, 10, 2.4); }); A.restore();
       }
     }
 

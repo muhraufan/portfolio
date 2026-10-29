@@ -255,7 +255,7 @@
   }
 
   function boot() {
-    var dataReady = (window.TL2 && TL2.stampFor) ? Promise.resolve() : loadScript('/timeline/lib/data.js?v=7');
+    var dataReady = (window.TL2 && TL2.stampFor) ? Promise.resolve() : loadScript('/timeline/lib/data.js?v=9');
     dataReady.then(function () {
       return import('/components/Guestbook/guestbookService.js?v=3');
     }).then(function (mod) {
