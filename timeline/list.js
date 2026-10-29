@@ -120,12 +120,22 @@
   var liveBox = document.createElement('div'); liveBox.className = 't3-live';
   function openHTML(p) {
     var ex = p.example ? '<p class="t3-oc"><span class="t3-tag">' + (ja() ? '例（実在しません）' : 'Example, not real') + '</span></p>' : '';
-    var cap = '';
-    if (p.with && window.LastSeen && LastSeen.withHTML) {
-      var lang = ja() ? 'ja' : 'en';
-      cap = '<p class="t3-oc t3-ow">' + LastSeen.withHTML(p.with, lang, 't3-with-a', true) + '</p>';   // under the place's name and area, above the scene
-    }
-    return '<div class="t3-o" id="o-' + p.i + '">' + cap + '<div class="t3-f"><img class="t3-fs" alt="" src="' + img(p, 's') + '"><img class="t3-fl" alt="" decoding="async"></div>' + ex + '</div>';
+    return '<div class="t3-o" id="o-' + p.i + '"><div class="t3-f"><img class="t3-fs" alt="" src="' + img(p, 's') + '"><img class="t3-fl" alt="" decoding="async"></div>' + ex + '</div>';
+  }
+  // company, inline after the place's name while a row is open: "Apple Marunouchi with Shane and Bee". The button can't
+  // hold links, so it gets a hidden copy of the phrase (it reserves the room, wraps the title and grows the highlight),
+  // and the real, linked phrase sits over exactly that spot, after a hidden copy of the name, so both wrap the same.
+  function withOn(p) {
+    if (!p.with || !window.LastSeen || !LastSeen.withHTML) return;
+    var lang = ja() ? 'ja' : 'en', l1 = p.btn.querySelector('.t3-t .t3-l1'), pad = l1.innerHTML;
+    var mirror = LastSeen.withHTML(p.with, lang, 't3-with-a').replace(/<a\b[^>]*?class="([^"]*)"[^>]*>/g, '<span class="$1">').replace(/<\/a>/g, '</span>');   // same markup, so the same width
+    l1.insertAdjacentHTML('beforeend', '<span class="t3-wr" aria-hidden="true">' + mirror + '</span>');
+    p.li.classList.add('has-with');
+    p.btn.insertAdjacentHTML('afterend', '<p class="t3-ow"><span class="t3-ow-pad" aria-hidden="true">' + pad + '</span>' + LastSeen.withHTML(p.with, lang, 't3-with-a') + '</p>');
+  }
+  function withOff(p) {
+    var w = p.btn.querySelector('.t3-wr'), o = p.li.querySelector('.t3-ow');
+    if (w) w.remove(); if (o) o.remove(); p.li.classList.remove('has-with');
   }
   function poster(fr, p) { var L = fr.querySelector('.t3-fl'), u = img(p, 'l'); if (L.getAttribute('src') !== u) { L.classList.remove('is-in'); L.onload = function () { L.classList.add('is-in'); }; L.src = u; if (L.complete && L.naturalWidth) L.classList.add('is-in'); } }
   function prefetch(p) { if (p._pf === tod()) return; p._pf = tod(); new Image().src = img(p, 'l'); }
@@ -158,9 +168,9 @@
     ghosts.forEach(function (g) { g.from = g.el.getBoundingClientRect(); g.r0 = g.r; });
     stopAnim(); clearMotion(); hideLive();
     // the change itself
-    if (prev) { var po = prev.li.querySelector('.t3-o'); if (po) po.remove(); prev.li.classList.remove('is-open'); prev.btn.setAttribute('aria-expanded', 'false'); }
+    if (prev) { var po = prev.li.querySelector('.t3-o'); if (po) po.remove(); withOff(prev); prev.li.classList.remove('is-open'); prev.btn.setAttribute('aria-expanded', 'false'); }
     openI = i;
-    if (next) { next.li.insertAdjacentHTML('beforeend', openHTML(next)); next.li.classList.add('is-open'); next.btn.setAttribute('aria-expanded', 'true'); poster(next.li.querySelector('.t3-f'), next); }
+    if (next) { withOn(next); next.li.insertAdjacentHTML('beforeend', openHTML(next)); next.li.classList.add('is-open'); next.btn.setAttribute('aria-expanded', 'true'); poster(next.li.querySelector('.t3-f'), next); }
     sizeMonth(anchor ? anchor.M : months[0]); if (prev && next && prev.M !== next.M) sizeMonth(prev.M);
     tops = null;
     // keep the row you touched exactly where it was (the one closing above it can't pull it away)

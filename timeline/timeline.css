@@ -75,9 +75,9 @@ button.t3-mh-t[aria-expanded="true"] .t3-chev { transform: rotate(180deg); }
 .t3-rb > span { display: block; min-width: 0; }
 .t3-l1, .t3-l2 { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .t3-l2 { color: var(--pg-cap); }
-.t3-oc .t3-with-a { color: inherit; font-weight: 500; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 30%, transparent); }
-.t3-oc .t3-with-a:hover { text-decoration-color: currentColor; }
-.t3-oc .t3-with-a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.t3-with-a { color: inherit; font-weight: 500; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 30%, transparent); }
+.t3-with-a:hover { text-decoration-color: currentColor; }
+.t3-with-a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 .t3-d { font-variant-numeric: tabular-nums; align-self: start; margin-top: calc((var(--rowH) - 2lh) / 2); }   /* one date line, lined up with the place name */
 html[data-lang="ja"] .tl3 { --dateW: 104px; }
 @media (max-width: 600px) { html[data-lang="ja"] .tl3 { --dateW: 76px; } }
@@ -103,8 +103,18 @@ html[data-lang="ja"] .tl3 { --dateW: 104px; }
 .t3-live .ls-scene { position: absolute; inset: 0; } .t3-live canvas { display: block; width: 100%; height: 100%; }
 .t3-live .ls-fade { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; }
 .t3-oc { margin: 8px 0 0; color: var(--pg-cap); font-variant-numeric: tabular-nums; }
-/* company: a quiet third line in the title column, one line-pitch under the area, as if the row had grown by a line (the row itself never changes height; -4px undoes .t3-o's top padding, +2px of air) */
-.t3-ow { margin: calc(1lh - var(--rowH) / 2 - 2px) 0 14px calc(var(--dateW) + var(--gap)); max-width: 36em; text-wrap: pretty; }
+/* company, inline after the name in an open row (see withOn in list.js). The button keeps an invisible copy of the
+   phrase, so the title wraps and the row's highlight grows around it; the linked phrase sits over that copy. A row that
+   fits keeps its height exactly; only a title that wraps adds its extra line, and only while open. */
+.t3-r.has-with > .t3-rb { height: auto; min-height: var(--rowH); padding-bottom: calc((var(--rowH) - 2lh) / 2); }
+.t3-r.has-with > .t3-rb > .t3-t { align-self: start; margin-top: calc((var(--rowH) - 2lh) / 2); }
+.t3-r.has-with .t3-t .t3-l1 { white-space: normal; text-wrap: pretty; }
+.t3-wr { visibility: hidden; }
+.t3-ow { position: absolute; z-index: 1; margin: 0; top: calc((var(--rowH) - 2lh) / 2); left: calc(var(--dateW) + var(--gap)); right: calc(var(--thW) + var(--gap));
+  color: var(--pg-cap); pointer-events: none; text-wrap: pretty; }
+.t3-ow-pad { visibility: hidden; }
+.t3-ow .t3-with-a { pointer-events: auto; }
+@media (hover: hover) { .t3-r:has(.t3-with-a:hover) > .t3-rb::before { opacity: .65; } }
 .t3-ghost { position: absolute; z-index: 2; left: 0; top: 0; transform-origin: 0 0; pointer-events: none; }
 .t3-ghost img { position: absolute; inset: 0; width: 100%; height: 100%; }
 
