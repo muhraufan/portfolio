@@ -130,7 +130,7 @@
                 { start: 15, every: 27, dir: 1, speed: 21, foot: 277, s: 1.14, coat: 'coatD', legs: 'legsDenim', hair: 'hairDark', carry: 'backpack', carryC: 'coatB' }],
     stamp: { x0: 60, x1: 316, y0: 30, y1: 272 },
     sig: { emerge: { x: 214, foot0: 226, foot1: 264, s0: .56, s1: 1.24, dur: 1.3 },
-      person: { hood: true, coat: 'amHoodie', hat: false, campcap: 'amCrown', capFront: 'amFront', capBrim: 'amFront', legs: 'amPants', string: 'amString',
+      person: { hood: true, coat: 'amHoodie', hat: false, bag: false, campcap: 'amCrown', capFront: 'amFront', capBrim: 'amFront', legs: 'amPants', string: 'amString',
         shoe: 'amShoe', sole: 'amSole', shoeMark: 'amShoeMark', sock: 'amSock' },
       // with Shane (a green cap, a khaki jacket) and Bee (a black jacket); the rest of both outfits is a neutral guess
       company: [{ person: { coat: 'shJacket', long: -3, ballcap: 'shCap', hat: false, legs: 'shLegs', hair: 'hairDark', shoe: 'shShoe', sole: 'shSole', bag: false, stride: 12 }, dx: -25, dy: -2.5, ds: -.02, lag: .22 },
