@@ -22,7 +22,7 @@
     if (!t && window.LastSeen) { try { t = LastSeen.period(LastSeen.byId(all[0].place) || LastSeen.newest()); } catch (e) {} }
     return LIGHTS.indexOf(t) >= 0 ? t : (html.getAttribute('data-theme') === 'dark' ? 'night' : 'midday');
   }
-  function src(p, L) { return '/last-seen/stamps/' + p.place + '-' + L + '.webp'; }
+  function src(p, L) { return '/last-seen/stamps/' + p.place + '-' + L + '.webp?v=2'; }
   function img(p, L) { return '<img src="' + src(p, L) + '" data-place="' + p.place + '" alt="" width="48" height="40" decoding="async">'; }
 
   var L0 = light();

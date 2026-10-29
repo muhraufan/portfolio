@@ -167,10 +167,10 @@
   function ensureScenes(keys) {
     var needKit = keys.some(function (k) { return k && k !== 'niko-and-shibuya'; });
     var chain = Promise.resolve();
-    if (needKit && !(window.LastSeenKit)) chain = chain.then(function () { return loadScript('/last-seen/scenes/_kit.js?v=7'); });
+    if (needKit && !(window.LastSeenKit)) chain = chain.then(function () { return loadScript('/last-seen/scenes/_kit.js?v=8'); });
     keys.forEach(function (key) {
       if (!key || (window.LastSeen && LastSeen.byId && LastSeen.byId(key))) return;
-      chain = chain.then(function () { return loadScript('/last-seen/scenes/' + key + '.js?v=4'); });
+      chain = chain.then(function () { return loadScript('/last-seen/scenes/' + key + '.js?v=5'); });
     });
     return chain.catch(function () {});
   }
