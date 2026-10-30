@@ -63,6 +63,31 @@
   <link rel="stylesheet" href="/css/light.css?v=1">
   <link rel="stylesheet" href="/css/postcard.css?v=5">
   <link rel="stylesheet" href="/timeline/timeline.css?v=9">
+  <!-- deferred scripts live in <head> so list.js can hold the first paint (blocking="render") until the rows exist:
+       a stamp's cross-document morph needs its entry thumbnail named before the new page is captured (Chromium reveals mid-parse) -->
+  <script src="/js/light-menu.js?v=2" defer></script>
+  <script src="/last-seen/last-seen.js?v=11" defer></script>
+  <script src="/last-seen/scenes/niko-and-shibuya.js?v=4" defer></script>
+  <script src="/last-seen/scenes/_kit.js?v=8" defer></script>
+  <script src="/last-seen/scenes/tokyo-big-sight.js?v=4" defer></script>
+  <script src="/last-seen/scenes/yoyogi-park.js?v=4" defer></script>
+  <script src="/last-seen/scenes/tokyo-camii.js?v=4" defer></script>
+  <script src="/last-seen/scenes/fuglen-noborito.js?v=4" defer></script>
+  <script src="/last-seen/scenes/tsuchiya-kaban-nakameguro.js?v=4" defer></script>
+  <script src="/last-seen/scenes/lifefit-yurigaoka.js?v=4" defer></script>
+  <script src="/last-seen/scenes/nadoya-no-katte.js?v=4" defer></script>
+  <script src="/last-seen/scenes/mufg-park.js?v=4" defer></script>
+  <script src="/last-seen/scenes/stayful-life-store.js?v=4" defer></script>
+  <script src="/last-seen/scenes/et-cultural-coffeehouse.js?v=4" defer></script>
+  <script src="/last-seen/scenes/tokyo-nihombashi-tower.js?v=1" defer></script>
+  <script src="/last-seen/scenes/cinta-jawa-shibuya.js?v=2" defer></script>
+  <script src="/last-seen/scenes/apple-marunouchi.js?v=4" defer></script>
+  <script src="/timeline/lib/common.js?v=4" defer></script>
+  <script src="/timeline/lib/data.js?v=10" defer></script>
+  <script src="/timeline/lib/feel.js?v=1" defer></script>
+  <script src="/timeline/lib/live.js?v=1" defer></script>
+  <script src="/timeline/list.js?v=14" defer blocking="render"></script>
+  <script src="/timeline/rail.js?v=2" defer></script>
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body class="minimal tl3">
@@ -89,28 +114,5 @@
   <p class="t3-say m-visually-hidden" aria-live="polite"></p>
   <div class="t3-foot"><div class="m-page"><button type="button" class="t3-sound" aria-pressed="true">Sound · on</button></div></div>
   <script src="/js/main.js?v=36"></script>
-  <script src="/js/light-menu.js?v=2" defer></script>
-  <script src="/last-seen/last-seen.js?v=11" defer></script>
-  <script src="/last-seen/scenes/niko-and-shibuya.js?v=4" defer></script>
-  <script src="/last-seen/scenes/_kit.js?v=8" defer></script>
-  <script src="/last-seen/scenes/tokyo-big-sight.js?v=4" defer></script>
-  <script src="/last-seen/scenes/yoyogi-park.js?v=4" defer></script>
-  <script src="/last-seen/scenes/tokyo-camii.js?v=4" defer></script>
-  <script src="/last-seen/scenes/fuglen-noborito.js?v=4" defer></script>
-  <script src="/last-seen/scenes/tsuchiya-kaban-nakameguro.js?v=4" defer></script>
-  <script src="/last-seen/scenes/lifefit-yurigaoka.js?v=4" defer></script>
-  <script src="/last-seen/scenes/nadoya-no-katte.js?v=4" defer></script>
-  <script src="/last-seen/scenes/mufg-park.js?v=4" defer></script>
-  <script src="/last-seen/scenes/stayful-life-store.js?v=4" defer></script>
-  <script src="/last-seen/scenes/et-cultural-coffeehouse.js?v=4" defer></script>
-  <script src="/last-seen/scenes/tokyo-nihombashi-tower.js?v=1" defer></script>
-  <script src="/last-seen/scenes/cinta-jawa-shibuya.js?v=2" defer></script>
-  <script src="/last-seen/scenes/apple-marunouchi.js?v=4" defer></script>
-  <script src="/timeline/lib/common.js?v=4" defer></script>
-  <script src="/timeline/lib/data.js?v=10" defer></script>
-  <script src="/timeline/lib/feel.js?v=1" defer></script>
-  <script src="/timeline/lib/live.js?v=1" defer></script>
-  <script src="/timeline/list.js?v=13" defer></script>
-  <script src="/timeline/rail.js?v=2" defer></script>
 </body>
 </html>
