@@ -94,8 +94,9 @@
     A.push(poly([cl(s1 + w * .3), y, cl(s1 + w * .36), y, cl(s1 + w * .36 - d), y + Math.min(h, d * 1.2), cl(s1 + w * .3 - d), y + Math.min(h, d * 1.2)], o.fill || 'glassLight', { a: a * .6 }));
     if (o.street !== false) { A.push(r(x, y + h * .82, w, h * .18, o.streetFill || 'stoneLight', { a: o.streetA || .1 })); A.push(r(x, y + h * .82, w, .7, 'glassLight', { a: a * .8 })); }
   }
+  var VEND = null;                  // the last drinks machine a scene drew: the night tap wakes that one (LastSeen mount)
   function vending(A, x, y, o) {    // a drinks machine: white body, a lit window of cans, the slot below; y = its foot
-    o = o || {}; var R = rnd(o.seed || 31), W = o.w || 26, H = o.h || 48, cols = ['inCanA', 'inCanB', 'inCanC', 'inCanD', 'inCanE', 'inCanF'];
+    o = o || {}; VEND = { x: x, foot: y, w: o.w || 26, h: o.h || 48, seed: o.seed || 31, trim: o.trim, drawn: true }; var R = rnd(o.seed || 31), W = o.w || 26, H = o.h || 48, cols = ['inCanA', 'inCanB', 'inCanC', 'inCanD', 'inCanE', 'inCanF'];
     contact(A, x + W / 2, y, W * .62, .18);
     A.push(r(x, y - H, W, H, 'vend', { r: [1.4, 1.4, .4, .4], shade: grain('vendShade', .35, 'right', 1.4) }));
     A.push(r(x, y - H, W, 3, o.trim || 'vendTrim', { r: [1.4, 1.4, 0, 0] }));
@@ -184,7 +185,7 @@
   ];
   function make(id, spec) {
     var L = [], F = [], P = [];
-    spec.build(L, F, P);
+    VEND = null; spec.build(L, F, P);
     // golden: the sky warms toward the horizon in a fine grain (invisible in the other lights, where skyGlow = sky)
     for (var si = 0; si < L.length; si++) if (L[si].fill === 'sky' && L[si].t === 'rect') { var S0 = L[si];
       L.splice(si + 1, 0, r(S0.x, S0.y + S0.h * .35, S0.w, S0.h * .65, null, { shade: grain('skyGlow', .36, 'down', 1.6) })); break; }
@@ -195,7 +196,12 @@
       periods: [['morning', '05:00'], ['midday', '11:00'], ['golden', '15:30'], ['night', '18:00']],
       variants: paperStock(variants(spec.palette, spec.light)), layers: { back: L, facade: F, front: P }, paper: spec.paper || PAPER_LAYERS,
       agaves: [], breathe: Object.assign({ x: 0, y: 0, w: 0, h: 0, c: 'breathe', a: .05, amp: .03, period: 7 }, spec.breathe),
-      shoppers: spec.shoppers || [], passersby: spec.passersby || [], anim: spec.anim || [], signature: signature(spec.sig), stamp: spec.stamp
+      shoppers: spec.shoppers || [], passersby: spec.passersby || [], anim: spec.anim || [], signature: signature(spec.sig), stamp: spec.stamp,
+      // the walkable ground (bird food lands here): optional spec.ground { y0, y1, xMin, xMax } or { poly: [x, y, ...] };
+      // by default the pavement() band, from just under its top edge (y 248) to the vignette (LastSeen.groundOf)
+      ground: spec.ground || null,
+      // the night tap's drinks machine: spec.vending { x, foot, w, h } overrides; else the one the scene drew; else LastSeen picks a spot
+      vending: spec.vending || VEND
     });
   }
   function bike(P, x, y, o) {     // a parked city bike, side on: two wheels, a frame, a basket or a child seat

@@ -17,7 +17,7 @@
   var S = LastSeen.newest();
 
   scene.setAttribute('role', 'img');
-  LastSeen.mount(scene);
+  LastSeen.mount(scene, null, { extras: window.LastSeenStreet || null });
 
   // ---------- strings ----------
   var T = {
@@ -295,10 +295,12 @@
     strokes.forEach(function (s) { x.beginPath(); s.forEach(function (pt, i) { i ? x.lineTo(pt[0], pt[1]) : x.moveTo(pt[0], pt[1]); }); x.stroke(); });
     return c.toDataURL('image/png');
   }
-  function succeed() {
+  function succeed(saved) {
     back.classList.add('is-postmarked');
     if (!reduce.matches) later(function () { card.animate([{ transform: 'translateY(0) scale(1)' }, { transform: 'translateY(1.5px) scale(.994)' }, { transform: 'none' }], { duration: 200, easing: 'ease-out' }); }, 60);
     later(function () {
+      // the note leaves the card for the postbox in the scene (street-life.js), which then says it was delivered
+      document.dispatchEvent(new CustomEvent('pc:posted', { detail: { entry: saved, paper: pal().paper, ink: pal().paperInk, card: card, flight: persona === 'design' } }));
       setOpen(false);
       timers.push(setTimeout(function () {
         noteWrap.classList.add('is-thanks');
@@ -315,7 +317,7 @@
     var entry = { name: nameIn.value, message: msg.value, drawData: signaturePNG(), cardColor: paper, pattern: null };
     import('/components/Guestbook/guestbookService.js?v=2').then(function (mod) { return mod.addEntry(entry); }).then(function (saved) {
       if (!saved) { fail(); return; }
-      succeed();
+      succeed(saved);
     }, fail);
   });
 

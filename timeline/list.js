@@ -276,7 +276,14 @@
   var arrived = null;
   var hid = location.hash.slice(1); if (hid) { var hp = P.filter(function (p) { return p.id === hid; })[0]; if (hp) { setOpen(hp.i, { instant: true }); jumpY(placeScrollY(hp)); arrive(hp); } }
   // from a homepage stamp: the entry's thumbnail takes the stamp's view-transition name for the morph, then lets it go
-  function arrive(p) { var th = p.li.querySelector('.t3-th img'); if (!th) return; th.style.viewTransitionName = 'pc-place'; arrived = th; setTimeout(function () { th.style.viewTransitionName = ''; }, 1200); }
+  // The name goes on what is actually painted: the open still (an open row hides its thumbnail), else the thumbnail.
+  // Its month is held out of content-visibility:auto meanwhile: Chromium never captures an element in skipped content,
+  // and on the first frame every month still counts as off-screen, so the morph had no landing and the stamp just faded.
+  function arrive(p) {
+    var th = p.li.querySelector('.t3-o .t3-f') || p.li.querySelector('.t3-th img'), m = p.li.closest('.t3-m'); if (!th) return;
+    th.style.viewTransitionName = 'pc-place'; if (m) m.style.contentVisibility = 'visible'; arrived = th;
+    setTimeout(function () { th.style.viewTransitionName = ''; if (m) m.style.contentVisibility = ''; }, 1200);
+  }
   addEventListener('pagereveal', function (e) { if (e.viewTransition && !arrived) e.viewTransition.skipTransition(); });
   addEventListener('pageswap', function (e) { if (e.viewTransition) e.viewTransition.skipTransition(); });
 
