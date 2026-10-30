@@ -24,3 +24,10 @@
 [data-theme="dark"] .ls-caption { color: #aaa7a0; }
 [data-theme="dark"] .ls-caption .ls-where { color: #c2bfb8; }
 .ls-scene .ls-fade { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
+
+/* the note on its way to the post box (street-life.js): a tiny postcard, fixed so nothing moves underneath */
+.ls-mail { position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; border-radius: 2px; background: var(--paper); opacity: 0;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, .06), 0 4px 10px rgba(40, 30, 20, .12); transform-origin: 50% 50%; will-change: transform, opacity;
+  background-image: linear-gradient(var(--line), var(--line)), linear-gradient(var(--line), var(--line)), linear-gradient(var(--line), var(--line));
+  background-size: 1px 64%, 38% 1px, 30% 1px; background-position: 56% 50%, 92% 66%, 88% 80%; background-repeat: no-repeat; }
+.ls-mail::after { content: ''; position: absolute; right: 7%; top: 10%; width: 14%; height: 26%; background: #c4402e; opacity: .85; border-radius: 1px; }

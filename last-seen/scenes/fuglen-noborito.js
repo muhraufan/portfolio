@@ -6,6 +6,7 @@
      a beige stone-tiled corner building with a maroon band, the red bird roundel, dark glass doors, benches,
      a white guardrail where the road runs past */
   make('fuglen-noborito', { seed: 622, seenAt: '2026-10-23T13:40:00+09:00',
+    vending: { x: 20, foot: 252 },   // the home hero's night drinks machine: at the left end, clear of the bench and the sitter
     place: { en: 'FUGLEN COFFEE ROASTERS Noborito', ja: 'FUGLEN COFFEE ROASTERS 登戸' }, name: { en: 'FUGLEN COFFEE ROASTERS', ja: 'FUGLEN COFFEE ROASTERS' }, area: { en: 'Noborito, Kawasaki', ja: '川崎・登戸' },
     alt: 'Illustration of FUGLEN COFFEE ROASTERS in Noborito: a beige stone-tiled corner building with a maroon band, a red round bird sign, dark glass doors, wooden benches out front and a white guardrail by the road.',
     palette: { sky: '#e3e7e6', skyShade: '#ccd3d2', curtain: '#9aa5aa', curtainShade: '#7f8b91', curtainLine: '#6d777c', soffit: '#cfc8bb', band: '#6f3434', bandShade: '#542626', bandLine: '#8a4a45',

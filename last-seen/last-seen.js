@@ -700,6 +700,56 @@
     x.drawImage(makeMask(S, W, H, kk, dot), 0, 0); x.globalCompositeOperation = 'source-over';
   };
 
+
+  // ---------- a crow: the street's other regular. Side on, facing +x (dir -1 flips it), foot at (x, foot), s = scale.
+  // o: { peck 0..1 (head down), fly: wing phase in radians or null when standing, rest }. Shaded by the light: warmed or
+  // cooled through the palette's shadow; after dark a faint rim on the back so it still reads on dark stone.
+  function crowCols(pal, vkey) {
+    var sh = /^#[0-9a-f]{6}$/i.test(pal.shadow || '') ? pal.shadow : '#3a2e25', night = vkey === 'night';
+    return { body: night ? figMix('#1d1c21', '#6b7088', .28) : figMix('#1d1c21', sh, .22), lite: night ? '#7a7f96' : figMix('#56565f', sh, .2), rim: pal.rim || '#fff2d8', night: night };
+  }
+  function crow(f, x, foot, s, dir, pal, vkey, o) {
+    o = o || {}; var C = crowCols(pal, vkey), peck = o.peck || 0, flying = o.fly != null;
+    f.save(); f.translate(x, foot); f.scale(s * (dir < 0 ? -1 : 1), s);
+    if (!flying || o.low) { f.globalAlpha = (flying ? .07 : .14); f.fillStyle = pal.shadow || '#3a2e25'; f.beginPath(); f.ellipse(0, flying ? o.low : 0, 3.4, .8, 0, 0, 7); f.fill(); f.globalAlpha = 1; }
+    f.fillStyle = C.body; f.strokeStyle = C.body; f.lineWidth = .45;
+    if (!flying) { f.beginPath(); f.moveTo(-.6, -2.6); f.lineTo(-.9, 0); f.moveTo(.5, -2.6); f.lineTo(.5, 0); f.stroke(); }
+    var by = flying ? -4.6 : 0;
+    f.beginPath(); f.moveTo(-3.2, by - 4.4); f.lineTo(-6.4, by - 3.6 - (flying ? .8 : 0)); f.lineTo(-6, by - 2.8); f.closePath(); f.fill();     // tail
+    f.beginPath(); f.ellipse(-.4, by - 4.2, 3.4, 2.1, flying ? -.05 : -.18, 0, 7); f.fill();                                                   // body
+    var hx = 2.7, hy = by - 6 + peck * 3.1;
+    if (flying) { hx = 3.1; hy = by - 5; }
+    f.beginPath(); f.arc(hx, hy, 1.45, 0, 7); f.fill();
+    f.beginPath(); f.moveTo(hx + 1, hy - .5); f.lineTo(hx + 3.2, hy + .2 + peck * .6); f.lineTo(hx + 1, hy + .6); f.closePath(); f.fill();   // beak
+    if (flying) {                                                                                                                         // wings, beating
+      var w = Math.sin(o.fly), up = -4.5 * w;
+      f.beginPath(); f.moveTo(-2, by - 5); f.quadraticCurveTo(-1.5, by - 6 + up, -3.6, by - 6.5 + up * 1.4); f.lineTo(1, by - 5.4); f.closePath(); f.fill();
+      f.globalAlpha = .7; f.beginPath(); f.moveTo(-1, by - 5); f.quadraticCurveTo(.5, by - 6 + up * .8, -.6, by - 6.4 + up * 1.2); f.lineTo(1.6, by - 5.2); f.closePath(); f.fill(); f.globalAlpha = 1;
+    } else { f.globalAlpha = .5; f.fillStyle = C.lite; f.beginPath(); f.ellipse(-.9, by - 5.2, 2, .6, -.2, 0, 7); f.fill(); }                 // a sheen on the folded wing
+    if (C.night) { f.globalAlpha = .3; f.fillStyle = C.rim; f.beginPath(); f.ellipse(-.4, by - 5.9, 2.8, .45, -.12, 0, 7); f.fill(); f.beginPath(); f.arc(hx - .2, hy - 1.1, .6, 0, 7); f.fill(); }
+    f.restore();
+  }
+  LS.crow = crow;
+
+  // the walkable ground of a scene, in scene units: S.ground ({ y0, y1, xMin, xMax } or { poly: [x, y, ...] }), else read off
+  // the scene: the highest full-width shape that runs to the bottom edge (the pavement), kept inside the vignette
+  LS.groundOf = function (S) {
+    var W = S.size[0], H = S.size[1], g = S.ground, top = null;
+    if (g && g.poly) return g;
+    if (!g) {
+      (S.layers.back || []).forEach(function (p) { if (p.t === 'rect' && p.w >= W * .9 && p.y + p.h >= H - 2 && p.y > H * .5 && (top == null || p.y < top)) top = p.y; });
+      if (top == null) top = Math.min(H * .82, ((S.signature && S.signature.emerge && S.signature.emerge.foot1) || H * .86) - 18);
+      g = { y0: top + 4 };
+    }
+    return Object.assign({ y0: H * .82, y1: H - 14, xMin: W * .08, xMax: W * .92 }, g);
+  };
+  LS.onGround = function (S, x, y) {
+    var g = LS.groundOf(S);
+    if (g.poly) { var P = g.poly, inside = false; for (var i = 0, j = P.length - 2; i < P.length; j = i, i += 2) {
+      if ((P[i + 1] > y) !== (P[j + 1] > y) && x < (P[j] - P[i]) * (y - P[i + 1]) / (P[j + 1] - P[i + 1]) + P[i]) inside = !inside; } return inside; }
+    return x >= g.xMin && x <= g.xMax && y >= g.y0 && y <= g.y1;
+  };
+  LS._drawPrims = drawPrims; LS._rng = rng;   // for add-ons that paint in the house style (street-life.js)
   // ---------- the component ----------
   LS.mount = function (root, S, opts) {
     opts = opts || {};
@@ -708,6 +758,9 @@
     var cv = root.querySelector('canvas'), ctx = cv.getContext('2d');
     var layers = null, mask = null, frameBuf = null, leafSprites = null, k = 1, theme = null, vkey = null;
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    // add-ons drawn into this scene (street-life.js): { layer(name, f, t, pal, vkey, S), props(t, pal, vkey, S) -> [{ foot, draw(f) }], attach(api) }.
+    // They, the bird food and the night machine live in the home page hero only: never in a manual mount (stamps, Timeline, gallery).
+    var X = opts.extras || null, HERO = !!X && !opts.manual;
     var exitedFor = null, sigStart = null, clock = 0, last = null, raf = 0, visible = false, played = false, held = false;
     function periodNow() {
       if (opts.tod && S.variants && S.variants[opts.tod]) return opts.tod;
@@ -732,6 +785,7 @@
       cv.width = cw; cv.height = ch;
       k = curK = cw / W; theme = isDark() ? 'dark' : 'light';
       var prevKey = vkey; vkey = periodNow();
+      if (prevKey !== vkey) { nightAt = vkey === 'night' ? clock : null; if (prevKey == null && vkey === 'night') nightAt = clock; }
       if (prevKey !== vkey) root.dispatchEvent(new CustomEvent('lastseen:variant', { bubbles: true, detail: { period: vkey, palette: V().palette } }));
       var v = V(), pal = v.palette, dot = Math.max(.55, 1.15 / k), add = v.add || {};
       layers = {};
@@ -758,6 +812,149 @@
       frameBuf = canvas(cw, ch);
     }
 
+
+    // ---------- bird food: a tap on the ground scatters seeds; one to three crows come in from the nearer side, peck, and go.
+    // Scene time (clock), so it pauses with the scene when the tab is hidden or the card scrolls away.
+    var feed = null, press = null, feedNext = -1e9, feedNextWall = 0, FEED_COOL = 5, PECK = .42;
+    function feedBusy() { return (feed && (feed.still || clock < feed.end)) || (vend && (vend.still || clock - vend.at < VB)) || !!(HERO && X.busy && X.busy()); }
+    function feedReady() { return !feedBusy() && (reduce.matches ? Date.now() >= feedNextWall : clock >= feedNext); }
+    function startFeed(x, y) {
+      var R = Math.random, n = R() < .45 ? 1 : R() < .7 ? 2 : 3, g = LS.groundOf(S), seeds = [], crows = [];
+      for (var i = 0; i < 8; i++) { var a = R() * Math.PI * 2, d = 1.5 + R() * 4.5; seeds.push({ dx: Math.cos(a) * d * 1.4, dy: Math.sin(a) * d * .45, eaten: 1e9 }); }
+      var dir = x < W / 2 ? 1 : -1, end = 0;       // they come from the nearer edge, so face away from it
+      for (var c = 0; c < n; c++) {
+        var tx = x - dir * (5 + c * 6 + R() * 4), ty = clamp(y + (R() - .5) * 6, g.y0 || y, g.y1 || y), lag = c * (.35 + R() * .3);
+        var arr = 1.45 + R() * .4, pecks = 2 + Math.floor(R() * 3), s = ty / 240 * (.88 + R() * .24);
+        var cr = { tx: tx, ty: ty, s: s, dir: dir, lag: lag, arr: arr, pecks: pecks, sx: dir > 0 ? -14 : W + 14, sy: ty - 34 - R() * 16, hop: R() < .6 };
+        cr.land = lag + arr; cr.peck0 = cr.land + (cr.hop ? .34 : .14); cr.off = cr.peck0 + pecks * PECK + .3; cr.end = cr.off + 1.35;
+        end = Math.max(end, cr.end); crows.push(cr);
+      }
+      seeds.forEach(function (sd, j) { var c = crows[j % n], k = Math.floor(j / n); if (k < c.pecks) sd.eaten = clock + c.peck0 + k * PECK + .17; });   // each peck takes one
+      feed = { at: clock, x: x, y: y, seeds: seeds, crows: crows, end: clock + end + .3, still: reduce.matches };
+      feedNext = clock + Math.max(FEED_COOL, end + .3); feedNextWall = Date.now() + FEED_COOL * 1000;
+      if (reduce.matches) { feed.still = Date.now(); feed.crows = crows.slice(0, 1); still(); setTimeout(function () { if (feed && feed.still) { feed = null; still(); } }, 3200); }
+    }
+    function feedProps(t) {
+      if (!HERO || !feed) return [];
+      var u = t - feed.at, out = [];
+      if (feed.still) { var c0 = feed.crows[0]; return [{ foot: c0.ty, draw: function (f) { crow(f, c0.tx, c0.ty, c0.s, c0.dir, V().palette, vkey, {}); } }]; }
+      if (t > feed.end) { feed = null; return []; }
+      feed.crows.forEach(function (c) {
+        var v = u - c.lag; if (v < 0 || u > c.end) return;
+        var x, y, o = {}, dir = c.dir;
+        if (u < c.land) {                                  // gliding in, wings beating, down to the seeds
+          // a long, calm glide that settles (quartic ease-out); a few lazy beats, wings held for the glide, two flaps to land
+          var lv = clamp(v / c.arr, 0, 1), q = 1 - Math.pow(1 - lv, 4); x = c.sx + (c.tx - c.sx) * q; y = c.sy + (c.ty - c.sy) * (1 - Math.pow(1 - lv, 2.6));
+          var beat = lv < .35 ? 1 : lv < .5 ? 1 - (lv - .35) / .15 : lv < .78 ? 0 : Math.min(1, (lv - .78) / .08), wv = beat * Math.sin(v * 2 * Math.PI * 2.2) + (1 - beat) * .15;
+          o.fly = Math.asin(clamp(wv, -1, 1)); o.low = c.ty - y > 0 ? c.ty - y : 0;
+          if (lv > .97) o = {};
+        } else if (u < c.peck0) {                          // one small hop closer
+          var h = (u - c.land) / (c.peck0 - c.land); x = c.tx + (c.hop ? dir * 2.4 * easeOut(h) : 0); y = c.ty - (c.hop ? Math.sin(Math.PI * h) * 2.4 : 0);
+        } else if (u < c.off) {                            // pecking: each peck takes a seed
+          x = c.tx + (c.hop ? dir * 2.4 : 0); y = c.ty;
+          var pk = (u - c.peck0) / PECK, k = Math.floor(pk), ph = pk - k;
+          o.peck = k < c.pecks ? Math.sin(Math.PI * clamp(ph / .55, 0, 1)) : 0;   // head down, then a look round
+        } else {                                           // off again, back the way it came, climbing
+          var w = (u - c.off) / (c.end - c.off); dir = -c.dir;
+          var bx = c.tx + (c.hop ? c.dir * 2.4 : 0); x = bx + dir * (W * .55) * (w * .55 + .45 * w * w); y = c.ty - 46 * easeOut(w);
+          o.fly = w * 2 * Math.PI * 4; o.low = c.ty - y;   // four unhurried beats up and away
+        }
+        out.push({ foot: c.ty, draw: function (f) { crow(f, x, y, c.s, dir, V().palette, vkey, o); } });
+      });
+      return out;
+    }
+    function feedGround(f, t, pal) {                       // the press, then the seeds
+      if (!HERO) return;
+      if (press && !reduce.matches) { var pu = clamp((t - press.at) / .09, 0, 1), fade = press.up != null ? 1 - clamp((t - press.up) / .16, 0, 1) : 1;
+        if (fade <= 0) press = null; else { f.globalAlpha = .12 * pu * fade; f.fillStyle = pal.shadow || '#3a2e25'; f.beginPath(); f.ellipse(press.x, press.y, 3.2 * pu, 1.1 * pu, 0, 0, 7); f.fill(); f.globalAlpha = 1; } }
+      if (!feed) return;
+      var u = feed.still ? 1 : t - feed.at, spread = feed.still ? 1 : easeOut(clamp(u / .22, 0, 1)), out = feed.still ? 1 : 1 - clamp((t - (feed.end - .3)) / .3, 0, 1);
+      var seedC = vkey === 'night' ? figMix('#cdb88f', pal.shadow || '#000000', .25) : '#b89a64';
+      feed.seeds.forEach(function (sd) {
+        if (sd.eaten <= t) return;
+        f.globalAlpha = out * .9; f.fillStyle = seedC; f.beginPath(); f.ellipse(feed.x + sd.dx * spread, feed.y + sd.dy * spread - (1 - spread) * 1.2, .55, .35, 0, 0, 7); f.fill();
+      });
+      f.globalAlpha = 1;
+    }
+    // ---------- after dark the crows are asleep: a ground tap wakes the street's drinks machine instead. Its window
+    // brightens, a warm can drops with a small thunk (the machine bumps), a wisp of steam curls up from the tray.
+    // The machine is the one the scene drew (S.vending), or one stood at the back of the pavement on the right.
+    var vend = null, vendSprite = null, vendKey = '', nightAt = null, VB = 1.6;
+    function vendOf() {
+      var v = S.vending, g = LS.groundOf(S);
+      if (v) return Object.assign({ w: 22, h: 40, seed: 61 }, v);
+      var sp = (window.LastSeenStreetSpots || {})[S.id], at = sp && sp.vend || {};   // the hero's per-scene placement
+      return { x: at.x != null ? at.x : Math.min(W - 52, g.xMax - 34), foot: at.foot != null ? at.foot : g.y0 + 1, w: 22, h: 40, seed: 61, drawn: false };
+    }
+    function vendPrims(m) { var K = window.LastSeenKit, A = []; if (!K || !K.vending) return null; K.vending(A, m.x, m.foot, { w: m.w, h: m.h, seed: m.seed, trim: m.trim }); return A; }
+    // colours for a scene whose palette has none (not built with the kit): the kit's own, toned for the light the same way
+    var VEND_MID = { vend: '#ebe9e3', vendShade: '#cdcac2', vendTrim: '#3f6c9a', inVend: '#f7f4ec', inCanA: '#bb5148', inCanB: '#4d6f9c', inCanC: '#e2b65a', inCanD: '#6a8f68', inCanE: '#ece6da', inCanF: '#8a5a3f', grateGap: '#5f5c57', glassLight: '#ffffff', shadow: '#3a2e25' };
+    var VEND_TONE = { morning: ['#cbd8e2', .16, '#e8eef2', .12], golden: ['#f0b07e', .2, '#ffcf98', .1], night: ['#0d1124', .8, '#ffc77a', .06] };
+    function vendPal(pal) {
+      if (pal && pal.vend) return Object.assign({}, VEND_MID, pal);
+      var T = VEND_TONE[vkey], K = window.LastSeenKit, o = {};
+      Object.keys(VEND_MID).forEach(function (k) { o[k] = T && K && K.mix ? (/^in/.test(k) ? K.mix(VEND_MID[k], T[2], T[3]) : K.mix(VEND_MID[k], T[0], T[1])) : VEND_MID[k]; });
+      if (vkey === 'night') o.shadow = '#000000';
+      return Object.assign(o, pal && pal.shadow ? { shadow: pal.shadow } : {});
+    }
+    function vendDraw(f, t, pal) {
+      var m = vendOf(), kk = f.getTransform().a, key = vkey + kk + m.x;
+      if (vendKey !== key) {
+        var A = vendPrims(m); vendKey = key; vendSprite = null; if (!A) return;
+        var bx = m.x - 4, by = m.foot - m.h - 4, c = canvas(Math.ceil((m.w + 8 + m.w * .7) * kk), Math.ceil((m.h + 8) * kk)), x = c.getContext('2d');
+        x.setTransform(kk, 0, 0, kk, -bx * kk, -by * kk); drawPrims(x, A, vendPal(pal), rng(S.seed + 616), Math.max(.55, 1.15 / kk));
+        vendSprite = { c: c, bx: bx, by: by };
+      }
+      if (!vendSprite) return;
+      var u = vend ? (vend.still ? .5 : t - vend.at) : -1, live = u >= 0 && u <= VB;
+      var bump = live && !vend.still && !m.drawn && u > .47 && u < .67 ? Math.sin(Math.PI * (u - .47) / .2) * (1 - (u - .47) / .2) : 0;
+      f.save(); f.translate(m.x + m.w / 2, m.foot); f.scale(1 + .02 * bump, 1 - .035 * bump); f.translate(-(m.x + m.w / 2), -m.foot);
+      if (!m.drawn) f.drawImage(vendSprite.c, vendSprite.bx, vendSprite.by, vendSprite.c.width / kk, vendSprite.c.height / kk);
+      var wx = m.x + 2, wy = m.foot - m.h + 5, ww = m.w - 4, wh = m.h * .5;
+      // its light: it flickers on soon after dark falls, then stays on (the night's quiet detail on every scene)
+      // by day it just stands there, its window catching the light (a breath of warmth at golden hour)
+      var night = vkey === 'night', since = nightAt == null ? 9 : clock - nightAt, on = !night ? 0 : reduce.matches ? 1 : since < 1.2 ? 0 : since < 1.25 ? 1 : since < 1.34 ? 0 : since < 1.39 ? .7 : since < 1.55 ? .1 : Math.min(1, (since - 1.55) / .2);
+      if (night && on < 1) { f.globalAlpha = .62 * (1 - on); f.fillStyle = '#0d0e14'; f.fillRect(wx, wy, ww, wh); f.globalAlpha = 1; }
+      var glow = live ? (vend.still ? 1 : u < .12 ? u / .12 : u < .4 ? 1 : Math.max(0, 1 - (u - .4) / .5)) : 0;
+      f.globalCompositeOperation = 'screen';
+      var base = (vkey === 'golden' ? .05 : 0) + .14 * on + .38 * glow, gr = f.createRadialGradient(m.x + m.w / 2, wy + wh / 2, 2, m.x + m.w / 2, wy + wh / 2, m.w * 1.1);
+      gr.addColorStop(0, '#ffe7b0'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+      f.globalAlpha = base; f.fillStyle = gr; f.fillRect(m.x - m.w * .6, wy - m.w * .6, m.w * 2.2, wh + m.w * 1.2);
+      f.globalAlpha = .3 * glow; f.fillStyle = '#fff3d6'; f.fillRect(wx, wy, ww, wh);
+      f.globalCompositeOperation = 'source-over'; f.globalAlpha = 1;
+      if (live && (vend.still || u > .35)) {                     // the can, in the tray
+        var cu = vend.still ? 1 : Math.min(1, (u - .35) / .12), ty = m.foot - 10, cy = ty - 3 + 7.2 * cu - 2.6;
+        f.save(); f.beginPath(); f.rect(m.x + 3, ty, m.w - 6, 6); f.clip();
+        f.fillStyle = '#c9744b'; f.fillRect(m.x + m.w / 2 - 3.4, cy, 6.8, 2.6); f.fillStyle = '#f2dcb4'; f.fillRect(m.x + m.w / 2 - 3.4, cy + .9, 6.8, .6); f.restore();
+      }
+      f.restore();
+      if (live && !vend.still && u > .5) {                      // a wisp of steam from the tray, curling up and fading
+        var su = (u - .5) / (VB - .5), sx = m.x + m.w / 2, sy = m.foot - 9;
+        f.save(); f.strokeStyle = '#f4ead8'; f.lineCap = 'round'; f.lineWidth = .7;
+        for (var i = 0; i < 2; i++) { var a = .32 * Math.sin(Math.PI * Math.min(1, su * 1.3)) * (i ? .7 : 1), rise = 4 + su * 13; f.globalAlpha = Math.max(0, a); f.beginPath();
+          for (var q = 0; q <= 8; q++) { var yy = sy - q / 8 * rise, xx = sx + (i ? 1.6 : -1) + Math.sin(q * .9 + su * 5 + i * 2) * (1 + q * .2); q ? f.lineTo(xx, yy) : f.moveTo(xx, yy); } f.stroke(); }
+        f.restore();
+      }
+    }
+    function vendProps(t, pal) {
+      if (!HERO || !window.LastSeenKit) return [];   // in every light; only the tap's can-and-steam is kept for the night
+      LS._heroOnlyDraws = (LS._heroOnlyDraws || 0) + 1;
+      if (vend && !vend.still && t - vend.at > VB) vend = null;
+      var m = vendOf(); return [{ foot: m.foot, draw: function (f) { vendDraw(f, t, pal); } }];
+    }
+    function startVend() {
+      vend = { at: clock, still: reduce.matches };
+      feedNext = clock + FEED_COOL; feedNextWall = Date.now() + FEED_COOL * 1000;
+      if (reduce.matches) { still(); setTimeout(function () { vend = null; still(); }, 2000); }
+    }
+
+    function groundPoint(e) {
+      if (!HERO) return null;
+      var rc = cv.getBoundingClientRect(); if (!rc.width) return null;
+      var x = (e.clientX - rc.left) * W / rc.width, y = (e.clientY - rc.top) * H / rc.height;
+      return LS.onGround(S, x, y) ? { x: x, y: y } : null;
+    }
+
     function draw(t, st) {
       var v = V(), pal = v.palette, f = frameBuf.getContext('2d'), lt = v.light;
       function runAnim(layer) {
@@ -777,6 +974,7 @@
       if (layers.back) f.drawImage(layers.back, 0, 0);
       f.setTransform(k, 0, 0, k, 0, 0);
       runAnim('back');
+      if (HERO) { X.layer('back', f, t, pal, vkey, S); LS._heroOnlyDraws = (LS._heroOnlyDraws || 0) + 1; }
       // the shop's light breathes, very slowly
       var br = Object.assign({}, S.breathe, v.breathe || {});
       f.globalAlpha = br.a + br.amp * Math.sin(t / br.period * Math.PI * 2);
@@ -838,14 +1036,19 @@
       if (layers.front) { f.setTransform(1, 0, 0, 1, 0, 0); f.drawImage(layers.front, 0, 0); }
       f.setTransform(k, 0, 0, k, 0, 0);
       runAnim('front');
+      if (HERO) X.layer('ground', f, t, pal, vkey, S);
+      feedGround(f, t, pal);
       // passers-by on the sidewalk
       (v.passersby || S.passersby).forEach(function (pb) {
         if (t < pb.start) return;
         var u = (t - pb.start) % pb.every, d = u * pb.speed, x = pb.dir > 0 ? -24 + d : W + 24 - d;
         if (x > -30 && x < W + 30) figs.push({ P: pb, x: x, foot: pb.foot, s: pb.s, dist: d, facing: pb.dir > 0 ? 'right' : 'left', alpha: 1 });
       });
+      if (HERO) figs = figs.concat(X.props(t, pal, vkey, S));
+      figs = figs.concat(feedProps(t), vendProps(t, pal));   // street furniture that people can pass in front of or behind
       figs.filter(function (g) { return !g.inside; }).sort(function (a, b) { return a.foot - b.foot; })
-        .forEach(function (g) { person(f, g.P, pal, g.x, g.foot, g.s, g.dist, g.facing, g.alpha, rimFor(g)); });
+        .forEach(function (g) { if (g.draw) { f.save(); g.draw(f); f.restore(); } else person(f, g.P, pal, g.x, g.foot, g.s, g.dist, g.facing, g.alpha, rimFor(g)); });
+      if (HERO) X.layer('air', f, t, pal, vkey, S);
       // night glows (lamps, haze) add light on top
       if (layers.over) { f.setTransform(1, 0, 0, 1, 0, 0); f.globalCompositeOperation = 'screen'; f.drawImage(layers.over, 0, 0); f.globalCompositeOperation = 'source-over'; }
       // vignette
@@ -893,7 +1096,13 @@
       }, { threshold: [0, .5] }).observe(root);
       document.addEventListener('visibilitychange', function () { if (!document.hidden) { last = null; schedule(); } });
       reduce.addEventListener('change', function () { reduce.matches ? still() : start(); });
-      root.addEventListener('click', function () {
+      root.addEventListener('pointerdown', function (e) {
+        var p = groundPoint(e); if (p && feedReady()) { press = { x: p.x, y: p.y, at: clock }; if (!raf) schedule(); }
+      });
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (n) { root.addEventListener(n, function () { if (press && press.up == null) press.up = clock; }); });
+      root.addEventListener('click', function (e) {
+        var p = groundPoint(e);
+        if (p) { if (feedReady()) { if (vkey === 'night' && window.LastSeenKit) startVend(); else startFeed(p.x, p.y); } return; }   // the ground feeds the birds (after dark: the drinks machine); the rest of the scene replays him
         if (reduce.matches) return;
         var e = S.signature, dur = e.emerge.dur + e.walk.pause + e.walk.accel + (W / 2 + 40) / e.walk.speed;
         if (sigStart == null || clock - sigStart > dur || clock < sigStart) { sigStart = clock + .15; }
@@ -938,13 +1147,19 @@
 
     var api = {
       opts: opts,
+      feeding: function () { return !!feed && (feed.still || clock < feed.end); },
+      redraw: function () { if (opts.manual) draw(clock, sigStart == null ? 'still' : sigStart); else reduce.matches || !visible ? still() : draw(clock, sigStart); },
       renderAt: function (t, st) { clock = t; draw(t, st == null ? sigStart : st); },
       rebuild: rebuild,
       replay: function () { sigStart = clock + (S.signature ? S.signature.delay : 0); played = true; exitedFor = null; },
       pause: function () { visible = false; if (raf) cancelAnimationFrame(raf); raf = 0; }
     };
+    if (HERO && X.attach) X.attach(api, root, S);
     if (!opts.manual) {
       LS._renderAt = api.renderAt;
+      LS._vending = function () { return vend && (vend.still || clock - vend.at <= VB) ? 1 : 0; };
+      LS._feeding = function () { return feed ? feedProps(clock).length || (feed.still ? 1 : 0) : 0; };
+      LS._ground = function () { return LS.groundOf(S); };
       LS._variant = function () { return vkey; };
       LS._hold = function (h) { h = !!h; if (h === held) return; held = h; if (h) { if (raf) cancelAnimationFrame(raf); raf = 0; } else { last = null; schedule(); } };
       LS._pause = api.pause;

@@ -167,10 +167,10 @@
   function ensureScenes(keys) {
     var needKit = keys.some(function (k) { return k && k !== 'niko-and-shibuya'; });
     var chain = Promise.resolve();
-    if (needKit && !(window.LastSeenKit)) chain = chain.then(function () { return loadScript('/last-seen/scenes/_kit.js?v=8'); });
+    if (needKit && !(window.LastSeenKit)) chain = chain.then(function () { return loadScript('/last-seen/scenes/_kit.js?v=9'); });
     keys.forEach(function (key) {
       if (!key || (window.LastSeen && LastSeen.byId && LastSeen.byId(key))) return;
-      chain = chain.then(function () { return loadScript('/last-seen/scenes/' + key + '.js?v=7'); });
+      chain = chain.then(function () { return loadScript('/last-seen/scenes/' + key + '.js?v=8'); });
     });
     return chain.catch(function () {});
   }
@@ -292,6 +292,19 @@
       showFallback();
     });
   }
+
+  // a note just posted from the hero card: count it once it has landed in the postbox, with a small roll
+  document.addEventListener('pc:delivered', function (e) {
+    var entry = e.detail && e.detail.entry;
+    if (!entry || !real(entry) || !countEl || countEl.classList.contains('is-wait')) return;   // still loading: the fetch will include it
+    total++;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !countEl.animate) { paintCount(); return; }
+    countEl.getAnimations().forEach(function (a) { a.finish(); });
+    countEl.animate([{ transform: 'none', opacity: 1 }, { transform: 'translateY(-40%)', opacity: 0 }], { duration: 120, easing: 'cubic-bezier(0.2, 0, 0, 1)' }).onfinish = function () {
+      paintCount();
+      countEl.animate([{ transform: 'translateY(45%)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 260, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+    };
+  });
 
   new MutationObserver(refreshLang).observe(html, { attributes: true, attributeFilter: ['data-lang', 'data-tod', 'data-theme'] });
   boot();
