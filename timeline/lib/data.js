@@ -4,6 +4,7 @@
   var TL2 = window.TL2 = window.TL2 || {};
   var TZ = 'Asia/Tokyo';
   var REAL = [
+    { scene: 'bear-pond-espresso', seenAt: '2026-10-31T15:45:00+09:00', name: { en: 'Bear Pond Espresso', ja: 'ベアポンド エスプレッソ' }, area: { en: 'Shimokitazawa, Tokyo', ja: '東京・下北沢' }, with: [{ name: { en: 'his wife and son', ja: '妻と息子' } }] },
     { scene: 'apple-marunouchi', seenAt: '2026-10-29T12:19:00+09:00', name: { en: 'Apple Marunouchi', ja: 'Apple 丸の内' }, area: { en: 'Marunouchi, Tokyo', ja: '東京・丸の内' }, with: [{ name: 'Shane', url: 'https://www.linkedin.com/in/shanejapan' }, { name: 'Bee', url: 'https://www.linkedin.com/in/jiajhenli' }] },
     { scene: 'cinta-jawa-shibuya', seenAt: '2026-10-27T19:30:00+09:00', name: { en: 'Cinta Jawa Cafe', ja: 'チンタジャワカフェ' }, area: { en: 'Shibuya, Tokyo', ja: '東京・渋谷' } },
     { scene: 'tokyo-nihombashi-tower', seenAt: '2026-10-27T09:49:00+09:00', name: { en: 'Tokyo Nihombashi Tower', ja: '東京日本橋タワー' }, area: { en: 'Nihonbashi, Tokyo', ja: '東京・日本橋' } },
@@ -19,7 +20,7 @@
     { scene: 'nadoya-no-katte', seenAt: '2026-10-02T13:15:00+09:00', name: { en: 'nadoya no kaTte', ja: 'ナドヤノカッテ' }, area: { en: 'Yoyogi-Uehara, Tokyo', ja: '東京・代々木上原' } },
     { scene: 'et-cultural-coffeehouse', seenAt: '2026-09-12T15:17:00+09:00', name: { en: 'Et · The Cultural Coffeehouse', ja: 'Et · The Cultural Coffeehouse' }, area: { en: 'Shimokitazawa, Tokyo', ja: '東京・下北沢' } }
   ];
-  // Optional `with: [{ name, url }]` on a row.
+  // Optional `with: [{ name, url }]` on a row; `name` can be { en, ja } and `url` can be left out (no link).
   // ?withdemo=1 / ?withdemo=2 borrow a local example for niko and ... only.
   TL2.companyFor = function (sceneId) {
     var row = null, i, demo;

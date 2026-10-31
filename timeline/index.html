@@ -51,7 +51,7 @@
       h.dataset.jump = 'rail';
       h.classList.add('tl-pre');
       var tod = h.getAttribute('data-tod') || 'midday';
-      ['apple-marunouchi', 'cinta-jawa-shibuya', 'tokyo-nihombashi-tower', 'niko-and-shibuya', 'tsuchiya-kaban-nakameguro', 'fuglen-noborito', 'tokyo-camii', 'lifefit-yurigaoka', 'yoyogi-park', 'tokyo-big-sight', 'mufg-park', 'stayful-life-store', 'nadoya-no-katte', 'et-cultural-coffeehouse'].forEach(function (id) {
+      ['bear-pond-espresso', 'apple-marunouchi', 'cinta-jawa-shibuya', 'tokyo-nihombashi-tower', 'niko-and-shibuya', 'tsuchiya-kaban-nakameguro', 'fuglen-noborito', 'tokyo-camii', 'lifefit-yurigaoka', 'yoyogi-park', 'tokyo-big-sight', 'mufg-park', 'stayful-life-store', 'nadoya-no-katte', 'et-cultural-coffeehouse'].forEach(function (id) {
         var l = document.createElement('link');
         l.rel = 'preload'; l.as = 'image';
         l.href = '/timeline/img/' + id + '-' + tod + '-s.webp?v=10';
@@ -66,7 +66,7 @@
   <!-- deferred scripts live in <head> so list.js can hold the first paint (blocking="render") until the rows exist:
        a stamp's cross-document morph needs its entry thumbnail named before the new page is captured (Chromium reveals mid-parse) -->
   <script src="/js/light-menu.js?v=2" defer></script>
-  <script src="/last-seen/last-seen.js?v=13" defer></script>
+  <script src="/last-seen/last-seen.js?v=14" defer></script>
   <script src="/last-seen/scenes/niko-and-shibuya.js?v=4" defer></script>
   <script src="/last-seen/scenes/_kit.js?v=9" defer></script>
   <script src="/last-seen/scenes/tokyo-big-sight.js?v=4" defer></script>
@@ -82,8 +82,9 @@
   <script src="/last-seen/scenes/tokyo-nihombashi-tower.js?v=1" defer></script>
   <script src="/last-seen/scenes/cinta-jawa-shibuya.js?v=2" defer></script>
   <script src="/last-seen/scenes/apple-marunouchi.js?v=4" defer></script>
+  <script src="/last-seen/scenes/bear-pond-espresso.js?v=1" defer></script>
   <script src="/timeline/lib/common.js?v=4" defer></script>
-  <script src="/timeline/lib/data.js?v=10" defer></script>
+  <script src="/timeline/lib/data.js?v=11" defer></script>
   <script src="/timeline/lib/feel.js?v=1" defer></script>
   <script src="/timeline/lib/live.js?v=1" defer></script>
   <script src="/timeline/list.js?v=14" defer blocking="render"></script>
