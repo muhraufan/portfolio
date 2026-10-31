@@ -13,6 +13,7 @@
   // post: the box's foot on the near pavement, on the side he does not walk off to; crow: the morning crow's spot;
   // win: a dark upper window that comes on at night (omitted where the scene has none); birdsY: the golden birds' height.
   var SPOTS = window.LastSeenStreetSpots = {
+    'bear-pond-espresso': { post: { x: 34, foot: 273 }, crow: { x: 296, foot: 253 }, win: { x: 199, y: 61, w: 28, h: 46 }, birdsY: 34 },   // by the neighbour's shutter, clear of the bench
     'apple-marunouchi': { post: { x: 104, foot: 271 }, crow: { x: 292, foot: 250 }, win: { x: 229.5, y: 42.6, w: 6, h: 6.6 }, birdsY: 30 },
     'cinta-jawa-shibuya': { post: { x: 100, foot: 271 } },
     'et-cultural-coffeehouse': { post: { x: 100, foot: 271 }, vend: { x: 296 } },   // drinks machine clear of the shrubs
