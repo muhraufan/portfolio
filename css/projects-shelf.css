@@ -281,3 +281,20 @@
    re-blurring the whole page (measured: open/close frames ~2x cheaper in software compositing). */
 html:has(.ps-card[open]) :is(.ps-ledge, .ps-face-soon, .case-folder-flap) { -webkit-backdrop-filter: none; backdrop-filter: none; }
 [data-ps-snap] .ps-face, [data-ps-snap] .ps-refl, [data-ps-snap] .ps-foot { transition: none !important; }
+
+/* Coming soon: a real icon, set back behind the glass. Dimmed and slightly desaturated, no lift on hover,
+   since there is nothing to open yet. */
+.ps-coming .ps-face { opacity: 0.75; filter: saturate(0.8); box-shadow: none; }
+.ps-coming .ps-refl { opacity: 0.22; }
+.ps-coming .ps-app:hover .ps-face { transform: none; box-shadow: none; }
+.ps-coming .ps-app:hover .ps-refl { transform: scaleY(-1); }
+/* the tag sits on the icon's top-right corner like an old home-screen badge, but quiet: paper on ink */
+.ps-tag {
+  position: absolute; z-index: 3; top: -6px; left: calc(50% + var(--icon) / 2 - 18px);
+  width: max-content; padding: 2px 7px; border-radius: 999px;
+  background: var(--pf-strong); color: var(--bg, #fff);
+  font-size: 10px; font-weight: 600; line-height: 1.5; letter-spacing: 0.01em; white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+.ps-tag .lang-stack { display: inline-grid; }
+@media (max-width: 600px) { .ps-tag { top: -5px; left: calc(50% + var(--icon) / 2 - 16px); padding: 1px 6px; font-size: 9.5px; } }
