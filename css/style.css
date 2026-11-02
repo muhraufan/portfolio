@@ -1519,71 +1519,6 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
   text-transform: uppercase;
 }
 
-.m-experiment-list {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.m-experiment-item {
-  position: relative;
-  z-index: 0;
-  isolation: isolate;
-}
-
-.m-experiment-list a {
-  display: inline-block;
-  color: var(--text);
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 24px;
-  letter-spacing: -0.02em;
-  text-decoration: none;
-}
-
-.m-experiment-name {
-  text-decoration-line: underline;
-  text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-  transition: text-decoration-color 180ms ease;
-}
-
-.m-experiment-list a:hover .m-experiment-name {
-  text-decoration-color: currentColor;
-}
-
-.m-experiment-list a:focus-visible {
-  outline-offset: 3px;
-}
-
-.m-experiment-tagline {
-  color: #55524e;
-  font-weight: 400;
-}
-
-.m-experiment-list p {
-  position: relative;
-  z-index: 1;
-  margin: 10px 0 0;
-  color: #7b7975;
-  font-size: 13px;
-  line-height: 1.8;
-  text-wrap: pretty;
-}
-
-.m-experiment-preview {
-  display: none;
-}
-
-.m-experiment-item > a {
-  position: relative;
-  z-index: 1;
-}
-
 @media (hover: hover) and (pointer: fine) {
   .m-page > .m-top-controls,
   .m-page > .m-header,
@@ -1595,99 +1530,17 @@ body.m-photo-viewer-closing .m-photo-viewer-chrome {
   .m-page > .m-spacer,
   .m-page > .m-footer,
   .m-experiment-label,
-  .m-experiment-item,
   .gb-card-slot-wrap {
     transition: filter 360ms var(--ease-out), opacity 360ms var(--ease-out);
   }
-
-  body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .m-page > .m-top-controls,
-  body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .m-page > .m-header,
-  body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .m-page > .m-bio,
-  body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .m-profile-panel > .m-bio,
-  body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .m-page > .m-case-section,
-  body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .m-profile-panel > .m-case-section,
-  body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .m-profile-panel > .vn,
-  body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .m-page > .m-spacer,
-  body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .m-page > .m-footer,
-  body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .m-experiment-label,
-  body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .m-experiment-item:not(:hover):not(:has(a:focus-visible)),
-  body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .gb-card-slot-wrap {
-    filter: blur(6px);
-    opacity: 0.24;
-  }
-
-  .m-experiment-item:is(:hover, :has(a:focus-visible)) {
-    z-index: 20;
-  }
-
-  .m-experiment-preview {
-    display: block;
-    position: absolute;
-    right: auto;
-    bottom: calc(100% + 18px);
-    left: 0;
-    z-index: 0;
-    width: min(360px, calc(100vw - 48px));
-    aspect-ratio: 4 / 3;
-    margin: 0;
-    overflow: hidden;
-    pointer-events: none;
-    background: #efede8;
-    border-radius: 16px;
-    box-shadow: 0 1px 2px rgba(24, 24, 24, 0.06), 0 12px 36px rgba(24, 24, 24, 0.1);
-    opacity: 0;
-    filter: blur(8px);
-    transform: translateY(10px) scale(0.98);
-    transform-origin: 24px 100%;
-    transition: opacity 280ms ease, filter 360ms var(--ease-out), transform 360ms var(--ease-out);
-  }
-
-  .m-experiment-preview picture {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-  .m-experiment-preview img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: var(--preview-position, center);
-    border-radius: inherit;
-    outline: 1px solid rgba(0, 0, 0, 0.1);
-    outline-offset: -1px;
-  }
-
-  .m-experiment-item:is(:hover, :has(a:focus-visible)) .m-experiment-preview {
-    opacity: 1;
-    filter: blur(0);
-    transform: translateY(0) scale(1);
-  }
 }
 
-[data-theme="dark"] .m-experiment-label,
-[data-theme="dark"] .m-experiment-list p {
+[data-theme="dark"] .m-experiment-label {
   color: #aaa7a0;
 }
 
-[data-theme="dark"] .m-experiment-name {
-  text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
-}
-
-[data-theme="dark"] .m-experiment-tagline {
-  color: #c2bfb8;
-}
-
-[data-theme="dark"] .m-experiment-preview img {
-  outline-color: rgba(255, 255, 255, 0.1);
-}
-
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .m-experiment-label,
-  :root:not([data-theme="light"]) .m-experiment-list p { color: #aaa7a0; }
-  :root:not([data-theme="light"]) .m-experiment-name { text-decoration-color: color-mix(in srgb, currentColor 30%, transparent); }
-  :root:not([data-theme="light"]) .m-experiment-tagline { color: #c2bfb8; }
-  :root:not([data-theme="light"]) .m-experiment-preview img { outline-color: rgba(255, 255, 255, 0.1); }
+  :root:not([data-theme="light"]) .m-experiment-label { color: #aaa7a0; }
 }
 
 .m-case-section {
@@ -3377,8 +3230,6 @@ footer {
   .m-page > .m-spacer,
   .m-page > .m-footer,
   .m-experiment-label,
-  .m-experiment-item,
-  .m-experiment-preview,
   .m-avatar-card,
   .m-photo-filter,
   .m-photo-filter::after,

@@ -249,15 +249,6 @@ html[data-tod="morning"] .pc .m-avatar-card { background: #fcfdfe; }
 .pc .m-top-controls { gap: 10px; }
 @media (max-width: 600px) { .pc .m-top-controls { right: 18px; gap: 4px; } }
 
-/* the scene recedes with the rest of the page when an experiment is in the spotlight */
-@media (hover: hover) and (pointer: fine) {
-  .pc-hero { transition: filter 360ms var(--ease-out), opacity 360ms var(--ease-out); }
-  body:has(.m-experiment-item:hover, .m-experiment-item a:focus-visible) .pc-hero {
-    filter: blur(6px);
-    opacity: 0.24;
-  }
-}
-
 .pc-error {
   flex: 1 0 100%;
   margin: 0 0 6px;
