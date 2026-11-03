@@ -239,6 +239,8 @@
     var front = facing === 'front', walking = facing !== 'stand', fine = ks >= 2.1;
     var X = m.a * x + m.c * foot + m.e, Y = m.b * x + m.d * foot + m.f;
     var sh = pal.shadow || '#3a2e25', skin = pal.skin || '#c9a88a', coat = pal[P.coat], legs = pal[P.legs], hair = pal[P.hair] || legs;
+    // P.shorts: football (or any) shorts over bare legs; P.sockHigh: socks pulled up to the knee; P.sleeve: sleeves in their own colour
+    var shorts = P.shorts ? pal[P.shorts] : null, slv = P.sleeve ? pal[P.sleeve] : coat, legC = shorts ? skin : legs;
     // contact shadow, straight onto the scene
     if (P.shadow !== false) {
       ctx.save(); ctx.translate(x, foot); ctx.scale(s, s); ctx.fillStyle = sh;
@@ -286,9 +288,15 @@
       var drawLeg = function (f, far) {
         var hx = far ? -.6 : .6, an = legOf(f, far ? cA : cB, hx), kn = knee(hx, hipY, an[0], an[1], T, Sh), lw = skirt ? 2 : 2.75;
 
-        stroke(A, [hx, hipY, kn[0], kn[1]], lw + .45, legs); stroke(A, [kn[0], kn[1], an[0], an[1]], lw, legs);
-        if (!skirt && fine) blob(A, sh, .28, function () { A.rect(an[0] - 1.5, an[1] - .9, 3, .5); });             // the trouser break
-        if (P.sock) blob(A, pal[P.sock], 1, function () { A.rect(an[0] - 1.25, an[1] - 1.25, 2.5, .95); });     // a band of sock above the shoe
+        stroke(A, [hx, hipY, kn[0], kn[1]], lw + .45, legC); stroke(A, [kn[0], kn[1], an[0], an[1]], lw, legC);
+        if (shorts) {                       // shorts to mid-thigh with a contrasting hem; football socks up to just under the knee
+          if (P.sockHigh && P.sock) { stroke(A, [kn[0] + (an[0] - kn[0]) * .16, kn[1] + (an[1] - kn[1]) * .16, an[0], an[1]], lw + .1, pal[P.sock]);
+            if (fine) blob(A, sh, .2, function () { A.rect(kn[0] + (an[0] - kn[0]) * .16 - 1.5, kn[1] + (an[1] - kn[1]) * .16, 3, .45); }); }
+          var sx2 = hx + (kn[0] - hx) * .66, sy2 = hipY + (kn[1] - hipY) * .66;
+          stroke(A, [hx, hipY - .6, sx2, sy2], lw + 2.1, shorts);
+          if (P.shortsHem) { A.save(); A.lineCap = 'butt'; stroke(A, [hx + (kn[0] - hx) * .6, hipY + (kn[1] - hipY) * .6, sx2 + (kn[0] - hx) * .08, sy2 + (kn[1] - hipY) * .08], lw + 2.1, pal[P.shortsHem]); A.restore(); }
+        } else if (!skirt && fine) blob(A, sh, .28, function () { A.rect(an[0] - 1.5, an[1] - .9, 3, .5); });             // the trouser break
+        if (P.sock && !(shorts && P.sockHigh)) blob(A, pal[P.sock], 1, function () { A.rect(an[0] - 1.25, an[1] - 1.25, 2.5, .95); });     // a band of sock above the shoe
         A.save(); A.translate(an[0], an[1]); A.rotate(an[2]);
         if (P.shoe) {                       // trainers: a pale upper, the sole a lighter band, a stripe on the side
           A.fillStyle = pal[P.shoe]; A.beginPath(); A.roundRect(-1.5, -.75, 4.6, 1.85, [.8, 1.4, .45, .45]); A.fill();
@@ -300,7 +308,7 @@
         blob(A, sh, .45, function () { A.roundRect(-1.4, -.45, 4.4, 1.55, [.7, 1.3, .45, .45]); });
         }
         A.restore();
-        if (far) { A.globalAlpha = .2; stroke(A, [hx, hipY, kn[0], kn[1], an[0], an[1]], lw + .3, sh); A.globalAlpha = 1; }
+        if (far) { A.globalAlpha = .2; stroke(A, [hx, hipY, kn[0], kn[1], an[0], an[1]], lw + (shorts ? .8 : .3), sh); A.globalAlpha = 1; }
       };
       // arms: the near arm swings against the near leg, a beat late; the far arm mirrors it
       var holds = !!P.bag, amp = walking ? .34 : 0, sw = Math.cos(2 * Math.PI * (cB - .07));
@@ -312,9 +320,10 @@
       var far = arm(amp * sw + .02, .14 + Math.max(0, amp * sw) * .9);
       A.save(); A.translate(0, hipY); A.rotate(lean); A.translate(0, -hipY);      // the upper body leans into the walk, from the hip
       // far arm, behind everything
-      stroke(A, far, 2.6, coat); A.globalAlpha = .26; stroke(A, far, 2.6, sh); A.globalAlpha = 1;
+      stroke(A, far, 2.6, slv); A.globalAlpha = .26; stroke(A, far, 2.6, sh); A.globalAlpha = 1;
       var bare = function (a) { return [a[0] + (a[2] - a[0]) * .62, a[1] + (a[3] - a[1]) * .62, a[2], a[3], a[4], a[5]]; };   // P.shortSleeve: the forearm is bare
       if (P.shortSleeve) { stroke(A, bare(far), 1.9, skin); A.globalAlpha = .26; stroke(A, bare(far), 1.9, sh); A.globalAlpha = 1; }
+      if (P.shortSleeve && P.cuff) { var cf0 = bare(far); A.save(); A.lineCap = 'butt'; stroke(A, [cf0[0] - (cf0[2] - cf0[0]) * .1, cf0[1] - (cf0[3] - cf0[1]) * .1, cf0[0], cf0[1]], 2.6, pal[P.cuff]); A.restore(); }
       blob(A, skin, 1, function () { A.arc(far[4] + .05, far[5] + .5, 1.05, 0, Math.PI * 2); });
       blob(A, sh, .22, function () { A.arc(far[4] + .05, far[5] + .5, 1.05, 0, Math.PI * 2); });
       A.restore();
@@ -355,8 +364,10 @@
         A.fillStyle = legs; A.beginPath(); A.roundRect(-4.3, hem - 1.2, 8.4, hipY - hem + 2.6, [0, 0, 2.2, 2.6]); A.fill();
         blob(A, sh, .2, function () { A.rect(-4.3, hem - 1.2, 2.2, hipY - hem + 2.6); });
       }
+      if (shorts) { A.fillStyle = shorts; A.beginPath(); A.roundRect(-4.4, hipY - 3, 8.6, 5.4, [0, 0, 2, 2.4]); A.fill(); blob(A, sh, .16, function () { A.rect(-4.4, hipY - 3, 2.2, 5.4); }); }
       A.fillStyle = coat; coatPath(); A.fill();
       A.save(); coatPath(); A.clip();
+      if (P.pin) for (var px0 = -6.2; px0 < 6; px0 += P.pinGap || 2.2) blob(A, pal[P.pin], 1, function () { A.rect(px0, top - 1, P.pinW || .32, hem - top + 2); });   // a pinstriped top
       if (P.stripe) for (var sy0 = top + .4; sy0 < hem; sy0 += P.stripeGap || 1.7) blob(A, pal[P.stripe], 1, function () { A.rect(-9, sy0, 18, P.stripeW || .8); });   // a striped top
       blob(A, sh, .12, function () { A.rect(-8, hem - 1.1, 16, 1.2); });                                   // the hem turns under
       if (hood) {
@@ -371,6 +382,7 @@
         blob(A, sh, .1, function () { A.moveTo(-3.2 + sway * .6, hem); A.lineTo(-2.4, hem - 4); A.lineTo(-1.6 + sway * .6, hem); A.closePath(); });
       }
       A.restore();
+      if (P.collar) { A.globalAlpha = 1; stroke(A, [-1.4, top - .7, 1.2, top - .5, 3.4, top + .2], .7, pal[P.collar]); }   // a contrasting collar
       if (hood) {                         // the hood, down: a soft pointed fold on the back of the neck and shoulders
         var hoodPath = function () { A.beginPath(); A.moveTo(1.3, top - .8); A.quadraticCurveTo(-1.8, top - 3.9, -5.2, top - 2.7);
           A.quadraticCurveTo(-7.1, top - 1.3, -6.5, top + 2.6); A.quadraticCurveTo(-5.9, top + 5.6, -3.5, top + 6.4); A.quadraticCurveTo(-2.6, top + 3, -.4, top + .6); A.closePath(); };
@@ -403,6 +415,7 @@
       A.fillStyle = hair; A.beginPath(); A.arc(hc[0] - .15, hc[1] - .25, 3.95, 0, Math.PI * 2); A.fill();       // hair over the top and back; the face stays bare
       A.beginPath(); A.roundRect(hc[0] - 4, hc[1], 3.6, P.longHair ? top - hc[1] + 3.5 : 2.9, [0, 0, 1.2, 1.6]); A.fill(); A.restore();   // the nape (or longer hair, over the collar)
       var headClip = function () { A.beginPath(); A.arc(hc[0], hc[1], 3.7, 0, Math.PI * 2); A.moveTo(hc[0] + 3.8, hc[1] - .25); A.arc(hc[0] - .15, hc[1] - .25, 3.95, 0, Math.PI * 2); };
+      if (P.headband) { A.save(); headClip(); A.clip(); blob(A, pal[P.headband], 1, function () { A.moveTo(hc[0] - 5, hc[1] - 3.3); A.lineTo(hc[0] + 5, hc[1] - 3.9); A.lineTo(hc[0] + 5, hc[1] - 2.5); A.lineTo(hc[0] - 5, hc[1] - 1.7); A.closePath(); }); A.restore(); }   // a sports headband over the hair
       if (P.hijab) {                      // a hijab: over the head and the back, draped to the shoulders; the face stays open
         var hj = pal[P.hijab], jx = hc[0], jy = hc[1];
         var hijabS = function () { A.beginPath(); A.moveTo(jx + 2.3, jy - 3.5); A.arc(jx - .2, jy - .1, 4.45, -.97, 1.95, true);
@@ -465,8 +478,10 @@
       }
       // near arm (and the bag it carries); a soft shade behind it keeps it off the coat
       A.globalAlpha = .2; A.save(); A.translate(-.45, .35); stroke(A, near, 3.1, sh); A.restore(); A.globalAlpha = 1;
-      stroke(A, near, 2.6, coat);
+      stroke(A, near, 2.6, slv);
       if (P.shortSleeve) { stroke(A, bare(near), 1.9, skin); blob(A, sh, .14, function () { var b = bare(near); A.arc(b[0], b[1] + .3, 1.1, 0, Math.PI * 2); }); }
+      if (P.shortSleeve && P.cuff) { var cf1 = bare(near); A.save(); A.lineCap = 'butt'; stroke(A, [cf1[0] - (cf1[2] - cf1[0]) * .1, cf1[1] - (cf1[3] - cf1[1]) * .1, cf1[0], cf1[1]], 2.6, pal[P.cuff]); A.restore(); }
+      if (P.watch) { A.save(); A.lineCap = 'butt'; stroke(A, [near[2] + (near[4] - near[2]) * .78, near[3] + (near[5] - near[3]) * .78, near[2] + (near[4] - near[2]) * .9, near[3] + (near[5] - near[3]) * .9], 2.1, pal[P.watch]); A.restore(); }   // a watch on the wrist
       if (P.stripe) { A.save(); A.lineCap = 'butt'; A.setLineDash([P.stripeW || .8, (P.stripeGap || 1.7) - (P.stripeW || .8)]); stroke(A, near.slice(0, 4).concat([near[2] + (near[4] - near[2]) * .78, near[3] + (near[5] - near[3]) * .78]), 2.6, pal[P.stripe]); A.restore(); }
       if (fine) { A.globalAlpha = .12; stroke(A, [near[0] - .7, near[1] + 1.5, near[2] - .8, near[3]], 1, sh); A.globalAlpha = 1; }
       if (holds) {
@@ -489,10 +504,12 @@
       var topF = hipY - 21;
       [[-1.85, la], [1.85, lb]].forEach(function (g, gi) {
         var fy = -g[1] * 1.3, lw = skirt ? 2 : 2.9;
-        stroke(A, [g[0] * .9, hipY, g[0], fy - 1.4], lw, legs);
+        stroke(A, [g[0] * .9, hipY, g[0], fy - 1.4], lw, legC);
+        if (shorts && P.sockHigh && P.sock) { var kz = hipY + (fy - 1.4 - hipY) * .62; stroke(A, [g[0] * .9 + g[0] * .1 * .62, kz, g[0], fy - 1.4], lw + .1, pal[P.sock]);
+          if (fine) blob(A, sh, .2, function () { A.rect(g[0] * .95 - 1.5, kz, 3, .45); }); }
         A.globalAlpha = .14; stroke(A, [g[0] * .9 - (gi ? 1 : -1) * .7, hipY, g[0] - (gi ? 1 : -1) * .7, fy - 1.4], .9, sh); A.globalAlpha = 1;   // the inner edge in shade
-        if (fine && !skirt) blob(A, sh, .26, function () { A.rect(g[0] - 1.45, fy - 2.1, 2.9, .5); });
-        if (P.sock) blob(A, pal[P.sock], 1, function () { A.rect(g[0] - 1.3, fy - 2.05, 2.6, .9); });
+        if (fine && !skirt && !shorts) blob(A, sh, .26, function () { A.rect(g[0] - 1.45, fy - 2.1, 2.9, .5); });
+        if (P.sock && !(shorts && P.sockHigh)) blob(A, pal[P.sock], 1, function () { A.rect(g[0] - 1.3, fy - 2.05, 2.6, .9); });
         if (P.shoe) {
           A.fillStyle = pal[P.shoe]; A.beginPath(); A.ellipse(g[0] * 1.06, fy - .85, 1.9 + g[1] * .18, 1.15 + g[1] * .12, 0, 0, Math.PI * 2); A.fill();
           blob(A, sh, .16, function () { A.ellipse(g[0] * 1.06 - (gi ? -.5 : .5), fy - .85, 1.4, 1.15, 0, 0, Math.PI * 2); });
@@ -506,9 +523,11 @@
       var swf = walking ? Math.cos(2 * Math.PI * (cA - .07)) : 0;
       var armF = function (side, d) {          // sleeves lie along the coat's sides; the one swinging toward us reads a touch shorter and wider
         var len = 10.4 - Math.max(0, d) * .9, sx = side * 4.6, ex = side * (5.5 + Math.max(0, d) * .25), wd = 2.5 + Math.max(0, d) * .25;
-        stroke(A, [sx, topF + 1.9, ex, topF + 1.9 + len], wd, coat);
+        stroke(A, [sx, topF + 1.9, ex, topF + 1.9 + len], wd, slv);
         if (P.stripe) { A.save(); A.lineCap = 'butt'; A.setLineDash([P.stripeW || .8, (P.stripeGap || 1.7) - (P.stripeW || .8)]); stroke(A, [sx, topF + 1.9, ex, topF + 1.9 + len * (P.shortSleeve ? .42 : .85)], wd, pal[P.stripe]); A.restore(); }
         if (P.shortSleeve) { stroke(A, [sx + (ex - sx) * .45, topF + 1.9 + len * .45, ex, topF + 1.9 + len], wd * .74, skin); A.globalAlpha = .16; stroke(A, [sx + (ex - sx) * .45, topF + 1.9 + len * .45, sx + (ex - sx) * .5, topF + 1.9 + len * .5], wd * .9, sh); A.globalAlpha = 1; }
+        if (P.shortSleeve && P.cuff) { A.save(); A.lineCap = 'butt'; stroke(A, [sx + (ex - sx) * .39, topF + 1.9 + len * .39, sx + (ex - sx) * .45, topF + 1.9 + len * .45], wd, pal[P.cuff]); A.restore(); }
+        if (P.watch && side > 0) { A.save(); A.lineCap = 'butt'; stroke(A, [sx + (ex - sx) * .86, topF + 1.9 + len * .86, sx + (ex - sx) * .95, topF + 1.9 + len * .95], wd * .86, pal[P.watch]); A.restore(); }   // a watch on his left wrist
         A.globalAlpha = .16; stroke(A, [sx - side * wd * .42, topF + 3.2, ex - side * wd * .42, topF + 1.9 + len], .55, sh); A.globalAlpha = 1;   // where sleeve meets body
         return [ex + side * .05, topF + 2.5 + len];
       };
@@ -532,8 +551,17 @@
         A.fillStyle = legs; A.beginPath(); A.roundRect(-4.8, hemF - 1.2, 9.6, hipY - hemF + 2.2, [0, 0, 1.6, 1.6]); A.fill();
         blob(A, sh, .3, function () { A.moveTo(-.5, hipY - 1.4); A.lineTo(.5, hipY - 1.4); A.lineTo(.4, hipY + 1); A.lineTo(-.4, hipY + 1); A.closePath(); });   // the crotch seam
       }
+      if (shorts) {                       // shorts: a block over the hips, each leg flaring a little to a mid-thigh hem, a number on one leg
+        var shY = hipY + 5.6;
+        A.fillStyle = shorts; A.beginPath(); A.moveTo(-5, hipY - 3); A.lineTo(5, hipY - 3); A.lineTo(5.5, shY); A.lineTo(.5, shY); A.lineTo(0, hipY + 1.4); A.lineTo(-.5, shY); A.lineTo(-5.5, shY); A.closePath(); A.fill();
+        blob(A, sh, .14, function () { A.rect(-5.5, hipY - 3, 2.4, shY - hipY + 3); });
+        if (P.shortsHem) blob(A, pal[P.shortsHem], 1, function () { A.rect(-5.5, shY - .8, 5, .8); A.rect(.5, shY - .8, 5, .8); });
+        if (fine) blob(A, sh, .24, function () { A.moveTo(-.3, hipY - .4); A.lineTo(.3, hipY - .4); A.lineTo(.5, shY); A.lineTo(-.5, shY); A.closePath(); });   // between the legs
+        if (P.shortsNum && fine) { A.fillStyle = pal[P.shortsNumC || P.shortsHem || P.legs]; A.font = '700 2.7px system-ui, sans-serif'; A.textAlign = 'center'; A.textBaseline = 'alphabetic'; A.fillText(String(P.shortsNum), 3, shY - 1.6); }
+      }
       A.fillStyle = coat; coatF(); A.fill();
       A.save(); coatF(); A.clip();
+      if (P.pin) for (var px1 = -6.6; px1 < 7; px1 += P.pinGap || 2.2) blob(A, pal[P.pin], 1, function () { A.rect(px1, topF - 1, P.pinW || .32, hemF - topF + 2); });
       if (P.stripe) for (var sy1 = topF + .4; sy1 < hemF; sy1 += P.stripeGap || 1.7) blob(A, pal[P.stripe], 1, function () { A.rect(-9, sy1, 18, P.stripeW || .8); });
       if (hoodF) {
         blob(A, sh, .28, function () { A.rect(-9, hemF - 1.7, 18, 1.7); });                                  // the ribbed band
@@ -542,6 +570,7 @@
       } else {
       blob(A, sh, .12, function () { A.rect(-9, hemF - 1.1, 18, 1.2); });
       blob(A, skin, 1, function () { A.moveTo(-1.5, topF - .9); A.lineTo(1.5, topF - .9); A.lineTo(0, topF + 2.2); A.closePath(); });
+      if (P.collar) { A.globalAlpha = 1; stroke(A, [-2.3, topF - .8, 0, topF + 2.6, 2.3, topF - .8], .75, pal[P.collar]); }   // a contrasting V collar
       }
       if (fine && !hoodF) {
         A.globalAlpha = .26; stroke(A, [-1.5, topF - .9, 0, topF + 2.3, 1.5, topF - .9], .5, sh); A.globalAlpha = 1;
@@ -574,11 +603,38 @@
       }
       [lh, rh].forEach(function (hd) { blob(A, skin, 1, function () { A.arc(hd[0], hd[1], 1.08, 0, Math.PI * 2); }); });
       var hf = [0, topF - 5.2];
+      // P.hairDown: shoulder-length hair worn down, one filled mass: the crown flows into side lengths that overlap the face's
+      // edges and hide the ears, widen a touch to the shoulders and flick out at the ends; a darker underlayer fills behind the jaw
+      var downPath = function () { var Y = hf[1];
+        A.beginPath(); A.moveTo(0, Y - 4.45);
+        A.bezierCurveTo(-2.6, Y - 4.45, -4.25, Y - 3.2, -4.25, Y - .6); A.bezierCurveTo(-4.25, Y + 1.8, -4.45, Y + 3.7, -4.95, Y + 5.45);
+        A.quadraticCurveTo(-4.2, Y + 5.75, -3.45, Y + 5.15); A.bezierCurveTo(-3.05, Y + 3.8, -3.1, Y + 1.2, -3.2, Y - .6);
+        A.bezierCurveTo(-3.05, Y - 2.05, -1.6, Y - 2.5, 0, Y - 2.35);
+        A.bezierCurveTo(1.6, Y - 2.5, 3.05, Y - 2.05, 3.2, Y - .6); A.bezierCurveTo(3.1, Y + 1.2, 3.05, Y + 3.8, 3.45, Y + 5.15);
+        A.quadraticCurveTo(4.2, Y + 5.75, 4.95, Y + 5.45); A.bezierCurveTo(4.45, Y + 3.7, 4.25, Y + 1.8, 4.25, Y - .6);
+        A.bezierCurveTo(4.25, Y - 3.2, 2.6, Y - 4.45, 0, Y - 4.45); A.closePath(); };
+      if (P.hairDown) { A.fillStyle = hair; A.beginPath(); A.roundRect(-4, hf[1] - 1, 2.75, 5.5, [0, 0, 0, 1.2]); A.roundRect(1.25, hf[1] - 1, 2.75, 5.5, [0, 0, 1.2, 0]); A.fill();
+        blob(A, sh, .28, function () { A.rect(-4, hf[1] - 1, 2.75, 5.5); A.rect(1.25, hf[1] - 1, 2.75, 5.5); }); }   // the hair behind, filling in beside the jaw
       blob(A, skin, 1, function () { A.ellipse(hf[0], hf[1], 3.5, 3.8, 0, 0, Math.PI * 2); });
+      if (P.hairDown) {
+        A.fillStyle = hair; downPath(); A.fill();
+        A.save(); downPath(); A.clip();
+        blob(A, sh, .2, function () { A.rect(2.6, hf[1] - 1.2, 3, 7.5); A.rect(-5, hf[1] + 4.3, 10, 2); });   // the far side and the ends in shade
+        if (fine) { var hhl = figMix(hair, '#ffffff', .2); A.globalAlpha = .55; stroke(A, [-3.75, hf[1] - .4, -3.8, hf[1] + 2.2, -4.15, hf[1] + 4.4], .4, hhl);
+          stroke(A, [-2.9, hf[1] - 2.9, -1.6, hf[1] - 3.75], .35, hhl); A.globalAlpha = 1; }   // a soft sheen down the near side
+        A.restore();
+        if (fine) { A.globalAlpha = .3; stroke(A, [.3, hf[1] - 2.95, .55, hf[1] - 2.7, .8, hf[1] - 2.4], .3, sh); A.globalAlpha = 1; }   // a subtle side parting
+      } else {
       A.fillStyle = hair; A.beginPath(); A.ellipse(hf[0], hf[1] - .6, 3.85, 3.6, 0, Math.PI * .93, Math.PI * 2.07); A.closePath(); A.fill();
       A.save(); A.beginPath(); A.ellipse(hf[0], hf[1], 3.95, 4.1, 0, 0, Math.PI * 2); A.clip(); A.fillStyle = hair; A.beginPath(); A.rect(-5, hf[1] - 5, 1.9, 6.8); A.rect(3.1, hf[1] - 5, 1.9, 6.8); A.fill(); A.restore();   // hair over the ears frames a faceless face
-      if (!P.hat && !P.cap && !P.ballcap && !P.campcap && !P.hijab && fine) blob(A, sh, .12, function () { A.rect(-.3, hf[1] - 4, .6, 1.6); });           // a parting
+      }
+      if (!P.hat && !P.cap && !P.ballcap && !P.campcap && !P.hijab && !P.hairDown && fine) blob(A, sh, .12, function () { A.rect(-.3, hf[1] - 4, .6, 1.6); });           // a parting
       var faceClip = function () { A.beginPath(); A.ellipse(hf[0], hf[1], 3.5, 3.8, 0, 0, Math.PI * 2); };
+      if (P.headband && P.hairDown) { A.save(); downPath(); A.clip();   // over hair worn down: across the crown behind the hairline, its ends lost in the side lengths
+        blob(A, figMix(pal[P.headband], '#ffffff', .2), 1, function () { A.moveTo(-5, hf[1] - 1.9); A.quadraticCurveTo(0, hf[1] - 6.3, 5, hf[1] - 1.9); A.lineTo(5, hf[1] - .7); A.quadraticCurveTo(0, hf[1] - 5.1, -5, hf[1] - .7); A.closePath(); });
+        if (fine) { A.globalAlpha = .6; stroke(A, [-3, hf[1] - 2.8, 0, hf[1] - 3.95, 3, hf[1] - 2.8], .3, figMix(pal[P.headband], '#ffffff', .45)); A.globalAlpha = 1; } A.restore(); }
+      else if (P.headband) { A.save(); A.beginPath(); A.ellipse(hf[0], hf[1], 3.95, 4.1, 0, 0, Math.PI * 2); A.clip(); blob(A, pal[P.headband], 1, function () { A.moveTo(-5, hf[1] - 2.5); A.quadraticCurveTo(0, hf[1] - 3.1, 5, hf[1] - 2.5); A.lineTo(5, hf[1] - 1.1); A.quadraticCurveTo(0, hf[1] - 1.7, -5, hf[1] - 1.1); A.closePath(); });
+        if (fine) { A.globalAlpha = .5; stroke(A, [-3.2, hf[1] - 2.55, 0, hf[1] - 2.95, 3.2, hf[1] - 2.55], .3, figMix(pal[P.headband], '#ffffff', .4)); A.globalAlpha = 1; } A.restore(); }   // a sports headband
       if (P.hijab) {                      // the hijab from the front: wrapped close round the face and under the chin, falling over the shoulders to the chest
         var hjF = pal[P.hijab], hy = hf[1];
         var capeF = function () { A.beginPath(); A.moveTo(-3.9, hy + 1.6); A.quadraticCurveTo(-5.4, topF + .2, -6.1, topF + 2.6); A.quadraticCurveTo(-6.2, topF + 5, -4.6, topF + 5.6);
