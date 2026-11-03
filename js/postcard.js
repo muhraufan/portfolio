@@ -510,7 +510,13 @@
   // ---------- persona switcher: a quiet hint of the other side ----------
   function hintText() {
     if (hint) hint.textContent = persona === 'photography' ? t().toDesign : t().toPhoto;
-    back.querySelector('.pc-credit').textContent = t().credit[persona === 'photography' ? 1 : 0];
+    back.querySelector('.pc-credit').textContent = persona === 'photography' ? t().credit[1] : (sceneCredit() || t().credit[0]);
+  }
+  // the card's credit follows the newest scene (its name and neighbourhood), so a new place never leaves an old credit behind
+  function sceneCredit() {
+    var S = window.LastSeen && LastSeen.newest && LastSeen.newest(); if (!S || !S.name) return '';
+    var nm = S.name.en || S.name, ar = String((S.area && (S.area.en || S.area)) || '').split(',')[0];
+    return 'Last seen · ' + nm + (ar ? ' · ' + ar : '');
   }
   hintText();
   // the whole avatar is the switch: pressing the front card turns to the other side (the peeking card still works too)
