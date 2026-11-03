@@ -73,7 +73,7 @@
   };
   TL3.bindSound = function (btn) {
     function paint() { var o = on(), ja = TL.lang() === 'ja'; btn.textContent = o ? (ja ? '音：オン' : 'Sound · on') : (ja ? '音：オフ' : 'Sound · off'); btn.setAttribute('aria-pressed', String(o)); }
-    btn.addEventListener('click', function () { try { localStorage.setItem(KEY, on() ? 'off' : 'on'); } catch (e) {} paint(); if (on()) { primed = true; ac(); TL3.cue('land'); } });
-    TL.onLang(paint); paint();
+    btn.addEventListener('click', function () { try { localStorage.setItem(KEY, on() ? 'off' : 'on'); } catch (e) {} paint(); window.dispatchEvent(new Event('sound:change')); if (on()) { primed = true; ac(); TL3.cue('land'); } });
+    TL.onLang(paint); paint(); window.addEventListener('sound:change', paint);
   };
 })();

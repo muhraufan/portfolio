@@ -49,7 +49,7 @@
 })();
 </script>
 
-  <link rel="stylesheet" href="/css/style.css?v=50">
+  <link rel="stylesheet" href="/css/style.css?v=51">
   <link rel="stylesheet" href="/css/projects-shelf.css?v=3">
   <link rel="stylesheet" href="/css/logo-stack.css?v=2">
   <link rel="stylesheet" href="/css/notes.css?v=3">
@@ -374,13 +374,16 @@
         <span class="m-dot">&middot;</span>
         <a href="https://www.linkedin.com/in/muhammad-raufan-yusup-4549ba69/" target="_blank" rel="noopener" class="m-link">LinkedIn</a>
       </span>
+      <button type="button" class="m-sound" aria-pressed="true" title="Turn sound off"><svg class="m-sound-ico" width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path class="m-sound-cone" d="M2.6 6.1h2.1L8 3.4v9.2L4.7 9.9H2.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><g class="m-sound-waves" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M10.4 6.1a2.6 2.6 0 0 1 0 3.8"/><path d="M12.2 4.4a5 5 0 0 1 0 7.2"/></g><g class="m-sound-x" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M10.6 6.3l3.4 3.4M14 6.3l-3.4 3.4"/></g></svg><span class="m-sound-name">Sound</span><span class="m-sound-state" aria-hidden="true">on</span></button>
+<script>(function(){var b=document.querySelector('.m-sound');if(!b)return;var o=true,ja=document.documentElement.getAttribute('data-lang')==='ja';try{o=localStorage.getItem('tl-feedback')!=='off';}catch(e){}b.setAttribute('aria-pressed',String(o));b.title=ja?(o?'\u97f3\u3092\u30aa\u30d5\u306b\u3059\u308b':'\u97f3\u3092\u30aa\u30f3\u306b\u3059\u308b'):(o?'Turn sound off':'Turn sound on');b.querySelector('.m-sound-name').textContent=ja?'\u97f3':'Sound';b.querySelector('.m-sound-state').textContent=ja?(o?'\u30aa\u30f3':'\u30aa\u30d5'):(o?'on':'off');})();</script>
     </footer>
 
   </main>
 
   <canvas id="confetti-canvas"></canvas>
   <script src="/js/main.js?v=37"></script>
-  <script src="/js/projects-shelf.js?v=1" defer></script>
+  <script src="/js/sound.js?v=1" defer></script>
+  <script src="/js/projects-shelf.js?v=2" defer></script>
   <script src="/js/light-menu.js?v=2" defer></script>
   <script src="/last-seen/last-seen.js?v=15" defer></script>
   <script src="/last-seen/scenes/niko-and-shibuya.js?v=4" defer></script>
@@ -393,7 +396,7 @@
   <script src="/timeline/lib/data.js?v=12" defer></script>
   <script src="/js/stamp-row.js?v=6" defer></script>
   <script src="/last-seen/street-life.js?v=4" defer></script>
-  <script src="/js/postcard.js?v=11" defer></script>
+  <script src="/js/postcard.js?v=12" defer></script>
   <script src="/js/notes-deck.js?v=13" defer></script>
   <script src="/js/peek.js?v=2" defer></script>
   <script src="/components/Stabilo/stabilo.js?v=5" defer></script>

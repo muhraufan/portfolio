@@ -227,9 +227,10 @@
     if (lift) lift.cancel();
     lift = card.animate([{ transform: 'scale(1)' }, { transform: 'scale(.965)', offset: .4 }, { transform: 'scale(1)' }], { duration: 520, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
   }
-  function setOpen(v) {
+  function setOpen(v, quiet) {
     if (v === open) return;
     open = v; clearTimers();
+    if (!quiet && window.SiteSound) SiteSound.cue(v ? 'open' : 'close');   // a posted note turns the card back silently: its landing is the sound
     if (v) back.classList.remove('is-away');   // the back shows before the turn starts, and hides only once it's over
     else later(function () { if (!open) back.classList.add('is-away'); }, reduce.matches ? 220 : 560);
     card.classList.toggle('is-flipped', v);
@@ -301,7 +302,7 @@
     later(function () {
       // the note leaves the card for the postbox in the scene (street-life.js), which then says it was delivered
       document.dispatchEvent(new CustomEvent('pc:posted', { detail: { entry: saved, paper: pal().paper, ink: pal().paperInk, card: card, flight: persona === 'design' } }));
-      setOpen(false);
+      setOpen(false, true);
       timers.push(setTimeout(function () {
         noteWrap.classList.add('is-thanks');
         timers.push(setTimeout(function () { noteWrap.classList.remove('is-thanks'); }, 3600));
@@ -309,7 +310,7 @@
       timers.push(setTimeout(function () { back.classList.remove('is-postmarked', 'has-sig'); back.reset(); strokes = []; redraw(); posting = false; ready(); }, 700));
     }, 820);
   }
-  function fail() { posting = false; showErr(true); ready(); }
+  function fail() { posting = false; showErr(true); ready(); if (window.SiteSound) SiteSound.cue('error'); }
   back.addEventListener('submit', function (e) {
     e.preventDefault(); if (post.disabled || !open || posting) return;
     posting = true; showErr(false); post.disabled = true;
