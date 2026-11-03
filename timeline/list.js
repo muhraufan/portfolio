@@ -175,7 +175,9 @@
     tops = null;
     // keep the row you touched exactly where it was (the one closing above it can't pull it away)
     if (anchor && !o.noAnchor) { var d = anchor.li.getBoundingClientRect().top - aTop; if (Math.abs(d) > .5) window.scrollTo({ top: scrollY + d, behavior: 'instant' }); }
-    TL3.cue(next ? 'open' : 'close');
+    // from one entry straight to another: Cuelume's navigate, rising going down the list (older), falling going up; opening
+    // from or closing to nothing keeps the Timeline's own breath
+    if (prev && next && window.SiteSound) SiteSound.cue('navigate', { direction: next.i > prev.i ? 'forward' : 'back' }); else TL3.cue(next ? 'open' : 'close');
     if (reduce.matches || o.instant) {          // reduced motion: no travel, just a crossfade of what appeared
       ghosts.forEach(endGhost); ghosts = [];
       if (next && !o.instant) { var no = next.li.querySelector('.t3-o'); no.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160, easing: 'ease-out' }); }

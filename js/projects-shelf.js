@@ -100,10 +100,11 @@
     var dlg = document.getElementById(btn.getAttribute('data-ps-open'));
     if (!dlg) return;
     if (state && state.dlg === dlg && state.dir < 0) { // reopen mid-close: turn around in place
-      state.dir = 1; dlg.setAttribute('data-shown', ''); state.lifted.setAttribute('data-ps-lifted', '');
+      state.dir = 1; if (window.SiteSound) SiteSound.cue('open'); dlg.setAttribute('data-shown', ''); state.lifted.setAttribute('data-ps-lifted', '');
       state.anims.forEach(function (a) { a.updatePlaybackRate(1); a.reverse(); }); watch(state); return;
     }
     if (state) return;
+    if (window.SiteSound) SiteSound.cue('open');
     warm(btn);
     var origin = btn.querySelector('[data-ps-origin]') || btn;
     var s = state = { dlg: dlg, inner: dlg.querySelector('.ps-card-in'), opener: btn, origin: origin, face: btn.querySelector('.ps-face'),
@@ -120,6 +121,7 @@
   function close() {
     var s = state; if (!s || s.dir < 0) return;
     s.dir = -1;
+    if (window.SiteSound) SiteSound.cue('close');
     s.dlg.removeAttribute('data-shown');
     if (s.anims.length) {
       // mid-open: run the same motion backwards from where it is

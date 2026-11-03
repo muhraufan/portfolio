@@ -2177,6 +2177,54 @@ body.minimal.is-spotlight .m-list.is-active-list a:not(.is-active) {
   margin: 0 4px;
 }
 
+/* ---- Sound switch (footer). Quieter than the links beside it: no underline, the
+   secondary ink, a small speaker that loses its waves when off. The hit area grows
+   past the text with padding cancelled by margin, so the footer line never moves. ---- */
+.m-sound {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: inherit;
+  color: var(--text2);
+  background: none;
+  border: 0;
+  margin: -6px -8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s;
+}
+.m-sound[aria-pressed="false"] { color: var(--text3); }
+.m-sound:hover { color: var(--text); }
+.m-sound:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: -1px;
+}
+.m-sound-ico {
+  flex: none;
+  transition: transform 0.16s var(--ease-out, ease-out);
+}
+.m-sound:active .m-sound-ico { transform: scale(0.88); }
+.m-sound-waves, .m-sound-x { transition: opacity 0.16s ease-out; }
+.m-sound-x { opacity: 0; }
+.m-sound[aria-pressed="false"] .m-sound-waves { opacity: 0; }
+.m-sound[aria-pressed="false"] .m-sound-x { opacity: 1; }
+/* "on" and "off" take the same room, so the switch never changes width */
+.m-sound-state {
+  display: inline-block;
+  min-width: 2.1em;
+  text-align: left;
+}
+:root[data-lang="ja"] .m-sound-state { min-width: 2.4em; }
+@media (prefers-reduced-motion: reduce) {
+  .m-sound-ico, .m-sound-waves, .m-sound-x { transition: none; }
+  .m-sound:active .m-sound-ico { transform: none; }
+}
+
 /* ---- Layout ---- */
 .container {
   max-width: var(--max);
