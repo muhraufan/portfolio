@@ -118,3 +118,6 @@
   .m-logo-name,
   .m-logo:is(:hover, :focus-visible) .m-logo-name { transform: translateX(-50%); transition: opacity 160ms var(--ease-out); }
 }
+
+/* Intro bio: a touch more air so the logo stack breathes */
+.m-profile-panel > .m-bio { line-height: 2.5; }
