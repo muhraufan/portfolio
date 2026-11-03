@@ -1,0 +1,123 @@
+/* ---- Past-company logo stack (intro bio) ----
+   Small overlapping app icons sitting in the sentence, like an avatar
+   stack. Each icon wears a ring in the page colour so the overlap reads
+   as a cut-out. Hover/focus lifts one icon and shows its name in a pill
+   (same ink-on-paper pill as the shelf's Soon tag). Transforms/opacity
+   only, so nothing reflows and the 26px line box never changes. */
+.m-logos {
+  --logo: 22px;
+  --logo-overlap: 6px;
+  --logo-ring: var(--bg);
+  display: inline-flex;
+  align-items: center;
+  height: var(--logo);
+  line-height: 0;
+  vertical-align: -6px;          /* centres the 22px row on the x-height */
+  margin: 0 1px 0 2px;
+  white-space: nowrap;
+}
+.m-logo {
+  position: relative;
+  display: block;
+  flex: none;
+  width: var(--logo);
+  height: var(--logo);
+  border-radius: 22.5%;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 180ms var(--ease-out);
+}
+.m-logo + .m-logo { margin-left: calc(var(--logo-overlap) * -1); }
+/* first icon on top, fanning to the right like dealt cards */
+.m-logo:nth-child(1) { z-index: 4; }
+.m-logo:nth-child(2) { z-index: 3; }
+.m-logo:nth-child(3) { z-index: 2; }
+.m-logo:nth-child(4) { z-index: 1; }
+
+.m-logo-face {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  box-shadow: 0 0 0 2px var(--logo-ring);
+  transform-origin: 50% 100%;
+  transition: transform 180ms var(--ease-out), box-shadow 180ms var(--ease-out);
+}
+.m-logo-face img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+}
+/* hairline so light icons (SmartNews) keep an edge on a light page */
+.m-logo-face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  pointer-events: none;
+}
+
+.m-logo-name {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 7px);
+  width: max-content;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--pf-strong, #252525);
+  color: var(--bg);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16), 0 4px 12px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 3px) scale(0.95);
+  transform-origin: 50% 100%;
+  transition: opacity 120ms var(--ease-out), transform 160ms var(--ease-out);
+}
+
+/* keyboard: same lift and label as hover, plus an ink focus ring */
+.m-logo:focus-visible { z-index: 5; }
+.m-logo:focus-visible .m-logo-name {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+  transition: opacity 160ms var(--ease-out), transform 200ms var(--ease-out);
+}
+.m-logo:focus-visible .m-logo-face {
+  transform: translateY(-3px) scale(1.1);
+  box-shadow: 0 0 0 2px var(--logo-ring), 0 0 0 3.5px var(--text), 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .m-logo:hover { z-index: 5; }
+  .m-logo:hover .m-logo-name {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+    transition: opacity 160ms var(--ease-out), transform 200ms var(--ease-out);
+  }
+  .m-logo:hover .m-logo-face {
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 0 0 2px var(--logo-ring), 0 3px 6px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+  /* neighbours part a touch so the lifted icon has room */
+  .m-logo:hover ~ .m-logo { transform: translateX(3px); }
+  .m-logo:has(~ .m-logo:hover) { transform: translateX(-3px); }
+}
+
+/* reduced motion: nothing moves, the name just fades in */
+@media (prefers-reduced-motion: reduce) {
+  .m-logo,
+  .m-logo-face { transform: none !important; transition: box-shadow 160ms var(--ease-out); }
+  .m-logo-name,
+  .m-logo:is(:hover, :focus-visible) .m-logo-name { transform: translateX(-50%); transition: opacity 160ms var(--ease-out); }
+}
+
+/* Intro bio: a touch more air so the logo stack breathes */
+.m-profile-panel > .m-bio { line-height: 2.5; }
