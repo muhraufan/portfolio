@@ -296,7 +296,10 @@ html:has(.ps-card[open]) :is(.ps-ledge, .ps-face-soon, .case-folder-flap) { -web
   transition: transform 300ms var(--ease-folder-close);
 }
 @media (hover: hover) and (pointer: fine) {
-  .ps-coming .ps-app:hover .ps-tag { transform: translateY(calc(var(--lift) * -1)); transition: transform 550ms var(--ease-folder-open); }
+  .ps-coming .ps-app:hover .ps-tag, .ps-beta .ps-app:hover .ps-tag { transform: translateY(calc(var(--lift) * -1)); transition: transform 550ms var(--ease-folder-open); }
 }
-.ps-tag .lang-stack { display: inline-grid; }
+.ps-tag .lang-stack { display: inline-grid; justify-items: center; text-align: center; }
 @media (max-width: 600px) { .ps-tag { top: -5px; left: calc(50% + var(--icon) / 2 - 16px); padding: 1px 6px; font-size: 9.5px; } }
+
+/* Beta: shipped to testers. Full-strength icon, opens the TestFlight site directly; the tag stays as a badge. */
+.ps-beta .ps-app { text-decoration: none; color: inherit; }
