@@ -303,3 +303,11 @@ html:has(.ps-card[open]) :is(.ps-ledge, .ps-face-soon, .case-folder-flap) { -web
 
 /* Beta: shipped to testers. Full-strength icon, opens the TestFlight site directly; the tag stays as a badge. */
 .ps-beta .ps-app { text-decoration: none; color: inherit; }
+/* Beta chip beside a card title: the shelf tag's twin, sitting inline on the title's line */
+.ps-card-beta {
+  display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px;
+  background: var(--pf-strong); color: var(--bg, #fff);
+  font-size: 10px; font-weight: 600; line-height: 1.5; letter-spacing: 0.01em;
+  vertical-align: 0.15em;
+}
+.ps-card-beta .lang-stack { display: inline-grid; justify-items: center; }
