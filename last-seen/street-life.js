@@ -20,6 +20,7 @@
     'et-cultural-coffeehouse': { post: { x: 100, foot: 271 }, vend: { x: 296 } },   // drinks machine clear of the shrubs
     'fuglen-noborito': { post: { x: 100, foot: 271 } },
     'lifefit-yurigaoka': { post: { x: 100, foot: 271 } },
+    'nadoya-no-katte-2026-11-06': { post: { x: 52, foot: 272 }, vend: { x: 298 } },   // the same garden as the Oct 2 visit
     'nadoya-no-katte': { post: { x: 52, foot: 272 }, vend: { x: 298 } },            // left of the bench, clear of the sitter
     'niko-and-shibuya': { post: { x: 136, foot: 271 } },          // clear of the "new in" board
     'stayful-life-store': { post: { x: 100, foot: 271 }, vend: { x: 349 } },        // past the potted tree

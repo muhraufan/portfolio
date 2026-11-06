@@ -1,5 +1,6 @@
 /* Scene — nadoya-no-katte. Needs /timeline/lib/last-seen.js and /timeline/scenes/_kit.js. */
 (function () {
+  if (window.LastSeenKit.nadoya) return;   // already loaded (e.g. fetched again by a later visit's file)
   var K = window.LastSeenKit, r = K.r, c = K.c, e = K.e, g = K.g, poly = K.poly, line = K.line, ring = K.ring, grain = K.grain, FONT = K.FONT, rnd = K.rnd;
   var make = K.make, contact = K.contact, sheen = K.sheen, ac = K.ac, pipe = K.pipe, plant = K.plant, sitter = K.sitter, leaves = K.leaves;
   // a tree mass as one opaque silhouette with a lit crown and a dark underside (as in Yoyogi Park)
@@ -26,7 +27,9 @@
      the kaTte on the right — an open timber frame under a thin plywood canopy, a speckled concrete counter
      with jars of beans and drippers, a low concrete slab with a rusted steel edge over raked gravel,
      stepping stones, a stone lantern, a bench, the garden's trees letting the sun through */
-  make('nadoya-no-katte', { seed: 902, seenAt: '2026-10-02T13:15:00+09:00',
+  // the place's spec, made fresh per call: nadoya-no-katte (Oct 2) and later visits (their own files, e.g.
+  // nadoya-no-katte-2026-11-06.js) share this drawing and override only the visit (seenAt, alt, figures, company)
+  function spec() { return { seed: 902, seenAt: '2026-10-02T13:15:00+09:00',
     place: { en: 'nadoya no kaTte', ja: 'ナドヤノカッテ' }, name: { en: 'nadoya no kaTte', ja: 'ナドヤノカッテ' }, area: { en: 'Yoyogi-Uehara, Tokyo', ja: '東京・代々木上原' },
     alt: 'Illustration of nadoya no kaTte in Yoyogi-Uehara: an old plaster house with a timber-framed glass room, an open timber coffee counter under a thin canopy, a low concrete slab over gravel, stepping stones, a stone lantern and garden trees.',
     palette: { sky: '#e1e8ea', skyShade: '#c9d5d9', sunWash: '#ffc58e',
@@ -190,5 +193,8 @@
       F.push(r(122, 100, 1.4, 118, 'winFrame')); F.push(r(140.6, 100, 1.4, 118, 'winFrame')); F.push(r(122, 100, 20, 1.4, 'winFrame')); F.push(r(122, 152, 20, 1.2, 'winFrame'));
       // the sign: just the name, small, on the post
       F.push(r(189, 140, 3, 26, 'inBack', { a: .9 })); F.push({ t: 'text', text: 'nadoya', x: 190.5, y: 138, size: 3, weight: 600, font: FONT, fill: 'eaveShade', align: 'center', ls: .4 });
-    } });
+    } }; }
+  make('nadoya-no-katte', spec());
+  K.nadoya = spec;   // later visits register through this; one may load before this file, so flush any that waited
+  (K.nadoyaQ || []).splice(0).forEach(function (f) { f(); });
 })();

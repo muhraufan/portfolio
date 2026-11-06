@@ -51,7 +51,7 @@
       h.dataset.jump = 'rail';
       h.classList.add('tl-pre');
       var tod = h.getAttribute('data-tod') || 'midday';
-      ['shimotakaido-ozora-park', 'bear-pond-espresso', 'apple-marunouchi', 'cinta-jawa-shibuya', 'tokyo-nihombashi-tower', 'niko-and-shibuya', 'tsuchiya-kaban-nakameguro', 'fuglen-noborito', 'tokyo-camii', 'lifefit-yurigaoka', 'yoyogi-park', 'tokyo-big-sight', 'mufg-park', 'stayful-life-store', 'nadoya-no-katte', 'et-cultural-coffeehouse'].forEach(function (id) {
+      ['nadoya-no-katte-2026-11-06', 'shimotakaido-ozora-park', 'bear-pond-espresso', 'apple-marunouchi', 'cinta-jawa-shibuya', 'tokyo-nihombashi-tower', 'niko-and-shibuya', 'tsuchiya-kaban-nakameguro', 'fuglen-noborito', 'tokyo-camii', 'lifefit-yurigaoka', 'yoyogi-park', 'tokyo-big-sight', 'mufg-park', 'stayful-life-store', 'nadoya-no-katte', 'et-cultural-coffeehouse'].forEach(function (id) {
         var l = document.createElement('link');
         l.rel = 'preload'; l.as = 'image';
         l.href = '/timeline/img/' + id + '-' + tod + '-s.webp?v=10';
@@ -66,7 +66,7 @@
   <!-- deferred scripts live in <head> so list.js can hold the first paint (blocking="render") until the rows exist:
        a stamp's cross-document morph needs its entry thumbnail named before the new page is captured (Chromium reveals mid-parse) -->
   <script src="/js/light-menu.js?v=2" defer></script>
-  <script src="/last-seen/last-seen.js?v=15" defer></script>
+  <script src="/last-seen/last-seen.js?v=16" defer></script>
   <script src="/last-seen/scenes/niko-and-shibuya.js?v=4" defer></script>
   <script src="/last-seen/scenes/_kit.js?v=9" defer></script>
   <script src="/last-seen/scenes/tokyo-big-sight.js?v=4" defer></script>
@@ -75,7 +75,7 @@
   <script src="/last-seen/scenes/fuglen-noborito.js?v=5" defer></script>
   <script src="/last-seen/scenes/tsuchiya-kaban-nakameguro.js?v=4" defer></script>
   <script src="/last-seen/scenes/lifefit-yurigaoka.js?v=4" defer></script>
-  <script src="/last-seen/scenes/nadoya-no-katte.js?v=4" defer></script>
+  <script src="/last-seen/scenes/nadoya-no-katte.js?v=5" defer></script>
   <script src="/last-seen/scenes/mufg-park.js?v=4" defer></script>
   <script src="/last-seen/scenes/stayful-life-store.js?v=4" defer></script>
   <script src="/last-seen/scenes/et-cultural-coffeehouse.js?v=4" defer></script>
@@ -84,8 +84,9 @@
   <script src="/last-seen/scenes/apple-marunouchi.js?v=4" defer></script>
   <script src="/last-seen/scenes/bear-pond-espresso.js?v=1" defer></script>
   <script src="/last-seen/scenes/shimotakaido-ozora-park.js?v=1" defer></script>
+  <script src="/last-seen/scenes/nadoya-no-katte-2026-11-06.js?v=1" defer></script>
   <script src="/timeline/lib/common.js?v=4" defer></script>
-  <script src="/timeline/lib/data.js?v=12" defer></script>
+  <script src="/timeline/lib/data.js?v=13" defer></script>
   <script src="/timeline/lib/feel.js?v=2" defer></script>
   <script src="/timeline/lib/live.js?v=1" defer></script>
   <script src="/timeline/list.js?v=15" defer blocking="render"></script>

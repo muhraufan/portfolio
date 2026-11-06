@@ -430,6 +430,10 @@
       }
       if (P.shades) { blob(A, pal[P.shades], 1, function () { A.ellipse(hc[0] + 2.75, hc[1] - .45, .95, .8, 0, 0, Math.PI * 2); });   // round sunglasses, seen side on
         A.globalAlpha = .9; stroke(A, [hc[0] + 2.2, hc[1] - .7, hc[0] + .2, hc[1] - .9], .38, pal[P.shades]); A.globalAlpha = 1; }
+      if (P.glasses) { var gl = pal[P.glasses]; A.globalAlpha = .9; A.lineWidth = .36; A.strokeStyle = gl;   // P.glasses: clear glasses, seen side on: a thin rim and the arm back to the ear
+        A.beginPath(); A.ellipse(hc[0] + 2.85, hc[1] - .4, .85, .78, 0, 0, Math.PI * 2); A.stroke();
+        stroke(A, [hc[0] + 2, hc[1] - .65, hc[0] - .4, hc[1] - .85], .32, gl); A.globalAlpha = 1;
+        blob(A, '#ffffff', .22, function () { A.ellipse(hc[0] + 3.05, hc[1] - .65, .35, .28, 0, 0, Math.PI * 2); }); }
       if (P.hat) {
         var by = hc[1] - 1.7, hat = pal[P.hat];
         A.save(); headClip(); A.clip(); blob(A, sh, .2, function () { A.rect(-6, by + .5, 12, 1.5); }); A.restore();   // the brim's shadow on the head
@@ -652,6 +656,10 @@
       }
       if (P.shades) { var shd = pal[P.shades]; blob(A, shd, 1, function () { A.arc(-1.2, hf[1] - .1, .95, 0, Math.PI * 2); A.arc(1.2, hf[1] - .1, .95, 0, Math.PI * 2); });
         stroke(A, [-.4, hf[1] - .3, .4, hf[1] - .3], .35, shd); }
+      if (P.glasses) { var glF = pal[P.glasses]; A.globalAlpha = .92; A.lineWidth = .46; A.strokeStyle = glF;   // clear glasses from the front: two thin rims and the bridge
+        A.beginPath(); A.ellipse(-1.25, hf[1] - .1, .95, .82, 0, 0, Math.PI * 2); A.moveTo(2.2, hf[1] - .1); A.ellipse(1.25, hf[1] - .1, .95, .82, 0, 0, Math.PI * 2); A.stroke();
+        stroke(A, [-.3, hf[1] - .3, .3, hf[1] - .3], .32, glF); A.globalAlpha = 1;
+        blob(A, '#ffffff', .2, function () { A.ellipse(-1.5, hf[1] - .35, .34, .26, 0, 0, Math.PI * 2); A.ellipse(1, hf[1] - .35, .34, .26, 0, 0, Math.PI * 2); }); }
       if (P.hat) {
         var byF = hf[1] - 1.6, hatF = pal[P.hat];
         A.save(); faceClip(); A.clip(); blob(A, sh, .36, function () { A.rect(-5, byF + .4, 10, 2.3); }); A.restore();
