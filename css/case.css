@@ -1773,6 +1773,9 @@
 
 .page-tab-frame img {
   width: 100%;
+  /* Height attributes are presentational hints. Leave them in place and
+     the mockup renders at that pixel height, stretched inside the phone. */
+  height: auto;
   display: block;
 }
 
