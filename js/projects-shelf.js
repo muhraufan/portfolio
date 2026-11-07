@@ -15,6 +15,12 @@
   var state = null;
 
   function rect(el) { var r = el.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; }
+  // The icon actually on screen. Horizon keeps a cream file and a black file; only one is shown.
+  function shownImg(root) {
+    var imgs = root.querySelectorAll('img'), i;
+    for (i = 0; i < imgs.length; i++) if (imgs[i].getClientRects().length) return imgs[i];
+    return imgs[0] || null;
+  }
 
   // Warm the preview so nothing decodes on the first animated frame.
   function warm(btn) {
@@ -68,7 +74,7 @@
     var from = 'translate(' + (tx).toFixed(2) + 'px,' + (ty).toFixed(2) + 'px) scale(' + k.toFixed(4) + ')';
     anims.push(inner.animate([{ transform: from, opacity: 0 }, { opacity: 1, offset: 0.35 }, { transform: 'none', opacity: 1 }], { duration: OPEN_MS, easing: SPRING, fill: 'both' }));
     // 2) shared element: the shelf icon flies into the header slot and lands there
-    var img = s.origin.querySelector('img');
+    var img = shownImg(s.origin);
     if (img) {
       var g = document.createElement('div'); g.className = 'ps-ghost'; g.setAttribute('aria-hidden', 'true');
       var im = new Image(); im.src = img.currentSrc || img.src; im.alt = ''; im.decoding = 'sync';

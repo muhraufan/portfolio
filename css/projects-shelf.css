@@ -311,3 +311,23 @@ html:has(.ps-card[open]) :is(.ps-ledge, .ps-face-soon, .case-folder-flap) { -web
   vertical-align: 0.15em;
 }
 .ps-card-beta .lang-stack { display: inline-grid; justify-items: center; }
+
+/* Horizon's icon follows the site's light: cream by day, black at night.
+   A picture media query only sees the OS, so it ignored the light menu. */
+.ps-face .ps-ico-dark,
+.ps-refl .ps-ico-dark,
+.ps-card-icon .ps-ico-dark { display: none; }
+:root[data-theme="dark"] .ps-face .ps-ico-light,
+:root[data-theme="dark"] .ps-refl .ps-ico-light,
+:root[data-theme="dark"] .ps-card-icon .ps-ico-light { display: none; }
+:root[data-theme="dark"] .ps-face .ps-ico-dark,
+:root[data-theme="dark"] .ps-refl .ps-ico-dark,
+:root[data-theme="dark"] .ps-card-icon .ps-ico-dark { display: contents; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .ps-face .ps-ico-light,
+  :root:not([data-theme="light"]) .ps-refl .ps-ico-light,
+  :root:not([data-theme="light"]) .ps-card-icon .ps-ico-light { display: none; }
+  :root:not([data-theme="light"]) .ps-face .ps-ico-dark,
+  :root:not([data-theme="light"]) .ps-refl .ps-ico-dark,
+  :root:not([data-theme="light"]) .ps-card-icon .ps-ico-dark { display: contents; }
+}
