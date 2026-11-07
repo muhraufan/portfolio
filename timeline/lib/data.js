@@ -4,6 +4,7 @@
   var TL2 = window.TL2 = window.TL2 || {};
   var TZ = 'Asia/Tokyo';
   var REAL = [
+    { scene: 'naruto-coffee', seenAt: '2026-11-07T16:55:00+09:00', name: { en: 'NARUTO COFFEE', ja: 'ナルトコーヒー' }, area: { en: 'Izumi-Tamagawa, Komae', ja: '狛江・和泉多摩川' }, with: [{ name: 'Brian' }] },
     { scene: 'nadoya-no-katte-2026-11-06', seenAt: '2026-11-06T13:56:00+09:00', name: { en: 'nadoya no kaTte', ja: 'ナドヤノカッテ' }, area: { en: 'Yoyogi-Uehara, Tokyo', ja: '東京・代々木上原' }, with: [{ name: 'Brian' }, { name: 'Rizal' }, { name: 'Reihan' }] },
     { scene: 'shimotakaido-ozora-park', seenAt: '2026-11-03T14:05:00+09:00', name: { en: 'Shimotakaido Ozora Park', ja: '下高井戸おおぞら公園' }, area: { en: 'Shimotakaido, Tokyo', ja: '東京・下高井戸' }, with: [{ name: 'Andre', url: 'https://www.instagram.com/andrerusl' }] },
     { scene: 'bear-pond-espresso', seenAt: '2026-10-31T15:45:00+09:00', name: { en: 'Bear Pond Espresso', ja: 'ベアポンド エスプレッソ' }, area: { en: 'Shimokitazawa, Tokyo', ja: '東京・下北沢' }, with: [{ name: { en: 'his wife and son', ja: '妻と息子' } }] },
