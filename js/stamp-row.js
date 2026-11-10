@@ -11,6 +11,8 @@
   var all = TL2.places(), earlier = all.filter(function (p) { return !p.current; });
   if (!earlier.length) { fig.classList.remove('has-stamps'); return; }
   var pile = earlier.slice(ROW, ROW + 3); if (!pile.length) pile = earlier.slice(-3);
+  // with the pop-up book in the hero the stamps are its page tabs: the place on show comes first, and a click turns the page
+  var tabs = fig.classList.contains('pb'), shown = tabs ? all.slice(0, ROW + 1) : earlier.slice(0, ROW);
 
   function ja() { return html.getAttribute('data-lang') === 'ja'; }
   function txt(o) { return o ? (o[ja() ? 'ja' : 'en'] || o.en) : ''; }
@@ -26,13 +28,13 @@
   function img(p, L) { return '<img src="' + src(p, L) + '" data-place="' + p.place + '" alt="" width="48" height="40" decoding="async">'; }
 
   var L0 = light();
-  nav.innerHTML = earlier.slice(0, ROW).map(function (p) {
+  nav.innerHTML = shown.map(function (p) {
     return '<a class="pc-st" href="/timeline/#' + p.id + '">' + img(p, L0) + '</a>';
   }).join('') + '<a class="pc-pile" href="/timeline/">' + pile.map(function (p) { return img(p, L0); }).join('') + '</a>';
   var stamps = nav.querySelectorAll('.pc-st'), pileEl = nav.querySelector('.pc-pile');
   function labels() {
     nav.setAttribute('aria-label', ja() ? 'これまでの場所' : 'Earlier places');
-    stamps.forEach(function (a, i) { var p = earlier[i]; a.dataset.name = txt(p.name); a.dataset.date = day(p.from); a.setAttribute('aria-label', a.dataset.name + ', ' + a.dataset.date); });
+    stamps.forEach(function (a, i) { var p = shown[i]; a.dataset.name = txt(p.name); a.dataset.date = day(p.from); a.setAttribute('aria-label', a.dataset.name + ', ' + a.dataset.date); });
     pileEl.dataset.name = allLabel(); pileEl.dataset.date = ''; pileEl.setAttribute('aria-label', allLabel());
   }
   labels();
@@ -116,6 +118,10 @@
   var named = null;
   nav.addEventListener('click', function (e) {
     var a = e.target.closest('.pc-st'); if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+    if (fig.classList.contains('pb') && fig.classList.contains('pb-ready')) {            // the book is up: turn its page instead of leaving
+      var p = shown[Array.prototype.indexOf.call(stamps, a)];
+      if (p && window.LastSeen && LastSeen.byId(p.place)) { e.preventDefault(); fig.dispatchEvent(new CustomEvent('pb:place', { detail: { place: p.place, id: p.id } })); return; }
+    }
     if (named) named.style.viewTransitionName = '';
     named = a.querySelector('img'); named.style.viewTransitionName = 'pc-place';
   });

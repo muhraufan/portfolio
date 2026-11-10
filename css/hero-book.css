@@ -1,15 +1,65 @@
 /* The hero's pop-up book (js/hero-book.js). It stands in front of the postcard scene, inside the card's front face, so it
-   turns over with the card and lands with it on scroll. The stage is larger than the card: a book needs room to open. */
-.pb-stage { position: absolute; inset: -35% max(-34%, (100cqw - 100vw) / 2) -23%; z-index: 2;   /* never wider than the screen */
+   lands with the card on scroll. The stage is larger than the card: a book needs room to open. */
+.pb-stage { position: absolute; inset: -35% max(-34%, (100cqw - 100vw) / 2) -23%; z-index: 2; -webkit-tap-highlight-color: transparent;   /* never wider than the screen */
   /* a long evening shadow may reach the edge of the stage: let it fade out there instead of stopping dead */
   -webkit-mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent), linear-gradient(to bottom, transparent, #000 6%, #000 96%, transparent);
-  -webkit-mask-composite: source-in; mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent), linear-gradient(to bottom, transparent, #000 6%, #000 96%, transparent); mask-composite: intersect; opacity: 0; transition: opacity 320ms cubic-bezier(0.2, 0, 0, 1); -webkit-tap-highlight-color: transparent; }
+  -webkit-mask-composite: source-in; mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent), linear-gradient(to bottom, transparent, #000 6%, #000 96%, transparent); mask-composite: intersect; }
 .pb-stage[hidden] { display: none; }
-.ls.pb-ready .pb-stage { opacity: 1; }
+body.pc { overflow-x: clip; }   /* the tucked card may lean past the edge of a narrow screen: it must never make the page scroll sideways */
+/* the closed cover as a flat picture, there from the first paint; the real book fades in over it, then it goes */
+.pb-poster { position: absolute; left: 0; top: 0; transform-origin: 0 0; pointer-events: none; border-radius: 3px;
+  filter: drop-shadow(0 10px 14px rgba(40, 30, 20, .22)); transition: opacity 180ms linear 300ms, visibility 0s linear 480ms; }
+html[data-tod="golden"] .pb-poster { filter: sepia(.2) saturate(1.1) drop-shadow(0 10px 14px rgba(60, 30, 10, .24)); }
+html[data-tod="night"] .pb-poster, [data-theme="dark"]:not([data-tod]) .pb-poster { filter: brightness(.9) saturate(.9) hue-rotate(-6deg) drop-shadow(0 10px 16px rgba(0, 0, 0, .6)); }
+.ls.pb-ready .pb-poster { opacity: 0; visibility: hidden; }
+.pb-stage canvas:not(.pb-poster) { opacity: 0; transition: opacity 300ms cubic-bezier(0.2, 0, 0, 1); }
+.ls.pb-ready .pb-stage canvas:not(.pb-poster) { opacity: 1; }
 .pb-stage canvas:focus-visible { outline: 1.5px solid var(--ink, #111); outline-offset: -6px; border-radius: 12px; }
 /* the postcard scene keeps running underneath, unseen */
 .ls.pb .pc-front .ls-scene { opacity: 0; pointer-events: none; }
-.ls.pb .pc-card.is-photo .pb-stage { opacity: 0; pointer-events: none; }
-/* the stage overhangs the card, so the lines under it stay on top and clickable */
+.ls.pb .pc-card.is-photo .pb-stage, .ls.pb .pc-card.is-photo .pb-tuck { opacity: 0; pointer-events: none; }
+
+/* ---------- the stamps are the book's page tabs: they hang from its front edge, and the caption goes under them ---------- */
+.ls.pb { display: flex; flex-direction: column; }
 .ls.pb .ls-caption, .ls.pb .pc-stamps { position: relative; z-index: 3; }
-@media (prefers-reduced-motion: reduce) { .pb-stage { transition: none; } }
+.ls.pb:not(:has(.ls-caption.is-photo)) .pc-stamps { order: 1; margin-top: calc(var(--pb-foot, 24px) - 1px); height: 46px; align-items: flex-start; gap: 6px; }
+.ls.pb:not(:has(.ls-caption.is-photo)) .ls-caption { order: 2; margin-top: 10px; }
+.ls.pb .pc-st { rotate: 0deg; width: 46px; height: 40px; aspect-ratio: auto; box-sizing: border-box; padding: 3px 3px 5px; background: #fbf8f1; border-radius: 0 0 7px 7px; filter: none; opacity: .86;
+  box-shadow: inset 0 8px 6px -5px rgba(42, 36, 24, .34), 0 1px 1px rgba(42, 36, 24, .12), 0 3px 6px rgba(42, 36, 24, .10);   /* the shade at the top: it comes out from under the book */
+  transform: translateY(-9px); transition: transform 220ms cubic-bezier(0.2, 0, 0, 1), opacity 200ms ease-out; }
+.ls.pb .pc-st img { padding: 0; background: none; -webkit-mask: none; mask: none; border-radius: 1px 1px 4px 4px; }
+.ls.pb .pc-st:is(:hover, :focus-visible) { transform: translateY(-4px); opacity: 1; filter: none; }
+.ls.pb .pc-st.is-on { transform: none; opacity: 1; }
+.ls.pb .pc-st.is-on img { filter: none; }
+.ls.pb .pc-st:active { transform: translateY(-2px) scale(.97); transition-duration: 90ms; }
+.ls.pb .pc-pile { margin-top: 3px; }
+[data-theme="dark"] .ls.pb .pc-st { background: #ebe2d1; box-shadow: inset 0 8px 6px -5px rgba(0, 0, 0, .5), 0 1px 1px rgba(0, 0, 0, .5), 0 3px 8px rgba(0, 0, 0, .45); }
+
+/* ---------- the guest card is a loose card tucked under the book's right corner ----------
+   It lies under the book (the book's own pixels hide most of it), slides down clear of it, comes up on top, and settles
+   in front. js/postcard.js still drives it with the same classes it used to turn the card over. */
+.ls.pb .pc-card:not(.is-photo) .pc-inner { transform: none; transform-style: flat; transition: none; }
+.ls.pb .pc-card:not(.is-photo) .pc-face { backface-visibility: visible; -webkit-backface-visibility: visible; }
+.ls.pb .pc-card:not(.is-photo) .pc-front { transform: none; z-index: 1; }
+.ls.pb .pc-card:not(.is-photo) .pc-back {
+  --pb-tuck: translate(var(--pb-tx, 30%), var(--pb-ty, 30%)) rotate(9deg) scale(.5);
+  --pb-clear: translate(var(--pb-tx, 30%), calc(var(--pb-ty, 30%) + 48cqw * .75)) rotate(4deg) scale(.56);
+  --pb-out: translate(0, 7%) rotate(-1.5deg) scale(1);
+  z-index: 0; transform: var(--pb-tuck); visibility: visible; opacity: 0; transition: opacity 240ms ease-out, translate 260ms cubic-bezier(0.2, 0, 0, 1); }
+.ls.pb.pb-open .pc-card:not(.is-photo) .pc-back { opacity: 1; }           /* only once the book is open: shut, it would lie there uncovered */
+.ls.pb .pc-card:not(.is-photo).is-flipped .pc-back { z-index: 3; opacity: 1; transform: var(--pb-out); animation: pb-card-out 640ms cubic-bezier(0.2, 0, 0, 1) both; }
+.ls.pb .pc-card:not(.is-photo):not(.is-flipped) .pc-back:not(.is-away) { opacity: 1; animation: pb-card-in 540ms cubic-bezier(0.2, 0, 0, 1) both; }
+.ls.pb .pc-card:not(.is-photo):has(.pc-back:not(.is-away)) { z-index: 4; }  /* out: above the tabs and the caption */
+@keyframes pb-card-out { 0% { transform: var(--pb-tuck); z-index: 0; } 40% { transform: var(--pb-clear); z-index: 0; } 41% { z-index: 3; } 100% { transform: var(--pb-out); z-index: 3; } }
+@keyframes pb-card-in { 0% { transform: var(--pb-out); z-index: 3; } 58% { transform: var(--pb-clear); z-index: 3; } 59% { z-index: 0; } 100% { transform: var(--pb-tuck); z-index: 0; } }
+/* its corner is a button: the same as "Leave a note" */
+.pb-tuck { position: absolute; left: calc(var(--pb-cx, 100%) - 20px); top: calc(var(--pb-cy, 100%) - 34px); width: 100px; height: 96px; z-index: 3; padding: 0; border: 0; background: none; cursor: pointer; display: none; border-radius: 8px; -webkit-tap-highlight-color: transparent; }
+.ls.pb.pb-open .pb-tuck { display: block; }
+.pb-tuck:focus-visible { outline: 1.5px dashed var(--ink, #111); outline-offset: 2px; }
+.ls.pb .pc-inner:has(.pb-tuck:is(:hover, :focus-visible)) .pc-back { translate: 5px 8px; }   /* it eases out a little, to say it can be taken */
+
+@media (prefers-reduced-motion: reduce) {
+  .pb-poster, .pb-stage canvas:not(.pb-poster), .ls.pb .pc-st { transition: none; }
+  .ls.pb .pc-card:not(.is-photo) .pc-back { animation: none !important; transition: opacity 200ms ease-out; }
+  .ls.pb .pc-card:not(.is-photo).is-flipped .pc-back { visibility: visible; }
+}
