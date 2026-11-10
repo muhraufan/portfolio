@@ -206,34 +206,50 @@
       if (held) { var pick = held.pick; closeRuler(); if (e.type === 'pointerup' && pick >= 0) go(D[pick].list[0].i); leave(); return; }
       var k = snap; if (e.type === 'pointerup' && k >= 0) go(D[k].list[0].i); if (e.pointerType !== 'mouse') leave();
     }
-    // Press and hold: the month under the pointer opens out into its dates, to pick one precisely. Days with a place are
-    // inked; slide along (still holding) and let go on the one you want. It runs newest first, like the rail under it.
-    var holdT = 0, downX = 0, held = null, ruler = document.createElement('div'); ruler.className = 'tb-ruler'; ruler.hidden = true; ruler.setAttribute('aria-hidden', 'true');
+    // Press and hold: the old rail's day ruler, turned on its side. A window opens over the press point holding every day
+    // with a place, in order, with a month's name wherever the month changes. The picked day sits in the middle, larger, with
+    // its weekday and place; the rest fade with distance. Slide (still holding) and the row steps past one day per notch,
+    // on a stiff spring, with the ratchet. A hairline ties the window to the rail. Let go to turn the book there.
+    var holdT = 0, downX = 0, held = null, ruler = document.createElement('div'), ruX = document.createElement('i');
+    ruler.className = 'tb-ruler'; ruler.hidden = true; ruler.setAttribute('aria-hidden', 'true'); ruler.innerHTML = '<div class="tb-ru-in"></div><div class="tb-ru-n"></div>'; ruX.className = 'tb-ru-x'; ruX.hidden = true;
+    var ruIn = ruler.firstChild, ruName = ruler.lastChild, RU = { pitch: 34, cols: 11 };
     function openRuler() {
       if (!down || snap < 0) return;
-      var a = D[snap].p.at, n = new Date(Date.UTC(a.y, a.m, 0)).getUTCDate(), pitch = Math.min(22, (innerWidth - 40) / n), cells = [], html = '';
-      for (var d = n; d >= 1; d--) { var k = -1; D.forEach(function (x, i) { var q = x.p.at; if (q.y === a.y && q.m === a.m && q.d === d) k = i; }); cells.push({ d: d, k: k }); html += '<span class="tb-ru-c' + (k >= 0 ? ' is-day' : '') + '" style="width:' + pitch.toFixed(2) + 'px">' + d + '</span>'; }
-      ruler.innerHTML = '<div class="tb-ru-h">' + TL2.monthTitle(a.y, a.m) + '</div><div class="tb-ru-row">' + html + '</div><div class="tb-ru-n"></div>';
-      rail.appendChild(ruler); ruler.hidden = false;
-      var w = pitch * n + 24, rr = rail.getBoundingClientRect(), fits = w <= rr.width + 28, lo = fits ? (rr.width - w) / 2 : 12 - rr.left, hi = fits ? (rr.width - w) / 2 : innerWidth - 12 - w - rr.left, left = Math.max(lo, Math.min(hi, D[snap].x - w / 2));   // a month is about as wide as the rail: it sits squarely over it
-      ruler.style.width = w + 'px'; ruler.style.left = left + 'px';
-      held = { cells: cells, pitch: pitch, pick: -1, els: [].slice.call(ruler.querySelectorAll('.tb-ru-c')), row: ruler.querySelector('.tb-ru-row'), name: ruler.querySelector('.tb-ru-n') };
-      rail.classList.add('is-held'); px = null; kick(); rulerPick(snap);
+      var pitch = RU.pitch, w = Math.min(RU.cols * pitch, innerWidth - 24), items = [], col = {};
+      D.forEach(function (d, k) { var a = d.p.at, b = k ? D[k - 1].p.at : null; if (!b || b.m !== a.m || b.y !== a.y) items.push({ mon: a }); col[k] = items.length; items.push({ k: k }); });
+      ruIn.innerHTML = items.map(function (it) {
+        if (it.mon) return '<div class="tb-ru-m">' + (ja() ? it.mon.m + '月' : TL2.mon(it.mon.m)) + '</div>';
+        var a = D[it.k].p.at; return '<div class="tb-ru-d"><em>' + (ja() ? WD.ja[wd(a)] : WD.en[wd(a)]) + '</em><b>' + a.d + '</b></div>';
+      }).join('');
+      ruIn.style.setProperty('--pitch', pitch + 'px');
+      rail.appendChild(ruler); rail.appendChild(ruX); ruler.hidden = false; ruX.hidden = false;
+      var rr = rail.getBoundingClientRect(), cxr = Math.max(12 - rr.left + w / 2, Math.min(innerWidth - 12 - rr.left - w / 2, D[snap].x));
+      ruler.style.width = w + 'px'; ruler.style.left = (cxr - w / 2) + 'px'; ruX.style.left = cxr + 'px';
+      held = { k: snap, k0: snap, x0: downX, pitch: pitch, col: col, w: w, off: -col[snap] * pitch, offV: 0, to: -col[snap] * pitch, raf: 0, t: 0, kids: [].slice.call(ruIn.children) };
+      held.pick = snap; rail.classList.add('is-held'); px = null; kick(); paintRuler(); nameRuler();
       if (TL3.cue) TL3.cue('open');
-      if (!TL.reduce.matches && ruler.animate) ruler.animate([{ opacity: 0, transform: 'translateY(6px) scale(.97)' }, { opacity: 1, transform: 'none' }], { duration: 180, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+      if (!TL.reduce.matches && ruler.animate) ruler.animate([{ opacity: 0, scale: .95 }, { opacity: 1, scale: 1 }], { duration: 160, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
     }
-    function rulerPick(k) {
-      if (!held || k === held.pick) return; var had = held.pick >= 0; held.pick = k;
-      held.cells.forEach(function (c, i) { held.els[i].classList.toggle('is-on', c.k === k); });
-      var d = D[k]; held.name.textContent = d.list.length > 1 ? TL2.s(d.p.name) + ' +' + (d.list.length - 1) : TL2.s(d.p.name);
-      if (had && TL3.cue) TL3.cue('tick');
+    function nameRuler() { var d = D[held.k]; ruName.textContent = d.list.length > 1 ? count(d.list.length) : TL2.s(d.p.name); }
+    function paintRuler() {
+      var R = held; if (!R) return; var sel = R.col[R.k];
+      ruIn.style.transform = 'translateX(' + (R.w / 2 - R.pitch / 2 + R.off).toFixed(1) + 'px)';
+      R.kids.forEach(function (e, i) { var dd = Math.abs((i * R.pitch + R.off) / R.pitch); e.style.opacity = dd > 5.5 ? 0 : (dd < .5 ? 1 : Math.max(.16, 1 - dd * .2)).toFixed(2); e.classList.toggle('is-sel', i === sel); });
+    }
+    function rulerFrame(now) {
+      var R = held; if (!R) return; R.raf = 0; var dt = Math.min(.032, (now - (R.t || now)) / 1000); R.t = now;
+      if (TL.reduce.matches) { R.off = R.to; R.offV = 0; } else { var r = spring(R.off, R.offV, R.to, 1400, dt); R.off = r[0]; R.offV = r[1]; }
+      paintRuler(); if (Math.abs(R.off - R.to) > .3 || Math.abs(R.offV) > 2) R.raf = requestAnimationFrame(rulerFrame); else { R.off = R.to; R.t = 0; paintRuler(); }
     }
     function rulerMove(e) {
-      var r = held.row.getBoundingClientRect(), i = Math.max(0, Math.min(held.cells.length - 1, Math.floor((e.clientX - r.left) / held.pitch))), best = -1, bd = 1e9;
-      held.cells.forEach(function (c, j) { if (c.k >= 0 && Math.abs(j - i) < bd) { bd = Math.abs(j - i); best = c.k; } });
-      if (best >= 0) rulerPick(best);
+      var R = held, k = Math.max(0, Math.min(D.length - 1, R.k0 + Math.round((at(e) - R.x0) / R.pitch)));
+      if (k !== R.k) { var mon = monthOf(D[k].p.i) !== monthOf(D[R.k].p.i); R.k = R.pick = k; R.to = -R.col[k] * R.pitch; nameRuler(); if (TL3.cue) TL3.cue(mon ? 'tick' : 'tick2'); if (!R.raf) { R.t = 0; R.raf = requestAnimationFrame(rulerFrame); } }
     }
-    function closeRuler() { held = null; ruler.hidden = true; rail.classList.remove('is-held'); }
+    function closeRuler() {
+      var R = held; if (!R) return; held = null; cancelAnimationFrame(R.raf); rail.classList.remove('is-held'); ruX.hidden = true;
+      if (TL.reduce.matches || !ruler.animate) { ruler.hidden = true; return; }
+      ruler.animate([{ opacity: 1, scale: 1 }, { opacity: 0, scale: .98 }], { duration: 120, easing: 'cubic-bezier(0.2, 0, 0, 1)' }).onfinish = function () { if (!held) ruler.hidden = true; };
+    }
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && held) { closeRuler(); down = false; leave(); } });
     function leave() { if (down) return; px = null; snap = -1; hotM = null; hot(); previewMonth(monthOf(cur)); kick(); }
     rail.addEventListener('click', function (e) { var m = e.target.closest('.tb-rail-m'); if (!m) return; var M = MS[labs.indexOf(m)], B = M && byKey[TL2.key(M.y, M.m)]; if (B) go(B.list[0].i); });
