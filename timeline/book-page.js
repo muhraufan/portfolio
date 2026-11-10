@@ -3,14 +3,13 @@
    Pull a ribbon and the book turns to that month; pick a stamp (or the arrows, the arrow keys, a #place link) and it
    turns to that place; the lines under the book say where, when and with whom.
    Needs /last-seen/last-seen.js, the scene files, /last-seen/popup/paint.js and cover.js, lib/common.js, lib/data.js;
-   loads /last-seen/popup/book.js (three.js) once the page is up. Until the book is whole, and wherever it cannot run
-   (no WebGL), the place's still picture stands in the same spot. The list-and-rail Timeline this replaced is at the tag
+   loads /last-seen/popup/book.js (three.js) once the page is up. Until the book is whole, its closed cover is shown as a flat picture in the same spot. The list-and-rail Timeline this replaced is at the tag
    backup-timeline-live. */
 (function () {
   'use strict';
   var html = document.documentElement, TL = window.TL, TL2 = window.TL2, TL3 = window.TL3 || {};
   var P = TL2.places(); if (!P.length) return;
-  var stage = document.getElementById('tb-stage'), still = stage.querySelector('img'), info = document.getElementById('tb-info'), gal = document.getElementById('t3-list');
+  var stage = document.getElementById('tb-stage'), poster = null, info = document.getElementById('tb-info'), gal = document.getElementById('t3-list');
   var prevB = document.querySelector('.tb-prev'), nextB = document.querySelector('.tb-next'), ribbons = document.getElementById('tb-ribbons'), monthEl = document.getElementById('tb-month');
   var LIGHTS = ['morning', 'midday', 'golden', 'night'], WD = { en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], ja: ['日', '月', '火', '水', '木', '金', '土'] };
   function ja() { return TL.lang() === 'ja'; }
@@ -60,6 +59,7 @@
   // where the open book's front edge is on the stage: the ribbons hang from it
   function layout() {
     var w = stage.clientWidth, h = stage.clientHeight; if (!w || !h || !window.LastSeen || !LastSeen.popup) return;
+    if (poster) poster.style.transform = LastSeen.popup.quadCSS(405, 651, LastSeen.popup.project(LastSeen.popup.SHUT, w, h, 0));
     var f = LastSeen.popup.project(LastSeen.popup.FRONT, w, h, 1);
     var sr = stage.getBoundingClientRect(), br = stage.parentNode.getBoundingClientRect();
     ribbons.style.left = Math.round(sr.left - br.left + f[0][0] + (f[1][0] - f[0][0]) * .07) + 'px'; ribbons.style.top = Math.round(sr.top - br.top + f[0][1] - 2) + 'px';
@@ -73,7 +73,9 @@
       '<h2 class="tb-name">' + esc(TL2.s(p.name)) + (w ? '<span class="tb-with">' + w + '</span>' : '') + '</h2><p class="tb-area">' + esc(TL2.s(p.area)) + '</p>';
     prevB.setAttribute('aria-label', ja() ? '新しい場所へ' : 'Newer place'); nextB.setAttribute('aria-label', ja() ? '前の場所へ' : 'Earlier place');
   }
-  function setStill() { var p = P[cur]; if (p.scene) still.src = img(p, 'l'); }
+  // the closed cover, there from the first paint, laid where the 3D cover will be (the same as on the homepage)
+  function setStill() {}
+  try { poster = LastSeen.popup.cover(light()); poster.className = 'tb-poster'; poster.setAttribute('aria-hidden', 'true'); poster.style.width = '405px'; poster.style.height = '651px'; stage.appendChild(poster); } catch (e) { poster = null; }
 
   // ---------- the book ----------
   var book = null, failed = false, SAY = { en: { shut: 'A pop-up book of every place. Press Enter to open it.', open: 'Pop-up book, open. Move over the pieces to play with them.' },
