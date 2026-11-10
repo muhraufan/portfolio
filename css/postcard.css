@@ -71,7 +71,15 @@
 .pc-thanks { position: absolute; left: 0; top: 0; white-space: nowrap; color: var(--text); opacity: 0; transform: translateY(4px); pointer-events: none;
   transition: opacity 220ms ease-out, transform 320ms cubic-bezier(0.2, 0, 0, 1); }
 .pc-note-wrap.is-thanks .pc-note { opacity: 0; }
-.pc-note-wrap.is-thanks .pc-thanks { opacity: 1; transform: none; }
+.pc-note-wrap.is-thanks .pc-thanks { opacity: 1; transform: none; pointer-events: auto; }
+/* a narrow caption wraps: there the thanks line takes the button's place in the text instead of hanging off its left edge */
+@media (max-width: 860px) {
+  .pc-note-wrap.is-thanks .pc-note { display: none; }
+  .pc-note-wrap.is-thanks .pc-thanks { position: static; white-space: normal; }
+}
+.pc-wall { color: inherit; text-decoration: underline dashed #C8DDD4; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.pc-wall:hover { text-decoration-color: #a9c8bb; }
+.pc-wall:focus-visible { outline: 1px dashed currentColor; outline-offset: 4px; border-radius: 2px; }
 
 /* ---------- the card: front is the scene, back is the guest card ---------- */
 .pc-card { position: relative; aspect-ratio: 4 / 3; perspective: 1800px; container-type: inline-size; }

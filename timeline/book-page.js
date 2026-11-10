@@ -105,7 +105,7 @@
     if (failed || book || !window.LastSeen || !LastSeen.popup || !LastSeen.painters || !LastSeen.painters.popup) return;
     try { var c = document.createElement('canvas'); if (!(c.getContext('webgl2') || c.getContext('webgl'))) return; } catch (e) { return; }
     var load; try { load = new Function('u', 'return import(u)'); } catch (e) { return; }
-    load('/last-seen/popup/book.js?v=6').then(function (m) {
+    load('/last-seen/popup/book.js?v=7').then(function (m) {
       var first = true;
       book = m.createBook(stage, { label: say, onBuilt: function () { stage.classList.add('is-book'); if (first) { first = false; setTimeout(function () { book.open(); }, 420); } } });   // the flat cover goes first, then the real one opens
       var p0 = P[cur]; if (p0.scene && LastSeen.byId(p0.scene)) book.setScene(p0.scene, light());

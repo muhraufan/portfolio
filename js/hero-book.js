@@ -79,13 +79,13 @@
     var closeBtn = fig.querySelector('.pc-close'), backEl = fig.querySelector('.pc-back');
     document.addEventListener('click', function (e) {
       if (!fig.classList.contains('pb') || !card.classList.contains('is-flipped') || card.classList.contains('is-photo') || !closeBtn) return;
-      if (backEl.contains(e.target) || e.target.closest('.pc-note-wrap, .pb-tuck')) return;
+      if (backEl.contains(e.target) || e.target.closest('.pc-note-wrap, .pb-tuck') || performance.now() - boxAt < 400) return;   // not the very click on the post box that brought it out
       closeBtn.click();
     });
   }
 
   // ---------- the book ----------
-  var book = null, inView = false, opened = false, flipT = 0;
+  var book = null, inView = false, opened = false, flipT = 0, boxAt = -1e9;
   function sync() {
     if (!book || !fig.classList.contains('pb-ready')) return;   // while it is still building, it keeps running
     var on = inView && !document.hidden && !card.classList.contains('is-photo') && !card.classList.contains('is-flipped');
@@ -100,15 +100,23 @@
     if (started || !settledPage || !inView || document.hidden) return; started = true;
     giveUp = setTimeout(function () { if (!book) off(); }, 9000);
     var t0 = performance.now();
-    load('/last-seen/popup/book.js?v=6').then(function (m) {
+    load('/last-seen/popup/book.js?v=7').then(function (m) {
       clearTimeout(giveUp); try { performance.measure('pb:import', { start: t0, end: performance.now() }); } catch (e) {}
       if (!fig.classList.contains('pb')) return;         // already fell back to the postcard
       book = m.createBook(stage, { label: say,
+        onPost: function () { if (noteBtn && !card.classList.contains('is-flipped')) { boxAt = performance.now(); noteBtn.click(); } },   // the post box in the book: a second way to the guest card
         onReady: function () { fig.classList.add('pb-ready'); sync(); },
         onOpen: function () { fig.classList.add('pb-open'); }, onShut: function () { fig.classList.remove('pb-open'); } });
       book.setScene(showing, light()); fig._book = book;
     }, function () { clearTimeout(giveUp); off(); });
   }
+  // A posted note flies to the book's post box (street-life.js runs the flight; this says where the slot is and what happens there).
+  if (window.LastSeenStreet) LastSeenStreet.book = {
+    on: function () { return fig.classList.contains('pb') && !card.classList.contains('is-photo'); },
+    aim: function () { return (book && book.postSlot && book.postSlot()) || null; },
+    from: function () { return card.querySelector('.pc-back'); },
+    land: function () { if (book && book.posted) book.posted(); }
+  };
   function idle() { (window.requestIdleCallback || function (f) { setTimeout(f, 250); })(function () { settledPage = true; start(); }, { timeout: 1200 }); }
   if (document.readyState === 'complete') idle(); else window.addEventListener('load', idle, { once: true });
 

@@ -22,12 +22,16 @@
   LastSeen.mount(scene, null, { extras: window.LastSeenStreet || null });
 
   // ---------- strings ----------
+  // the thanks line carries a way to the wall of notes; it can only be reached while the line is showing
+  var thanksTxt = document.createElement('span'), wall = document.createElement('a');
+  wall.className = 'pc-wall'; wall.href = '/cards.html'; wall.tabIndex = -1;
+  thanks.textContent = ''; thanks.appendChild(thanksTxt); thanks.appendChild(document.createTextNode(' \u00b7 ')); thanks.appendChild(wall);
   var T = {
-    en: { note: 'Leave a note', tl: 'Earlier sightings', thanks: 'Thanks for the note', label: 'Guest card', title: 'Thank you for visiting! -Raufan',
+    en: { note: 'Leave a note', tl: 'Earlier sightings', thanks: 'Thanks for the note', wall: 'See all notes', label: 'Guest card', title: 'Thank you for visiting! -Raufan',
       message: 'Message', messagePh: 'Leave a short note', signature: 'Signature', from: 'From', namePh: 'Your name',
       to: 'To', toName: 'Raufan', close: 'Close', post: 'Post it', clear: 'Clear', form: 'Leave a note for Raufan',
       who: ['Muhammad ', 'Raufan', ' Yusup'], shot: ['Last shot by ', ''], shot2: ['Shot by ', ''], shuffle: 'Shuffle', shuffleLabel: 'Shuffle the prints', toPhoto: 'Photography', toDesign: 'Design', credit: ['Last seen · Apple Marunouchi · Marunouchi', 'Photograph · Raufan Yusup'], err: "Couldn't send. Try again." },
-    ja: { note: 'ひとこと残す', tl: 'これまでの足あと', thanks: 'ありがとう、届きました', label: 'Guest card', title: '来てくれてありがとう！ -Raufan',
+    ja: { note: 'ひとこと残す', tl: 'これまでの足あと', thanks: 'ありがとう、届きました', wall: 'みんなのひとこと', label: 'Guest card', title: '来てくれてありがとう！ -Raufan',
       message: 'メッセージ', messagePh: 'ひとことどうぞ', signature: 'サイン', from: 'From', namePh: 'お名前（任意）',
       to: '', toName: 'ラウファン 様', close: '閉じる', post: '投函する', clear: '消す', form: 'ラウファンにひとこと残す',
       who: ['ムハンマド', 'ラウファン', 'ユスップ'], shot: ['', 'が最後に撮った一枚'], shot2: ['', 'が撮った一枚'], shuffle: 'もう一枚', shuffleLabel: '写真をめくる', toPhoto: '写真', toDesign: 'デザイン', credit: ['Last seen · Apple Marunouchi · Marunouchi', 'Photograph · Raufan Yusup'], err: '送れませんでした。もう一度。' }
@@ -39,7 +43,7 @@
     var s = t();
     setWho(who, s); setWho(who2, s);
     if (typeof applyShot === 'function' && shotTitle) applyShot();
-    note.textContent = s.note; thanks.textContent = s.thanks; if (tl) tl.textContent = s.tl;
+    note.textContent = s.note; thanksTxt.textContent = s.thanks; wall.textContent = s.wall; if (tl) tl.textContent = s.tl;
     back.setAttribute('aria-label', s.form);
     back.querySelector('.pc-label').textContent = s.label;
     back.querySelector('.pc-title').textContent = s.title;
@@ -306,8 +310,8 @@
       document.dispatchEvent(new CustomEvent('pc:posted', { detail: { entry: saved, paper: pal().paper, ink: pal().paperInk, card: card, flight: persona === 'design' } }));
       setOpen(false, true);
       timers.push(setTimeout(function () {
-        noteWrap.classList.add('is-thanks');
-        timers.push(setTimeout(function () { noteWrap.classList.remove('is-thanks'); }, 3600));
+        noteWrap.classList.add('is-thanks'); wall.tabIndex = 0;
+        timers.push(setTimeout(function () { if (document.activeElement === wall) note.focus(); noteWrap.classList.remove('is-thanks'); wall.tabIndex = -1; }, 6500));
       }, reduce.matches ? 120 : 460));
       timers.push(setTimeout(function () { back.classList.remove('is-postmarked', 'has-sig'); back.reset(); strokes = []; redraw(); posting = false; ready(); }, 700));
     }, 820);
