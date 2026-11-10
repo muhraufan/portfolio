@@ -110,11 +110,47 @@
       book.setScene(showing, light()); fig._book = book;
     }, function () { clearTimeout(giveUp); off(); });
   }
-  // A posted note flies to the book's post box (street-life.js runs the flight; this says where the slot is and what happens there).
+  // A posted card goes into the book's post box: the card that was written on is the one that flies, and a fresh one
+  // then comes out from under the book. street-life.js asks where the slot is, hands over the flight, and is told when it lands.
+  var sendAnim = null, sendT = 0, sending = false;
+  function stopSend() { clearTimeout(sendT); if (sendAnim) { var a = sendAnim; sendAnim = null; a.onfinish = null; a.cancel(); } sending = false; fig.classList.remove('pb-sent'); }
+  function freshCard() {                                   // a new blank card slides out from under the book into the corner
+    var el = card.querySelector('.pc-back'), cs = getComputedStyle(card), tuckT = cs.getPropertyValue('--pb-tuck').trim(), under = cs.getPropertyValue('--pb-under').trim(), calm = noMotion.matches;
+    var old = sendAnim; sendAnim = null; if (old) { old.onfinish = null; old.cancel(); }
+    if (!el.animate || !tuckT || !under) { stopSend(); return; }
+    sendAnim = el.animate(calm ? [{ opacity: 0 }, { opacity: 1 }] : [{ transform: under, opacity: 0, offset: 0 }, { transform: under, opacity: 1, offset: .12 }, { transform: tuckT, opacity: 1, offset: 1 }],
+      { duration: calm ? 200 : 460, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+    fig.classList.remove('pb-sent');                       // the hint and the button come back with it
+    sendAnim.onfinish = sendAnim.oncancel = function () { sendAnim = null; sending = false; };
+  }
+  function sendCard(aim, land) {
+    var el = card.querySelector('.pc-back'); stopSend();
+    if (!el || !el.animate) { land(); return; }
+    if (slide) { slide.cancel(); slide = null; }
+    sending = true; fig.classList.add('pb-sent');
+    var r = el.getBoundingClientRect(), h = el.offsetHeight, y0 = h * .07, kf = [], N = 20, i;
+    var done = function () { land(); sendT = setTimeout(freshCard, noMotion.matches ? 260 : 420); };
+    if (noMotion.matches) {                                // calm: the card fades where it is, the flap ticks, a new one fades in at the corner
+      sendAnim = el.animate([{ transform: 'translate(0,' + y0 + 'px)', opacity: 1, zIndex: 3 }, { transform: 'translate(0,' + y0 + 'px)', opacity: 0, zIndex: 3 }], { duration: 200, easing: 'ease-out', fill: 'forwards' });
+      sendT = setTimeout(done, 500); return;
+    }
+    // One throw: a small lift, then an arc to the slot. It shrinks early, so most of the way it is a small note on its way to
+    // a small box, not a big card being squeezed into one.
+    var dx = aim.x - (r.left + r.width / 2), dy = aim.y - (r.top + r.height / 2), end = Math.max(.012, 8 * aim.sc / r.width), up = Math.min(-40, dy) - r.height * .16;
+    kf.push({ offset: 0, transform: 'translate(0px,' + y0.toFixed(1) + 'px) rotate(0deg) scale(1)', opacity: 1, zIndex: 3 });
+    for (i = 0; i <= N; i++) {
+      var u = i / N, v = 1 - Math.pow(1 - u, 2), w = 1 - v;
+      var x = 2 * w * v * dx * .3 + v * v * dx, y = 2 * w * v * up + v * v * dy - 7 * w;
+      var sc = end + (1.012 - end) * Math.pow(w, 1.3), rot = -5 * Math.sin(Math.PI * Math.min(1, u * 1.5)) * w;
+      kf.push({ offset: .14 + .86 * u, transform: 'translate(' + x.toFixed(1) + 'px,' + (y0 + y).toFixed(1) + 'px) rotate(' + rot.toFixed(2) + 'deg) scale(' + sc.toFixed(4) + ')', opacity: u > .9 ? Math.max(0, (1 - u) / .1) : 1, zIndex: 3 });
+    }
+    sendAnim = el.animate(kf, { duration: 640, easing: 'linear', fill: 'forwards' });
+    sendAnim.onfinish = done;
+  }
   if (window.LastSeenStreet) LastSeenStreet.book = {
     on: function () { return fig.classList.contains('pb') && !card.classList.contains('is-photo'); },
     aim: function () { return (book && book.postSlot && book.postSlot()) || null; },
-    from: function () { return card.querySelector('.pc-back'); },
+    send: sendCard,
     land: function () { if (book && book.posted) book.posted(); }
   };
   function idle() { (window.requestIdleCallback || function (f) { setTimeout(f, 250); })(function () { settledPage = true; start(); }, { timeout: 1200 }); }
@@ -138,7 +174,9 @@
     slide.onfinish = slide.oncancel = function () { slide = null; };
   }
   new MutationObserver(function () {
-    var out = card.classList.contains('is-flipped'); if (out !== wasOut) { wasOut = out; slideCard(out); }
+    var out = card.classList.contains('is-flipped');
+    if (out !== wasOut) { wasOut = out; if (out && sending) stopSend();        // asked for again before the new card arrived: it comes straight out
+      if (!sending) slideCard(out); }                                         // a card on its way to the post box does not also slide home
     clearTimeout(flipT); flipT = setTimeout(sync, out ? 700 : 0);
   }).observe(card, { attributes: true, attributeFilter: ['class'] });
   // a new light: the sun moves and the shadows swing round. A new language: the book and its card say what they are again.

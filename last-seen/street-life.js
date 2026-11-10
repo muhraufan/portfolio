@@ -156,15 +156,16 @@
     if (flight) flight.finish();
     var land = function () { ack = performance.now(); if (bk) bk.land(); if (reduce.matches && api) { api.redraw(); setTimeout(api.redraw, 260); } setTimeout(function () { delivered(d.entry); }, 90); };
     if (!d.flight || !d.card || (bk ? !aim : !sp || !root)) { delivered(d.entry); return; }
+    if (bk) { bk.send(aim, land); return; }                       // there the card itself goes into the box (hero-book.js)
     if (reduce.matches) { setTimeout(land, 500); return; }          // calm: no flight; the flap ticks once and the count goes up
-    var cr = ((bk && bk.from()) || d.card).getBoundingClientRect(), el = document.createElement('div');
+    var cr = d.card.getBoundingClientRect(), el = document.createElement('div');
     el.className = 'ls-mail'; el.setAttribute('aria-hidden', 'true');
     el.style.setProperty('--paper', d.paper || '#f1ede4'); el.style.setProperty('--line', d.ink || '#2b2d30');
     var W0 = Math.round(cr.width * .26), H0 = Math.round(W0 * .64);
     el.style.width = W0 + 'px'; el.style.height = H0 + 'px';
     document.body.appendChild(el);
     var go = setTimeout(function () {
-      var a = { x: cr.left + cr.width * .5, y: cr.top + cr.height * .5 }, s = bk ? bk.aim() || aim : slotPoint(S, sp), endSc = Math.max(.08, (9 * s.sc) / W0);
+      var a = { x: cr.left + cr.width * .5, y: cr.top + cr.height * .5 }, s = slotPoint(S, sp), endSc = Math.max(.08, (9 * s.sc) / W0);
       var c = { x: a.x + (s.x - a.x) * .35, y: Math.min(a.y, s.y) - cr.height * .32 }, kf = [], N = 18;
       for (var i = 0; i <= N; i++) {
         var u = i / N, v = easeOut(u), w = 1 - v;
