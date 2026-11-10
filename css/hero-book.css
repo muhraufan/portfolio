@@ -8,7 +8,7 @@
 body.pc { overflow-x: clip; }   /* the tucked card may lean past the edge of a narrow screen: it must never make the page scroll sideways */
 /* the closed cover as a flat picture, there from the first paint; the real book fades in over it, then it goes */
 .pb-poster { position: absolute; left: 0; top: 0; transform-origin: 0 0; pointer-events: none; border-radius: 3px;
-  filter: drop-shadow(0 10px 14px rgba(40, 30, 20, .22)); transition: opacity 180ms linear 300ms, visibility 0s linear 480ms; }
+  filter: drop-shadow(0 10px 14px rgba(40, 30, 20, .22)); transition: opacity 160ms linear 180ms, visibility 0s linear 340ms; }
 .ls.pb-ready .pb-poster { opacity: 0; visibility: hidden; }
 .pb-stage canvas:not(.pb-poster) { opacity: 0; transition: opacity 300ms cubic-bezier(0.2, 0, 0, 1); }
 .ls.pb-ready .pb-stage canvas:not(.pb-poster) { opacity: 1; }

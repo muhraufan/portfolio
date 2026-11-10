@@ -95,8 +95,9 @@
     try { var c = document.createElement('canvas'); if (!(c.getContext('webgl2') || c.getContext('webgl'))) return; } catch (e) { return; }
     var load; try { load = new Function('u', 'return import(u)'); } catch (e) { return; }
     load('/last-seen/popup/book.js?v=5').then(function (m) {
-      book = m.createBook(stage, { label: say, onBuilt: function () { stage.classList.add('is-book'); } });
-      turn();
+      var first = true;
+      book = m.createBook(stage, { label: say, onBuilt: function () { stage.classList.add('is-book'); if (first) { first = false; setTimeout(function () { book.open(); }, 420); } } });   // the flat cover goes first, then the real one opens
+      var p0 = P[cur]; if (p0.scene && LastSeen.byId(p0.scene)) book.setScene(p0.scene, light());
       if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { book.setActive(es[es.length - 1].isIntersecting && !document.hidden); }, { threshold: .05 }).observe(stage);
       document.addEventListener('visibilitychange', function () { book.setActive(!document.hidden); });
     }, function () { failed = true; });
@@ -128,7 +129,8 @@
     var rail = document.getElementById('tb-rail'); if (!rail) return;
     var K = { gap: 7, dayLen: 7, monLen: 13, maxLen: 34, bumpDay: 12, bumpMon: 8, focusDay: 26, curLen: 16, radius: 46, aDay: .3, aMon: .5, aBump: .4, wakeK: 520, focusK: 1600, capK: 1100, pad: 14 };
     var D = [], MS = [], els = [], mels = [], cap = document.createElement('div'), W = 0, span = 1, t0 = 0;
-    cap.className = 'tb-rail-cap'; cap.setAttribute('aria-hidden', 'true'); cap.innerHTML = '<span class="tb-rc-d"></span><span class="tb-rc-p"></span>';
+    cap.className = 'tb-rail-cap'; cap.setAttribute('aria-hidden', 'true'); cap.innerHTML = '<img class="tb-rc-i" alt="" width="48" height="36"><span class="tb-rc-t"><span class="tb-rc-d"></span><span class="tb-rc-p"></span></span>';
+    var rib = document.createElement('i'); rib.className = 'tb-rail-rib'; var capImg = cap.firstChild, capD = cap.querySelector('.tb-rc-d'), capP = cap.querySelector('.tb-rc-p');
     P.forEach(function (p) { var t = Date.UTC(p.at.y, p.at.m - 1, p.at.d), last = D[D.length - 1]; if (last && last.t === t) last.list.push(p); else D.push({ t: t, p: p, list: [p] }); });
     (function () { var y = months[0].y, m = months[0].m, last = months[months.length - 1]; while (y > last.y || (y === last.y && m >= last.m)) { MS.push({ y: y, m: m, t: Date.UTC(y, m - 1, 1) }); if (--m < 1) { m = 12; y--; } } })();
     function build() {
@@ -146,7 +148,7 @@
       var labs = rail.querySelectorAll('.tb-rail-m');
       D.forEach(function (d, k) { els[k].style.left = d.x + 'px'; });
       MS.forEach(function (M, k) { mels[k].style.left = M.x + 'px'; var first = null; D.forEach(function (d) { var a = d.p.at; if (!first && a.y === M.y && a.m === M.m) first = d; }); labs[k].style.left = (first ? first.x : M.x) + 'px'; labs[k].hidden = !first; });   // a month's name sits under its newest day, where reading left to right meets it
-      rail.appendChild(cap); paint();
+      rail.appendChild(rib); rail.appendChild(cap); paint();
     }
     var wake = 0, wakeV = 0, fx = 0, fxV = 0, cx = 0, cxV = 0, px = null, snap = -1, down = false, raf = 0, last = 0, lastTick = 0, lastX = 0, lastT = 0;
     function curDay() { for (var k = 0; k < D.length; k++) if (D[k].list.indexOf(P[cur]) >= 0) return k; return 0; }
@@ -157,9 +159,10 @@
       D.forEach(function (d, k) { var b = wake * fall(Math.abs(d.x - fx)), len = k === snap && wake > .5 ? K.focusDay : (k === c ? K.curLen : K.dayLen) + K.bumpDay * b, a = k === snap && wake > .5 ? 1 : k === c ? 1 : K.aDay + K.aBump * b;
         els[k].style.transform = 'scaleY(' + (len / K.maxLen).toFixed(3) + ')'; els[k].style.opacity = a.toFixed(3); els[k].classList.toggle('is-cur', k === c); });
       MS.forEach(function (M, k) { var b = wake * fall(Math.abs(M.x - fx)); mels[k].style.transform = 'scaleY(' + ((K.monLen + K.bumpMon * b) / K.maxLen).toFixed(3) + ')'; mels[k].style.opacity = (K.aMon + K.aBump * b * .6).toFixed(3); });
-      cap.style.transform = 'translateX(' + cx.toFixed(1) + 'px) translateX(-50%)'; cap.style.opacity = wake.toFixed(3);
+      cap.style.transform = 'translateX(' + cx.toFixed(1) + 'px) translateX(-50%) translateY(' + ((1 - wake) * -4).toFixed(1) + 'px)'; cap.style.opacity = wake.toFixed(3);
+      rib.style.transform = 'translateX(' + D[c].x.toFixed(1) + 'px)'; rib.style.setProperty('--rib', RIB[(D[c].p.at.m + D[c].p.at.y) % RIB.length]);
     }
-    function label(k) { var d = D[k], a = d.p.at; cap.firstChild.textContent = (ja() ? a.m + '月' : '') + day(a) + (ja() ? '' : ' ' + TL2.mon(a.m)); cap.lastChild.textContent = d.list.length > 1 ? count(d.list.length) : TL2.s(d.p.name); }
+    function label(k) { var d = D[k], a = d.p.at; capD.textContent = (ja() ? a.m + '月' : '') + day(a) + (ja() ? '' : ' ' + TL2.mon(a.m)); capP.textContent = TL2.s(d.p.name) + (d.list.length > 1 ? ' +' + (d.list.length - 1) : ''); capImg.src = img(d.p, 's'); }
     function spring(x, v, to, k, dt) { var c = 2 * Math.sqrt(k); v += ((to - x) * k - v * c) * dt; return [x + v * dt, v]; }   // critically damped: no wobble
     function frame(now) {
       raf = 0; var dt = Math.min(.033, (now - (last || now)) / 1000); last = now;
