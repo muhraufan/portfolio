@@ -257,6 +257,9 @@ html[data-rail="edge"] .t3-ru-d > span { max-width: 170px; }
    The rules above this for rows, the rail and the calendar belong to the list design (tag backup-timeline-live). */
 body.tl3 { overflow: hidden; }
 .t3.tb { max-width: none; height: 100vh; height: 100dvh; padding: 72px 0 36px; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
+/* The list design reserved room on the right for its tick rail on narrow screens (padding-right 48px / 52px / 80px, with
+   html in the selector). Those rules outrank .t3.tb, and pushed the whole book page left of centre on a phone. */
+html .t3.tb { padding-left: 0; padding-right: 0; }
 .tb-book { --sw: max(280px, min(800px, 100vw - 48px, max(50vw, 560px), (100dvh - 430px) * 4 / 3)); position: relative; flex: none; width: var(--sw); aspect-ratio: 4 / 3; margin-top: auto; container-type: inline-size; }
 /* The book is the size it is on the homepage: the same card-sized box, with the same oversized stage around it. */
 .tb-stage { position: absolute; inset: -35% max(-34%, (100cqw - 100vw) / 2) -23%; -webkit-tap-highlight-color: transparent;
