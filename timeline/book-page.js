@@ -37,7 +37,7 @@
     }).join('');
   }
   // ---------- the strip: the places of the month the book is open at ----------
-  var stripKey = null;
+  var stripKey = null, stripAnim = null;
   function renderStrip(dir, M, quiet) {
     M = M || monthOf(cur); if (stripKey === M.key) return; var first = stripKey == null; stripKey = M.key;
     monthEl.innerHTML = '<span class="tb-mh-n">' + TL2.monthTitle(M.y, M.m) + '</span><span class="tb-mh-c">' + count(M.list.length) + '</span>';
@@ -45,12 +45,18 @@
       return '<button type="button" class="tb-st" data-i="' + p.i + '" aria-label="' + esc(TL2.s(p.name) + ', ' + TL2.fullDate(p.at.y, p.at.m, p.at.d)) + '">' +
         '<span class="tb-st-pic"><img alt="" width="80" height="60" decoding="async" src="' + img(p, 's') + '"></span><span class="tb-st-d">' + day(p.at) + '</span></button>';
     }).join('');
-    if (!first && !quiet && !TL.reduce.matches && gal.animate) gal.animate([{ opacity: 0, transform: 'translateX(' + (dir === 'back' ? -28 : 28) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+    // the row changes hands softly: the new month's stamps come in from the side you are travelling toward. Under a scrubbing
+    // pointer (quiet) the move is shorter and quicker, and a new one always starts clean, so crossing months fast never piles up.
+    if (!first && !TL.reduce.matches && gal.animate) {
+      if (stripAnim) stripAnim.cancel();
+      var sx = (dir === 'back' ? -1 : 1) * (quiet ? 14 : 28);
+      stripAnim = gal.animate([{ opacity: 0, transform: 'translateX(' + sx + 'px)', filter: 'blur(2px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { duration: quiet ? 220 : 320, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+      monthEl.animate([{ opacity: .35 }, { opacity: 1 }], { duration: quiet ? 220 : 320, easing: 'ease-out' });
+    }
   }
   function renderGallery() { stripKey = null; renderRibbons(); mark(); }
   // the stamp row can look ahead: while the rail is over another month it shows that month, and comes back when the pointer leaves
-  function previewMonth(M, dir) { renderStrip(dir, M, true);   // no slide here: under a scrubbing pointer it would fire at every boundary
-    gal.querySelectorAll('.tb-st').forEach(function (b) { b.classList.toggle('is-on', +b.dataset.i === cur); }); }
+  function previewMonth(M, dir) { renderStrip(dir, M, true); gal.querySelectorAll('.tb-st').forEach(function (b) { b.classList.toggle('is-on', +b.dataset.i === cur); }); }
   function mark(dir) {
     renderStrip(dir);
     var M = monthOf(cur);
