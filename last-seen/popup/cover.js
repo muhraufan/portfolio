@@ -65,9 +65,18 @@
       try { m.api.pause(); } catch (e) {} m.host.remove(); return out;
     } catch (e) { return null; }
   }
-  let coverCache = null;
-  function coverArt() {
-    if (coverCache) return coverCache;
+  // The same cover at each of the site's four lights: the morning is cool and pale, the evening warm, and at night the wall
+  // goes dark, the stars come out and the shop is the thing that glows.
+  const LT = {
+    morning: { sky: ['#9cc4e6', '#e4eef4'], cloud: '#ffffff', tint: ['#d5e4f5', .3] },
+    midday: { sky: ['#69b2e4', '#bfe2f4'], cloud: '#ffffff', tint: null },
+    golden: { sky: ['#ee9f58', '#f9d8a2'], cloud: '#ffe3c2', tint: ['#ffc07a', .4] },
+    night: { sky: ['#0d1736', '#26356a'], cloud: 'rgba(150,170,220,.3)', tint: ['#46538e', .66], night: true }
+  };
+  const coverCache = {};
+  function coverArt(light) {
+    light = LT[light] ? light : 'midday'; const L = LT[light];
+    if (coverCache[light]) return coverCache[light];
     const W = 810, H = 1302, SP = 96, AW = W - SP, c = canvas(W, H), x = c.getContext('2d');
     let seed = 11; const R = () => (seed = (seed * 16807) % 2147483647) / 2147483647, J = a => (R() - .5) * 2 * a;
     x.lineCap = 'round'; x.lineJoin = 'round';
@@ -86,10 +95,12 @@
     // ---- midday outside a coffee shop: a strip of sky, a sunlit wall with the title painted on it like a shop's own sign,
     //      a striped awning, the window with the counter inside, the door, the pavement, and him standing in front
     const PLUM = '#3a2418', CREAM = '#fff6e2', TIMBER = '#b98a58', DARKT = '#7a5433', TERRA = '#d8603f', WARM = '#f3d7a0', LEAF = '#5e8d5a', LEAF2 = '#3f6e4a';
-    const sky = x.createLinearGradient(0, 0, 0, 190); sky.addColorStop(0, '#69b2e4'); sky.addColorStop(1, '#bfe2f4');
+    const sky = x.createLinearGradient(0, 0, 0, 190); sky.addColorStop(0, L.sky[0]); sky.addColorStop(1, L.sky[1]);
     paint(rect(0, 0, AW, 200), sky, { box: [0, 0, AW, 200], n: 150, light: 'rgba(255,255,255,.14)', dark: 'rgba(40,90,150,.07)' });
     const cloud = (cx0, cy0, w, h, col) => { for (let i = 0; i < 8; i++) { x.strokeStyle = col; x.lineWidth = h * (.4 + R() * .6); x.globalAlpha = .55 + R() * .4; x.beginPath(); const y = cy0 + J(h * .6), a = cx0 - w / 2 + J(w * .22), b = cx0 + w / 2 + J(w * .22); x.moveTo(a, y); x.quadraticCurveTo((a + b) / 2, y + J(8), b, y + J(5)); x.stroke(); } x.globalAlpha = 1; };
-    cloud(150, 62, 230, 26, '#ffffff'); cloud(566, 104, 190, 20, '#ffffff');
+    if (L.night) { for (let i = 0; i < 70; i++) { x.fillStyle = 'rgba(255,246,226,' + (.35 + R() * .6) + ')'; x.beginPath(); x.arc(R() * AW, R() * 140, .8 + R() * 1.5, 0, Math.PI * 2); x.fill(); }
+      x.fillStyle = 'rgba(255,243,214,.16)'; x.beginPath(); x.arc(118, 70, 46, 0, Math.PI * 2); x.fill(); x.fillStyle = '#f6ecd0'; x.beginPath(); x.arc(118, 70, 27, 0, Math.PI * 2); x.fill(); x.fillStyle = L.sky[0]; x.beginPath(); x.arc(130, 62, 24, 0, Math.PI * 2); x.fill(); }
+    cloud(L.night ? 330 : 150, 62, 230, 26, L.cloud); cloud(566, 104, 190, 20, L.cloud);
     const wire = (a, b, sag, lw) => { x.strokeStyle = PLUM; x.lineWidth = lw; x.beginPath(); x.moveTo(a[0], a[1]); x.quadraticCurveTo((a[0] + b[0]) / 2, (a[1] + b[1]) / 2 + sag, b[0], b[1]); x.stroke(); };
     const crow = (px, py, sc, flip) => { x.save(); x.translate(px, py); x.scale(flip ? -sc : sc, sc); x.fillStyle = PLUM; x.beginPath(); x.ellipse(0, -9, 13, 8, -.3, 0, Math.PI * 2); x.fill(); x.beginPath(); x.arc(10, -18, 6.5, 0, Math.PI * 2); x.fill();
       x.beginPath(); x.moveTo(-10, -6); x.lineTo(-27, 3); x.lineTo(-17, -9); x.fill(); x.beginPath(); x.moveTo(15, -20); x.lineTo(24, -17); x.lineTo(15, -15); x.fill(); x.fillRect(-2, -2, 1.8, 6); x.fillRect(3, -2, 1.8, 6); x.restore(); };
@@ -149,6 +160,14 @@
     x.fillStyle = 'rgba(70,45,25,.32)'; x.beginPath(); x.ellipse(AW / 2 + 8, 1234, 70, 11, 0, 0, Math.PI * 2); x.fill();
     const fig = coverFigure();
     if (fig) { const fh = 372, fw = fh * fig.width / fig.height; x.drawImage(fig, AW / 2 - fw / 2, 1232 - fh * fig._foot, fw, fh); }
+    // ---- the light of the hour over everything below the sky, then whatever is lit from inside
+    if (L.tint) { x.save(); x.globalCompositeOperation = 'multiply'; x.globalAlpha = L.tint[1]; x.fillStyle = L.tint[0]; x.fillRect(0, 146, AW, H - 146); x.restore(); }
+    if (L.night || light === 'golden') { const k = L.night ? 1 : .3; x.save(); x.globalCompositeOperation = 'screen';
+      x.fillStyle = 'rgba(255,200,110,' + .62 * k + ')'; x.fillRect(102, 826, 292, 222); x.fillRect(579, 839, 48, 86);
+      x.fillStyle = 'rgba(120,210,200,' + .2 * k + ')'; x.fillRect(436, 826, 110, 304);
+      const spill = x.createRadialGradient(250, 1150, 20, 250, 1150, 330); spill.addColorStop(0, 'rgba(255,196,110,' + .42 * k + ')'); spill.addColorStop(1, 'rgba(255,196,110,0)'); x.fillStyle = spill; x.fillRect(0, 1060, AW, 242);
+      const lamp = x.createRadialGradient(646, 654, 6, 646, 654, 90); lamp.addColorStop(0, 'rgba(255,170,120,' + .5 * k + ')'); lamp.addColorStop(1, 'rgba(255,170,120,0)'); x.fillStyle = lamp; x.fillRect(540, 560, 180, 190);
+      x.restore(); }
     // ---- the lettering, on its own sheet so the brush can run dry
     const lc = canvas(AW, H), g = lc.getContext('2d'); g.lineCap = 'round'; g.lineJoin = 'round';
     const letter = (ch, px, by, size, lw) => { const gl = GLYPH[ch]; if (!gl) return; const sx = size * .8;
@@ -160,7 +179,7 @@
       g.restore(); };
     const word = (text, cx, by, size, lw, gap, arc) => { const adv = ch => ch === ' ' ? size * .34 : GLYPH[ch].w * size * .8 + gap; let total = -gap; for (const ch of text) total += adv(ch);
       let px = cx - total / 2; for (const ch of text) { const t = (px - (cx - total / 2)) / total, lift = (arc || 0) * (1 - (2 * t - 1) * (2 * t - 1)); letter(ch, px, by - lift, size, lw); px += adv(ch); } };
-    g.strokeStyle = PLUM; word('LAST', AW / 2 + 12, 398, 172, 15, 28, 10); word('SEEN', AW / 2 + 12, 596, 172, 15, 28, -6);
+    g.strokeStyle = L.night ? CREAM : PLUM; word('LAST', AW / 2 + 12, 398, 172, 15, 28, 10); word('SEEN', AW / 2 + 12, 596, 172, 15, 28, -6);
     word('A POP-UP BOOK OF PLACES', AW / 2 + 16, 668, 25, 3.3, 6.5, -8);
     g.lineWidth = 3; [[[214, 246], [250, 236], [282, 244]], [[452, 240], [486, 232], [520, 244]]].forEach(sw => { smooth(g, sw, false); g.stroke(); });
     g.globalCompositeOperation = 'destination-out';
@@ -177,7 +196,7 @@
     for (let i = 0; i < 5200; i++) { x.fillStyle = R() < .5 ? 'rgba(255,255,255,.045)' : 'rgba(0,0,0,.08)'; x.fillRect(AW + R() * SP, R() * H, 2 + R() * 3, 1); }
     const sh = x.createLinearGradient(AW - 14, 0, AW, 0); sh.addColorStop(0, 'rgba(5,10,30,0)'); sh.addColorStop(1, 'rgba(5,10,30,.4)'); x.fillStyle = sh; x.fillRect(AW - 14, 0, 14, H);
     x.fillStyle = '#d8b671'; x.fillRect(AW + 10, 0, 2, H);
-    return (coverCache = c);
+    return (coverCache[light] = c);
   }
 
   LS.popup = { VIEW, project, SHUT, FRONT, cover: coverArt };

@@ -242,7 +242,7 @@ export function createBook(host, cfg) {
     shop.color.set(pal.breathe && pal.breathe[0] === '#' ? pal.breathe : '#ffc77a'); shop.position.set((doorX - 200) / 100, T + .95, Z_FACADE + .75);   // high and out from the door, so it washes the pavement instead of burning a spot on it
     leftMat.map = track(tex(pageArt(paper, 'right'))); leftMat.needsUpdate = true;
     rightMat.map = track(tex(pageArt(paper, 'left'))); rightMat.needsUpdate = true;
-    coverMat.map = track(tex(LS.popup.cover())); coverMat.needsUpdate = true; yield;
+    coverMat.map = track(tex(LS.popup.cover(R.vkey))); coverMat.needsUpdate = true; yield;
     // A drinks machine that stands out on the ground is drawn in the back layer, below the horizon. Lift it off the
     // print so it can stand up like everything else, and mend the ground where it was.
     let backSrc = R.layers.back, vend = null; const vd = S.vending;

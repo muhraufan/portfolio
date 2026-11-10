@@ -32,8 +32,8 @@
     return LIGHTS.indexOf(t) >= 0 ? t : (html.getAttribute('data-theme') === 'dark' ? 'night' : 'midday');
   }
   var SAY = {
-    en: { shut: 'A pop-up book of the place Raufan was last seen. Press Enter to open it.', open: 'Pop-up book, open. Move over the pieces to play with them. Press Escape to close it.', note: 'Leave a note', past: '{who} was at {place}' },
-    ja: { shut: 'ラウファンを最後に見かけた場所の飛び出す絵本。Enterキーで開きます。', open: '飛び出す絵本（開いています）。中のものを動かして遊べます。Escキーで閉じます。', note: 'ひとこと残す', past: '{who}は {place} にいました' }
+    en: { shut: 'A pop-up book of the place Raufan was last seen. Press Enter to open it.', open: 'Pop-up book, open. Move over the pieces to play with them. Press Escape to close it.', note: 'Leave a note', hint: 'Send me a postcard', past: '{who} was at {place}' },
+    ja: { shut: 'ラウファンを最後に見かけた場所の飛び出す絵本。Enterキーで開きます。', open: '飛び出す絵本（開いています）。中のものを動かして遊べます。Escキーで閉じます。', note: 'ひとこと残す', hint: 'ポストカードを送ってね', past: '{who}は {place} にいました' }
   };
   function say(k) { return (SAY[ja() ? 'ja' : 'en'])[k]; }
 
@@ -59,7 +59,7 @@
     fig.style.setProperty('--pb-tx', Math.round(cx - cw * .08 - cw / 2) + 'px'); fig.style.setProperty('--pb-ty', Math.round(cy - ch * .31 - ch / 2) + 'px');   // half under the book's right edge, well clear of the tabs
   }
   try {
-    poster = P.cover(); poster.className = 'pb-poster'; poster.setAttribute('aria-hidden', 'true');
+    poster = P.cover(light()); poster.className = 'pb-poster'; poster.setAttribute('aria-hidden', 'true');
     poster.style.width = PW + 'px'; poster.style.height = PH + 'px'; stage.appendChild(poster);
   } catch (e) { poster = null; }
   layout();
@@ -71,6 +71,17 @@
     tuck = document.createElement('button'); tuck.type = 'button'; tuck.className = 'pb-tuck'; tuck.setAttribute('aria-label', say('note'));
     tuck.addEventListener('click', function () { noteBtn.click(); });
     front.appendChild(tuck);
+    // a handwritten nudge beside it, with an arrow drawn to the card
+    var hint = document.createElement('div'); hint.className = 'pb-hint'; hint.setAttribute('aria-hidden', 'true');
+    hint.innerHTML = '<span></span><svg viewBox="0 0 60 46" width="60" height="46" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M52 4 C 50 22, 34 34, 10 36"/><path d="M19 28 L 9 36 L 20 42"/></svg>';
+    hint.firstChild.textContent = say('hint'); front.appendChild(hint);
+    // with the card out, a click anywhere else puts it back (what was written stays on it)
+    var closeBtn = fig.querySelector('.pc-close'), backEl = fig.querySelector('.pc-back');
+    document.addEventListener('click', function (e) {
+      if (!fig.classList.contains('pb') || !card.classList.contains('is-flipped') || card.classList.contains('is-photo') || !closeBtn) return;
+      if (backEl.contains(e.target) || e.target.closest('.pc-note-wrap, .pb-tuck')) return;
+      closeBtn.click();
+    });
   }
 
   // ---------- the book ----------
@@ -89,7 +100,7 @@
     if (started || !settledPage || !inView || document.hidden) return; started = true;
     giveUp = setTimeout(function () { if (!book) off(); }, 9000);
     var t0 = performance.now();
-    load('/last-seen/popup/book.js?v=3').then(function (m) {
+    load('/last-seen/popup/book.js?v=4').then(function (m) {
       clearTimeout(giveUp); try { performance.measure('pb:import', { start: t0, end: performance.now() }); } catch (e) {}
       if (!fig.classList.contains('pb')) return;         // already fell back to the postcard
       book = m.createBook(stage, { label: say,
@@ -108,7 +119,7 @@
   new MutationObserver(function () { clearTimeout(flipT); flipT = setTimeout(sync, card.classList.contains('is-flipped') ? 700 : 0); }).observe(card, { attributes: true, attributeFilter: ['class'] });
   // a new light: the sun moves and the shadows swing round. A new language: the book and its card say what they are again.
   new MutationObserver(function (m) {
-    if (m.some(function (r) { return r.attributeName === 'data-lang'; })) { if (tuck) tuck.setAttribute('aria-label', say('note')); if (book) book.relabel(); }
+    if (m.some(function (r) { return r.attributeName === 'data-lang'; })) { if (tuck) { tuck.setAttribute('aria-label', say('note')); var hs = fig.querySelector('.pb-hint span'); if (hs) hs.textContent = say('hint'); } if (book) book.relabel(); }
     if (book) book.setScene(showing, light());
   }).observe(html, { attributes: true, attributeFilter: ['data-tod', 'data-theme', 'data-lang'] });
   fig.addEventListener('lastseen:variant', function () { if (book) book.setScene(showing, light()); });   // the auto light crossing into its next period
