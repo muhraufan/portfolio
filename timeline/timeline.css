@@ -100,12 +100,6 @@ html[data-lang="ja"] .tl3 { --dateW: 104px; }
 .t3-f .t3-fl.is-in { opacity: 1; }
 .t3-live { position: absolute; inset: 0; opacity: 0; transition: opacity 200ms ease-out; }
 .t3-live.is-in { opacity: 1; }
-/* an open entry is the pop-up book (timeline/book.js): the still stays until the book is whole, then gives way to it */
-.t3-book { position: absolute; inset: -4% -9% -2%; z-index: 2; opacity: 0; -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 90%, transparent); mask-image: linear-gradient(to right, transparent, #000 7%, #000 90%, transparent); transition: opacity 260ms cubic-bezier(0.2, 0, 0, 1); }
-.t3-f.is-book .t3-book { opacity: 1; }
-.t3-f.is-book > img { opacity: 0 !important; transition: opacity 220ms ease-out; }
-@media (max-width: 700px) { .t3-book { inset: -4% -4% -2%; } }
-@media (prefers-reduced-motion: reduce) { .t3-book, .t3-f.is-book > img { transition: none; } }
 .t3-live .ls-scene { position: absolute; inset: 0; } .t3-live canvas { display: block; width: 100%; height: 100%; }
 .t3-live .ls-fade { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; }
 .t3-oc { margin: 8px 0 0; color: var(--pg-cap); font-variant-numeric: tabular-nums; }
@@ -256,3 +250,50 @@ html[data-rail="edge"] .t3-ru-d > span { max-width: 170px; }
 @view-transition { navigation: auto; }
 ::view-transition-group(pc-place) { animation-duration: 380ms; animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
 @media (prefers-reduced-motion: reduce) { @view-transition { navigation: none; } }
+
+/* ================= The book, always open (timeline/book-page.js) =================
+   One pop-up book at the top, the lines about its place under it, then every place as a stamp, month by month.
+   The rules above this for rows, the rail and the calendar belong to the list design (tag backup-timeline-live). */
+.t3.tb { max-width: 920px; padding-top: 104px; }
+.tb .t3-intro { max-width: 672px; margin: 0 auto 4px; }
+.tb-book { position: relative; display: flex; align-items: center; justify-content: center; margin: 0 -24px; }
+.tb-stage { position: relative; flex: none; width: min(860px, 100vw); aspect-ratio: 16 / 10.4; -webkit-tap-highlight-color: transparent;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); }
+.tb-stage canvas { opacity: 0; transition: opacity 300ms cubic-bezier(0.2, 0, 0, 1); }
+.tb-stage.is-book canvas { opacity: 1; }
+.tb-still { position: absolute; left: 50%; top: 54%; width: 56%; aspect-ratio: 4 / 3; translate: -50% -50%; display: block; opacity: 1; transition: opacity 240ms ease-out; pointer-events: none; }   /* the place's still, until the book is whole */
+.tb-still:not([src]) { visibility: hidden; }
+.tb-stage.is-book .tb-still { opacity: 0; }
+.tb-nav { position: absolute; top: 56%; z-index: 3; width: 44px; height: 44px; margin-top: -22px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--pg-cap); cursor: pointer; display: grid; place-items: center;
+  transition: color 160ms ease-out, background-color 160ms ease-out, scale 120ms cubic-bezier(0.2, 0, 0, 1), opacity 160ms ease-out; -webkit-tap-highlight-color: transparent; }
+.tb-prev { left: max(8px, calc(50% - 470px)); } .tb-next { right: max(8px, calc(50% - 470px)); }
+.tb-nav:hover { color: var(--text); background: color-mix(in srgb, var(--text) 6%, transparent); }
+.tb-nav:active { scale: .96; }
+.tb-nav:focus-visible { outline: 1.5px dashed var(--text); outline-offset: 2px; }
+.tb-nav:disabled { opacity: .25; cursor: default; background: none; }
+.tb-info { max-width: 672px; margin: -8px auto 0; text-align: center; min-height: 92px; }
+.tb-date { margin: 0; font-size: 11px; font-weight: 500; line-height: 1.5; letter-spacing: .14em; text-transform: uppercase; color: var(--pg-cap); font-variant-numeric: tabular-nums; }
+.tb-page { margin-left: 12px; opacity: .7; }
+.tb-name { margin: 6px 0 0; font-size: 17px; font-weight: 500; line-height: 1.5; letter-spacing: .2px; color: var(--text); text-wrap: balance; }
+.tb-with { font-weight: 400; color: var(--pg-bio); }
+.tb-area { margin: 2px 0 0; color: var(--pg-cap); }
+.tb-gallery { max-width: 672px; margin: 56px auto 0; }
+.tb-m + .tb-m { margin-top: 40px; }
+.tb-mh { display: flex; align-items: baseline; gap: 8px; margin: 0 0 14px; font: inherit; letter-spacing: inherit; color: var(--text); }
+.tb-mh-n { font-weight: 500; } .tb-mh-c { color: var(--pg-cap); font-variant-numeric: tabular-nums; }
+.tb-grid { list-style: none; margin: 0 -8px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 6px 4px; }
+.tb-st { position: relative; display: block; width: 100%; padding: 8px 8px 10px; border: 0; border-radius: 12px; background: none; font: inherit; letter-spacing: inherit; text-align: left; color: inherit; cursor: pointer;
+  transition: background-color 160ms ease-out, scale 120ms cubic-bezier(0.2, 0, 0, 1); -webkit-tap-highlight-color: transparent; }
+.tb-st:hover { background: color-mix(in srgb, var(--text) 5%, transparent); }
+.tb-st:active { scale: .97; }
+.tb-st:focus-visible { outline: 1.5px dashed var(--text); outline-offset: 0; }
+.tb-st-pic { display: block; padding: 4px; background: #fbf8f1; border-radius: 6px; box-shadow: 0 0 0 1px rgba(42, 36, 24, .05), 0 1px 1px rgba(42, 36, 24, .10), 0 3px 6px rgba(42, 36, 24, .08);
+  transition: transform 220ms cubic-bezier(0.2, 0, 0, 1), box-shadow 200ms ease-out; }
+.tb-st-pic img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 3px; }
+.tb-st.is-on .tb-st-pic { transform: translateY(-3px) rotate(-1.5deg); box-shadow: 0 0 0 1px rgba(42, 36, 24, .08), 0 2px 3px rgba(42, 36, 24, .12), 0 10px 18px rgba(42, 36, 24, .16); }   /* the page the book is open at */
+.tb-st-d { display: block; margin-top: 8px; font-size: 11px; line-height: 1.5; letter-spacing: .08em; text-transform: uppercase; color: var(--pg-cap); font-variant-numeric: tabular-nums; }
+.tb-st-n { display: block; font-size: 12px; line-height: 1.45; letter-spacing: .2px; color: var(--pg-bio); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.tb-st.is-on .tb-st-n { color: var(--text); }
+[data-theme="dark"] .tb-st-pic { background: #ebe2d1; box-shadow: 0 1px 1px rgba(0, 0, 0, .5), 0 3px 8px rgba(0, 0, 0, .45); }
+@media (max-width: 600px) { .t3.tb { padding-top: 92px; } .tb-nav { top: auto; bottom: -6px; } .tb-prev { left: 12px; } .tb-next { right: 12px; } .tb-grid { grid-template-columns: repeat(3, 1fr); } .tb-info { margin-top: 0; } }
+@media (prefers-reduced-motion: reduce) { .tb-stage canvas, .tb-still, .tb-st, .tb-st-pic, .tb-nav { transition: none; } }

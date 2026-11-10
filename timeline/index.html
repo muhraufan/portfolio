@@ -48,7 +48,6 @@
     // before first paint: the day rail, and this light's row stills
     (function () {
       var h = document.documentElement;
-      h.dataset.jump = 'rail';
       h.classList.add('tl-pre');
       var tod = h.getAttribute('data-tod') || 'midday';
       ['naruto-coffee', 'nadoya-no-katte-2026-11-06', 'shimotakaido-ozora-park', 'bear-pond-espresso', 'apple-marunouchi', 'cinta-jawa-shibuya', 'tokyo-nihombashi-tower', 'niko-and-shibuya', 'tsuchiya-kaban-nakameguro', 'fuglen-noborito', 'tokyo-camii', 'lifefit-yurigaoka', 'yoyogi-park', 'tokyo-big-sight', 'mufg-park', 'stayful-life-store', 'nadoya-no-katte', 'et-cultural-coffeehouse'].forEach(function (id) {
@@ -62,7 +61,7 @@
   <link rel="stylesheet" href="/css/style.css?v=47">
   <link rel="stylesheet" href="/css/light.css?v=1">
   <link rel="stylesheet" href="/css/postcard.css?v=5">
-  <link rel="stylesheet" href="/timeline/timeline.css?v=10">
+  <link rel="stylesheet" href="/timeline/timeline.css?v=11">
   <!-- deferred scripts live in <head> so list.js can hold the first paint (blocking="render") until the rows exist:
        a stamp's cross-document morph needs its entry thumbnail named before the new page is captured (Chromium reveals mid-parse) -->
   <script src="/js/light-menu.js?v=2" defer></script>
@@ -91,14 +90,11 @@
   <script src="/timeline/lib/common.js?v=4" defer></script>
   <script src="/timeline/lib/data.js?v=14" defer></script>
   <script src="/timeline/lib/feel.js?v=2" defer></script>
-  <script src="/timeline/lib/live.js?v=1" defer></script>
-  <script src="/timeline/list.js?v=16" defer blocking="render"></script>
-  <script src="/timeline/rail.js?v=2" defer></script>
-  <script src="/timeline/book.js?v=1" defer></script>
+  <script src="/timeline/book-page.js?v=1" defer></script>
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body class="minimal tl3">
-  <a class="m-skip-link" href="#t3-list">Skip to the list</a>
+  <a class="m-skip-link" href="#t3-list">Skip to all places</a>
   <header class="t3-top pc">
     <div class="m-page">
     <div class="m-top-controls t3-controls"><button class="m-lang-toggle" aria-label="Toggle language">JA</button><div class="pc-light"><button type="button" class="pc-light-btn" id="pc-light-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="pc-light-menu"><time class="pc-light-time"></time><span class="pc-light-sep" aria-hidden="true">&middot;</span><span class="pc-light-greet"></span><svg class="pc-light-chev" width="9" height="6" viewBox="0 0 9 6" aria-hidden="true"><path d="M1 1.2 4.5 4.8 8 1.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="pc-light-menu" id="pc-light-menu" role="menu" aria-labelledby="pc-light-label" hidden><div class="pc-light-label" id="pc-light-label" role="presentation">Change the light</div><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="auto"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="morning"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="midday"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="golden"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="night"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>
@@ -111,12 +107,18 @@
     </div>
   </header>
   <div class="t3-mask" aria-hidden="true"></div>
-  <main class="t3" id="tl-main">
+  <main class="t3 tb" id="tl-main">
     <header class="t3-intro">
       <h1 class="t3-title" data-en="Timeline" data-ja="タイムライン">Timeline</h1>
       <p class="t3-lede"></p>
     </header>
-    <div class="t3-list" id="t3-list"></div>
+    <section class="tb-book" aria-label="The book">
+      <button type="button" class="tb-nav tb-prev" aria-label="Newer place"><svg width="10" height="16" viewBox="0 0 10 16" aria-hidden="true"><path d="M8 1.5 1.8 8 8 14.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="tb-stage" id="tb-stage"><img class="tb-still" alt="" decoding="async"></div>
+      <button type="button" class="tb-nav tb-next" aria-label="Earlier place"><svg width="10" height="16" viewBox="0 0 10 16" aria-hidden="true"><path d="M2 1.5 8.2 8 2 14.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </section>
+    <div class="tb-info" id="tb-info" aria-live="polite"></div>
+    <nav class="tb-gallery" id="t3-list" aria-label="All places"></nav>
   </main>
   <p class="t3-say m-visually-hidden" aria-live="polite"></p>
   <div class="t3-foot"><div class="m-page"><button type="button" class="t3-sound" aria-pressed="true">Sound · on</button></div></div>
