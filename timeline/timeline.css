@@ -325,18 +325,22 @@ body.tl3 { overflow: hidden; }
   box-shadow: 0 0 0 .5px rgba(42, 36, 24, .3), 0 3px 8px rgba(42, 36, 24, .14); will-change: transform, opacity; }
 .tb-rc-d { color: #8a8680; font-variant-numeric: tabular-nums; }
 [data-theme="dark"] .tb-rail-cap { background: #2b2925; color: #e9e5dd; box-shadow: 0 0 0 .5px rgba(255, 255, 255, .25), 0 4px 10px rgba(0, 0, 0, .55); } [data-theme="dark"] .tb-rc-d { color: #9a968f; }
-/* press and hold on the rail: the old day ruler, on its side. A window of days steps past a fixed middle. */
-.tb-ruler { position: absolute; bottom: calc(100% + 10px); z-index: 6; height: 74px; overflow: hidden; border-radius: 12px; background: var(--pg); box-shadow: var(--surface-shadow, 0 0 0 .5px rgba(42, 36, 24, .3), 0 10px 24px rgba(42, 36, 24, .18)); transform-origin: 50% 100%; pointer-events: none; }
-.tb-ruler[hidden], .tb-ru-x[hidden] { display: none; }
-.tb-ru-in { position: absolute; left: 0; top: 8px; height: 38px; display: flex; will-change: transform; }
-.tb-ru-d, .tb-ru-m { flex: none; width: var(--pitch); height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.tb-ru-d > b { font-weight: 400; font-size: 11px; line-height: 1.3; color: var(--pg-cap); }
+/* press and hold on the rail: the ticks give way, in the same row, to the dates they stood for */
+.tb-ruler { position: absolute; left: 0; right: 0; top: -12px; height: 78px; z-index: 6; pointer-events: none; transform-origin: 50% 60%;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent); }
+.tb-ruler[hidden] { display: none; }
+.tb-ru-in { position: absolute; left: 0; top: 0; height: 54px; display: flex; will-change: transform; }
+.tb-ru-d { position: relative; flex: none; width: var(--pitch); height: 54px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 12px; box-sizing: border-box; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tb-ru-d > b { font-weight: 400; font-size: 11px; line-height: 1.3; color: color-mix(in srgb, var(--text) 30%, transparent); }
+.tb-ru-d.is-day > b { font-weight: 500; color: var(--text); }
 .tb-ru-d > em { visibility: hidden; font-style: normal; font-size: 9px; line-height: 1.3; letter-spacing: .1em; text-transform: uppercase; color: var(--pg-cap); }
-.tb-ru-d.is-sel > b { font-size: 15px; font-weight: 500; color: var(--text); }
+.tb-ru-d > i { position: absolute; left: 50%; top: 0; translate: -3px 0; font-style: normal; font-size: 9px; font-weight: 500; line-height: 1.3; letter-spacing: .14em; text-transform: uppercase; color: var(--pg-cap); }   /* a month's name, over its newest day */
+.tb-ru-d.is-sel > b { font-size: 17px; font-weight: 600; color: var(--text); }
 .tb-ru-d.is-sel > em { visibility: visible; }
-.tb-ru-m { font-size: 9.5px; line-height: 1.6; letter-spacing: .14em; text-transform: uppercase; color: var(--pg-cap); }
-.tb-ru-n { position: absolute; left: 12px; right: 12px; bottom: 8px; text-align: center; font-size: 12px; line-height: 1.4; letter-spacing: .3px; color: var(--pg-bio); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tb-ru-x { position: absolute; z-index: 6; top: -10px; width: 1px; height: 16px; margin-left: -.5px; background: var(--text); opacity: .5; pointer-events: none; }   /* the hairline from the window down to the rail */
+.tb-ru-d.is-sel > i { visibility: hidden; }
+.tb-ru-n { position: absolute; top: 56px; translate: -50% 0; font-size: 12px; line-height: 1.4; letter-spacing: .3px; color: var(--pg-bio); white-space: nowrap; }
+.tb-rail-m { transition: color 160ms ease-out, opacity 160ms ease-out; }
+.tb-rail.is-held .tb-rail-m { opacity: 0; }
 .tb-rail.is-held .tb-rail-cap { visibility: hidden; }
 .tb-ribbons { display: none; }   /* the rail does the months now; the ribbons are kept in the script in case they come back */
 .tb-gallery { margin-bottom: 0; }
