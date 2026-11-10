@@ -1,0 +1,15 @@
+/* The hero's pop-up book (js/hero-book.js). It stands in front of the postcard scene, inside the card's front face, so it
+   turns over with the card and lands with it on scroll. The stage is larger than the card: a book needs room to open. */
+.pb-stage { position: absolute; inset: -35% max(-34%, (100cqw - 100vw) / 2) -23%; z-index: 2;   /* never wider than the screen */
+  /* a long evening shadow may reach the edge of the stage: let it fade out there instead of stopping dead */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent), linear-gradient(to bottom, transparent, #000 6%, #000 96%, transparent);
+  -webkit-mask-composite: source-in; mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent), linear-gradient(to bottom, transparent, #000 6%, #000 96%, transparent); mask-composite: intersect; opacity: 0; transition: opacity 320ms cubic-bezier(0.2, 0, 0, 1); -webkit-tap-highlight-color: transparent; }
+.pb-stage[hidden] { display: none; }
+.ls.pb-ready .pb-stage { opacity: 1; }
+.pb-stage canvas:focus-visible { outline: 1.5px solid var(--ink, #111); outline-offset: -6px; border-radius: 12px; }
+/* the postcard scene keeps running underneath, unseen */
+.ls.pb .pc-front .ls-scene { opacity: 0; pointer-events: none; }
+.ls.pb .pc-card.is-photo .pb-stage { opacity: 0; pointer-events: none; }
+/* the stage overhangs the card, so the lines under it stay on top and clickable */
+.ls.pb .ls-caption, .ls.pb .pc-stamps { position: relative; z-index: 3; }
+@media (prefers-reduced-motion: reduce) { .pb-stage { transition: none; } }

@@ -1,9 +1,8 @@
-/* Painted postcard drafts (local only): three ways to paint a scene SHAPE BY SHAPE.
-   The engine hands each static layer's shapes to a painter (LastSeen.painters[style].layer) instead of its
-   stipple pass. Because every wall, window, sign and tree is painted inside its own outline, silhouettes stay
-   exactly where the drawing put them; only what happens inside a shape changes. People, crows and everything
-   that moves are still drawn by the engine, on top, untouched.
-   Each painter also records "stamps" (where it put paint, in order) so the page can replay the picture being made. */
+/* Pop-up book, paper side. Needs /last-seen/last-seen.js.
+   The scene engine hands each static layer's shapes to a painter (LastSeen.painters[style].layer) instead of its stipple
+   pass. Here every shape becomes a flat piece of coloured paper with a soft airbrushed tone, and the layers are sorted
+   into sheets by depth (relief) so /last-seen/popup/book.js can stand them up in a book.
+   The palette-knife, cut-paper-postcard and poster painters this grew out of are on the branch backup/painted-hero-drafts. */
 (function () {
   'use strict';
   var LS = window.LastSeen, KIT = LS._kit, P = LS.painters;
@@ -80,103 +79,7 @@
   }
 
   // =====================================================================================================
-  // 1. PALETTE KNIFE. Big planes are laid in thick slabs, clipped to the shape's own outline. Small things
-  //    (window bars, signs, lettering) are one clean touch each. A second canvas holds how thick the paint is;
-  //    light raked across it gives every slab, and every shape's edge, a real ridge.
-  // =====================================================================================================
-  P.knife = {
-    layer: function (x, prims, pal, rand, dot, I) {
-      if (I.name === 'over') { KIT.drawPrims(x, prims, pal, rand, dot); return; }   // the night glows stay as light
-      var k = I.k, hc = canvas(I.cw, I.ch), h = hc.getContext('2d'), stamps = [];
-      h.setTransform(k, 0, 0, k, 0, 0);
-      I.canvas._h = hc; I.canvas._stamps = stamps;
-      function dab(px, py, a, len, wid, c0, c1) {
-        var hl = len / 2, hw = wid / 2;
-        var Q = [-hl + rand() * hw * .5, -hw, hl - rand() * hw * .7, -hw + rand() * hw * .3, hl - rand() * hw * .15, (rand() - .5) * hw * .8,
-          hl - rand() * hw * .9, hw, -hl + rand() * hw * .7, hw - rand() * hw * .25, -hl - rand() * hw * .2, (rand() - .5) * hw];
-        function trace(c) { c.beginPath(); c.moveTo(Q[0], Q[1]); for (var q = 2; q < 12; q += 2) c.lineTo(Q[q], Q[q + 1]); c.closePath(); }
-        x.save(); x.translate(px, py); x.rotate(a);
-        var g = x.createLinearGradient(-hl, 0, hl, 0); g.addColorStop(0, css(c0)); g.addColorStop(1, css(c1));
-        trace(x); x.fillStyle = g; x.fill(); x.restore();
-        // thickness: thin where the blade lands, piled where it lifts, tilted across its width, scored by its drag
-        h.save(); h.translate(px, py); h.rotate(a); trace(h);
-        var base = 95 + rand() * 75, tilt = (rand() - .5) * 64, hg = h.createLinearGradient(-hl, -hw, hl, hw);
-        hg.addColorStop(0, gray(base - tilt)); hg.addColorStop(.8, gray(base + tilt)); hg.addColorStop(1, gray(base + tilt + 50));
-        h.fillStyle = hg; h.fill(); h.clip();
-        for (var s = 0, n = 2 + (rand() * 3 | 0); s < n; s++) { var yy = (rand() * 2 - 1) * hw; h.globalAlpha = .3 + rand() * .4; h.strokeStyle = gray(base + (rand() - .5) * 84);
-          h.lineWidth = Math.max(.12, wid * (.04 + rand() * .1)); h.beginPath(); h.moveTo(-hl, yy); h.lineTo(hl, yy + (rand() - .5) * hw * .3); h.stroke(); }
-        h.restore();
-        stamps.push([px * k, py * k, a, len * k * 1.12, wid * k * 1.25]);
-      }
-      function paint(p, pi, clipTo) {
-        var al = p.a == null ? 1 : p.a, G = geom(p);
-        if (!G) return false;
-        var b = G.box, s = Math.min(b[2], b[3]), area = b[2] * b[3], col = p.fill ? parse(pal[p.fill]) : null, shades = p.shade ? [].concat(p.shade) : [];
-        var plane = col && al >= .95 && col[3] >= .95 && s >= 7 && area >= 130;
-        x.save(); h.save();
-        if (clipTo) { clipTo(x); x.clip(); clipTo(h); h.clip(); }
-        if (col) { x.globalAlpha = al; G.path(x); x.fillStyle = css(col, col[3]); x.fill(); x.globalAlpha = 1; }
-        if (!plane) {
-          // a small thing: one clean touch, its modelling kept as a soft tone, sitting slightly proud of the surface
-          if (shades.length) { x.save(); G.path(x); x.clip(); shades.forEach(function (sh) { shadeWash(x, b, sh, pal, 1.5); }); x.restore(); }
-          if (col && al >= .95 && col[3] >= .95) { G.path(h); h.fillStyle = gray(118 + rand() * 56); h.fill(); }
-          boxStamp(stamps, b, k);
-        } else {
-          G.path(h); h.fillStyle = gray(100 + rand() * 44); h.fill();          // the shape's own bed of paint: its edge becomes a ridge
-          x.save(); G.path(x); x.clip(); h.save(); G.path(h); h.clip();
-          var L = clamp(s * .95, 7, 42), Wd = L * .42, base;
-          if (G.round) base = null; else if (b[2] > b[3] * 1.5) base = 0; else if (b[3] > b[2] * 1.5) base = Math.PI / 2; else base = (hash(pi, 3, I.S.seed) < .5 ? -1 : 1) * Math.PI / 5;
-          var sx = base === 0 ? L * .5 : base === Math.PI / 2 ? Wd * .72 : (L * .5 + Wd * .72) / 2, sy = base === 0 ? Wd * .72 : base === Math.PI / 2 ? L * .5 : sx;
-          var count = (b[2] / sx) * (b[3] / sy); if (count > 1500) { var sc = Math.sqrt(count / 1500); sx *= sc; sy *= sc; }
-          var pts = [], yy, xx;
-          for (yy = b[1] + sy * .3; yy < b[1] + b[3] + sy * .3; yy += sy) for (xx = b[0] + sx * .3; xx < b[0] + b[2] + sx * .3; xx += sx) pts.push([xx + (rand() - .5) * sx * .9, yy + (rand() - .5) * sy * .9]);
-          for (var q = pts.length - 1; q > 0; q--) { var o = rand() * (q + 1) | 0, t = pts[q]; pts[q] = pts[o]; pts[o] = t; }
-          pts.forEach(function (pt) {
-            var a = base == null ? vn(pt[0] / 14, pt[1] / 14, I.S.seed + pi) * Math.PI * 2 : base + (rand() - .5) * .26;
-            var len = L * (.7 + rand() * .6), wid = Wd * (.8 + rand() * .4), ca = Math.cos(a) * len * .32, sa = Math.sin(a) * len * .32;
-            var j = 1 + (rand() - .5) * .1, w = (rand() - .5) * 9;
-            function at(px, py) { var c = shadeAt(col, shades, pal, clamp((px - b[0]) / b[2], 0, 1), clamp((py - b[1]) / b[3], 0, 1), 1.7); return [c[0] * j + w, c[1] * j, c[2] * j - w]; }
-            dab(pt[0], pt[1], a, len, wid, at(pt[0] - ca, pt[1] - sa), at(pt[0] + ca, pt[1] + sa));
-          });
-          x.restore(); h.restore();
-        }
-        (p.inner || []).forEach(function (inn, ii) { paint(Object.assign({ t: 'blob' }, inn), pi * 31 + ii + 1, G.path); });
-        x.restore(); h.restore();
-        return true;
-      }
-      prims.forEach(function (p, pi) {
-        if (p.t === 'glow') { softGlow(x, p, pal); return; }
-        if (paint(p, pi)) return;
-        KIT.drawPrims(x, [p], pal, rand, dot);                                  // lettering, lines, rings, halos: drawn clean
-        if ((p.t === 'line' || p.t === 'ring') && (p.a == null || p.a >= .9)) {  // a line is a bead of paint
-          h.beginPath(); if (p.t === 'ring') h.ellipse(p.x, p.y, p.r, p.ry || p.r, p.rot || 0, 0, Math.PI * 2);
-          else for (var li = 0; li < p.pts.length; li += 2) li ? h.lineTo(p.pts[li], p.pts[li + 1]) : h.moveTo(p.pts[li], p.pts[li + 1]);
-          h.strokeStyle = gray(176); h.lineWidth = p.lw || 1; h.lineCap = 'round'; h.lineJoin = 'round'; h.stroke();
-        }
-        boxStamp(stamps, lineBox(p), k);
-      });
-    },
-    done: function (layers, I) {
-      ['back', 'facade', 'front'].forEach(function (n) {
-        var c = layers[n]; if (!c || !c._h) return;
-        var w = c.width, hgt = c.height, x = c.getContext('2d'), o = x.getImageData(0, 0, w, hgt), d = o.data, hd = c._h.getContext('2d').getImageData(0, 0, w, hgt).data;
-        var H = new Float32Array(w * hgt), i, p, y, px, K = 3.1 * Math.min(1.6, I.k / 2.6);
-        for (i = 0, p = 0; i < H.length; i++, p += 4) H[i] = hd[p] / 255;
-        for (y = 1; y < hgt - 1; y++) for (px = 1; px < w - 1; px++) {
-          i = y * w + px; p = i * 4; if (!d[p + 3]) continue;
-          var lit = ((H[i + 1] - H[i - 1]) * .6 + (H[i + w] - H[i - w]) * .8) * K;       // slopes facing the upper left catch the light
-          var l = .299 * d[p] + .587 * d[p + 1] + .114 * d[p + 2], sh = clamp(1 + lit, .72, 1.2), spec = clamp((lit - .17) * 1.5, 0, .42) * clamp(l / 150, .12, 1);   // dark paint glints less
-          for (var c2 = 0; c2 < 3; c2++) { var v = (l + (d[p + c2] - l) * 1.14) * sh; d[p + c2] = v + (255 - v) * spec; }
-        }
-        x.putImageData(o, 0, 0);
-        c._h = null;
-      });
-      stash(I, layers, 'knife', I.vkey === 'night' ? '#2b2824' : '#c9bfae');
-    }
-  };
-
-  // =====================================================================================================
-  // 2. CUT PAPER. Every shape is a piece of coloured paper with a small shadow under it, so the scene reads as
+  // CUT PAPER. Every shape is a piece of coloured paper with a small shadow under it, so the scene reads as
   //    a collage built up in layers. Shading becomes a soft airbrushed tone. Nothing is textured except the paper.
   // =====================================================================================================
   var fibre = null;
@@ -314,64 +217,4 @@
     }
   };
 
-  // =====================================================================================================
-  // 3. POSTER PRINT. Flat inks, a hard-edged second tone where the drawing was shaded, halftone dots on the
-  //    broad areas (sky, long walls), and a coloured keyline around each shape. City-pop record sleeve.
-  // =====================================================================================================
-  P.poster = {
-    layer: function (x, prims, pal, rand, dot, I) {
-      if (I.name === 'over') { KIT.drawPrims(x, prims, pal, rand, dot); return; }
-      var k = I.k, night = I.vkey === 'night', stamps = []; I.canvas._stamps = stamps;
-      function band(b, sh) {                    // the half of the shape that was in shade, as one flat region
-        var pw = sh.p || 1.6, t = Math.pow(.42, 1 / pw), X = b[0], Y = b[1], W = b[2], H = b[3];
-        x.beginPath();
-        switch (sh.dir) {
-          case 'down': x.rect(X, Y + t * H, W, H); break;
-          case 'up': x.rect(X, Y - H, W, H + (1 - t) * H); break;
-          case 'left': x.rect(X - W, Y, W + (1 - t) * W, H); break;
-          case 'right': x.rect(X + t * W, Y, W, H); break;
-          case 'br': var q = 2 * t - 1; x.moveTo(X + W + 2, Y + q * H); x.lineTo(X + W + 2, Y + H + 2); x.lineTo(X + q * W, Y + H + 2); x.closePath(); break;
-          case 'center': x.ellipse(X + W / 2, Y + H / 2, (1 - t) * W / 2 + .5, (1 - t) * H / 2 + .5, 0, 0, Math.PI * 2); break;
-          default: x.rect(X, Y, W, H);
-        }
-      }
-      function dots(b, sh) {                    // halftone: the dot grows where the drawing was denser
-        var c = css(parse(pal[sh.c]), .9), st = 2.5, pw = sh.p || 1.6, amt = clamp(tone(sh) * 2.3, 0, 1), row = 0;
-        x.fillStyle = c; x.beginPath();
-        for (var yy = b[1]; yy < b[1] + b[3] + st; yy += st * .866, row++) for (var xx = b[0] + (row % 2 ? st / 2 : 0); xx < b[0] + b[2] + st; xx += st) {
-          var f = Math.pow(clamp(fall(sh.dir, (xx - b[0]) / b[2], (yy - b[1]) / b[3]), 0, 1), pw) * amt, r = st * .62 * Math.sqrt(f);
-          if (r < .16) continue; x.moveTo(xx + r, yy); x.arc(xx, yy, r, 0, Math.PI * 2);
-        }
-        x.fill();
-      }
-      function paint(p, pi, clipTo) {
-        var al = p.a == null ? 1 : p.a, G = geom(p); if (!G) return false;
-        var b = G.box, s = Math.min(b[2], b[3]), area = b[2] * b[3], col = p.fill ? parse(pal[p.fill]) : null, shades = p.shade ? [].concat(p.shade) : [];
-        x.save(); if (clipTo) { clipTo(x); x.clip(); }
-        if (col) { x.globalAlpha = al; G.path(x); x.fillStyle = css(col, col[3]); x.fill(); x.globalAlpha = 1; }
-        if (shades.length) {
-          x.save(); G.path(x); x.clip();
-          shades.forEach(function (sh) {
-            if (area >= 1500 && s >= 14) { dots(b, sh); return; }
-            if (!sh.dir || sh.dir === 'flat') { x.fillStyle = css(parse(pal[sh.c]), clamp(tone(sh) * 1.1, 0, .6)); x.fillRect(b[0], b[1], b[2], b[3]); return; }
-            band(b, sh); x.fillStyle = css(parse(pal[sh.c]), clamp(tone(sh) * 2.1, .14, .78)); x.fill();
-          });
-          x.restore();
-        }
-        if (col && al >= .95 && col[3] >= .95 && s >= 2.2 && area >= 26 && !(b[2] >= 398 && b[3] >= 100) && !clipTo) {
-          var ink = night ? mixc(col, [236, 226, 204], .16) : mixc(col, [22, 26, 38], .68);
-          G.path(x); x.strokeStyle = css(ink, I.name === 'back' ? .5 : .9); x.lineWidth = clamp(.3 + Math.sqrt(area) / 80, .36, .85); x.lineJoin = 'round'; x.stroke();
-        }
-        (p.inner || []).forEach(function (inn, ii) { paint(Object.assign({ t: 'blob' }, inn), pi * 31 + ii + 1, G.path); });
-        x.restore(); boxStamp(stamps, b, k);
-        return true;
-      }
-      prims.forEach(function (p, pi) {
-        if (p.t === 'glow') { softGlow(x, p, pal); return; }
-        if (paint(p, pi)) return;
-        KIT.drawPrims(x, [p], pal, rand, dot); boxStamp(stamps, lineBox(p), k);
-      });
-    },
-    done: function (layers, I) { stash(I, layers, 'poster', I.vkey === 'night' ? '#14161d' : '#f2ecdf'); }
-  };
 })();

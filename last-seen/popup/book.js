@@ -1,4 +1,4 @@
-/* Pop-up book (draft, local only). A "Last seen" scene as a pop-up storybook that opens FLAT, in three.js.
+/* Pop-up book. A "Last seen" scene as a pop-up storybook that opens FLAT, in three.js.
 
    THE BOOK      side-bound, lying on the page. It opens left to right into a flat spread, the spine pointing at you.
                  Once open it stays put: no turning, no closing by accident. You play with what is inside it.
@@ -12,7 +12,7 @@
    THE PEOPLE    still drawn live by the scene engine, on clear sheets, casting real shadows.
    PLAY          brush a piece and it flicks like card; click one and it bends right back; click people and they hop;
                  click the shopfront and the group steps out of the door again. Clouds drift on their own.
-   three.js comes from a CDN for this draft; it would be vendored like Cuelume if this ships. */
+   Mounted on the homepage by /js/hero-book.js. three.js still comes from a CDN here; vendor it before this ships. */
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
 const LS = window.LastSeen;
@@ -107,7 +107,7 @@ const GLYPH = {
 };
 function coverFigure() {                          // the lead figure of a scene, drawn large by the scene engine itself
   try {
-    const S0 = LS.byId('naruto-coffee'); if (!S0 || !S0.signature) return null;
+    const S0 = LS.byId('naruto-coffee') || (LS.newest && LS.newest()); if (!S0 || !S0.signature || !S0.signature.person) return null;
     const S2 = Object.assign({}, S0, { signature: Object.assign({}, S0.signature, { company: [] }) });
     const m = mountManual(S2, 'midday', 2800, { pass: 'crew' }); m.api.renderAt(S0.signature.still ? S0.signature.still.t : 14, 'still');
     const f = (m.host._figs || [])[0]; let out = null;
@@ -253,6 +253,7 @@ function cropSheet(c, yMax) {
 
 export function createBook(host, cfg) {
   cfg = cfg || {};
+  const say = k => (cfg.label && cfg.label(k)) || (k === 'open' ? 'Pop-up book, open. Move over the pieces to flick them.' : 'Pop-up book. Press Enter to open it.');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   const renderer = new THREE.WebGLRenderer({ antialias: (window.devicePixelRatio || 1) < 2, alpha: true });   // at 2x the pixels are small enough; MSAA over many clear sheets is the dearest thing here
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -260,8 +261,8 @@ export function createBook(host, cfg) {
   renderer.shadowMap.enabled = true; renderer.shadowMap.autoUpdate = false;   // shadows are redrawn only when something moved
    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const el = renderer.domElement;
-  el.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;outline-offset:4px;cursor:pointer';
-  el.tabIndex = 0; el.setAttribute('role', 'button'); el.setAttribute('aria-label', 'Pop-up book. Press Enter to open it.');
+  el.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;outline-offset:4px;cursor:pointer';
+  el.tabIndex = 0; el.setAttribute('role', 'button'); el.setAttribute('aria-label', say('shut'));
   host.appendChild(el);
   const maxAniso = renderer.capabilities.getMaxAnisotropy();
   function tex(c) { const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = maxAniso; return t; }
@@ -378,7 +379,7 @@ export function createBook(host, cfg) {
     lit.to = { amb: new THREE.Color(L.amb[0]), ambI: L.amb[1] * PI, sun: new THREE.Color(L.sun[0]), sunI: L.sun[1] * PI, at: new THREE.Vector3(L.at[0], L.at[1], L.at[2]), shadow: L.shadow, shop: L.shop * PI };
     const sweep = !!(opt && opt.sweep) && !reduce.matches && lit.now;
     if (sweep) { lit.from = lit.now; lit.t = 0; lit.flick = R.vkey === 'night' ? 0 : 9; } else { lit.from = lit.to; lit.t = 1; lit.flick = 9; }
-    overMat = null; applyLight(0);
+    overMat = null; applyLight(0); edges.color.set(R.vkey === 'night' ? 0x565a6c : 0xe6dfcf);   // the page block is not a lamp
     const sig = S.signature || {}, doorX = ((sig.emerge && sig.emerge.x) || 200);
     shop.color.set(pal.breathe && pal.breathe[0] === '#' ? pal.breathe : '#ffc77a'); shop.position.set((doorX - 200) / 100, T + .95, Z_FACADE + .75);   // high and out from the door, so it washes the pavement instead of burning a spot on it
     leftMat.map = track(tex(pageArt(paper, 'right'))); leftMat.needsUpdate = true;
@@ -509,7 +510,7 @@ export function createBook(host, cfg) {
   }
 
   // ---------- the camera: it frames the shut book, travels to the spread as it opens, then holds still ----------
-  const C0 = new THREE.Vector3(-1.3, 9.4, 6.4), T0 = new THREE.Vector3(-1.3, .2, .35), C1 = new THREE.Vector3(0, 3.5, 9.1), T1 = new THREE.Vector3(0, .95, 0);   // open: seen from in front of the scene, not from above
+  const C0 = new THREE.Vector3(-1.3, 12.2, 8.2), T0 = new THREE.Vector3(-1.3, .2, .35), C1 = new THREE.Vector3(0, 4.32, 12), T1 = new THREE.Vector3(0, .95, 0);   // far enough back that the book and its shadow have air around them   // open: seen from in front of the scene, not from above
   const cpos = new THREE.Vector3(), ctgt = new THREE.Vector3(), lean = { x: 0, y: 0, tx: 0, ty: 0 };   // the book stays put; you lean a little to look around it
   function placeCamera(open) { const e = sstep(0, 1, open); cpos.lerpVectors(C0, C1, e); ctgt.lerpVectors(T0, T1, e); camera.position.copy(cpos); camera.position.x += lean.x * .55 * e; camera.position.y += lean.y * .22 * e; camera.lookAt(ctgt); }
 
@@ -565,8 +566,8 @@ export function createBook(host, cfg) {
       else { const P = pieces.find(q => q.glowMat); P.glow = .85; }
     }
     const isOpen = main.x > .985 && Math.abs(main.v) < .04;
-    if (isOpen && !settled) { settled = true; nextIdle = clock + 6; sigStart = clock + .35; el.setAttribute('aria-label', 'Pop-up book, open. Move over the pieces to flick them.'); if (cfg.onOpen) cfg.onOpen(); }
-    if (main.x < .6 && settled) { settled = false; el.setAttribute('aria-label', 'Pop-up book. Press Enter to open it.'); }
+    if (isOpen && !settled) { settled = true; nextIdle = clock + 6; sigStart = clock + .35; el.setAttribute('aria-label', say('open')); if (cfg.onOpen) cfg.onOpen(); }
+    if (main.x < .6 && settled) { settled = false; el.setAttribute('aria-label', say('shut')); }
     if (sigStart != null && clock - sigStart > 17 && settled) sigStart = clock + .5;
     clock += dt;
     if (main.x > .5 && now - lastPeople > 14 && !reduce.matches) { lastPeople = now; drawPeople(); }   // every frame, up to 60 a second: half-rate walkers read as lag
@@ -636,7 +637,9 @@ export function createBook(host, cfg) {
   el.addEventListener('pointerup', release); el.addEventListener('pointercancel', release);
   el.addEventListener('pointerleave', () => { peek = 0; hoverP = null; lean.tx = lean.ty = 0; });
   el.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && !settled) { e.preventDefault(); api.open(); } else if (e.key === 'Escape') api.close(); });
-  const ro = new ResizeObserver(() => { const w = host.clientWidth, h = host.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); });
+  const ro = new ResizeObserver(() => { const w = host.clientWidth, h = host.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); camera.aspect = w / h;
+    camera.fov = Math.max(30, 2 * Math.atan(.3 / camera.aspect) * 180 / PI);   // a narrow stage (a phone): widen the view until the whole spread fits across it
+    camera.updateProjectionMatrix(); });
   ro.observe(host);
 
   // A new time of day: the old picture stays up for a moment and melts into the new one while the sun moves underneath.
@@ -666,6 +669,7 @@ export function createBook(host, cfg) {
       x.drawImage(el, (el.width - sw) / 2, (el.height - sh) / 2, sw, sh, 0, 0, target.width, target.height); },
     setActive(on) { if (on === active) return; active = on; if (on) { last = 0; raf = requestAnimationFrame(frame); } else cancelAnimationFrame(raf); },
     dispose() { cancelAnimationFrame(raf); ro.disconnect(); clearScene(); renderer.dispose(); el.remove(); },
+    relabel() { el.setAttribute('aria-label', say(settled ? 'open' : 'shut')); },
     _debug: { idleLog, lit, main, pieces: () => pieces, scene, camera, renderer }
   };
   placeCamera(0);

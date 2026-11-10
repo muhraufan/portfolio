@@ -11,7 +11,7 @@
   LS.byId = function (id) { return byId[id] || null; };
   LS.all = function () { return scenes.slice().sort(function (a, b) { return Date.parse(b.seenAt) - Date.parse(a.seenAt); }); };
   LS.newest = function () { return LS.all()[0]; };
-  LS.painters = LS.painters || {};   // DRAFT (painted-hero)
+  LS.painters = LS.painters || {};   // painters: see /last-seen/popup/paint.js
 
   // ---------- small helpers ----------
   function rng(seed) { // mulberry32
@@ -163,7 +163,7 @@
     });
   }
 
-  LS._kit = { drawPrims: drawPrims, shapePath: shapePath, bounds: bounds, stipple: stipple };   // DRAFT (painted-hero)
+  LS._kit = { drawPrims: drawPrims, shapePath: shapePath, bounds: bounds, stipple: stipple };   // painters: see /last-seen/popup/paint.js
 
   // Organic, torn-paper vignette with a stippled soft edge.
   function makeMask(S, W, H, k, dot) {
@@ -906,10 +906,10 @@
       layers = {};
       ['back', 'facade', 'front', 'over'].forEach(function (name) {
         var prims = (S.layers[name] || []).concat(add[name] || []);
-        if (!prims.length || opts.pass) return;   // DRAFT (pop-up book): a pass mount only draws what moves
+        if (!prims.length || opts.pass) return;   // pop-up book: a pass mount only draws what moves
         var c = canvas(cw, ch), x = c.getContext('2d');
         x.setTransform(k, 0, 0, k, 0, 0);
-        // DRAFT (painted-hero): opts.style swaps how the static layers are painted. Everything that moves is untouched.
+        // opts.style swaps how the static layers are painted. Everything that moves is untouched.
         var painter = opts.style && LS.painters && LS.painters[opts.style];
         if (painter) painter.layer(x, prims, pal, rng(S.seed + name.length * 97), dot, { name: name, k: k, cw: cw, ch: ch, S: S, vkey: vkey, canvas: c, root: root });
         else drawPrims(x, prims, pal, rng(S.seed + name.length * 97), dot);
@@ -1091,11 +1091,11 @@
       f.setTransform(1, 0, 0, 1, 0, 0);
       f.globalCompositeOperation = 'source-over';
       f.clearRect(0, 0, frameBuf.width, frameBuf.height);
-      // DRAFT (painted-hero): paper depth. opts.parallax() gives a small offset in scene units; each depth takes its share.
+      // paper depth. opts.parallax() gives a small offset in scene units; each depth takes its share.
       var PX = opts.parallax ? opts.parallax() : null;
       function at(sc, d) { if (PX) f.setTransform(sc, 0, 0, sc, PX.x * d * k, PX.y * d * k); else f.setTransform(sc, 0, 0, sc, 0, 0); }
-      if (opts.pass) root._figs = [];   // DRAFT (pop-up book): where each figure stands, for hit-testing without reading pixels
-      var PASS = opts.pass || null, IN = !PASS || PASS === 'inside', OUT = !PASS || PASS === 'passers';   // DRAFT (pop-up book)
+      if (opts.pass) root._figs = [];   // pop-up book: where each figure stands, for hit-testing without reading pixels
+      var PASS = opts.pass || null, IN = !PASS || PASS === 'inside', OUT = !PASS || PASS === 'passers';   // pop-up book: one group of moving things per mount
       at(1, -1);
       if (layers.back && !PASS) f.drawImage(layers.back, 0, 0);
       at(k, -.45);
@@ -1175,7 +1175,7 @@
       figs = figs.concat(feedProps(t), vendProps(t, pal));   // street furniture that people can pass in front of or behind
       figs.filter(function (g) { return !g.inside && (!PASS || (PASS === 'crew' ? g.crew : PASS === 'passers' ? !g.crew : false)); }).sort(function (a, b) { return a.foot - b.foot; })
         .forEach(function (g) { if (g.draw) { f.save(); g.draw(f); f.restore(); return; }
-          // DRAFT (pop-up book): a paper figure cannot walk off its page. Near the edge it folds down flat, and a new one stands up.
+          // pop-up book: a paper figure cannot walk off its page. Near the edge it folds down flat, and a new one stands up.
           var fold = 1;
           if (PASS) { var e = Math.min(g.x - 8, W - 8 - g.x, g.crew ? (H - 3 - g.foot) * 2.2 : 99), q = e <= 0 ? 0 : e >= 30 ? 1 : e / 30; fold = q * q * (3 - 2 * q); if (fold < .02) return; }
           if (fold < 1) { f.save(); f.translate(0, g.foot); f.scale(1, fold); f.translate(0, -g.foot); }
