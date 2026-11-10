@@ -38,8 +38,8 @@
   }
   // ---------- the strip: the places of the month the book is open at ----------
   var stripKey = null;
-  function renderStrip(dir) {
-    var M = monthOf(cur); if (stripKey === M.key) return; var first = stripKey == null; stripKey = M.key;
+  function renderStrip(dir, M) {
+    M = M || monthOf(cur); if (stripKey === M.key) return; var first = stripKey == null; stripKey = M.key;
     monthEl.innerHTML = '<span class="tb-mh-n">' + TL2.monthTitle(M.y, M.m) + '</span><span class="tb-mh-c">' + count(M.list.length) + '</span>';
     gal.innerHTML = M.list.map(function (p) {
       return '<button type="button" class="tb-st" data-i="' + p.i + '" aria-label="' + esc(TL2.s(p.name) + ', ' + TL2.fullDate(p.at.y, p.at.m, p.at.d)) + '">' +
@@ -48,6 +48,8 @@
     if (!first && !TL.reduce.matches && gal.animate) gal.animate([{ opacity: 0, transform: 'translateX(' + (dir === 'back' ? -28 : 28) + 'px)' }, { opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
   }
   function renderGallery() { stripKey = null; renderRibbons(); mark(); }
+  // the stamp row can look ahead: while the rail is over another month it shows that month, and comes back when the pointer leaves
+  function previewMonth(M, dir) { renderStrip(dir, M); gal.querySelectorAll('.tb-st').forEach(function (b) { b.classList.toggle('is-on', +b.dataset.i === cur); }); }
   function mark(dir) {
     renderStrip(dir);
     var M = monthOf(cur);
@@ -129,8 +131,8 @@
     var rail = document.getElementById('tb-rail'); if (!rail) return;
     var K = { gap: 7, dayLen: 7, monLen: 13, maxLen: 34, bumpDay: 12, bumpMon: 8, focusDay: 26, curLen: 16, radius: 46, aDay: .3, aMon: .5, aBump: .4, wakeK: 520, focusK: 1600, capK: 1100, pad: 14 };
     var D = [], MS = [], els = [], mels = [], cap = document.createElement('div'), W = 0, span = 1, t0 = 0;
-    cap.className = 'tb-rail-cap'; cap.setAttribute('aria-hidden', 'true'); cap.innerHTML = '<img class="tb-rc-i" alt="" width="48" height="36"><span class="tb-rc-t"><span class="tb-rc-d"></span><span class="tb-rc-p"></span></span>';
-    var rib = document.createElement('i'); rib.className = 'tb-rail-rib'; var capImg = cap.firstChild, capD = cap.querySelector('.tb-rc-d'), capP = cap.querySelector('.tb-rc-p');
+    cap.className = 'tb-rail-cap'; cap.setAttribute('aria-hidden', 'true'); cap.innerHTML = '<span class="tb-rc-d"></span><span class="tb-rc-p"></span>';
+    var capD = cap.firstChild, capP = cap.lastChild, labs = [], hotM = null;
     P.forEach(function (p) { var t = Date.UTC(p.at.y, p.at.m - 1, p.at.d), last = D[D.length - 1]; if (last && last.t === t) last.list.push(p); else D.push({ t: t, p: p, list: [p] }); });
     (function () { var y = months[0].y, m = months[0].m, last = months[months.length - 1]; while (y > last.y || (y === last.y && m >= last.m)) { MS.push({ y: y, m: m, t: Date.UTC(y, m - 1, 1) }); if (--m < 1) { m = 12; y--; } } })();
     function build() {
@@ -145,10 +147,10 @@
       });
       rail.innerHTML = D.map(function () { return '<i class="tb-tk"></i>'; }).join('') + MS.map(function (M) { return '<i class="tb-tk is-m"></i><span class="tb-rail-m">' + (ja() ? M.m + '月' : TL2.mon(M.m)) + '</span>'; }).join('');
       els = [].slice.call(rail.querySelectorAll('.tb-tk:not(.is-m)')); mels = [].slice.call(rail.querySelectorAll('.tb-tk.is-m'));
-      var labs = rail.querySelectorAll('.tb-rail-m');
+      labs = [].slice.call(rail.querySelectorAll('.tb-rail-m'));
       D.forEach(function (d, k) { els[k].style.left = d.x + 'px'; });
       MS.forEach(function (M, k) { mels[k].style.left = M.x + 'px'; var first = null; D.forEach(function (d) { var a = d.p.at; if (!first && a.y === M.y && a.m === M.m) first = d; }); labs[k].style.left = (first ? first.x : M.x) + 'px'; labs[k].hidden = !first; });   // a month's name sits under its newest day, where reading left to right meets it
-      rail.appendChild(rib); rail.appendChild(cap); paint();
+      rail.appendChild(cap); paint();
     }
     var wake = 0, wakeV = 0, fx = 0, fxV = 0, cx = 0, cxV = 0, px = null, snap = -1, down = false, raf = 0, last = 0, lastTick = 0, lastX = 0, lastT = 0;
     function curDay() { for (var k = 0; k < D.length; k++) if (D[k].list.indexOf(P[cur]) >= 0) return k; return 0; }
@@ -160,9 +162,8 @@
         els[k].style.transform = 'scaleY(' + (len / K.maxLen).toFixed(3) + ')'; els[k].style.opacity = a.toFixed(3); els[k].classList.toggle('is-cur', k === c); });
       MS.forEach(function (M, k) { var b = wake * fall(Math.abs(M.x - fx)); mels[k].style.transform = 'scaleY(' + ((K.monLen + K.bumpMon * b) / K.maxLen).toFixed(3) + ')'; mels[k].style.opacity = (K.aMon + K.aBump * b * .6).toFixed(3); });
       cap.style.transform = 'translateX(' + cx.toFixed(1) + 'px) translateX(-50%) translateY(' + ((1 - wake) * -4).toFixed(1) + 'px)'; cap.style.opacity = wake.toFixed(3);
-      rib.style.transform = 'translateX(' + D[c].x.toFixed(1) + 'px)'; rib.style.setProperty('--rib', RIB[(D[c].p.at.m + D[c].p.at.y) % RIB.length]);
     }
-    function label(k) { var d = D[k], a = d.p.at; capD.textContent = (ja() ? a.m + '月' : '') + day(a) + (ja() ? '' : ' ' + TL2.mon(a.m)); capP.textContent = TL2.s(d.p.name) + (d.list.length > 1 ? ' +' + (d.list.length - 1) : ''); capImg.src = img(d.p, 's'); }
+    function label(k) { var d = D[k], a = d.p.at; capD.textContent = (ja() ? a.m + '月' : '') + day(a) + (ja() ? '' : ' ' + TL2.mon(a.m)); capP.textContent = d.list.length > 1 ? count(d.list.length) : TL2.s(d.p.name); }
     function spring(x, v, to, k, dt) { var c = 2 * Math.sqrt(k); v += ((to - x) * k - v * c) * dt; return [x + v * dt, v]; }   // critically damped: no wobble
     function frame(now) {
       raf = 0; var dt = Math.min(.033, (now - (last || now)) / 1000); last = now;
@@ -173,10 +174,17 @@
       if (Math.abs(wake - on) > .002 || Math.abs(wakeV) > .01 || Math.abs(fx - tx) > .2 || Math.abs(cx - sx) > .2) { if (!raf) raf = requestAnimationFrame(frame); } else last = 0;
     }
     function kick() { if (!raf) raf = requestAnimationFrame(frame); }
+    function hot() { MS.forEach(function (M, i) { if (labs[i]) labs[i].classList.toggle('is-on', !!hotM ? (M.y === hotM.y && M.m === hotM.m) : (M.y === P[cur].at.y && M.m === P[cur].at.m)); }); }
     function at(e) { return e.clientX - rail.getBoundingClientRect().left; }
     function move(e) {
       var x = at(e), first = px == null; px = x; if (first) { fx = x; cx = D[nearest(x)].x; }
-      var k = nearest(x); if (k !== snap) { snap = k; label(k);
+      var k = nearest(x);
+      // a month is a detent: at the boundary the snapped tick holds on a few px longer before it lets go into the next month
+      if (snap >= 0 && k !== snap && monthOf(D[k].p.i) !== monthOf(D[snap].p.i) && Math.abs(x - (D[k].x + D[snap].x) / 2) < 6 && Math.abs(k - snap) === 1) k = snap;
+      if (k !== snap) { var was = snap; snap = k; label(k);
+        var Mh = monthOf(D[k].p.i);
+        if (Mh !== hotM) { var dirM = hotM && (Mh.y * 12 + Mh.m) > (hotM.y * 12 + hotM.m) ? 'back' : 'forward', crossed = !!hotM; hotM = Mh; hot();
+          previewMonth(Mh, dirM); if (crossed && TL3.cue) { lastTick = performance.now(); TL3.cue('hover2', {}); lastX = x; lastT = lastTick; kick(); return; } }
         var n = performance.now(), vel = Math.abs(x - lastX) / Math.max(1, n - lastT);
         if (TL3.cue && n - lastTick > 30) { lastTick = n; TL3.cue(down ? 'tick' : 'hover', { vel: vel }); } }
       lastX = x; lastT = performance.now(); kick();
@@ -184,9 +192,10 @@
     rail.addEventListener('pointerenter', move); rail.addEventListener('pointermove', move);
     rail.addEventListener('pointerdown', function (e) { if (e.button) return; down = true; try { rail.setPointerCapture(e.pointerId); } catch (x) {} move(e); });
     function up(e) { if (!down) return; down = false; var k = snap; if (e.type === 'pointerup' && k >= 0) go(D[k].list[0].i); if (e.pointerType !== 'mouse') leave(); }
-    function leave() { if (down) return; px = null; snap = -1; kick(); }
+    function leave() { if (down) return; px = null; snap = -1; hotM = null; hot(); previewMonth(monthOf(cur)); kick(); }
+    rail.addEventListener('click', function (e) { var m = e.target.closest('.tb-rail-m'); if (!m) return; var M = MS[labs.indexOf(m)], B = M && byKey[TL2.key(M.y, M.m)]; if (B) go(B.list[0].i); });
     rail.addEventListener('pointerup', up); rail.addEventListener('pointercancel', up); rail.addEventListener('pointerleave', leave);
-    railMark = function () { if (els.length) { paint(); rail.setAttribute('aria-valuenow', String(curDay())); rail.setAttribute('aria-valuetext', TL2.fullDate(P[cur].at.y, P[cur].at.m, P[cur].at.d) + ', ' + TL2.s(P[cur].name)); } };
+    railMark = function () { if (els.length) { paint(); if (px == null) hot(); rail.setAttribute('aria-valuenow', String(curDay())); rail.setAttribute('aria-valuetext', TL2.fullDate(P[cur].at.y, P[cur].at.m, P[cur].at.d) + ', ' + TL2.s(P[cur].name)); } };
     rail.setAttribute('aria-valuemin', '0'); rail.setAttribute('aria-valuemax', String(D.length - 1));
     if ('ResizeObserver' in window) new ResizeObserver(build).observe(rail); else window.addEventListener('resize', build);
     TL.onLang(function () { build(); });
