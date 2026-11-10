@@ -48,11 +48,9 @@ body.pc { overflow-x: clip; }   /* the tucked card may lean past the edge of a n
 .ls.pb .pc-card:not(.is-photo) .pc-back > :not(.pc-paper):not(.pc-right), .ls.pb .pc-card:not(.is-photo) .pc-back .pc-right > :not(.pc-stamp) { transition: opacity 200ms ease-out; }
 .ls.pb .pc-card:not(.is-photo):not(.is-flipped) .pc-back.is-away > :not(.pc-paper):not(.pc-right),
 .ls.pb .pc-card:not(.is-photo):not(.is-flipped) .pc-back.is-away .pc-right > :not(.pc-stamp) { opacity: 0; }
-.ls.pb .pc-card:not(.is-photo).is-flipped .pc-back { z-index: 3; opacity: 1; transform: var(--pb-out); animation: pb-card-out 620ms cubic-bezier(0.2, 0, 0, 1) both; }
-.ls.pb .pc-card:not(.is-photo):not(.is-flipped) .pc-back:not(.is-away) { opacity: 1; animation: pb-card-in 540ms cubic-bezier(0.2, 0, 0, 1) both; }
+.ls.pb .pc-card:not(.is-photo).is-flipped .pc-back { z-index: 3; opacity: 1; transform: var(--pb-out); }   /* the slide between the two is one reversible animation (hero-book.js) */
+.ls.pb .pc-card:not(.is-photo):not(.is-flipped) .pc-back:not(.is-away) { opacity: 1; }
 .ls.pb .pc-card:not(.is-photo):has(.pc-back:not(.is-away)) { z-index: 4; }  /* out: above the tabs and the caption */
-@keyframes pb-card-out { 0% { transform: var(--pb-tuck); z-index: 0; } 36% { transform: var(--pb-clear); z-index: 0; } 37% { z-index: 3; } 100% { transform: var(--pb-out); z-index: 3; } }
-@keyframes pb-card-in { 0% { transform: var(--pb-out); z-index: 3; } 62% { transform: var(--pb-clear); z-index: 3; } 63% { z-index: 0; } 100% { transform: var(--pb-tuck); z-index: 0; } }
 /* the whole tucked card is the button: the same as "Leave a note" */
 .pb-tuck { position: absolute; inset: 0; transform: var(--pb-tuck); z-index: 3; padding: 0; border: 0; background: none; cursor: pointer; display: none; border-radius: 24px; -webkit-tap-highlight-color: transparent; }
 .ls.pb.pb-open .pc-card:not(.is-flipped) .pb-tuck { display: block; }
@@ -69,6 +67,6 @@ body.pc { overflow-x: clip; }   /* the tucked card may lean past the edge of a n
 
 @media (prefers-reduced-motion: reduce) {
   .pb-poster, .pb-stage canvas:not(.pb-poster), .ls.pb .pc-st, .pb-hint { transition: none; }
-  .ls.pb .pc-card:not(.is-photo) .pc-back { animation: none !important; transition: opacity 200ms ease-out; }
+  .ls.pb .pc-card:not(.is-photo) .pc-back { transition: opacity 200ms ease-out; }
   .ls.pb .pc-card:not(.is-photo).is-flipped .pc-back { visibility: visible; }
 }

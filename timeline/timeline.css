@@ -301,10 +301,10 @@ body.tl3 { overflow: hidden; }
 .tb-gallery::-webkit-scrollbar { display: none; }
 .tb-st { position: relative; flex: none; width: 68px; padding: 0; border: 0; background: none; font: inherit; letter-spacing: inherit; text-align: center; color: inherit; cursor: pointer; scroll-snap-align: center; -webkit-tap-highlight-color: transparent; }
 .tb-st-pic { display: block; padding: 3px; background: #fbf8f1; border-radius: 6px; box-shadow: 0 0 0 1px rgba(42, 36, 24, .05), 0 1px 1px rgba(42, 36, 24, .10), 0 3px 6px rgba(42, 36, 24, .08); opacity: .82;
-  transition: transform 220ms cubic-bezier(0.2, 0, 0, 1), box-shadow 200ms ease-out, opacity 200ms ease-out; }
+  transition: transform 220ms cubic-bezier(0.2, 0, 0, 1), scale 120ms cubic-bezier(0.2, 0, 0, 1), box-shadow 200ms ease-out, opacity 200ms ease-out; }
 .tb-st-pic img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 3px; }
 .tb-st:hover .tb-st-pic { transform: translateY(-2px); opacity: 1; }
-.tb-st:active .tb-st-pic { transform: scale(.96); }
+.tb-st:active .tb-st-pic { scale: .96; }   /* its own property, so the open stamp keeps its lift and tilt while pressed */
 .tb-st.is-on .tb-st-pic { transform: translateY(-4px) rotate(-1.5deg); opacity: 1; box-shadow: 0 0 0 1px rgba(42, 36, 24, .08), 0 2px 3px rgba(42, 36, 24, .12), 0 10px 18px rgba(42, 36, 24, .16); }   /* the page the book is open at */
 .tb-st:focus-visible { outline: 1.5px dashed var(--text); outline-offset: 4px; border-radius: 8px; }
 .tb-st-d { display: block; margin-top: 6px; font-size: 10px; line-height: 1.4; letter-spacing: .08em; text-transform: uppercase; color: var(--pg-cap); font-variant-numeric: tabular-nums; }
@@ -314,8 +314,9 @@ body.tl3 { overflow: hidden; }
    A month is a detent: its name inks in as the pointer crosses into it and the stamp row shows that month. */
 .tb-rail { position: relative; z-index: 3; flex: none; width: min(680px, 100vw - 32px); height: 62px; margin: 10px auto auto; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; outline: none; }
 @media (pointer: fine) { .tb-rail { cursor: none; } }                    /* inside the rail the snapped tick is the cursor */
-.tb-tk { position: absolute; bottom: 20px; width: 1.5px; height: 34px; margin-left: -.75px; border-radius: 1px; background: var(--text); transform-origin: 50% 100%; transform: scaleY(.2); opacity: .3; will-change: transform, opacity; }
-.tb-tk.is-cur { width: 2.5px; margin-left: -1.25px; }
+.tb-tk { position: absolute; top: 4px; width: 3px; height: 34px; margin-left: -1.5px; border-radius: 2px; background: var(--text); transform-origin: 50% 50%; transform: scaleY(.2); opacity: .16; }   /* a pill, growing from its middle: together they make the line */
+.tb-rail.is-awake .tb-tk { will-change: transform, opacity; }   /* layers only while it is moving */
+.tb-tk.is-cur { width: 3.5px; margin-left: -1.75px; }
 .tb-rail-m { position: absolute; bottom: 0; translate: -2px 0; font-size: 9.5px; font-weight: 500; line-height: 1.4; letter-spacing: .12em; text-transform: uppercase; color: var(--pg-cap); white-space: nowrap; cursor: pointer;
   transition: color 160ms ease-out; }
 .tb-rail-m.is-on { color: var(--text); }

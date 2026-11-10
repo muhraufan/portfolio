@@ -220,7 +220,7 @@ export function createBook(host, cfg) {
      go it holds the page still for a third of a second. So it is a job, advanced one stage per frame, and nothing shows or
      opens until the last stage is in. */
   const mark = (name, t0) => { try { performance.measure('pb:' + name, { start: t0, end: performance.now() }); } catch (e) {} };   // shows up in the Performance panel and in getEntriesByType('measure')
-  let builtFor = null;
+  let builtFor = null, turning = false;
   let job = null, queued = null, uploads = null, compiled = false, compiling = false, holding = false, onReady = null;
   function build(placeId, light, opt, done) { job = { it: buildSteps(placeId, light, opt), done }; holding = true; }
   function* buildSteps(placeId, light, opt) {
@@ -401,7 +401,11 @@ export function createBook(host, cfg) {
     // so the opening itself never waits on an upload.
     const goal = pending || (holding && main.x < .2) ? 0 : Math.max(main.target, peek);
     if (reduce.matches) { main.x = goal; main.v = 0; }
-    else if (!drag.cover) { main.v += ((goal - main.x) * 30 - main.v * 8.6) * dt; main.x += main.v * dt; }
+    else if (!drag.cover) {
+      // Opening the book for the first time is a moment and takes its time. Turning to another place is something done over
+      // and over, so it is quick: the book snaps shut with no bounce, and comes open again about twice as fast.
+      const k = pending ? 130 : turning ? 62 : 30, c = pending ? 23 : turning ? 12.6 : 8.6;
+      main.v += ((goal - main.x) * k - main.v * c) * dt; main.x += main.v * dt; }
     main.x = clamp(main.x, 0, 1.03);
     const beta = (1 - main.x) * HALF;              // each page's lift off flat; the spread's own angle is 180 minus twice this
     right.rotation.z = 2 * beta; frameG.rotation.z = beta;
@@ -437,7 +441,7 @@ export function createBook(host, cfg) {
       else { const P = pieces.find(q => q.glowMat); P.glow = .85; }
     }
     const isOpen = main.x > .985 && Math.abs(main.v) < .04;
-    if (isOpen && !settled) { settled = true; nextIdle = clock + 6; sigStart = clock + .35; el.setAttribute('aria-label', say('open')); if (cfg.onOpen) cfg.onOpen(); }
+    if (isOpen && !settled) { settled = true; turning = false; nextIdle = clock + 6; sigStart = clock + .35; el.setAttribute('aria-label', say('open')); if (cfg.onOpen) cfg.onOpen(); }
     if (main.x < .6 && settled) { settled = false; if (cfg.onShut) cfg.onShut(); el.setAttribute('aria-label', say('shut')); }
     if (sigStart != null && clock - sigStart > 17 && settled) sigStart = clock + .5;
     clock += dt;
@@ -535,7 +539,7 @@ export function createBook(host, cfg) {
       if (job || holding) { queued = { place, light }; return; }
       if (!cur) { build(place, light); onReady = () => { if (cfg.onReady) cfg.onReady(); }; return; }
       if (cur.place === place) { if (cur.light !== light) relight(place, light); return; }
-      pending = { place, light };
+      pending = { place, light }; turning = true;
     },
     snapshot(target) { renderer.render(scene, camera); const x = target.getContext('2d'); x.clearRect(0, 0, target.width, target.height);
       const s = Math.min(el.width / target.width, el.height / target.height), sw = target.width * s, sh = target.height * s;

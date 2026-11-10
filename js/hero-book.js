@@ -100,7 +100,7 @@
     if (started || !settledPage || !inView || document.hidden) return; started = true;
     giveUp = setTimeout(function () { if (!book) off(); }, 9000);
     var t0 = performance.now();
-    load('/last-seen/popup/book.js?v=5').then(function (m) {
+    load('/last-seen/popup/book.js?v=6').then(function (m) {
       clearTimeout(giveUp); try { performance.measure('pb:import', { start: t0, end: performance.now() }); } catch (e) {}
       if (!fig.classList.contains('pb')) return;         // already fell back to the postcard
       book = m.createBook(stage, { label: say,
@@ -116,7 +116,23 @@
   else { inView = true; start(); }
   document.addEventListener('visibilitychange', function () { start(); sync(); });
   // with the guest card out, or on the photography side, the book rests
-  new MutationObserver(function () { clearTimeout(flipT); flipT = setTimeout(sync, card.classList.contains('is-flipped') ? 700 : 0); }).observe(card, { attributes: true, attributeFilter: ['class'] });
+  // The card's slide is one animation that can be turned round mid-way: close it while it is still coming out and it goes
+  // back from where it is, instead of jumping to the end first.
+  var backEl2 = card.querySelector('.pc-back'), slide = null, wasOut = card.classList.contains('is-flipped'), noMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  function slideCard(out) {
+    if (!backEl2 || !backEl2.animate || noMotion.matches || card.classList.contains('is-photo') || !fig.classList.contains('pb')) { if (slide) { slide.cancel(); slide = null; } return; }
+    if (slide && slide.playState === 'running') { slide.playbackRate = out ? 1 : -1; return; }   // mid-move: just reverse
+    var cs = getComputedStyle(card), v = function (n) { return cs.getPropertyValue(n).trim(); }, tuck = v('--pb-tuck'), clear = v('--pb-clear'), end = v('--pb-out');
+    if (!tuck || !clear || !end) return;
+    slide = backEl2.animate([{ transform: tuck, zIndex: 0, offset: 0 }, { transform: clear, zIndex: 0, offset: .38 }, { transform: clear, zIndex: 3, offset: .39 }, { transform: end, zIndex: 3, offset: 1 }],
+      { duration: 600, easing: out ? 'cubic-bezier(0.2, 0, 0, 1)' : 'cubic-bezier(0.8, 0, 1, 0.8)', fill: 'none' });
+    if (!out) { slide.playbackRate = -1; slide.currentTime = 600; }
+    slide.onfinish = slide.oncancel = function () { slide = null; };
+  }
+  new MutationObserver(function () {
+    var out = card.classList.contains('is-flipped'); if (out !== wasOut) { wasOut = out; slideCard(out); }
+    clearTimeout(flipT); flipT = setTimeout(sync, out ? 700 : 0);
+  }).observe(card, { attributes: true, attributeFilter: ['class'] });
   // a new light: the sun moves and the shadows swing round. A new language: the book and its card say what they are again.
   new MutationObserver(function (m) {
     if (m.some(function (r) { return r.attributeName === 'data-lang'; })) { if (tuck) { tuck.setAttribute('aria-label', say('note')); var hs = fig.querySelector('.pb-hint span'); if (hs) hs.textContent = say('hint'); } if (book) book.relabel(); }
