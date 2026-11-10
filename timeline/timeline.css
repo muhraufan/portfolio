@@ -325,6 +325,19 @@ body.tl3 { overflow: hidden; }
   box-shadow: 0 0 0 .5px rgba(42, 36, 24, .3), 0 3px 8px rgba(42, 36, 24, .14); will-change: transform, opacity; }
 .tb-rc-d { color: #8a8680; font-variant-numeric: tabular-nums; }
 [data-theme="dark"] .tb-rail-cap { background: #2b2925; color: #e9e5dd; box-shadow: 0 0 0 .5px rgba(255, 255, 255, .25), 0 4px 10px rgba(0, 0, 0, .55); } [data-theme="dark"] .tb-rc-d { color: #9a968f; }
+/* press and hold on the rail: the month opens out into its dates */
+.tb-ruler { position: absolute; bottom: calc(100% - 2px); z-index: 6; box-sizing: border-box; padding: 9px 12px 9px; border-radius: 10px; background: #fbf8f1; color: #2a2418; transform-origin: 50% 100%; pointer-events: none;
+  box-shadow: 0 0 0 .5px rgba(42, 36, 24, .3), 0 2px 4px rgba(42, 36, 24, .1), 0 10px 24px rgba(42, 36, 24, .18); }
+.tb-ruler[hidden] { display: none; }
+.tb-ru-h { font-size: 10px; font-weight: 500; line-height: 1.4; letter-spacing: .14em; text-transform: uppercase; color: #8a8680; }
+.tb-ru-row { display: flex; margin-top: 6px; }
+.tb-ru-c { flex: none; height: 24px; display: grid; place-items: center; font-size: 10.5px; line-height: 1; letter-spacing: 0; font-variant-numeric: tabular-nums; color: rgba(42, 36, 24, .28); border-radius: 6px; transition: background-color 120ms ease-out, color 120ms ease-out; }
+.tb-ru-c.is-day { color: #2a2418; font-weight: 600; }
+.tb-ru-c.is-on { background: #2a2418; color: #fbf8f1; }
+.tb-ru-n { margin-top: 6px; min-height: 17px; font-size: 12px; line-height: 1.4; letter-spacing: .3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+[data-theme="dark"] .tb-ruler { background: #2b2925; color: #e9e5dd; box-shadow: 0 0 0 .5px rgba(255, 255, 255, .25), 0 10px 24px rgba(0, 0, 0, .6); }
+[data-theme="dark"] .tb-ru-h { color: #9a968f; } [data-theme="dark"] .tb-ru-c { color: rgba(233, 229, 221, .28); } [data-theme="dark"] .tb-ru-c.is-day { color: #e9e5dd; } [data-theme="dark"] .tb-ru-c.is-on { background: #e9e5dd; color: #2b2925; }
+.tb-rail.is-held .tb-rail-cap { visibility: hidden; }
 .tb-ribbons { display: none; }   /* the rail does the months now; the ribbons are kept in the script in case they come back */
 .tb-gallery { margin-bottom: 0; }
 .tl3 .t3-foot, .tl3 .t3-mask { display: none; }

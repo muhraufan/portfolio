@@ -185,6 +185,8 @@
     function hot() { MS.forEach(function (M, i) { if (labs[i]) labs[i].classList.toggle('is-on', !!hotM ? (M.y === hotM.y && M.m === hotM.m) : (M.y === P[cur].at.y && M.m === P[cur].at.m)); }); }
     function at(e) { return e.clientX - rail.getBoundingClientRect().left; }
     function move(e) {
+      if (held) { rulerMove(e); return; }
+      if (down && Math.abs(at(e) - downX) > 4) clearTimeout(holdT);        // it wandered: this is a drag, not a hold
       var x = at(e), first = px == null; px = x; if (first) { fx = x; cx = D[nearest(x)].x; }
       var k = nearest(x);
       // a month is a detent: at the boundary the snapped tick holds on a few px longer before it lets go into the next month
@@ -198,8 +200,41 @@
       lastX = x; lastT = performance.now(); kick();
     }
     rail.addEventListener('pointerenter', move); rail.addEventListener('pointermove', move);
-    rail.addEventListener('pointerdown', function (e) { if (e.button) return; down = true; try { rail.setPointerCapture(e.pointerId); } catch (x) {} move(e); });
-    function up(e) { if (!down) return; down = false; var k = snap; if (e.type === 'pointerup' && k >= 0) go(D[k].list[0].i); if (e.pointerType !== 'mouse') leave(); }
+    rail.addEventListener('pointerdown', function (e) { if (e.button) return; down = true; try { rail.setPointerCapture(e.pointerId); } catch (x) {} move(e); downX = at(e); clearTimeout(holdT); holdT = setTimeout(openRuler, 350); });
+    function up(e) {
+      if (!down) return; down = false; clearTimeout(holdT);
+      if (held) { var pick = held.pick; closeRuler(); if (e.type === 'pointerup' && pick >= 0) go(D[pick].list[0].i); leave(); return; }
+      var k = snap; if (e.type === 'pointerup' && k >= 0) go(D[k].list[0].i); if (e.pointerType !== 'mouse') leave();
+    }
+    // Press and hold: the month under the pointer opens out into its dates, to pick one precisely. Days with a place are
+    // inked; slide along (still holding) and let go on the one you want. It runs newest first, like the rail under it.
+    var holdT = 0, downX = 0, held = null, ruler = document.createElement('div'); ruler.className = 'tb-ruler'; ruler.hidden = true; ruler.setAttribute('aria-hidden', 'true');
+    function openRuler() {
+      if (!down || snap < 0) return;
+      var a = D[snap].p.at, n = new Date(Date.UTC(a.y, a.m, 0)).getUTCDate(), pitch = Math.min(22, (innerWidth - 40) / n), cells = [], html = '';
+      for (var d = n; d >= 1; d--) { var k = -1; D.forEach(function (x, i) { var q = x.p.at; if (q.y === a.y && q.m === a.m && q.d === d) k = i; }); cells.push({ d: d, k: k }); html += '<span class="tb-ru-c' + (k >= 0 ? ' is-day' : '') + '" style="width:' + pitch.toFixed(2) + 'px">' + d + '</span>'; }
+      ruler.innerHTML = '<div class="tb-ru-h">' + TL2.monthTitle(a.y, a.m) + '</div><div class="tb-ru-row">' + html + '</div><div class="tb-ru-n"></div>';
+      rail.appendChild(ruler); ruler.hidden = false;
+      var w = pitch * n + 24, rr = rail.getBoundingClientRect(), fits = w <= rr.width + 28, lo = fits ? (rr.width - w) / 2 : 12 - rr.left, hi = fits ? (rr.width - w) / 2 : innerWidth - 12 - w - rr.left, left = Math.max(lo, Math.min(hi, D[snap].x - w / 2));   // a month is about as wide as the rail: it sits squarely over it
+      ruler.style.width = w + 'px'; ruler.style.left = left + 'px';
+      held = { cells: cells, pitch: pitch, pick: -1, els: [].slice.call(ruler.querySelectorAll('.tb-ru-c')), row: ruler.querySelector('.tb-ru-row'), name: ruler.querySelector('.tb-ru-n') };
+      rail.classList.add('is-held'); px = null; kick(); rulerPick(snap);
+      if (TL3.cue) TL3.cue('open');
+      if (!TL.reduce.matches && ruler.animate) ruler.animate([{ opacity: 0, transform: 'translateY(6px) scale(.97)' }, { opacity: 1, transform: 'none' }], { duration: 180, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+    }
+    function rulerPick(k) {
+      if (!held || k === held.pick) return; var had = held.pick >= 0; held.pick = k;
+      held.cells.forEach(function (c, i) { held.els[i].classList.toggle('is-on', c.k === k); });
+      var d = D[k]; held.name.textContent = d.list.length > 1 ? TL2.s(d.p.name) + ' +' + (d.list.length - 1) : TL2.s(d.p.name);
+      if (had && TL3.cue) TL3.cue('tick');
+    }
+    function rulerMove(e) {
+      var r = held.row.getBoundingClientRect(), i = Math.max(0, Math.min(held.cells.length - 1, Math.floor((e.clientX - r.left) / held.pitch))), best = -1, bd = 1e9;
+      held.cells.forEach(function (c, j) { if (c.k >= 0 && Math.abs(j - i) < bd) { bd = Math.abs(j - i); best = c.k; } });
+      if (best >= 0) rulerPick(best);
+    }
+    function closeRuler() { held = null; ruler.hidden = true; rail.classList.remove('is-held'); }
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && held) { closeRuler(); down = false; leave(); } });
     function leave() { if (down) return; px = null; snap = -1; hotM = null; hot(); previewMonth(monthOf(cur)); kick(); }
     rail.addEventListener('click', function (e) { var m = e.target.closest('.tb-rail-m'); if (!m) return; var M = MS[labs.indexOf(m)], B = M && byKey[TL2.key(M.y, M.m)]; if (B) go(B.list[0].i); });
     rail.addEventListener('pointerup', up); rail.addEventListener('pointercancel', up); rail.addEventListener('pointerleave', leave);
