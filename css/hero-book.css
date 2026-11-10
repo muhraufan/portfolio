@@ -19,44 +19,47 @@ html[data-tod="night"] .pb-poster, [data-theme="dark"]:not([data-tod]) .pb-poste
 .ls.pb .pc-front .ls-scene { opacity: 0; pointer-events: none; }
 .ls.pb .pc-card.is-photo .pb-stage, .ls.pb .pc-card.is-photo .pb-tuck { opacity: 0; pointer-events: none; }
 
-/* ---------- the stamps are the book's page tabs: they hang from its front edge, and the caption goes under them ---------- */
+/* ---------- the stamps are the book's page tabs: a row just under its front edge, and the caption goes under them ---------- */
 .ls.pb { display: flex; flex-direction: column; }
 .ls.pb .ls-caption, .ls.pb .pc-stamps { position: relative; z-index: 3; }
-.ls.pb:not(:has(.ls-caption.is-photo)) .pc-stamps { order: 1; margin-top: calc(var(--pb-foot, 24px) - 1px); height: 46px; align-items: flex-start; gap: 6px; }
-.ls.pb:not(:has(.ls-caption.is-photo)) .ls-caption { order: 2; margin-top: 10px; }
-.ls.pb .pc-st { rotate: 0deg; width: 46px; height: 40px; aspect-ratio: auto; box-sizing: border-box; padding: 3px 3px 5px; background: #fbf8f1; border-radius: 0 0 7px 7px; filter: none; opacity: .86;
-  box-shadow: inset 0 8px 6px -5px rgba(42, 36, 24, .34), 0 1px 1px rgba(42, 36, 24, .12), 0 3px 6px rgba(42, 36, 24, .10);   /* the shade at the top: it comes out from under the book */
-  transform: translateY(-9px); transition: transform 220ms cubic-bezier(0.2, 0, 0, 1), opacity 200ms ease-out; }
-.ls.pb .pc-st img { padding: 0; background: none; -webkit-mask: none; mask: none; border-radius: 1px 1px 4px 4px; }
-.ls.pb .pc-st:is(:hover, :focus-visible) { transform: translateY(-4px); opacity: 1; filter: none; }
-.ls.pb .pc-st.is-on { transform: none; opacity: 1; }
+.ls.pb:not(:has(.ls-caption.is-photo)) .pc-stamps { order: 1; margin-top: calc(var(--pb-foot, 24px) + 22px); height: 42px; align-items: center; gap: 8px; }
+.ls.pb:not(:has(.ls-caption.is-photo)) .ls-caption { order: 2; margin-top: 12px; }
+.ls.pb .pc-st { rotate: 0deg; width: 46px; height: 38px; aspect-ratio: auto; box-sizing: border-box; padding: 3px; background: #fbf8f1; border-radius: 6px; filter: none; opacity: .8;
+  box-shadow: 0 0 0 1px rgba(42, 36, 24, .05), 0 1px 1px rgba(42, 36, 24, .10), 0 3px 6px rgba(42, 36, 24, .08);
+  transition: transform 220ms cubic-bezier(0.2, 0, 0, 1), opacity 200ms ease-out, box-shadow 200ms ease-out; }
+.ls.pb .pc-st img { padding: 0; background: none; -webkit-mask: none; mask: none; border-radius: 3px; }
+.ls.pb .pc-st:is(:hover, :focus-visible) { transform: translateY(-2px); opacity: 1; filter: none; }
+.ls.pb .pc-st.is-on { transform: translateY(-4px); opacity: 1; box-shadow: 0 0 0 1px rgba(42, 36, 24, .08), 0 2px 3px rgba(42, 36, 24, .12), 0 8px 14px rgba(42, 36, 24, .14); }   /* the place the book is open at */
 .ls.pb .pc-st.is-on img { filter: none; }
-.ls.pb .pc-st:active { transform: translateY(-2px) scale(.97); transition-duration: 90ms; }
-.ls.pb .pc-pile { margin-top: 3px; }
-[data-theme="dark"] .ls.pb .pc-st { background: #ebe2d1; box-shadow: inset 0 8px 6px -5px rgba(0, 0, 0, .5), 0 1px 1px rgba(0, 0, 0, .5), 0 3px 8px rgba(0, 0, 0, .45); }
+.ls.pb .pc-st:active { transform: scale(.96); transition-duration: 90ms; }
+[data-theme="dark"] .ls.pb .pc-st { background: #ebe2d1; box-shadow: 0 1px 1px rgba(0, 0, 0, .5), 0 3px 8px rgba(0, 0, 0, .45); }
 
-/* ---------- the guest card is a loose card tucked under the book's right corner ----------
-   It lies under the book (the book's own pixels hide most of it), slides down clear of it, comes up on top, and settles
-   in front. js/postcard.js still drives it with the same classes it used to turn the card over. */
+/* ---------- the guest card is a small loose card, half under the book's right edge ----------
+   Tucked, it is just a card with a stamp on it: no form to read at that size. All of it is one button. It slides out
+   sideways clear of the book, comes up on top, and settles in front at full size. js/postcard.js still drives it with
+   the same classes it used to turn the card over. */
+.ls.pb .pc-card:not(.is-photo) {
+  --pb-tuck: translate(var(--pb-tx, 30%), var(--pb-ty, 10%)) rotate(11deg) scale(.34);
+  --pb-clear: translate(calc(var(--pb-tx, 30%) + 24cqw), var(--pb-ty, 10%)) rotate(5deg) scale(.4);
+  --pb-out: translate(0, 7%) scale(1); }
 .ls.pb .pc-card:not(.is-photo) .pc-inner { transform: none; transform-style: flat; transition: none; }
 .ls.pb .pc-card:not(.is-photo) .pc-face { backface-visibility: visible; -webkit-backface-visibility: visible; }
 .ls.pb .pc-card:not(.is-photo) .pc-front { transform: none; z-index: 1; }
-.ls.pb .pc-card:not(.is-photo) .pc-back {
-  --pb-tuck: translate(var(--pb-tx, 30%), var(--pb-ty, 30%)) rotate(9deg) scale(.5);
-  --pb-clear: translate(var(--pb-tx, 30%), calc(var(--pb-ty, 30%) + 48cqw * .75)) rotate(4deg) scale(.56);
-  --pb-out: translate(0, 7%) rotate(-1.5deg) scale(1);
-  z-index: 0; transform: var(--pb-tuck); visibility: visible; opacity: 0; transition: opacity 240ms ease-out, translate 260ms cubic-bezier(0.2, 0, 0, 1); }
+.ls.pb .pc-card:not(.is-photo) .pc-back { z-index: 0; transform: var(--pb-tuck); visibility: visible; opacity: 0; transition: opacity 240ms ease-out, translate 260ms cubic-bezier(0.2, 0, 0, 1); }
 .ls.pb.pb-open .pc-card:not(.is-photo) .pc-back { opacity: 1; }           /* only once the book is open: shut, it would lie there uncovered */
-.ls.pb .pc-card:not(.is-photo).is-flipped .pc-back { z-index: 3; opacity: 1; transform: var(--pb-out); animation: pb-card-out 640ms cubic-bezier(0.2, 0, 0, 1) both; }
+.ls.pb .pc-card:not(.is-photo) .pc-back > :not(.pc-paper):not(.pc-right), .ls.pb .pc-card:not(.is-photo) .pc-back .pc-right > :not(.pc-stamp) { transition: opacity 200ms ease-out; }
+.ls.pb .pc-card:not(.is-photo):not(.is-flipped) .pc-back.is-away > :not(.pc-paper):not(.pc-right),
+.ls.pb .pc-card:not(.is-photo):not(.is-flipped) .pc-back.is-away .pc-right > :not(.pc-stamp) { opacity: 0; }
+.ls.pb .pc-card:not(.is-photo).is-flipped .pc-back { z-index: 3; opacity: 1; transform: var(--pb-out); animation: pb-card-out 620ms cubic-bezier(0.2, 0, 0, 1) both; }
 .ls.pb .pc-card:not(.is-photo):not(.is-flipped) .pc-back:not(.is-away) { opacity: 1; animation: pb-card-in 540ms cubic-bezier(0.2, 0, 0, 1) both; }
 .ls.pb .pc-card:not(.is-photo):has(.pc-back:not(.is-away)) { z-index: 4; }  /* out: above the tabs and the caption */
-@keyframes pb-card-out { 0% { transform: var(--pb-tuck); z-index: 0; } 40% { transform: var(--pb-clear); z-index: 0; } 41% { z-index: 3; } 100% { transform: var(--pb-out); z-index: 3; } }
-@keyframes pb-card-in { 0% { transform: var(--pb-out); z-index: 3; } 58% { transform: var(--pb-clear); z-index: 3; } 59% { z-index: 0; } 100% { transform: var(--pb-tuck); z-index: 0; } }
-/* its corner is a button: the same as "Leave a note" */
-.pb-tuck { position: absolute; left: calc(var(--pb-cx, 100%) - 20px); top: calc(var(--pb-cy, 100%) - 34px); width: 100px; height: 96px; z-index: 3; padding: 0; border: 0; background: none; cursor: pointer; display: none; border-radius: 8px; -webkit-tap-highlight-color: transparent; }
-.ls.pb.pb-open .pb-tuck { display: block; }
-.pb-tuck:focus-visible { outline: 1.5px dashed var(--ink, #111); outline-offset: 2px; }
-.ls.pb .pc-inner:has(.pb-tuck:is(:hover, :focus-visible)) .pc-back { translate: 5px 8px; }   /* it eases out a little, to say it can be taken */
+@keyframes pb-card-out { 0% { transform: var(--pb-tuck); z-index: 0; } 36% { transform: var(--pb-clear); z-index: 0; } 37% { z-index: 3; } 100% { transform: var(--pb-out); z-index: 3; } }
+@keyframes pb-card-in { 0% { transform: var(--pb-out); z-index: 3; } 62% { transform: var(--pb-clear); z-index: 3; } 63% { z-index: 0; } 100% { transform: var(--pb-tuck); z-index: 0; } }
+/* the whole tucked card is the button: the same as "Leave a note" */
+.pb-tuck { position: absolute; inset: 0; transform: var(--pb-tuck); z-index: 3; padding: 0; border: 0; background: none; cursor: pointer; display: none; border-radius: 24px; -webkit-tap-highlight-color: transparent; }
+.ls.pb.pb-open .pc-card:not(.is-flipped) .pb-tuck { display: block; }
+.pb-tuck:focus-visible { outline: 4px dashed var(--ink, #111); outline-offset: 6px; }
+.ls.pb .pc-inner:has(.pb-tuck:is(:hover, :focus-visible)) .pc-back { translate: 10px -2px; }   /* it eases out a little, to say it can be taken */
 
 @media (prefers-reduced-motion: reduce) {
   .pb-poster, .pb-stage canvas:not(.pb-poster), .ls.pb .pc-st { transition: none; }

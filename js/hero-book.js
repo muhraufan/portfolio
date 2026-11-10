@@ -56,7 +56,7 @@
     var f = P.project(P.FRONT, w, h, 1), ox = stage.offsetLeft, oy = stage.offsetTop, cx = f[1][0] + ox, cy = f[1][1] + oy;
     fig.style.setProperty('--pb-foot', Math.round(cy - ch) + 'px');
     fig.style.setProperty('--pb-cx', Math.round(cx) + 'px'); fig.style.setProperty('--pb-cy', Math.round(cy) + 'px');
-    fig.style.setProperty('--pb-tx', Math.round(cx - cw * .19 - cw / 2) + 'px'); fig.style.setProperty('--pb-ty', Math.round(cy - ch * .17 - ch / 2) + 'px');
+    fig.style.setProperty('--pb-tx', Math.round(cx - cw * .08 - cw / 2) + 'px'); fig.style.setProperty('--pb-ty', Math.round(cy - ch * .31 - ch / 2) + 'px');   // half under the book's right edge, well clear of the tabs
   }
   try {
     poster = P.cover(); poster.className = 'pb-poster'; poster.setAttribute('aria-hidden', 'true');

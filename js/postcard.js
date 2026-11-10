@@ -15,6 +15,8 @@
   var stamp = back.querySelector('.pc-stamp canvas'), pmDate = back.querySelector('.pc-pm-date'), paper = back.querySelector('.pc-paper');
   var hint = document.querySelector('.pc-persona-hint');
   var S = LastSeen.newest();
+  // sizes for the card's canvases come from layout, not from the screen: the card may be mid-move (scaled, turned) when it is measured
+  function box(el) { return { width: el.offsetWidth, height: el.offsetHeight }; }
 
   scene.setAttribute('role', 'img');
   LastSeen.mount(scene, null, { extras: window.LastSeenStreet || null });
@@ -121,13 +123,13 @@
       x.save(); x.globalAlpha = Math.min(.22, a.a * a.n * .9); x.translate(a.x * k, a.y * k); x.scale(1, a.ry / a.rx); x.translate(-a.x * k, -a.y * k);
       x.fillStyle = g; x.fillRect(0, 0, w, h * 2); x.restore();
     });
-    dither(x, w, h, 3.2, 3); deckle(x, w, h, Math.max(1, w / back.getBoundingClientRect().width), 5);
+    dither(x, w, h, 3.2, 3); deckle(x, w, h, Math.max(1, w / box(back).width), 5);
     back.style.setProperty('--pc-paper', p.paper); back.style.setProperty('--pc-ink', p.paperInk); back.style.setProperty('--pc-line', p.paperLine); back.style.setProperty('--pc-pencil', p.paperInk);
     if (sctx) { sctx.strokeStyle = p.paperInk; sctx.lineWidth = 1.8; redraw(); }
   }
   function paintPrintBack() {
     back.classList.add('is-print');
-    var P = PRINT[tod()] || PRINT.midday, r = paper.getBoundingClientRect(); if (!r.width) return;
+    var P = PRINT[tod()] || PRINT.midday, r = box(paper); if (!r.width) return;
     var d = Math.min(window.devicePixelRatio || 1, 2), w = paper.width = Math.round(r.width * d), h = paper.height = Math.round(r.height * d);
     var x = paper.getContext('2d'), rn = rnd(19);
     x.fillStyle = P.paper; x.fillRect(0, 0, w, h);
@@ -152,7 +154,7 @@
   var paperStale = true, paperKey = null, prepaintT = 0;
   // the paper is painted ahead, while the card is closed and the page idle: painting it on the tap held the main thread
   // for a few hundred ms right as the turn began, and WebKit then dropped or jumped the first frames of the flip
-  function paperSig() { var r = back.getBoundingClientRect(); return [persona, tod(), html.getAttribute('data-theme'), Math.round(r.width), Math.round(r.height), window.devicePixelRatio || 1].join('|'); }
+  function paperSig() { var r = box(back); return [persona, tod(), html.getAttribute('data-theme'), Math.round(r.width), Math.round(r.height), window.devicePixelRatio || 1].join('|'); }
   function paintPaperIfNeeded() { var k = paperSig(); if (!paperStale && k === paperKey) return; paintPaper(); paperStale = false; paperKey = k; }
   function prepaint() {
     clearTimeout(prepaintT);
@@ -168,7 +170,7 @@
   // ---------- signature pad ----------
   var sctx, strokes = [], cur = null;
   function sizeSig() {
-    var r = sig.getBoundingClientRect(); if (!r.width) return;
+    var r = box(sig); if (!r.width) return;
     var d = Math.min(window.devicePixelRatio || 1, 2);
     sig.width = Math.round(r.width * d); sig.height = Math.round(r.height * d);
     sctx = sig.getContext('2d'); sctx.setTransform(d, 0, 0, d, 0, 0);
@@ -199,7 +201,7 @@
     return stampImg;
   }
   function paintStamp() {
-    var r = stamp.getBoundingClientRect(), d = Math.min(window.devicePixelRatio || 1, 2);
+    var r = box(stamp), d = Math.min(window.devicePixelRatio || 1, 2);
     if (!r.width) return;
     stamp.width = Math.round(r.width * d); stamp.height = Math.round(r.height * d);
     var c = stamp.getContext('2d'); c.imageSmoothingQuality = 'high';
@@ -289,7 +291,7 @@
   function showErr(on) { errEl.hidden = !on; if (on) errEl.textContent = t().err; back.classList.toggle('is-error', on); }
   function signaturePNG() {
     if (!back.classList.contains('has-sig') || !strokes.length) return null;
-    var r = sig.getBoundingClientRect(), c = document.createElement('canvas');
+    var r = box(sig), c = document.createElement('canvas');
     c.width = Math.max(1, Math.round(r.width * 2)); c.height = Math.max(1, Math.round(r.height * 2));
     var x = c.getContext('2d'); x.scale(2, 2); x.lineWidth = persona === 'photography' ? 1.4 : 1.8;
     x.lineCap = 'round'; x.lineJoin = 'round'; x.strokeStyle = pencil();
