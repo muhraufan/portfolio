@@ -323,6 +323,11 @@ export function createBook(host, cfg) {
       const P = addPiece({ kind: 'prop', toy: gm ? 'light' : air && !p.lift ? null : 'rock', layers, r: p, foot: air ? yg : p.yb, z: p.z, phi: air ? PHI_BACK : PHI_FRONT, paper: air ? null : paper, amp: air ? .2 : .6, k: 40, hit: p.hit }); if (gm) P.glowMat = gm; });
     if (vend) { const gm = glowOf(vend.canvas);
       addPiece({ kind: 'prop', toy: 'light', layers: [{ tex: track(tex(vend.canvas)) }, { tex: null, shadow: false, zoff: .012, mat: gm }], r: vend, foot: vend.yb, z: zOf(vend.yb), phi: PHI_FRONT, paper, amp: .5, k: 44, hit: () => true }).glowMat = gm; }
+    // the post box: it takes the notes people post from the guest card, and a click on it brings the card out
+    const pa = cfg.onPost && window.LastSeenStreet && LastSeenStreet.postArt ? LastSeenStreet.postArt(S, pal, R.vkey, backSrc.width / 400) : null;
+    if (pa) { const fm = sheetMat(track(tex(pa.open))); fm.opacity = 0;
+      const P = addPiece({ kind: 'prop', toy: 'post', layers: [{ tex: track(tex(pa.canvas)) }, { tex: null, shadow: false, zoff: .012, mat: fm }], r: pa, foot: pa.foot, z: zOf(pa.foot), phi: PHI_FRONT, paper, amp: .45, k: 44, hit: () => true });
+      P.flapMat = fm; P.flap = 0; P.slot = [(pa.slot.x - 200) / 100, (pa.foot - pa.slot.y) / 100]; }
     // things with a life of their own: washing sways on its line, a shop's lettering can be made to jump
     const toys = R.layers.toys || {};
     if (toys.sway) cutPieces(toys.sway.canvas, { yMax: yg, grow: 1, cap: 40 }).forEach(p =>
@@ -333,7 +338,7 @@ export function createBook(host, cfg) {
       people('plants', home ? home.z - .012 : Z_FACADE + .05, home ? home.yb : yg, PHI_FRONT).plain = true;
     }
     const v = (S.variants && S.variants[R.vkey]) || {}, pbs = v.passersby || S.passersby || [];
-    if (sig.emerge) people('crew', zOf(sig.emerge.foot1), sig.emerge.foot1, PHI_FRONT);
+    if (sig.emerge) people('crew', zOf(sig.emerge.foot1), sig.emerge.foot1, PHI_FRONT).crew = true;
     const pf = pbs.length ? Math.max(...pbs.map(p => p.foot)) : 284;
     people('passers', zOf(pf), pf, PHI_FRONT);
     pieces.slice().sort((a, b) => a.z - b.z).forEach((P, i) => { P.order = i; P.meshes.forEach(m => { if (m.renderOrder < 80) m.renderOrder = 10 + i; }); });
@@ -421,6 +426,7 @@ export function createBook(host, cfg) {
         if (P.def.toy === 'sway') { const rest = Math.sin(clock * 1.15 + P.seed * 1.7) * .012 * main.x; P.swV += (-(P.sw - rest) * 15 - P.swV * 1.5) * dt; P.sw = clamp(P.sw + P.swV * dt, -.5, .5); }
         if (P.rock || P.rockV) { P.rockV += (-P.rock * 70 - P.rockV * 4.2) * dt; P.rock += P.rockV * dt; if (Math.abs(P.rock) < .0004 && Math.abs(P.rockV) < .004) P.rock = P.rockV = 0; }
       }
+      if (P.flapMat) { P.flap = Math.max(0, P.flap - dt / .36); P.flapMat.opacity = P.flap > 0 ? Math.min(1, Math.sin(PI * P.flap) * 1.6) : 0; if (P.flap > 0) moving = true; }
       if (P.glowMat) { P.glow = Math.max(0, P.glow - dt / 2.6); P.glowMat.opacity = P.glow * P.glow; }
       if (Math.abs(P.bv) > .003 || Math.abs(P.bendV) > .003 || Math.abs(P.bend) > .002 || P.hop > 0 || Math.abs(beta - P.b) > .001 || Math.abs(P.swV) > .02 || P.rock) moving = true;
       pose(P, beta);
@@ -494,7 +500,8 @@ export function createBook(host, cfg) {
     if (drag.id == null) {
       if (settled && e.type === 'pointerup') {     // a click inside the open book
         touched = clock; const P = pick(e); if (!P) return;
-        if (P.def.kind === 'people' && !P.plain && !P.inside) { if (!reduce.matches && P.hop === 0) P.hopV = 2.3; }
+        if (P.def.toy === 'post') { if (!reduce.matches) { P.hopV = .5; P.rockV += (Math.random() < .5 ? -1 : 1) * .4; } if (cfg.onPost) cfg.onPost(); }
+        else if (P.def.kind === 'people' && !P.plain && !P.inside) { if (!reduce.matches && P.hop === 0) P.hopV = 2.3; }
         else if (P.def.kind === 'facade') { api.replay(); flick(P, .8); }
         else if (reduce.matches) { if (P.glowMat) P.glow = 1; }
         else if (P.def.toy === 'light') { P.glow = 1; P.hopV = .5; P.rockV += (Math.random() < .5 ? -1 : 1) * .5; }   // lights up with a clunk
@@ -546,6 +553,20 @@ export function createBook(host, cfg) {
       x.drawImage(el, (el.width - sw) / 2, (el.height - sh) / 2, sw, sh, 0, 0, target.width, target.height); },
     setActive(on) { if (on === active) return; active = on; if (on) { last = 0; raf = requestAnimationFrame(frame); } else cancelAnimationFrame(raf); },
     dispose() { cancelAnimationFrame(raf); ro.disconnect(); clearScene(); renderer.dispose(); el.remove(); },
+    // where the post box's slot is on screen right now (null while the book is not open, or the place has no box)
+    postSlot() {
+      const P = pieces.find(p => p.def.toy === 'post'); if (!P || !settled) return null;
+      const rc = el.getBoundingClientRect(), w = P.meshes[0].matrixWorld, at = (x, y) => { O.set(x, y, 0).applyMatrix4(w).project(camera); return [rc.left + (O.x + 1) / 2 * rc.width, rc.top + (1 - O.y) / 2 * rc.height]; };
+      const a = at(P.slot[0], P.slot[1]), b = at(P.slot[0] + .1, P.slot[1]);
+      return { x: a[0], y: a[1], sc: Math.hypot(b[0] - a[0], b[1] - a[1]) / 10 };
+    },
+    // a note went in: the flap lifts, the box swallows with a small bump, and whoever is standing in the street hops a thank-you
+    posted() {
+      const P = pieces.find(p => p.def.toy === 'post'); if (!P) return;
+      P.flap = 1; touched = clock; if (reduce.matches) return;
+      P.hopV = 1.2; P.rockV += (Math.random() < .5 ? -1 : 1) * .5;
+      setTimeout(() => { const c = pieces.find(p => p.crew); if (c && c.hop === 0 && settled) c.hopV = 2.3; }, 240);
+    },
     relabel() { el.setAttribute('aria-label', say(settled ? 'open' : 'shut')); },
     _debug: { idleLog, lit, main, state: () => ({ job: !!job, holding, uploads: uploads && uploads.length, compiled, compiling, pending: !!pending, queued: !!queued, wantOpen, active, settled }), pieces: () => pieces, scene, camera, renderer }
   };

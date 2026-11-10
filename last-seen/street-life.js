@@ -67,6 +67,19 @@
     LS._drawPrims(x, postPrims(sp.x, sp.foot), Object.assign({}, pal, tint(vkey)), LS._rng(S.seed + 4242), Math.max(.55, 1.15 / k));
     sprite = { c: c, bx: bx, by: by }; spriteKey = key; return sprite;
   }
+  // The same box as a piece of card for the pop-up book (popup/book.js): no painted shadow (the book casts a real one),
+  // the flap at rest, and a second sheet with the flap lifted off a dark slot for the moment a note goes in.
+  function postArt(S, pal, vkey, k) {
+    var sp = spots(S).post; if (!sp) return null;
+    var bx = sp.x - 12, by = sp.foot - 42, tp = tint(vkey), P = Object.assign({}, pal, tp);
+    function sheet() { var c = document.createElement('canvas'); c.width = Math.ceil(26 * k); c.height = Math.ceil(44 * k); var x = c.getContext('2d'); x.setTransform(k, 0, 0, k, -bx * k, -by * k); return x; }
+    var a = sheet(), b = sheet();
+    LS._drawPrims(a, postPrims(sp.x, sp.foot).slice(1), P, LS._rng(S.seed + 4242), Math.max(.55, 1.15 / k));
+    a.fillStyle = tp.postShade; a.fillRect(sp.x - 4.8, sp.foot - 30.6, 9.6, 1.1);
+    b.fillStyle = tp.postSlot; b.fillRect(sp.x - 4.6, sp.foot - 30.7, 9.2, 2.9);
+    b.fillStyle = tp.postShade; b.fillRect(sp.x - 4.8, sp.foot - 32, 9.6, 1.1);
+    return { canvas: a.canvas, open: b.canvas, x0: bx, y0: by, x1: bx + 26, y1: by + 44, foot: sp.foot, slot: { x: sp.x, y: sp.foot - 29 } };
+  }
   var ack = -1e9;                   // when the last note landed: the flap lifts once and the box gives one small bump
   function drawPost(f, S, sp, pal, vkey) {
     var k = f.getTransform().a, s = postSprite(S, sp, pal, vkey, k), tp = tint(vkey), t = performance.now();
@@ -138,9 +151,12 @@
   function delivered(entry) { document.dispatchEvent(new CustomEvent('pc:delivered', { detail: { entry: entry } })); }
   document.addEventListener('pc:posted', function (ev) {
     var d = ev.detail || {}, S = scene, sp = S && spots(S).post;
+    var bk = window.LastSeenStreet.book; if (bk && !bk.on()) bk = null;      // the pop-up book is the hero: its own post box takes the note
+    var aim = bk && bk.aim();
     if (flight) flight.finish();
-    var land = function () { ack = performance.now(); if (reduce.matches && api) { api.redraw(); setTimeout(api.redraw, 260); } setTimeout(function () { delivered(d.entry); }, 90); };
-    if (!d.flight || !sp || !root || !d.card) { delivered(d.entry); return; }
+    var land = function () { ack = performance.now(); if (bk) bk.land(); if (reduce.matches && api) { api.redraw(); setTimeout(api.redraw, 260); } setTimeout(function () { delivered(d.entry); }, 90); };
+    if (!d.flight || !d.card || (bk ? !aim : !sp || !root)) { delivered(d.entry); return; }
+    if (bk) { bk.send(aim, land); return; }                       // there the card itself goes into the box (hero-book.js)
     if (reduce.matches) { setTimeout(land, 500); return; }          // calm: no flight; the flap ticks once and the count goes up
     var cr = d.card.getBoundingClientRect(), el = document.createElement('div');
     el.className = 'ls-mail'; el.setAttribute('aria-hidden', 'true');
@@ -167,6 +183,7 @@
 
   // ---------- the hooks LastSeen.mount calls ----------
   window.LastSeenStreet = {
+    postArt: postArt,
     attach: function (a, el, S) { api = a; root = el; scene = S; },
     busy: function () { return !!amb.key && /morning$/.test(amb.key) && amb.t - amb.at >= 0 && amb.t - amb.at < DUR.morning; },   // the morning crow is mid-beat
     layer: function (name, f, t, pal, v, S) {
