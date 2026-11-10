@@ -61,7 +61,7 @@
   <link rel="stylesheet" href="/css/style.css?v=47">
   <link rel="stylesheet" href="/css/light.css?v=1">
   <link rel="stylesheet" href="/css/postcard.css?v=5">
-  <link rel="stylesheet" href="/timeline/timeline.css?v=17">
+  <link rel="stylesheet" href="/timeline/timeline.css?v=20">
   <!-- deferred scripts live in <head> so list.js can hold the first paint (blocking="render") until the rows exist:
        a stamp's cross-document morph needs its entry thumbnail named before the new page is captured (Chromium reveals mid-parse) -->
   <script src="/js/light-menu.js?v=2" defer></script>
@@ -90,7 +90,7 @@
   <script src="/timeline/lib/common.js?v=4" defer></script>
   <script src="/timeline/lib/data.js?v=14" defer></script>
   <script src="/timeline/lib/feel.js?v=2" defer></script>
-  <script src="/timeline/book-page.js?v=4" defer></script>
+  <script src="/timeline/book-page.js?v=9" defer></script>
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body class="minimal tl3">
@@ -118,6 +118,7 @@
     <div class="tb-info" id="tb-info" aria-live="polite"></div>
     <p class="tb-month" id="tb-month"></p>
     <nav class="tb-gallery" id="t3-list" aria-label="Places this month"></nav>
+    <div class="tb-rail" id="tb-rail" role="slider" aria-orientation="horizontal" aria-label="Days" tabindex="-1"></div>
   </main>
   <p class="t3-say m-visually-hidden" aria-live="polite"></p>
   <div class="t3-foot"><div class="m-page"><button type="button" class="t3-sound" aria-pressed="true">Sound · on</button></div></div>

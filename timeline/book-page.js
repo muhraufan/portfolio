@@ -24,7 +24,7 @@
   var months = [], byKey = {};
   P.forEach(function (p) { var k = TL2.key(p.at.y, p.at.m), M = byKey[k]; if (!M) { M = byKey[k] = { key: k, y: p.at.y, m: p.at.m, list: [] }; months.push(M); } M.list.push(p); });
 
-  var cur = 0;
+  var cur = 0, railMark = null;
   (function () { var h = decodeURIComponent(location.hash.slice(1)); if (!h) return; for (var i = 0; i < P.length; i++) if (P[i].id === h || P[i].place === h) { cur = i; break; } })();
 
   // ---------- the ribbons: one bookmark per month, hanging from the book's front edge ----------
@@ -55,6 +55,7 @@
     gal.querySelectorAll('.tb-st').forEach(function (b) { var on = +b.dataset.i === cur; b.classList.toggle('is-on', on);
       if (on) { b.setAttribute('aria-current', 'true'); gal.scrollTo({ left: b.offsetLeft - (gal.clientWidth - b.offsetWidth) / 2, behavior: TL.reduce.matches ? 'auto' : 'smooth' }); } else b.removeAttribute('aria-current'); });
     prevB.disabled = cur <= 0; nextB.disabled = cur >= P.length - 1;
+    if (railMark) railMark();
   }
   // where the open book's front edge is on the stage: the ribbons hang from it
   function layout() {
@@ -117,6 +118,77 @@
     gal.querySelectorAll('.tb-st img').forEach(function (im) { var b = im.closest('.tb-st'); im.src = img(P[+b.dataset.i], 's'); });
     setStill(); if (book) turn();
   }).observe(html, { attributes: true, attributeFilter: ['data-tod', 'data-theme', 'data-lang'] });
+
+  // ---------- the day rail, lying down ----------
+  // The old Timeline's ruler, turned on its side under the stamps: a short tick for every day with a place, a longer one
+  // for each month, spaced by time (newest on the left) with a floor so busy weeks stay grabbable. Hover wakes it: ticks
+  // near the pointer swell, the nearest snaps to ink and a caption rides above it on a damped spring. Click turns the book
+  // to that day; drag scrubs tick to tick with the ratchet, and the book turns where you let go.
+  (function () {
+    var rail = document.getElementById('tb-rail'); if (!rail) return;
+    var K = { gap: 7, dayLen: 7, monLen: 13, maxLen: 34, bumpDay: 12, bumpMon: 8, focusDay: 26, curLen: 16, radius: 46, aDay: .3, aMon: .5, aBump: .4, wakeK: 520, focusK: 1600, capK: 1100, pad: 14 };
+    var D = [], MS = [], els = [], mels = [], cap = document.createElement('div'), W = 0, span = 1, t0 = 0;
+    cap.className = 'tb-rail-cap'; cap.setAttribute('aria-hidden', 'true'); cap.innerHTML = '<span class="tb-rc-d"></span><span class="tb-rc-p"></span>';
+    P.forEach(function (p) { var t = Date.UTC(p.at.y, p.at.m - 1, p.at.d), last = D[D.length - 1]; if (last && last.t === t) last.list.push(p); else D.push({ t: t, p: p, list: [p] }); });
+    (function () { var y = months[0].y, m = months[0].m, last = months[months.length - 1]; while (y > last.y || (y === last.y && m >= last.m)) { MS.push({ y: y, m: m, t: Date.UTC(y, m - 1, 1) }); if (--m < 1) { m = 12; y--; } } })();
+    function build() {
+      W = rail.clientWidth - K.pad * 2; if (W <= 0) return;
+      t0 = D[0].t; span = Math.max(1, t0 - Math.min(D[D.length - 1].t, MS[MS.length - 1].t));
+      var x = -1e9; D.forEach(function (d) { var ideal = (t0 - d.t) / span * W; x = Math.max(ideal, x + K.gap); d.x0 = x; });
+      var over = D[D.length - 1].x0 > W ? W / D[D.length - 1].x0 : 1;                       // a crowded rail is squeezed to fit
+      D.forEach(function (d) { d.x = K.pad + d.x0 * over; });
+      MS.forEach(function (M) {                                                           // a month's tick sits just after its first day, between the days either side
+        var a = null, b = null; D.forEach(function (d) { if (d.t >= M.t) a = d; else if (!b) b = d; });
+        M.x = a ? a.x + K.gap * .5 * over + (b ? Math.min(6, (b.x - a.x) / 2 - K.gap * .5) : 3) : K.pad;
+      });
+      rail.innerHTML = D.map(function () { return '<i class="tb-tk"></i>'; }).join('') + MS.map(function (M) { return '<i class="tb-tk is-m"></i><span class="tb-rail-m">' + (ja() ? M.m + '月' : TL2.mon(M.m)) + '</span>'; }).join('');
+      els = [].slice.call(rail.querySelectorAll('.tb-tk:not(.is-m)')); mels = [].slice.call(rail.querySelectorAll('.tb-tk.is-m'));
+      var labs = rail.querySelectorAll('.tb-rail-m');
+      D.forEach(function (d, k) { els[k].style.left = d.x + 'px'; });
+      MS.forEach(function (M, k) { mels[k].style.left = M.x + 'px'; var first = null; D.forEach(function (d) { var a = d.p.at; if (!first && a.y === M.y && a.m === M.m) first = d; }); labs[k].style.left = (first ? first.x : M.x) + 'px'; labs[k].hidden = !first; });   // a month's name sits under its newest day, where reading left to right meets it
+      rail.appendChild(cap); paint();
+    }
+    var wake = 0, wakeV = 0, fx = 0, fxV = 0, cx = 0, cxV = 0, px = null, snap = -1, down = false, raf = 0, last = 0, lastTick = 0, lastX = 0, lastT = 0;
+    function curDay() { for (var k = 0; k < D.length; k++) if (D[k].list.indexOf(P[cur]) >= 0) return k; return 0; }
+    function nearest(x) { var best = 0, bd = 1e9; D.forEach(function (d, k) { var q = Math.abs(d.x - x); if (q < bd) { bd = q; best = k; } }); return best; }
+    function fall(d) { return d >= K.radius ? 0 : .5 + .5 * Math.cos(Math.PI * d / K.radius); }
+    function paint() {
+      var c = curDay();
+      D.forEach(function (d, k) { var b = wake * fall(Math.abs(d.x - fx)), len = k === snap && wake > .5 ? K.focusDay : (k === c ? K.curLen : K.dayLen) + K.bumpDay * b, a = k === snap && wake > .5 ? 1 : k === c ? 1 : K.aDay + K.aBump * b;
+        els[k].style.transform = 'scaleY(' + (len / K.maxLen).toFixed(3) + ')'; els[k].style.opacity = a.toFixed(3); els[k].classList.toggle('is-cur', k === c); });
+      MS.forEach(function (M, k) { var b = wake * fall(Math.abs(M.x - fx)); mels[k].style.transform = 'scaleY(' + ((K.monLen + K.bumpMon * b) / K.maxLen).toFixed(3) + ')'; mels[k].style.opacity = (K.aMon + K.aBump * b * .6).toFixed(3); });
+      cap.style.transform = 'translateX(' + cx.toFixed(1) + 'px) translateX(-50%)'; cap.style.opacity = wake.toFixed(3);
+    }
+    function label(k) { var d = D[k], a = d.p.at; cap.firstChild.textContent = (ja() ? a.m + '月' : '') + day(a) + (ja() ? '' : ' ' + TL2.mon(a.m)); cap.lastChild.textContent = d.list.length > 1 ? count(d.list.length) : TL2.s(d.p.name); }
+    function spring(x, v, to, k, dt) { var c = 2 * Math.sqrt(k); v += ((to - x) * k - v * c) * dt; return [x + v * dt, v]; }   // critically damped: no wobble
+    function frame(now) {
+      raf = 0; var dt = Math.min(.033, (now - (last || now)) / 1000); last = now;
+      var on = px != null ? 1 : 0, tx = px != null ? px : fx, sx = snap >= 0 ? D[snap].x : cx, r;
+      if (TL.reduce.matches) { wake = on; fx = tx; cx = sx; }
+      else { r = spring(wake, wakeV, on, K.wakeK, dt); wake = r[0]; wakeV = r[1]; r = spring(fx, fxV, tx, K.focusK, dt); fx = r[0]; fxV = r[1]; r = spring(cx, cxV, sx, K.capK, dt); cx = r[0]; cxV = r[1]; }
+      paint();
+      if (Math.abs(wake - on) > .002 || Math.abs(wakeV) > .01 || Math.abs(fx - tx) > .2 || Math.abs(cx - sx) > .2) { if (!raf) raf = requestAnimationFrame(frame); } else last = 0;
+    }
+    function kick() { if (!raf) raf = requestAnimationFrame(frame); }
+    function at(e) { return e.clientX - rail.getBoundingClientRect().left; }
+    function move(e) {
+      var x = at(e), first = px == null; px = x; if (first) { fx = x; cx = D[nearest(x)].x; }
+      var k = nearest(x); if (k !== snap) { snap = k; label(k);
+        var n = performance.now(), vel = Math.abs(x - lastX) / Math.max(1, n - lastT);
+        if (TL3.cue && n - lastTick > 30) { lastTick = n; TL3.cue(down ? 'tick' : 'hover', { vel: vel }); } }
+      lastX = x; lastT = performance.now(); kick();
+    }
+    rail.addEventListener('pointerenter', move); rail.addEventListener('pointermove', move);
+    rail.addEventListener('pointerdown', function (e) { if (e.button) return; down = true; try { rail.setPointerCapture(e.pointerId); } catch (x) {} move(e); });
+    function up(e) { if (!down) return; down = false; var k = snap; if (e.type === 'pointerup' && k >= 0) go(D[k].list[0].i); if (e.pointerType !== 'mouse') leave(); }
+    function leave() { if (down) return; px = null; snap = -1; kick(); }
+    rail.addEventListener('pointerup', up); rail.addEventListener('pointercancel', up); rail.addEventListener('pointerleave', leave);
+    railMark = function () { if (els.length) { paint(); rail.setAttribute('aria-valuenow', String(curDay())); rail.setAttribute('aria-valuetext', TL2.fullDate(P[cur].at.y, P[cur].at.m, P[cur].at.d) + ', ' + TL2.s(P[cur].name)); } };
+    rail.setAttribute('aria-valuemin', '0'); rail.setAttribute('aria-valuemax', String(D.length - 1));
+    if ('ResizeObserver' in window) new ResizeObserver(build).observe(rail); else window.addEventListener('resize', build);
+    TL.onLang(function () { build(); });
+    build(); railMark();
+  })();
 
   renderGallery(); renderInfo(); setStill(); layout();
   html.classList.remove('tl-pre');

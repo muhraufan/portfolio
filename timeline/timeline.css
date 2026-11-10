@@ -296,7 +296,7 @@ body.tl3 { overflow: hidden; }
 .tb-month { flex: none; margin: 12px 0 0; display: flex; align-items: baseline; gap: 8px; font-size: 12px; color: var(--text); }
 .tb-mh-n { font-weight: 500; } .tb-mh-c { color: var(--pg-cap); font-variant-numeric: tabular-nums; }
 /* this month's places: one row, scrolling sideways, its ends fading out */
-.tb-gallery { flex: none; max-width: min(760px, 100vw); margin: 4px auto auto; padding: 10px 28px 6px; display: flex; gap: 10px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; position: relative;
+.tb-gallery { flex: none; max-width: min(760px, 100vw); margin: 4px auto 0; padding: 10px 28px 6px; display: flex; gap: 10px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; position: relative;
   -webkit-mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent); }
 .tb-gallery::-webkit-scrollbar { display: none; }
 .tb-st { position: relative; flex: none; width: 68px; padding: 0; border: 0; background: none; font: inherit; letter-spacing: inherit; text-align: center; color: inherit; cursor: pointer; scroll-snap-align: center; -webkit-tap-highlight-color: transparent; }
@@ -310,6 +310,18 @@ body.tl3 { overflow: hidden; }
 .tb-st-d { display: block; margin-top: 6px; font-size: 10px; line-height: 1.4; letter-spacing: .08em; text-transform: uppercase; color: var(--pg-cap); font-variant-numeric: tabular-nums; }
 .tb-st.is-on .tb-st-d { color: var(--text); }
 [data-theme="dark"] .tb-st-pic { background: #ebe2d1; box-shadow: 0 1px 1px rgba(0, 0, 0, .5), 0 3px 8px rgba(0, 0, 0, .45); }
+/* the day rail, lying down (book-page.js): ticks grow up from a baseline; the caption rides above the snapped one */
+.tb-rail { position: relative; z-index: 3; flex: none; width: min(680px, 100vw - 32px); height: 62px; margin: 10px auto auto; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; outline: none; }
+@media (pointer: fine) { .tb-rail { cursor: none; } }                    /* inside the rail the snapped tick is the cursor */
+.tb-tk { position: absolute; bottom: 20px; width: 1.5px; height: 34px; margin-left: -.75px; border-radius: 1px; background: var(--text); transform-origin: 50% 100%; transform: scaleY(.2); opacity: .3; will-change: transform, opacity; }
+.tb-tk.is-cur { width: 2.5px; margin-left: -1.25px; }
+.tb-rail-m { position: absolute; bottom: 0; translate: -2px 0; font-size: 9.5px; font-weight: 500; line-height: 1.4; letter-spacing: .12em; text-transform: uppercase; color: var(--pg-cap); pointer-events: none; white-space: nowrap; }
+.tb-rail-cap { position: absolute; left: 0; top: calc(100% + 6px); display: flex; gap: 8px; align-items: baseline; height: 28px; padding: 0 10px; border-radius: 6px; background: #fbf8f1; color: #2a2418; font-size: 12px; line-height: 28px; letter-spacing: .3px; white-space: nowrap; pointer-events: none; opacity: 0;
+  box-shadow: 0 0 0 .5px rgba(42, 36, 24, .3), 0 3px 8px rgba(42, 36, 24, .14); will-change: transform, opacity; }
+.tb-rc-d { color: #8a8680; font-variant-numeric: tabular-nums; }
+[data-theme="dark"] .tb-rail-cap { background: #2b2925; color: #e9e5dd; box-shadow: 0 0 0 .5px rgba(255, 255, 255, .25), 0 4px 10px rgba(0, 0, 0, .55); } [data-theme="dark"] .tb-rc-d { color: #9a968f; }
+.tb-ribbons { display: none; }   /* the rail does the months now; the ribbons are kept in the script in case they come back */
+.tb-gallery { margin-bottom: 0; }
 .tl3 .t3-foot, .tl3 .t3-mask { display: none; }
 @media (max-width: 760px) { .t3.tb { padding-top: 64px; padding-bottom: 18px; } .tb-nav { top: auto; bottom: -78px; } .tb-prev { left: -8px; } .tb-next { right: -8px; } }
 @media (prefers-reduced-motion: reduce) { .tb-stage canvas, .tb-st-pic, .tb-nav, .tb-rib { transition: none; } }
