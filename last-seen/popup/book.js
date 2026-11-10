@@ -220,6 +220,7 @@ export function createBook(host, cfg) {
      go it holds the page still for a third of a second. So it is a job, advanced one stage per frame, and nothing shows or
      opens until the last stage is in. */
   const mark = (name, t0) => { try { performance.measure('pb:' + name, { start: t0, end: performance.now() }); } catch (e) {} };   // shows up in the Performance panel and in getEntriesByType('measure')
+  let builtFor = null;
   let job = null, queued = null, uploads = null, compiled = false, compiling = false, holding = false, onReady = null;
   function build(placeId, light, opt, done) { job = { it: buildSteps(placeId, light, opt), done }; holding = true; }
   function* buildSteps(placeId, light, opt) {
@@ -385,7 +386,7 @@ export function createBook(host, cfg) {
     raf = requestAnimationFrame(frame);
     const dt = Math.min(.033, (now - (last || now)) / 1000); last = now;
     if (pending && main.x < .03 && !job) { const p = pending; pending = null; build(p.place, p.light); main.target = wantOpen ? 1 : 0; settled = false; }
-    if (job) { const t0 = performance.now(), r = job.it.next(); mark('step ' + (job.n = (job.n || 0) + 1), t0); if (r.done) { const d = job.done; job = null; if (d) d(); } }
+    if (job) { const t0 = performance.now(), r = job.it.next(); mark('step ' + (job.n = (job.n || 0) + 1), t0); if (r.done) { const d = job.done; job = null; builtFor = cur.place; if (d) d(); } }
     else if (uploads) {                             // textures go to the GPU a few at a time
       const t0 = performance.now(); for (let n = 0; n < 4 && uploads.length; n++) renderer.initTexture(uploads.pop()); mark('upload', t0);
       if (!uploads.length) { uploads = null;
@@ -394,6 +395,7 @@ export function createBook(host, cfg) {
           try { renderer.compileAsync(scene, camera).then(fin, fin); } catch (e) { fin(); } } }
     }
     if (!holding && !job && queued) { const q = queued; queued = null; api.setScene(q.place, q.light); }
+    if (!holding && builtFor) { const b = builtFor; builtFor = null; if (cfg.onBuilt) cfg.onBuilt(b); }
     if (!holding && onReady) { const f = onReady; onReady = null; renderer.shadowMap.needsUpdate = true; f(); }
     // A new scene is a lot of paper to hand to the GPU. Do it while the book is shut and still, and only then let it open,
     // so the opening itself never waits on an upload.
@@ -507,7 +509,7 @@ export function createBook(host, cfg) {
   el.addEventListener('pointerleave', () => { peek = 0; hoverP = null; lean.tx = lean.ty = 0; });
   el.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && !settled) { e.preventDefault(); api.open(); } else if (e.key === 'Escape') api.close(); });
   const ro = new ResizeObserver(() => { const w = host.clientWidth, h = host.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); camera.aspect = w / h;
-    camera.fov = VW.fov(camera.aspect);   // a narrow stage (a phone): widen the view until the whole spread fits across it
+    camera.fov = cfg.minFov ? Math.max(cfg.minFov, 2 * Math.atan(.3 / camera.aspect) * 180 / PI) : VW.fov(camera.aspect);   // a narrow stage (a phone): widen the view until the whole spread fits across it
     camera.updateProjectionMatrix(); });
   ro.observe(host);
 
@@ -524,6 +526,7 @@ export function createBook(host, cfg) {
   const api = {
     open() { wantOpen = true; main.target = 1; },
     close() { wantOpen = false; main.target = 0; peek = 0; },
+    shut() { wantOpen = false; main.target = 0; main.x = 0; main.v = 0; peek = 0; if (settled) { settled = false; if (cfg.onShut) cfg.onShut(); } },   // shut at once, no motion: for a book that is being carried somewhere else
     toggle() { if (main.target < .1) api.open(); else api.close(); },
     replay() { sigStart = clock + .2; },
     isOpen() { return main.target > .1; },

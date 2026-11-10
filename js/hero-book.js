@@ -100,7 +100,7 @@
     if (started || !settledPage || !inView || document.hidden) return; started = true;
     giveUp = setTimeout(function () { if (!book) off(); }, 9000);
     var t0 = performance.now();
-    load('/last-seen/popup/book.js?v=4').then(function (m) {
+    load('/last-seen/popup/book.js?v=5').then(function (m) {
       clearTimeout(giveUp); try { performance.measure('pb:import', { start: t0, end: performance.now() }); } catch (e) {}
       if (!fig.classList.contains('pb')) return;         // already fell back to the postcard
       book = m.createBook(stage, { label: say,

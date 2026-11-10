@@ -100,6 +100,12 @@ html[data-lang="ja"] .tl3 { --dateW: 104px; }
 .t3-f .t3-fl.is-in { opacity: 1; }
 .t3-live { position: absolute; inset: 0; opacity: 0; transition: opacity 200ms ease-out; }
 .t3-live.is-in { opacity: 1; }
+/* an open entry is the pop-up book (timeline/book.js): the still stays until the book is whole, then gives way to it */
+.t3-book { position: absolute; inset: -4% -9% -2%; z-index: 2; opacity: 0; -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 90%, transparent); mask-image: linear-gradient(to right, transparent, #000 7%, #000 90%, transparent); transition: opacity 260ms cubic-bezier(0.2, 0, 0, 1); }
+.t3-f.is-book .t3-book { opacity: 1; }
+.t3-f.is-book > img { opacity: 0 !important; transition: opacity 220ms ease-out; }
+@media (max-width: 700px) { .t3-book { inset: -4% -4% -2%; } }
+@media (prefers-reduced-motion: reduce) { .t3-book, .t3-f.is-book > img { transition: none; } }
 .t3-live .ls-scene { position: absolute; inset: 0; } .t3-live canvas { display: block; width: 100%; height: 100%; }
 .t3-live .ls-fade { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; }
 .t3-oc { margin: 8px 0 0; color: var(--pg-cap); font-variant-numeric: tabular-nums; }

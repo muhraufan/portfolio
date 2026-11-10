@@ -228,12 +228,13 @@
   function whenSettled(p) {
     var fr = p.li.querySelector('.t3-f'); if (!fr) return;
     setTimeout(function () { if (openI !== p.i || !settled() || !p.S) return;
+      if (TL3.book && TL3.book.show(fr, p)) { liveFor = p.i; return; }   // the pop-up book, where it can run; else the flat live scene, as before
       if (!LH) LH = TL2.LiveHost(liveBox);
       liveBox.classList.remove('is-in'); fr.appendChild(liveBox); var L = LH.show(p.scene); liveFor = p.i; TL2.animate(L);
       requestAnimationFrame(function () { if (liveFor === p.i) liveBox.classList.add('is-in'); });
     }, 40);
   }
-  function hideLive() { if (LH && liveFor >= 0) { LH.hide(); TL2.animate(null); } liveFor = -1; liveBox.classList.remove('is-in'); if (liveBox.parentNode) liveBox.remove(); }
+  function hideLive() { if (TL3.book) TL3.book.hide(); if (LH && liveFor >= 0) { LH.hide(); TL2.animate(null); } liveFor = -1; liveBox.classList.remove('is-in'); if (liveBox.parentNode) liveBox.remove(); }
   function toggle(i) { setOpen(openI === i ? -1 : i); }
 
   // ---------- input ----------
