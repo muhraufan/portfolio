@@ -10,6 +10,7 @@
   if (!fig) return;
   var card = fig.querySelector('.pc-card'), stage = fig.querySelector('.pb-stage');
   function off() { fig.classList.remove('pb', 'pb-ready'); if (stage) stage.hidden = true; }
+  if (/[?&]book=off(&|$)/.test(location.search)) return off();   // a switch for comparing against the plain postcard
   if (!card || !stage || !window.LastSeen || !LastSeen.painters || !LastSeen.painters.popup) return off();
   try { var probe = document.createElement('canvas'); if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) return off(); } catch (e) { return off(); }
 
@@ -29,25 +30,32 @@
 
   var book = null, inView = false, opened = false, flipT = 0;
   function sync() {
-    if (!book) return;
+    if (!book || !fig.classList.contains('pb-ready')) return;   // while it is still building, it keeps running
     var on = inView && !document.hidden && !card.classList.contains('is-photo') && !card.classList.contains('is-flipped');
     book.setActive(on);
     if (on && !opened) { opened = true; setTimeout(function () { book.open(); }, 650); }   // it opens by itself the first time it is seen
   }
   var load; try { load = new Function('u', 'return import(u)'); } catch (e) { return off(); }   // dynamic import, kept away from parsers that predate it
-  var giveUp = setTimeout(function () { if (!book) off(); }, 9000);
-  load('/last-seen/popup/book.js?v=1').then(function (m) {
-    clearTimeout(giveUp);
-    if (!fig.classList.contains('pb')) return;           // already fell back to the postcard
-    book = m.createBook(stage, { label: label });
-    book.setScene(S.id, light());
-    book.setActive(false);
-    requestAnimationFrame(function () { fig.classList.add('pb-ready'); sync(); });
-  }, function () { clearTimeout(giveUp); off(); });
+  // The book is heavy to set up, so it waits its turn: the page loads and settles first, and the hero has to be on screen.
+  // Then it builds itself a slice per frame (book.js) and only shows, and opens, once it is whole.
+  var started = false, settledPage = false, giveUp = 0;
+  function start() {
+    if (started || !settledPage || !inView || document.hidden) return; started = true;
+    giveUp = setTimeout(function () { if (!book) off(); }, 9000);
+    var t0 = performance.now();
+    load('/last-seen/popup/book.js?v=2').then(function (m) {
+      clearTimeout(giveUp); try { performance.measure('pb:import', { start: t0, end: performance.now() }); } catch (e) {}
+      if (!fig.classList.contains('pb')) return;         // already fell back to the postcard
+      book = m.createBook(stage, { label: label, onReady: function () { fig.classList.add('pb-ready'); sync(); } });
+      book.setScene(S.id, light());
+    }, function () { clearTimeout(giveUp); off(); });
+  }
+  function idle() { (window.requestIdleCallback || function (f) { setTimeout(f, 250); })(function () { settledPage = true; start(); }, { timeout: 1500 }); }
+  if (document.readyState === 'complete') idle(); else window.addEventListener('load', idle, { once: true });
 
-  if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { inView = es[es.length - 1].isIntersecting; sync(); }, { threshold: .12 }).observe(card);
-  else inView = true;
-  document.addEventListener('visibilitychange', sync);
+  if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { inView = es[es.length - 1].isIntersecting; start(); sync(); }, { threshold: .12 }).observe(card);
+  else { inView = true; start(); }
+  document.addEventListener('visibilitychange', function () { start(); sync(); });
   // turned over to the guest card, or switched to the photography side: the book rests
   new MutationObserver(function () { clearTimeout(flipT); flipT = setTimeout(sync, card.classList.contains('is-flipped') ? 620 : 0); }).observe(card, { attributes: true, attributeFilter: ['class'] });
   // a new light: the sun moves and the shadows swing round. A new language: the book says what it is again.

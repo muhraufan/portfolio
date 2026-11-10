@@ -13,7 +13,7 @@
    PLAY          brush a piece and it flicks like card; click one and it bends right back; click people and they hop;
                  click the shopfront and the group steps out of the door again. Clouds drift on their own.
    Mounted on the homepage by /js/hero-book.js. three.js still comes from a CDN here; vendor it before this ships. */
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js';
 
 const LS = window.LastSeen;
 const PWP = 2.6, Z0 = -1.9, Z1 = 2.3, PLN = Z1 - Z0, ZC = (Z0 + Z1) / 2;   // one page: width, far edge, near edge (1 unit = 100 scene units)
@@ -365,26 +365,33 @@ export function createBook(host, cfg) {
     lit.now = { amb: amb.color.clone(), ambI: amb.intensity, sun: sun.color.clone(), sunI: sun.intensity, at: sun.position.clone(), shadow: table.material.opacity, shop: shopI };
     return was < 1 || lit.flick < 9;
   }
-  function build(placeId, light, opt) {
+  /* Setting a scene is a lot of work: painting every sheet, cutting the pieces apart, handing it all to the GPU. Done in one
+     go it holds the page still for a third of a second. So it is a job, advanced one stage per frame, and nothing shows or
+     opens until the last stage is in. */
+  const mark = (name, t0) => { try { performance.measure('pb:' + name, { start: t0, end: performance.now() }); } catch (e) {} };   // shows up in the Performance panel and in getEntriesByType('measure')
+  let job = null, queued = null, uploads = null, compiled = false, compiling = false, holding = false, onReady = null;
+  function build(placeId, light, opt, done) { job = { it: buildSteps(placeId, light, opt), done }; holding = true; }
+  function* buildSteps(placeId, light, opt) {
     clearScene();
     const S = LS.byId(placeId); cur = { place: placeId, light, S };
-    const src = mountManual(S, light, 1280, { style: 'popup' });
+    // paint only as finely as the stage can show: a phone needs a fifth of the pixels a wide screen does
+    const dpr = Math.min(window.devicePixelRatio || 1, 2), px = clamp(Math.round((host.clientWidth || 800) * dpr * .72), 560, 1280), ppx = clamp(Math.round(px * .8), 440, 1000);
+    const src = mountManual(S, light, px, { style: 'popup' });
     src.api.renderAt(S.signature && S.signature.still ? S.signature.still.t : 14, 'still');
-    const R = src.host._painted, pal = R.pal, paper = pal.paper || '#f1ede4';
+    yield; const R = src.host._painted, pal = R.pal, paper = pal.paper || '#f1ede4';
     try { src.api.pause(); } catch (e) {} src.host.remove();
     const bT = R.layers.backTiers || [], fT = (R.layers.tiers || []), mB = Math.max(0, bT.reduce((m, c, i) => c ? i : m, 0)), fUsed = fT.map((c, i) => c ? i : -1).filter(i => i >= 0);
     yg = groundTop(S); zG0 = R.layers.facade ? Z_FACADE : Z_BACK + mB * BT;
     const L = LIGHTS[R.vkey] || LIGHTS.midday;
     // the light is a target, not a switch: when only the time of day changes, the sun travels there and the shadows swing round
     lit.to = { amb: new THREE.Color(L.amb[0]), ambI: L.amb[1] * PI, sun: new THREE.Color(L.sun[0]), sunI: L.sun[1] * PI, at: new THREE.Vector3(L.at[0], L.at[1], L.at[2]), shadow: L.shadow, shop: L.shop * PI };
-    const sweep = !!(opt && opt.sweep) && !reduce.matches && lit.now;
-    if (sweep) { lit.from = lit.now; lit.t = 0; lit.flick = R.vkey === 'night' ? 0 : 9; } else { lit.from = lit.to; lit.t = 1; lit.flick = 9; }
-    overMat = null; applyLight(0); edges.color.set(R.vkey === 'night' ? 0x565a6c : 0xe6dfcf);   // the page block is not a lamp
+    const litTo = lit.to; lit.to = lit.now ? (lit.to0 || litTo) : litTo; overMat = null;
+    if (!lit.now) { lit.from = lit.to = litTo; lit.t = 1; lit.flick = 9; applyLight(0); }
     const sig = S.signature || {}, doorX = ((sig.emerge && sig.emerge.x) || 200);
     shop.color.set(pal.breathe && pal.breathe[0] === '#' ? pal.breathe : '#ffc77a'); shop.position.set((doorX - 200) / 100, T + .95, Z_FACADE + .75);   // high and out from the door, so it washes the pavement instead of burning a spot on it
     leftMat.map = track(tex(pageArt(paper, 'right'))); leftMat.needsUpdate = true;
     rightMat.map = track(tex(pageArt(paper, 'left'))); rightMat.needsUpdate = true;
-    coverMat.map = track(tex(coverArt(S))); coverMat.needsUpdate = true;
+    coverMat.map = track(tex(coverArt(S))); coverMat.needsUpdate = true; yield;
     // A drinks machine that stands out on the ground is drawn in the back layer, below the horizon. Lift it off the
     // print so it can stand up like everything else, and mend the ground where it was.
     let backSrc = R.layers.back, vend = null; const vd = S.vending;
@@ -398,7 +405,7 @@ export function createBook(host, cfg) {
       backSrc = gc; vend = { canvas: pc, x0: rx, y0: ry, x1: rx + rw, y1: ry + rh, yb: vd.foot };
     }
     const tBack = track(tex(backSrc));
-    groundPrint(tBack, -1); groundPrint(tBack, 1);
+    groundPrint(tBack, -1); groundPrint(tBack, 1); yield;
 
     // the sky: a backdrop sheet right across the spread
     if (R.layers.sky) addPiece({ kind: 'sky', layers: [{ tex: track(tex(R.layers.sky)) }], r: { x0: 0, y0: 0, x1: 400, y1: yg }, foot: yg, z: Z_SKY, phi: PHI_BACK, full: true, paper, amp: .05, k: 60, hit: () => true });
@@ -409,8 +416,9 @@ export function createBook(host, cfg) {
       addPiece({ kind: floats ? 'cloud' : 'back', layers: [{ tex: track(tex(p.canvas)) }], r: p, foot: yg, phi: PHI_BACK, paper, hit: p.hit,
         z: floats ? Z_FLOAT + (nf++ % 3) * .07 : big ? Z_BACK : Z_BACK + .06 + (ng++ % 3) * .07, amp: floats ? .5 : big ? .07 : .3, k: floats ? 34 : 58, drift: floats ? .5 + (nf % 3) * .2 : 0 });
     });
+    yield;
     function people(pass, z, foot, phi) {          // live: a clear sheet drawn by its own pass of the scene engine
-      const m = mountManual(S, light, 1000, { pass }); m.tex = track(tex(m.canvas)); passes.push(m);
+      const m = mountManual(S, light, ppx, { pass }); m.tex = track(tex(m.canvas)); passes.push(m);
       return addPiece({ kind: 'people', live: true, layers: [{ tex: m.tex }], r: { x0: 0, y0: 0, x1: 400, y1: 300 }, foot, z, phi, full: true, amp: .22, k: 46,
         hit: (u, v) => { const X = u * 400, Y = (1 - v) * 300; return (m.host._figs || []).some(g => Math.abs(X - g[0]) < 9 * g[2] && Y > g[1] - 46 * g[2] && Y < g[1] + 3); } });
     }
@@ -423,7 +431,7 @@ export function createBook(host, cfg) {
     bT.forEach((c, i) => { if (c && i) relief(c, Z_BACK + BT * i, 56 - i * 7); });
     // Small things drawn with the shopfront but standing on their own feet (a scooter, a bench, a drinks machine) are lifted
     // off its sheets, so each is its own piece of card that can be nudged.
-    const lifted = [];
+    yield; const lifted = [];
     if (R.layers.facade) {
       const kk = R.layers.facade.width / 400;
       cutPieces(R.layers.facade, { grow: 2, cap: 22 }).forEach(p => { if (p.x1 - p.x0 < 120 && p.y1 - p.y0 < 110 && p.yb >= yg - 40) { p.lift = true; lifted.push(p); } });
@@ -449,7 +457,7 @@ export function createBook(host, cfg) {
       // the shopfront in relief: what was drawn on the wall stands on its own sheets in front of it, and each rises a beat later
       if (fUsed.length > 1) fUsed.slice(1).forEach((t, i) => relief(fT[t], Z_FACADE - (mF - t) * TIER, 54 - i * 9));
     }
-    const props = (R.layers.front ? cutPieces(R.layers.front, { grow: 2, cap: 22 }) : []).concat(lifted);
+    yield; const props = (R.layers.front ? cutPieces(R.layers.front, { grow: 2, cap: 22 }) : []).concat(lifted);
     // the drinks machine: click it and it lights up, like something just dropped
     const glowOf = c => { const gc = canvas(c.width, c.height), gx = gc.getContext('2d'); gx.drawImage(c, 0, 0);
       gx.globalCompositeOperation = 'source-in'; const gg = gx.createLinearGradient(0, 0, 0, gc.height); gg.addColorStop(0, '#fff3d0'); gg.addColorStop(.6, '#ffd98a'); gg.addColorStop(1, '#4a3a20'); gx.fillStyle = gg; gx.fillRect(0, 0, gc.width, gc.height);
@@ -478,7 +486,12 @@ export function createBook(host, cfg) {
     people('passers', zOf(pf), pf, PHI_FRONT);
     pieces.slice().sort((a, b) => a.z - b.z).forEach((P, i) => { P.order = i; P.meshes.forEach(m => { if (m.renderOrder < 80) m.renderOrder = 10 + i; }); });
     pieces.forEach(P => { P.b = (1 - main.x) * HALF; });
-    drawPeople(); warm = 3;
+    drawPeople(); yield;
+    // the light goes over last, so a sweep starts when the new picture is actually showing
+    lit.to = lit.to0 = litTo; const sweep = !!(opt && opt.sweep) && !reduce.matches && lit.now;
+    if (sweep) { lit.from = lit.now; lit.t = 0; lit.flick = R.vkey === 'night' ? 0 : 9; } else { lit.from = lit.to; lit.t = 1; lit.flick = 9; }
+    applyLight(0); edges.color.set(R.vkey === 'night' ? 0x565a6c : 0xe6dfcf);   // the page block is not a lamp
+    uploads = dyn.filter(o => o.isTexture);
   }
 
   // ---------- time, springs, the people ----------
@@ -515,20 +528,25 @@ export function createBook(host, cfg) {
   function placeCamera(open) { const e = sstep(0, 1, open); cpos.lerpVectors(C0, C1, e); ctgt.lerpVectors(T0, T1, e); camera.position.copy(cpos); camera.position.x += lean.x * .55 * e; camera.position.y += lean.y * .22 * e; camera.lookAt(ctgt); }
 
   // ---------- the frame ----------
-  let raf = 0, last = 0, active = true, pending = null, wantOpen = false, warm = 0, lastShadow = 0, hoverAt = null, landed = false, touched = 0, nextIdle = 0; const idleLog = [];
+  let raf = 0, last = 0, active = true, pending = null, wantOpen = false, lastShadow = 0, hoverAt = null, landed = false, touched = 0, nextIdle = 0; const idleLog = [];
   const drag = { id: null, x: 0, x0: 0, cover: false, moved: 0, lastX: 0, lastT: 0, vx: 0 };
   function frame(now) {
     raf = requestAnimationFrame(frame);
     const dt = Math.min(.033, (now - (last || now)) / 1000); last = now;
-    if (pending && main.x < .03) { const p = pending; pending = null; build(p.place, p.light); main.target = wantOpen ? 1 : 0; settled = false; }
+    if (pending && main.x < .03 && !job) { const p = pending; pending = null; build(p.place, p.light); main.target = wantOpen ? 1 : 0; settled = false; }
+    if (job) { const t0 = performance.now(), r = job.it.next(); mark('step ' + (job.n = (job.n || 0) + 1), t0); if (r.done) { const d = job.done; job = null; if (d) d(); } }
+    else if (uploads) {                             // textures go to the GPU a few at a time
+      const t0 = performance.now(); for (let n = 0; n < 4 && uploads.length; n++) renderer.initTexture(uploads.pop()); mark('upload', t0);
+      if (!uploads.length) { uploads = null;
+        if (compiled) holding = false;
+        else if (!compiling) { compiling = true; const fin = () => { compiled = true; compiling = false; holding = false; mark('compiled', performance.now()); };   // shaders are compiled without stopping the page, where the browser can
+          try { renderer.compileAsync(scene, camera).then(fin, fin); } catch (e) { fin(); } } }
+    }
+    if (!holding && !job && queued) { const q = queued; queued = null; api.setScene(q.place, q.light); }
+    if (!holding && onReady) { const f = onReady; onReady = null; renderer.shadowMap.needsUpdate = true; f(); }
     // A new scene is a lot of paper to hand to the GPU. Do it while the book is shut and still, and only then let it open,
     // so the opening itself never waits on an upload.
-    if (warm > 0) {
-      if (warm === 3) dyn.forEach(o => { if (o.isTexture) renderer.initTexture(o); });
-      if (warm === 2) { frameG.children.forEach(m => { m.visible = true; }); renderer.compile(scene, camera); renderer.shadowMap.needsUpdate = true; renderer.render(scene, camera); }
-      warm--;
-    }
-    const goal = pending || (warm > 0 && main.x < .2) ? 0 : Math.max(main.target, peek);
+    const goal = pending || (holding && main.x < .2) ? 0 : Math.max(main.target, peek);
     if (reduce.matches) { main.x = goal; main.v = 0; }
     else if (!drag.cover) { main.v += ((goal - main.x) * 30 - main.v * 8.6) * dt; main.x += main.v * dt; }
     main.x = clamp(main.x, 0, 1.03);
@@ -575,7 +593,7 @@ export function createBook(host, cfg) {
     if (moving || now - lastShadow > 50) { renderer.shadowMap.needsUpdate = true; lastShadow = now; }   // sheets in motion: every frame; only walkers: 20 a second is plenty
     if (reduce.matches) lean.x = lean.y = 0; else { lean.x += (lean.tx - lean.x) * Math.min(1, dt * 8); lean.y += (lean.ty - lean.y) * Math.min(1, dt * 8); }
     placeCamera(main.x);
-    renderer.render(scene, camera);
+    if (compiled) { const t0 = performance.now(); renderer.render(scene, camera); if (performance.now() - t0 > 30) mark('slow render', t0); }   // nothing is drawn until the first shaders are ready: drawing sooner would compile them the slow way
   }
 
   // ---------- hands ----------
@@ -650,7 +668,7 @@ export function createBook(host, cfg) {
     veil.width = el.width; veil.height = el.height; renderer.render(scene, camera); veil.getContext('2d').drawImage(el, 0, 0);
     veil.style.transition = 'none'; veil.style.opacity = '1';
     build(place, light, { sweep: true });
-    requestAnimationFrame(() => requestAnimationFrame(() => { veil.style.transition = 'opacity ' + (reduce.matches ? 200 : 650) + 'ms cubic-bezier(.2,0,0,1)'; veil.style.opacity = '0'; }));
+    onReady = () => requestAnimationFrame(() => { veil.style.transition = 'opacity ' + (reduce.matches ? 200 : 650) + 'ms cubic-bezier(.2,0,0,1)'; veil.style.opacity = '0'; });
   }
   const api = {
     open() { wantOpen = true; main.target = 1; },
@@ -660,7 +678,8 @@ export function createBook(host, cfg) {
     isOpen() { return main.target > .1; },
     // a new place turns to another book: it shuts, the new scene is set, and it opens again. A new light just changes the light.
     setScene(place, light) {
-      if (!cur) { build(place, light); return; }
+      if (job || holding) { queued = { place, light }; return; }
+      if (!cur) { build(place, light); onReady = () => { if (cfg.onReady) cfg.onReady(); }; return; }
       if (cur.place === place) { if (cur.light !== light) relight(place, light); return; }
       pending = { place, light };
     },
