@@ -11,6 +11,7 @@
   LS.byId = function (id) { return byId[id] || null; };
   LS.all = function () { return scenes.slice().sort(function (a, b) { return Date.parse(b.seenAt) - Date.parse(a.seenAt); }); };
   LS.newest = function () { return LS.all()[0]; };
+  LS.painters = LS.painters || {};   // DRAFT (painted-hero)
 
   // ---------- small helpers ----------
   function rng(seed) { // mulberry32
@@ -161,6 +162,8 @@
       });
     });
   }
+
+  LS._kit = { drawPrims: drawPrims, shapePath: shapePath, bounds: bounds, stipple: stipple };   // DRAFT (painted-hero)
 
   // Organic, torn-paper vignette with a stippled soft edge.
   function makeMask(S, W, H, k, dot) {
@@ -903,12 +906,17 @@
       layers = {};
       ['back', 'facade', 'front', 'over'].forEach(function (name) {
         var prims = (S.layers[name] || []).concat(add[name] || []);
-        if (!prims.length) return;
+        if (!prims.length || opts.pass) return;   // DRAFT (pop-up book): a pass mount only draws what moves
         var c = canvas(cw, ch), x = c.getContext('2d');
         x.setTransform(k, 0, 0, k, 0, 0);
-        drawPrims(x, prims, pal, rng(S.seed + name.length * 97), dot);
+        // DRAFT (painted-hero): opts.style swaps how the static layers are painted. Everything that moves is untouched.
+        var painter = opts.style && LS.painters && LS.painters[opts.style];
+        if (painter) painter.layer(x, prims, pal, rng(S.seed + name.length * 97), dot, { name: name, k: k, cw: cw, ch: ch, S: S, vkey: vkey, canvas: c, root: root });
+        else drawPrims(x, prims, pal, rng(S.seed + name.length * 97), dot);
         layers[name] = c;
       });
+      var painterDone = opts.style && LS.painters && LS.painters[opts.style];
+      if (painterDone && painterDone.done) painterDone.done(layers, { k: k, cw: cw, ch: ch, S: S, vkey: vkey, root: root, pal: pal });
       // agave leaves: one stippled sprite per plant, drawn per leaf with rotation
       leafSprites = (S.agaves || []).map(function (ag, gi) {
         var rand = rng(S.seed + 300 + gi);
@@ -1083,17 +1091,23 @@
       f.setTransform(1, 0, 0, 1, 0, 0);
       f.globalCompositeOperation = 'source-over';
       f.clearRect(0, 0, frameBuf.width, frameBuf.height);
-      if (layers.back) f.drawImage(layers.back, 0, 0);
-      f.setTransform(k, 0, 0, k, 0, 0);
-      runAnim('back');
+      // DRAFT (painted-hero): paper depth. opts.parallax() gives a small offset in scene units; each depth takes its share.
+      var PX = opts.parallax ? opts.parallax() : null;
+      function at(sc, d) { if (PX) f.setTransform(sc, 0, 0, sc, PX.x * d * k, PX.y * d * k); else f.setTransform(sc, 0, 0, sc, 0, 0); }
+      if (opts.pass) root._figs = [];   // DRAFT (pop-up book): where each figure stands, for hit-testing without reading pixels
+      var PASS = opts.pass || null, IN = !PASS || PASS === 'inside', OUT = !PASS || PASS === 'passers';   // DRAFT (pop-up book)
+      at(1, -1);
+      if (layers.back && !PASS) f.drawImage(layers.back, 0, 0);
+      at(k, -.45);
+      if (IN) runAnim('back');
       if (HERO) { X.layer('back', f, t, pal, vkey, S); LS._heroOnlyDraws = (LS._heroOnlyDraws || 0) + 1; }
       // the shop's light breathes, very slowly
       var br = Object.assign({}, S.breathe, v.breathe || {});
-      f.globalAlpha = br.a + br.amp * Math.sin(t / br.period * Math.PI * 2);
+      f.globalAlpha = IN ? br.a + br.amp * Math.sin(t / br.period * Math.PI * 2) : 0;
       f.fillStyle = pal[br.c]; f.fillRect(br.x, br.y, br.w, br.h);
       f.globalAlpha = 1;
       // shoppers inside
-      (v.shoppers || S.shoppers).forEach(function (sp) {
+      (IN ? (v.shoppers || S.shoppers) : []).forEach(function (sp) {
         var tr = track(sp.keys, sp.period, t + (sp.offset || 0));
         person(f, sp, pal, tr.x, sp.foot, sp.s, tr.x, tr.moving ? tr.dir : (sp.idle || 'stand'), sp.alpha);
       });
@@ -1131,12 +1145,13 @@
       } else if (st === 'still') {
         crew.forEach(function (m) { figs.push({ P: m.P, x: sig.still.x + m.dx, foot: sig.emerge.foot1 + m.dy, s: sig.emerge.s1 * (1 + m.ds), dist: 0, facing: 'front', alpha: 1 }); });
       }
-      figs.filter(function (g) { return g.inside; }).forEach(function (g) { person(f, g.P, pal, g.x, g.foot, g.s, g.dist, g.facing, g.alpha, rimFor(g)); });
+      figs.forEach(function (g) { g.crew = true; });
+      if (IN) figs.filter(function (g) { return g.inside; }).forEach(function (g) { person(f, g.P, pal, g.x, g.foot, g.s, g.dist, g.facing, g.alpha, rimFor(g)); });
       // facade over the interior (a place with nothing in front of the interior skips the layer)
-      if (layers.facade) { f.setTransform(1, 0, 0, 1, 0, 0); f.drawImage(layers.facade, 0, 0); }
-      f.setTransform(k, 0, 0, k, 0, 0);
+      if (layers.facade && !PASS) { at(1, 0); f.drawImage(layers.facade, 0, 0); }
+      at(k, 0);
       // agave leaves sway from their base
-      (S.agaves || []).forEach(function (ag, gi) {
+      ((!PASS || PASS === 'plants') ? (S.agaves || []) : []).forEach(function (ag, gi) {
         ag.leaves.forEach(function (lf, li) {
           var sway = Math.sin(t * ag.rate + li * .7 + gi * 2) * ag.amp * (lf.len / 40);
           var spr = leafSprites[gi][li];
@@ -1145,11 +1160,11 @@
           f.restore();
         });
       });
-      if (layers.front) { f.setTransform(1, 0, 0, 1, 0, 0); f.drawImage(layers.front, 0, 0); }
-      f.setTransform(k, 0, 0, k, 0, 0);
-      runAnim('front');
+      if (layers.front && !PASS) { at(1, .9); f.drawImage(layers.front, 0, 0); }
+      at(k, .9);
+      if (OUT) runAnim('front');
       if (HERO) X.layer('ground', f, t, pal, vkey, S);
-      feedGround(f, t, pal);
+      if (OUT) feedGround(f, t, pal);
       // passers-by on the sidewalk
       (v.passersby || S.passersby).forEach(function (pb) {
         if (t < pb.start) return;
@@ -1158,15 +1173,21 @@
       });
       if (HERO) figs = figs.concat(X.props(t, pal, vkey, S));
       figs = figs.concat(feedProps(t), vendProps(t, pal));   // street furniture that people can pass in front of or behind
-      figs.filter(function (g) { return !g.inside; }).sort(function (a, b) { return a.foot - b.foot; })
-        .forEach(function (g) { if (g.draw) { f.save(); g.draw(f); f.restore(); } else person(f, g.P, pal, g.x, g.foot, g.s, g.dist, g.facing, g.alpha, rimFor(g)); });
+      figs.filter(function (g) { return !g.inside && (!PASS || (PASS === 'crew' ? g.crew : PASS === 'passers' ? !g.crew : false)); }).sort(function (a, b) { return a.foot - b.foot; })
+        .forEach(function (g) { if (g.draw) { f.save(); g.draw(f); f.restore(); return; }
+          // DRAFT (pop-up book): a paper figure cannot walk off its page. Near the edge it folds down flat, and a new one stands up.
+          var fold = 1;
+          if (PASS) { var e = Math.min(g.x - 8, W - 8 - g.x, g.crew ? (H - 3 - g.foot) * 2.2 : 99), q = e <= 0 ? 0 : e >= 30 ? 1 : e / 30; fold = q * q * (3 - 2 * q); if (fold < .02) return; }
+          if (fold < 1) { f.save(); f.translate(0, g.foot); f.scale(1, fold); f.translate(0, -g.foot); }
+          if (PASS) (root._figs = root._figs || []).push([g.x, g.foot, g.s]);
+          person(f, g.P, pal, g.x, g.foot, g.s, g.dist, g.facing, g.alpha, rimFor(g));
+          if (fold < 1) f.restore(); });
       if (HERO) X.layer('air', f, t, pal, vkey, S);
       // night glows (lamps, haze) add light on top
-      if (layers.over) { f.setTransform(1, 0, 0, 1, 0, 0); f.globalCompositeOperation = 'screen'; f.drawImage(layers.over, 0, 0); f.globalCompositeOperation = 'source-over'; }
+      if (layers.over && !PASS) { f.setTransform(1, 0, 0, 1, 0, 0); f.globalCompositeOperation = 'screen'; f.drawImage(layers.over, 0, 0); f.globalCompositeOperation = 'source-over'; }
       // vignette
       f.setTransform(1, 0, 0, 1, 0, 0);
-      f.globalCompositeOperation = 'destination-in';
-      f.drawImage(mask, 0, 0);
+      if (!PASS) { f.globalCompositeOperation = 'destination-in'; f.drawImage(mask, 0, 0); }   // a pass keeps no torn edge
       ctx.clearRect(0, 0, cv.width, cv.height);
       ctx.drawImage(frameBuf, 0, 0);
     }
