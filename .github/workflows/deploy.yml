@@ -9,6 +9,11 @@ permissions:
   pages: write
   id-token: write
 
+# One Pages deployment at a time: a second push waits for the first instead of colliding with it.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
   deploy:
     environment:
