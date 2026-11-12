@@ -380,6 +380,7 @@
           blob(A, sh, .1, function () { A.moveTo(-3.6, hem - 1.5); A.lineTo(-2.7, hem - 5); A.lineTo(-1.9, hem - 1.5); A.closePath(); }); }   // a soft fold at the back
       } else if (fine) {
         blob(A, sh, .2, function () { A.moveTo(.9, top - .9); A.lineTo(3.6, top - .7); A.lineTo(1.7, top + 3); A.closePath(); });   // collar
+        if (P.open) blob(A, pal[P.open], 1, function () { A.moveTo(2.2, top - .8); A.lineTo(5, top - .4); A.lineTo(5.4 + sway, hem); A.lineTo(3.5 + fl * .6 + sway, hem); A.lineTo(2.9, top + 3); A.closePath(); });   // P.open: a jacket worn open, the top under it showing down the front
         A.globalAlpha = .22; stroke(A, [3.3, top + 2.6, 3.9 + fl * .6 + sway, hem], .45, sh); A.globalAlpha = 1;                    // where the coat closes
         blob(A, sh, .16, function () { A.moveTo(.8 + sway, hem); A.lineTo(1.9, hem - 5.5 - long * .4); A.lineTo(2.9 + sway, hem); A.closePath(); });   // a fold at the hem
         blob(A, sh, .1, function () { A.moveTo(-3.2 + sway * .6, hem); A.lineTo(-2.4, hem - 4); A.lineTo(-1.6 + sway * .6, hem); A.closePath(); });
@@ -577,11 +578,16 @@
       } else {
       blob(A, sh, .12, function () { A.rect(-9, hemF - 1.1, 18, 1.2); });
       blob(A, skin, 1, function () { A.moveTo(-1.5, topF - .9); A.lineTo(1.5, topF - .9); A.lineTo(0, topF + 2.2); A.closePath(); });
+      if (P.open) {                       // P.open: a jacket worn open over a top (a palette key): the top shows between the lapels, down to the hem
+        blob(A, pal[P.open], 1, function () { A.moveTo(-2.3, topF - .9); A.lineTo(2.3, topF - .9); A.lineTo(1.5, hemF + 1); A.lineTo(-1.5, hemF + 1); A.closePath(); });
+        blob(A, skin, 1, function () { A.moveTo(-1.3, topF - .9); A.lineTo(1.3, topF - .9); A.quadraticCurveTo(0, topF + .9, -1.3, topF - .9); A.closePath(); });   // a round neck
+        blob(A, sh, .2, function () { A.moveTo(-2.3, topF - .9); A.lineTo(-1.2, topF + 5.4); A.lineTo(-3.4, topF + 2.4); A.closePath(); A.moveTo(2.3, topF - .9); A.lineTo(1.2, topF + 5.4); A.lineTo(3.4, topF + 2.4); A.closePath(); });   // the lapels
+      }
       if (P.collar) { A.globalAlpha = 1; stroke(A, [-2.3, topF - .8, 0, topF + 2.6, 2.3, topF - .8], .75, pal[P.collar]); }   // a contrasting V collar
       }
       if (fine && !hoodF) {
-        A.globalAlpha = .26; stroke(A, [-1.5, topF - .9, 0, topF + 2.3, 1.5, topF - .9], .5, sh); A.globalAlpha = 1;
-        A.globalAlpha = .2; stroke(A, [.35, topF + 2.4, .5, hemF], .45, sh); A.globalAlpha = 1;
+        if (!P.open) { A.globalAlpha = .26; stroke(A, [-1.5, topF - .9, 0, topF + 2.3, 1.5, topF - .9], .5, sh); A.globalAlpha = 1;
+        A.globalAlpha = .2; stroke(A, [.35, topF + 2.4, .5, hemF], .45, sh); A.globalAlpha = 1; }
         blob(A, sh, .14, function () { A.moveTo(-4.2, hemF); A.lineTo(-3.3, hemF - 5 - long * .4); A.lineTo(-2.4, hemF); A.closePath(); });
         blob(A, sh, .14, function () { A.moveTo(2.6, hemF); A.lineTo(3.4, hemF - 4.2); A.lineTo(4.2, hemF); A.closePath(); });
       }
