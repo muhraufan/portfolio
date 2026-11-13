@@ -113,7 +113,7 @@
                 <div class="pc-field pc-sig" data-label="Signature"><span class="pc-flabel">Signature</span><canvas role="img" aria-label="Signature"></canvas><span class="pc-sig-hint" aria-hidden="true">Sign here</span><button type="button" class="pc-clear">Clear</button></div>
                 <label class="pc-field pc-from"><span class="pc-flabel">From</span><span class="pc-row"><input name="name" autocomplete="name" maxlength="40" placeholder="Your name" enterkeyhint="send"></span></label>
               </div>
-              <div class="pc-rule" aria-hidden="true"><span class="pc-credit">Last seen · Makuhari Messe · Mihama</span></div>
+              <div class="pc-rule" aria-hidden="true"><span class="pc-credit">Last seen · Raw Sugar Roast · Kyodo</span></div>
               <div class="pc-right">
                 <div class="pc-stamp" aria-hidden="true"><canvas></canvas></div>
                 <svg class="pc-postmark" viewBox="0 0 150 80" aria-hidden="true">
@@ -135,14 +135,14 @@
 (function () {
   var cap = document.querySelector('.ls-caption');
   if (!cap) return;
-  var seen = Date.parse('2026-11-12T09:01:00+09:00');
+  var seen = Date.parse('2026-11-13T14:02:00+09:00');
   var lang = document.documentElement.getAttribute('data-lang') === 'ja' ? 'ja' : 'en';
   var diff = Math.max(0, (Date.now() - seen) / 1000);
   var rtf = (lang === 'ja') ? new Intl.RelativeTimeFormat('ja', { numeric: 'auto' })
     : { format: function (n, u) { return Math.abs(n) + ({ minute: 'm', hour: 'h', day: 'd' })[u] + ' ago'; } };
   var ago = diff < 3600 ? rtf.format(-Math.max(1, Math.floor(diff / 60)), 'minute')
     : diff < 86400 ? rtf.format(-Math.floor(diff / 3600), 'hour') : rtf.format(-Math.floor(diff / 86400), 'day');
-  var place = (lang === 'ja' ? '幕張メッセ' : 'Makuhari Messe').replace(/ /g, '\u00a0');
+  var place = (lang === 'ja' ? 'ロウ シュガー ロースト' : 'Raw Sugar Roast').replace(/ /g, '\u00a0');
   var tpl = cap.getAttribute('data-tpl-' + lang) || cap.getAttribute('data-tpl-en');
   var pre = cap.querySelector('.ls-pre'), post = cap.querySelector('.ls-post');
   if (tpl && pre && post) {
@@ -423,9 +423,10 @@
   <script src="/last-seen/scenes/nadoya-no-katte-2026-11-06.js?v=1" defer></script>
   <script src="/last-seen/scenes/naruto-coffee.js?v=1" defer></script>
   <script src="/last-seen/scenes/makuhari-messe.js?v=1" defer></script>
-  <script src="/timeline/lib/data.js?v=15" defer></script>
+  <script src="/last-seen/scenes/raw-sugar-roast.js?v=1" defer></script>
+  <script src="/timeline/lib/data.js?v=16" defer></script>
   <script src="/js/stamp-row.js?v=7" defer></script>
-  <script src="/last-seen/street-life.js?v=8" defer></script>
+  <script src="/last-seen/street-life.js?v=9" defer></script>
   <script src="/js/postcard.js?v=14" defer></script>
   <script src="/js/hero-book.js?v=8" defer></script>
   <script src="/js/notes-deck.js?v=13" defer></script>
