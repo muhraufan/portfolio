@@ -21,6 +21,7 @@
     'fuglen-noborito': { post: { x: 100, foot: 271 } },
     'lifefit-yurigaoka': { post: { x: 100, foot: 271 } },
     'makuhari-messe': { post: { x: 34, foot: 271 }, crow: { x: 300, foot: 262 }, vend: { x: 366 }, birdsY: 40 },   // at the left, in front of the ramp wall: he walks off to the right, and must not pass behind it; the drinks machine clear of the last column
+    'raw-sugar-roast': { post: { x: 96, foot: 272 }, crow: { x: 300, foot: 266 }, vend: { x: 12 }, win: { x: 20, y: 132, w: 7, h: 6 }, birdsY: 30 },   // left of the doors, clear of the rubber plant: he walks off to the right; the drinks machine down the street past the corner; the orange block's window at night
     'naruto-coffee': { post: { x: 112, foot: 272 }, crow: { x: 300, foot: 270 }, win: { x: 338, y: 9, w: 6, h: 4 }, birdsY: 30 },   // on the kerb right of the bench, clear of the grate; a far flat's window at night
     'nadoya-no-katte-2026-11-06': { post: { x: 52, foot: 272 }, vend: { x: 298 } },   // the same garden as the Oct 2 visit
     'nadoya-no-katte': { post: { x: 52, foot: 272 }, vend: { x: 298 } },            // left of the bench, clear of the sitter
