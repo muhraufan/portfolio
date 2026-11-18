@@ -250,6 +250,23 @@
 .ps-card-link:active { transform: scale(0.96); }
 .ps-card-link:focus-visible { outline: 2px solid var(--text); outline-offset: 4px; border-radius: 6px; }
 .ps-card-kind { color: var(--pf-muted); font-size: 11px; }
+.ps-card-kind .lang-stack { display: inline-grid; justify-items: end; text-align: right; }
+/* What the app taught: one quiet row linking to its lesson in The Weekend Project */
+.ps-card-lesson {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin-top: 12px; padding: 9px 10px 9px 12px; border-radius: 12px;
+  background: color-mix(in srgb, var(--pf-strong) 4%, transparent);
+  color: inherit; text-decoration: none;
+  transition: background-color 160ms var(--ease-out), transform 160ms var(--ease-out);
+}
+.ps-card-lesson-text { display: block; min-width: 0; }
+.ps-card-lesson-text strong { display: block; color: var(--pf-strong); font-size: 12px; font-weight: 600; line-height: 1.45; letter-spacing: -0.01em; }
+.ps-card-lesson-text > span { display: block; margin-top: 1px; color: var(--pf-muted); font-size: 11px; line-height: 1.45; }
+.ps-card-lesson .lang-stack { display: grid; }
+@media (hover: hover) and (pointer: fine) { .ps-card-lesson:hover { background: color-mix(in srgb, var(--pf-strong) 7%, transparent); } }
+.ps-card-lesson:hover .ps-arrow-svg, .ps-card-lesson:focus-visible .ps-arrow-svg { color: var(--pf-strong); transform: translate(1px, -1px); }
+.ps-card-lesson:active { transform: scale(0.98); }
+.ps-card-lesson:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
 .ps-card-close {
   all: unset; box-sizing: border-box; position: absolute; z-index: 2; top: 20px; right: 20px;
   display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
@@ -311,6 +328,17 @@ html:has(.ps-card[open]) :is(.ps-ledge, .ps-face-soon, .case-folder-flap) { -web
   vertical-align: 0.15em;
 }
 .ps-card-beta .lang-stack { display: inline-grid; justify-items: center; }
+
+/* The last slot on the shelf is the visitor's: an empty dashed icon, no sheet shadow until it lifts */
+.ps-yours .ps-face { box-shadow: none; }
+.ps-yours .ps-face::after { display: none; }
+.ps-yours .ps-refl { opacity: 0.16; }
+.ps-yours .ps-foot { opacity: 0.35; }
+.ps-yours .ps-label .lang-stack { display: grid; }   /* two-language label sits on the same baseline as its neighbours */
+.ps-card-yours .ps-card-icon { box-shadow: none; }
+/* the share image is wider than the frame: show all of it, on its own paper colour */
+.ps-card-yours .ps-card-media { background: #fbfaf7; }
+.ps-card-yours .ps-card-media img { object-fit: contain; outline: 0; }
 
 /* Horizon's icon follows the site's light: cream by day, black at night.
    A picture media query only sees the OS, so it ignored the light menu. */
