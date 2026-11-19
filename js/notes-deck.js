@@ -9,16 +9,21 @@
   var fan = root.querySelector('.vn-fan');
   var stage = root.querySelector('.vn-stage');
   var countEl = root.querySelector('.vn-n');
-  var allLink = root.querySelector('.vn-all');
+  var allLink = root.querySelector('.vn-more');
+  var subEl = root.querySelector('.vn-more-sub');
   var reduce = matchMedia('(prefers-reduced-motion: reduce)');
   var OUT = 'cubic-bezier(0.2, 0, 0, 1)';
 
   var COPY = {
-    en: { see: 'See all', intro: '', from: 'From', anon: 'Anonymous', to: 'Raufan',
+    en: { see: 'See all', all: 'All notes', intro: '',
+      more: function (n) { return n + ' more'; },
+      label: function (n) { return 'See all ' + n + ' notes'; }, from: 'From', anon: 'Anonymous', to: 'Raufan',
       empty: 'No notes yet.', emptyCta: 'Leave the first one',
       error: 'The notes didn’t load.', retry: 'Try again',
       open: function (name) { return 'Note from ' + name; } },
-    ja: { see: 'すべて見る', from: 'From', anon: '名無し', to: 'ラウファン',
+    ja: { see: 'すべて見る', all: 'すべてのメモ',
+      more: function (n) { return 'ほか' + n + '枚'; },
+      label: function (n) { return 'メモをすべて見る（' + n + '枚）'; }, from: 'From', anon: '名無し', to: 'ラウファン',
       empty: 'まだメモがありません。', emptyCta: '最初の一枚を残す',
       error: 'メモを読み込めませんでした。', retry: 'もう一度',
       open: function (name) { return name + 'さんからのメモ'; } }
@@ -38,8 +43,10 @@
   function paintCount() {
     if (!countEl) return;
     countEl.classList.remove('is-wait');
-    countEl.textContent = String(total);
-    if (allLink) allLink.setAttribute('aria-label', t().see + ' ' + total);
+    var rest = total - fan.querySelectorAll('.vn-card').length;
+    countEl.textContent = rest > 0 ? t().more(rest) : t().all;
+    if (subEl) subEl.textContent = t().see;
+    if (allLink) allLink.setAttribute('aria-label', t().label(total));
   }
 
   function real(entry) {
@@ -222,8 +229,7 @@
       });
       return;
     }
-    fan.textContent = '';
-    fan.removeAttribute('aria-hidden');
+    [].forEach.call(fan.querySelectorAll('.vn-card, .gc-skel'), function (el) { el.remove(); });
     fan.classList.remove('is-in');
     list.forEach(function (note) {
       var a = document.createElement('a');
@@ -233,9 +239,10 @@
       var u = hash(String(note.id));
       a.style.setProperty('--bp', Math.round(u * 100) + '% ' + Math.round(hash(note.id + 'p') * 100) + '%');
       a.innerHTML = '<span class="gc-fit">' + body(note) + '</span>';
-      fan.appendChild(a);
+      fan.insertBefore(a, allLink);
     });
     stage.setAttribute('aria-busy', 'false');
+    paintCount();
     if (!reduce.matches) requestAnimationFrame(function () { fan.classList.add('is-in'); });
   }
 
@@ -305,6 +312,14 @@
       countEl.animate([{ transform: 'translateY(45%)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 260, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
     };
   });
+
+  // the card interiors are drawn at 400px and scaled: keep the scale in step with the column width
+  function fit() {
+    var first = fan.firstElementChild;
+    if (first && first.offsetWidth) root.style.setProperty('--vn-w', first.offsetWidth + 'px');
+  }
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(fan);
+  fit();
 
   new MutationObserver(refreshLang).observe(html, { attributes: true, attributeFilter: ['data-lang', 'data-tod', 'data-theme'] });
   boot();
