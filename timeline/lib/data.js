@@ -4,6 +4,7 @@
   var TL2 = window.TL2 = window.TL2 || {};
   var TZ = 'Asia/Tokyo';
   var REAL = [
+    { scene: 'kopikalyan-tokyo', seenAt: '2026-11-21T14:00:00+09:00', name: { en: 'Kopikalyan Tokyo', ja: 'コピカリアン 東京' }, area: { en: 'Harajuku, Tokyo', ja: '東京・原宿' } },
     { scene: 'apple-omotesando', seenAt: '2026-11-21T13:10:00+09:00', name: { en: 'Apple Omotesando', ja: 'Apple 表参道' }, area: { en: 'Omotesando, Tokyo', ja: '東京・表参道' } },
     { scene: 'yomiuriland', seenAt: '2026-11-14T11:45:00+09:00', name: { en: 'Yomiuriland', ja: 'よみうりランド' }, area: { en: 'Yanokuchi, Inagi', ja: '稲城・矢野口' }, with: [{ name: { en: 'his wife and son', ja: '妻と息子' } }] },
     { scene: 'raw-sugar-roast', seenAt: '2026-11-13T14:02:00+09:00', name: { en: 'Raw Sugar Roast', ja: 'ロウ シュガー ロースト' }, area: { en: 'Kyodo, Tokyo', ja: '東京・経堂' }, with: [{ name: 'Brian' }, { name: 'Rizal' }, { name: 'Reihan' }] },
