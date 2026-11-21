@@ -21,6 +21,7 @@
     'fuglen-noborito': { post: { x: 100, foot: 271 } },
     'lifefit-yurigaoka': { post: { x: 100, foot: 271 } },
     'makuhari-messe': { post: { x: 34, foot: 271 }, crow: { x: 300, foot: 262 }, vend: { x: 366 }, birdsY: 40 },   // at the left, in front of the ramp wall: he walks off to the right, and must not pass behind it; the drinks machine clear of the last column
+    'kopikalyan-tokyo': { post: { x: 112, foot: 271 }, crow: { x: 318, foot: 252 }, win: { x: 165, y: 37, w: 24, h: 24 }, birdsY: 12 },   // right of the potted plant, left of the tactile strip: he walks off to the right; a pane of the glass building at night
     'apple-omotesando': { post: { x: 100, foot: 271 }, crow: { x: 290, foot: 252 }, win: { x: 23, y: 66, w: 11, h: 13 }, birdsY: 8 },   // left of the tactile strip: he walks off to the right; the stone neighbour's window at night
     'yomiuriland': { crow: { x: 236, foot: 262 }, birdsY: 14 },   // the park's plaza: no post box (no street); the scene's own drinks machine by the stall
     'raw-sugar-roast': { post: { x: 96, foot: 272 }, crow: { x: 300, foot: 266 }, vend: { x: 12 }, win: { x: 20, y: 132, w: 7, h: 6 }, birdsY: 30 },   // left of the doors, clear of the rubber plant: he walks off to the right; the drinks machine down the street past the corner; the orange block's window at night
