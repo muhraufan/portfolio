@@ -4,6 +4,7 @@
   var TL2 = window.TL2 = window.TL2 || {};
   var TZ = 'Asia/Tokyo';
   var REAL = [
+    { scene: 'liverpool-fc-kawasaki', seenAt: '2026-11-23T12:55:00+09:00', name: { en: 'Liverpool F.C. Kawasaki', ja: 'リバプールFC 川崎' }, area: { en: 'Fujimi, Kawasaki', ja: '川崎・富士見' }, with: [{ name: 'Andre', url: 'https://www.instagram.com/andrerusl' }] },
     { scene: 'kopikalyan-tokyo', seenAt: '2026-11-21T14:00:00+09:00', name: { en: 'Kopikalyan Tokyo', ja: 'コピカリアン 東京' }, area: { en: 'Harajuku, Tokyo', ja: '東京・原宿' } },
     { scene: 'apple-omotesando', seenAt: '2026-11-21T13:10:00+09:00', name: { en: 'Apple Omotesando', ja: 'Apple 表参道' }, area: { en: 'Omotesando, Tokyo', ja: '東京・表参道' } },
     { scene: 'yomiuriland', seenAt: '2026-11-14T11:45:00+09:00', name: { en: 'Yomiuriland', ja: 'よみうりランド' }, area: { en: 'Yanokuchi, Inagi', ja: '稲城・矢野口' }, with: [{ name: { en: 'his wife and son', ja: '妻と息子' } }] },
