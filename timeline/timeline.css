@@ -350,3 +350,29 @@ html .t3.tb { padding-left: 0; padding-right: 0; }
 .tl3 .t3-foot, .tl3 .t3-mask { display: none; }
 @media (max-width: 760px) { .t3.tb { padding-top: 64px; padding-bottom: 18px; } .tb-nav { top: auto; bottom: -78px; } .tb-prev { left: -8px; } .tb-next { right: -8px; } }
 @media (prefers-reduced-motion: reduce) { .tb-stage canvas, .tb-st-pic, .tb-nav, .tb-rib, .tb-rail-m { transition: none; } }
+
+/* ---------- Book / Map ----------
+   The Timeline has two views of the same places: the pop-up book (/timeline/) and the paper map (/timeline/map/). The switch sits with the other ways of
+   looking (language, light) in the top bar; on a phone, where that row is full, it has a row of its own just under it. Two equal halves, one thumb that slides. */
+/* Book and Map are one page (view.js). Both are laid out all the time, the map over the book; the one that is not in front is faded out and put out of reach.
+   Plain transitions, so pressing back mid-fade turns round from where it is. The one arriving takes a little longer than the one leaving. */
+.t3.tb, .tm { transition: opacity 260ms cubic-bezier(.2, 0, 0, 1), visibility 0s; }
+html[data-view="map"] .t3.tb, html:not([data-view="map"]) .tm { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 160ms cubic-bezier(.2, 0, 0, 1), visibility 0s 160ms; }
+.tm-switch { position: relative; flex: none; display: grid; grid-template-columns: 1fr 1fr; margin: 0 6px 0 0; padding: 3px; border-radius: 999px; background: color-mix(in srgb, var(--text) 7%, var(--pg)); }   /* opaque: at some sizes the book's sky or the map passes under it, and it should read as lying on top */
+.tm-sw-thumb { position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px); border-radius: 999px; background: var(--pg-menu); box-shadow: 0 0 0 .5px rgba(20, 16, 12, .1), 0 1px 2px rgba(20, 16, 12, .1), 0 2px 6px -2px rgba(20, 16, 12, .12); transition: translate 240ms cubic-bezier(.2, 0, 0, 1); }
+[data-theme="dark"] .tm-sw-thumb { box-shadow: 0 0 0 .5px rgba(255, 255, 255, .16), 0 1px 3px rgba(0, 0, 0, .5); }
+.tm-switch[data-at="map"] .tm-sw-thumb { translate: 100% 0; }
+.tm-switch a { position: relative; z-index: 1; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 7px; height: 30px; min-height: 0; margin: 0; padding: 0 15px; border-radius: 999px; font-size: 11px; font-weight: 500; line-height: 1; letter-spacing: .14em; text-transform: uppercase; text-decoration: none; white-space: nowrap; color: var(--pg-cap); transition: color 200ms ease-out; -webkit-tap-highlight-color: transparent; }
+.tm-switch a::after { content: ''; position: absolute; inset: -7px 0; }   /* a small control, a finger-sized target (44px) */
+.tm-sw-l { display: block; margin-right: -.14em; text-box: trim-both cap alphabetic; }   /* tracking leaves a gap after the last letter, and a line box is taller than its capitals: both are taken back, so the word sits in the true middle */
+.tm-ico { flex: none; display: block; overflow: visible; }
+.tm-switch[data-at="book"] a[data-view="book"], .tm-switch[data-at="map"] a[data-view="map"] { color: var(--text); }
+.tm-switch a:focus-visible { outline: 1.5px solid var(--ink); outline-offset: 2px; }
+/* the little folded map: three panels standing in a zigzag, and a pin */
+.tm-fold { transform-box: fill-box; transform-origin: center; vector-effect: non-scaling-stroke; transition: transform 320ms cubic-bezier(.2, .9, .25, 1.2); }
+.tm-fold.f1, .tm-fold.f3 { transform: skewY(-14deg); } .tm-fold.f2 { transform: skewY(14deg); }
+.tm-pin { fill: var(--tm-now, #c4402e); transform-box: fill-box; transform-origin: center; transition: transform 320ms cubic-bezier(.2, .9, .25, 1.2); }
+[data-theme="dark"] { --tm-now: #e2694f; }
+@media (hover: hover) and (pointer: fine) { .tm-switch a:hover { color: var(--text); } }
+@media (max-width: 760px) { .tm-switch { position: fixed; z-index: 6; top: calc(var(--barH) + 6px); left: 50%; margin: 0; translate: -50% 0; pointer-events: auto; } }
+@media (prefers-reduced-motion: reduce) { .tm-sw-thumb, .tm-fold, .tm-pin { transition: none; } }

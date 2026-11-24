@@ -13,6 +13,8 @@
   var prevB = document.querySelector('.tb-prev'), nextB = document.querySelector('.tb-next'), ribbons = document.getElementById('tb-ribbons'), monthEl = document.getElementById('tb-month');
   var LIGHTS = ['morning', 'midday', 'golden', 'night'], WD = { en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], ja: ['日', '月', '火', '水', '木', '金', '土'] };
   function ja() { return TL.lang() === 'ja'; }
+  // Book and Map are one page (see view.js): this is the book's half. While the map is in front the book is put away: it stops drawing, and the keys are the map's.
+  function inFront() { return html.getAttribute('data-view') !== 'map'; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function light() { var t = html.getAttribute('data-tod'); return LIGHTS.indexOf(t) >= 0 ? t : (html.getAttribute('data-theme') === 'dark' ? 'night' : 'midday'); }
   function img(p, sz) { return '/timeline/img/' + p.scene + '-' + light() + '-' + sz + '.webp?v=10'; }
@@ -26,6 +28,7 @@
 
   var cur = 0, railMark = null;
   (function () { var h = decodeURIComponent(location.hash.slice(1)); if (!h) return; for (var i = 0; i < P.length; i++) if (P[i].id === h || P[i].place === h) { cur = i; break; } })();
+  (function () { var toMap = document.getElementById('tm-to-map'); if (toMap && cur) toMap.setAttribute('href', '/timeline/map/#' + P[cur].id); })();   // the map opens on the place the book is open at
 
   // ---------- the ribbons: one bookmark per month, hanging from the book's front edge ----------
   var RIB = ['#c8553d', '#2f6f73', '#e0a93b', '#6b4a7c', '#7d9a6a', '#27324c'], MON_EN = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
@@ -88,7 +91,7 @@
   try { poster = LastSeen.popup.cover(light()); poster.className = 'tb-poster'; poster.setAttribute('aria-hidden', 'true'); poster.style.width = '405px'; poster.style.height = '651px'; stage.appendChild(poster); } catch (e) { poster = null; }
 
   // ---------- the book ----------
-  var book = null, failed = false, SAY = { en: { shut: 'A pop-up book of every place. Press Enter to open it.', open: 'Pop-up book, open. Move over the pieces to play with them.' },
+  var book = null, failed = false, started = false, SAY = { en: { shut: 'A pop-up book of every place. Press Enter to open it.', open: 'Pop-up book, open. Move over the pieces to play with them.' },
     ja: { shut: 'すべての場所の飛び出す絵本。Enterキーで開きます。', open: '飛び出す絵本（開いています）。中のものを動かして遊べます。' } };
   function say(k) { return (SAY[ja() ? 'ja' : 'en'])[k]; }
   var turnT = 0;
@@ -98,19 +101,23 @@
     var dir = i > cur ? 'forward' : 'back'; cur = i;
     mark(dir); renderInfo(); setStill();
     clearTimeout(turnT); if (o && o.key) turnT = setTimeout(turn, 160); else turn();   // paging by key: the lines follow at once, the book turns once the keys rest
-    try { history.replaceState(null, '', '#' + P[cur].id); } catch (e) {}
+    if (inFront()) try { history.replaceState(null, '', '#' + P[cur].id); } catch (e) {}
+    var toMap = document.getElementById('tm-to-map'); if (toMap) toMap.setAttribute('href', '/timeline/map/#' + P[cur].id);   // the map opens on the same place
     if (window.SiteSound && !(o && o.quiet)) SiteSound.cue('navigate', { direction: dir });
   }
+  var onScreen = true;
+  function live() { if (book) book.setActive(onScreen && !document.hidden && inFront()); }
   function startBook() {
-    if (failed || book || !window.LastSeen || !LastSeen.popup || !LastSeen.painters || !LastSeen.painters.popup) return;
+    if (failed || book || started || !window.LastSeen || !LastSeen.popup || !LastSeen.painters || !LastSeen.painters.popup) return;
     try { var c = document.createElement('canvas'); if (!(c.getContext('webgl2') || c.getContext('webgl'))) return; } catch (e) { return; }
     var load; try { load = new Function('u', 'return import(u)'); } catch (e) { return; }
+    started = true;
     load('/last-seen/popup/book.js?v=7').then(function (m) {
       var first = true;
       book = m.createBook(stage, { label: say, onBuilt: function () { stage.classList.add('is-book'); if (first) { first = false; setTimeout(function () { book.open(); }, 420); } } });   // the flat cover goes first, then the real one opens
       var p0 = P[cur]; if (p0.scene && LastSeen.byId(p0.scene)) book.setScene(p0.scene, light());
-      if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { book.setActive(es[es.length - 1].isIntersecting && !document.hidden); }, { threshold: .05 }).observe(stage);
-      document.addEventListener('visibilitychange', function () { book.setActive(!document.hidden); });
+      if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { onScreen = es[es.length - 1].isIntersecting; live(); }, { threshold: .05 }).observe(stage);
+      document.addEventListener('visibilitychange', live); live();
     }, function () { failed = true; });
   }
 
@@ -120,10 +127,13 @@
   if ('ResizeObserver' in window) new ResizeObserver(layout).observe(stage); else window.addEventListener('resize', layout);
   prevB.addEventListener('click', function () { go(cur - 1); }); nextB.addEventListener('click', function () { go(cur + 1); });
   document.addEventListener('keydown', function (e) {
-    if (e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || ''))) return;
+    if (!inFront() || e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || ''))) return;
     if (e.key === 'ArrowLeft') { go(cur - 1, { key: true, quiet: e.repeat }); e.preventDefault(); } else if (e.key === 'ArrowRight') { go(cur + 1, { key: true, quiet: e.repeat }); e.preventDefault(); }
   });
-  window.addEventListener('hashchange', function () { var h = decodeURIComponent(location.hash.slice(1)); for (var i = 0; i < P.length; i++) if (P[i].id === h) { go(i, { quiet: true }); break; } });
+  function seek(id) { for (var i = 0; i < P.length; i++) if (P[i].id === id || P[i].place === id) { go(i, { quiet: true }); return; } }
+  // brought to the front: the book turns to the place the map was on, and starts drawing again (or is built now, if the visit began on the map)
+  document.addEventListener('tl:view', function (e) { var d = e.detail || {}; if (d.view !== 'book') { live(); return; } if (d.id) seek(d.id); if (!started) idle(); live(); });
+  window.addEventListener('hashchange', function () { if (!inFront()) return; var h = decodeURIComponent(location.hash.slice(1)); for (var i = 0; i < P.length; i++) if (P[i].id === h) { go(i, { quiet: true }); break; } });
   // a new light: the stills follow, and the sun moves in the book. A new language: every line is written again.
   new MutationObserver(function (m) {
     if (m.some(function (r) { return r.attributeName === 'data-lang'; })) { renderGallery(); renderInfo(); if (book) book.relabel(); return; }
@@ -264,5 +274,5 @@
   renderGallery(); renderInfo(); setStill(); layout();
   html.classList.remove('tl-pre');
   function idle() { (window.requestIdleCallback || function (f) { setTimeout(f, 200); })(startBook, { timeout: 1200 }); }
-  if (document.readyState === 'complete') idle(); else window.addEventListener('load', idle, { once: true });
+  if (inFront()) { if (document.readyState === 'complete') idle(); else window.addEventListener('load', idle, { once: true }); }   // a visit that begins on the map leaves the book until it is asked for
 })();
