@@ -35,3 +35,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## OpenStreetMap
+
+`timeline/map/geo.js` holds the coastline, rivers and main roads of greater Tokyo drawn on the Timeline's map (`/timeline/map/`).
+They are simplified from [OpenStreetMap](https://www.openstreetmap.org/copyright) data, © OpenStreetMap contributors, made available
+under the [Open Database License](https://opendatacommons.org/licenses/odbl/1-0/) (ODbL). The page credits OpenStreetMap beside the map.

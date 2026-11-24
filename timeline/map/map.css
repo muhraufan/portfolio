@@ -1,0 +1,46 @@
+/* The Timeline as a map (/timeline/map/): a folded paper sheet of greater Tokyo with every place standing on it. See map.js.
+   The Book / Map switch and the little folded-map icon are shared with the book and live in /timeline/timeline.css, and so does the rule that
+   says which of the two is in front: Book and Map are one page, the map lying over the book (fixed), each out of sight while the other is up. */
+html, body.tl3 { overflow: hidden; }
+.tm { --now: #c4402e; position: fixed; inset: 0 0 auto 0; height: 100vh; height: 100dvh; box-sizing: border-box; padding: 76px 0 18px; display: flex; flex-direction: column; align-items: center; overflow: hidden; }
+[data-theme="dark"] .tm { --now: #e2694f; }
+.tm-arrow { position: relative; } .tm-arrow::after { content: ''; position: absolute; inset: -2px; }   /* a finger-sized target (44px) */
+@media (hover: hover) and (pointer: fine) { .tm-zoom button:hover, .tm-arrow:hover { background: var(--bg2, rgba(0, 0, 0, .05)); color: var(--text); } }   /* on a touch screen a tap leaves :hover stuck on, so hover styles are for real pointers only */
+.tm-view { position: relative; flex: 1 1 auto; min-height: 0; width: 100%; margin-top: -8px; touch-action: none; user-select: none; -webkit-user-select: none; }
+.tm-view > canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; cursor: grab; transition: filter 400ms cubic-bezier(.2, 0, 0, 1), opacity 400ms cubic-bezier(.2, 0, 0, 1), scale 400ms cubic-bezier(.2, 0, 0, 1); }   /* coming back: shorter than going */
+.tm-view > canvas { -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 9%, #000 94%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 9%, #000 94%, transparent 100%); }
+.tm-zoom, .tm-credit { transition: opacity 240ms ease-out; } .tm-view.is-book .tm-zoom, .tm-view.is-book .tm-credit { opacity: 0; pointer-events: none; }
+.tm-view.is-drag > canvas { cursor: grabbing; } .tm-view.is-over > canvas { cursor: pointer; }
+.tm-view.is-book > canvas { filter: blur(7px) saturate(.9); opacity: .55; scale: 1.05; pointer-events: none; transition: filter 620ms cubic-bezier(.2, 0, 0, 1), opacity 620ms cubic-bezier(.2, 0, 0, 1), scale 620ms cubic-bezier(.2, 0, 0, 1); }   /* stepping back as the book comes up: the same 620ms as the book */
+.tm-tip { position: absolute; left: 0; top: 0; z-index: 4; pointer-events: none; padding: 6px 10px; border-radius: 7px; background: #fbf8f1; color: #2a2418; font-size: 12px; line-height: 1.35; white-space: nowrap; box-shadow: 0 0 0 .5px rgba(42, 36, 24, .18), 0 4px 12px rgba(42, 36, 24, .16); opacity: 0; transition: opacity 140ms ease-out; }
+.tm-tip.is-on { opacity: 1; } .tm-tip b { font-weight: 600; } .tm-tip span { display: block; color: #7a7263; font-size: 11px; }
+[data-theme="dark"] .tm-tip { background: #2b2925; color: #e9e5dd; box-shadow: 0 0 0 .5px rgba(255, 255, 255, .25), 0 4px 10px rgba(0, 0, 0, .55); } [data-theme="dark"] .tm-tip span { color: #9a968f; }
+.tm-zoom { position: absolute; right: max(20px, calc(50% - 520px)); bottom: 14px; z-index: 4; display: flex; flex-direction: column; border-radius: 9px; overflow: hidden; background: var(--pg-menu); box-shadow: 0 0 0 .5px rgba(0, 0, 0, .12), 0 2px 8px rgba(0, 0, 0, .1); }
+[data-theme="dark"] .tm-zoom { box-shadow: 0 0 0 .5px rgba(255, 255, 255, .2), 0 2px 8px rgba(0, 0, 0, .5); }
+.tm-zoom button { all: unset; box-sizing: border-box; width: 34px; height: 34px; display: grid; place-items: center; font-size: 17px; color: var(--text2); cursor: pointer; transition: background-color 140ms ease-out, color 140ms ease-out; }
+.tm-zoom button:active { background: var(--bg3, rgba(0, 0, 0, .09)); } .tm-zoom button + button { border-top: .5px solid var(--border2, rgba(0, 0, 0, .14)); }
+.tm-zoom button:focus-visible, .tm-arrow:focus-visible { outline: 2px solid var(--now); outline-offset: -2px; } .tm-back:focus-visible { outline: 2px solid var(--now); outline-offset: 2px; }
+.tm-credit { position: absolute; left: max(20px, calc(50% - 520px)); bottom: 16px; z-index: 4; font-size: 10px; letter-spacing: .04em; color: var(--pg-cap); opacity: .8; }
+.tm-credit a { color: inherit; }
+.tm-bookwrap { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; pointer-events: none; opacity: 0; visibility: hidden; transform-origin: var(--ox, 50%) var(--oy, 50%); scale: .16; transition: opacity 220ms cubic-bezier(.2, 0, 0, 1), scale 360ms cubic-bezier(.2, 0, 0, 1), visibility 0s 360ms; }   /* going back into its place: quicker than it came, and with no bounce */
+.tm-bookwrap.is-on { opacity: 1; visibility: visible; scale: 1; pointer-events: auto; transition: opacity 260ms cubic-bezier(.2, 0, 0, 1), scale 620ms cubic-bezier(.2, .9, .25, 1.08), visibility 0s; }
+.tm-bookwrap .tb-book { margin: 0; --sw: max(280px, min(760px, 100vw - 48px, (100dvh - 380px) * 4 / 3)); }
+/* The way back: the map itself, folded small, lying under the book. It opens out a little under the pointer. */
+.tm-back { all: unset; box-sizing: border-box; position: absolute; left: 50%; bottom: 20px; z-index: 6; display: flex; align-items: center; gap: 9px; height: 36px; padding: 0 8px 0 12px; border-radius: 999px; background: var(--pg-menu); box-shadow: var(--surface-shadow); color: var(--pg-where, var(--text2)); font-size: 11px; font-weight: 500; line-height: 1; letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  translate: -50% 10px; opacity: 0; visibility: hidden; transition: opacity 160ms cubic-bezier(.2, 0, 0, 1), translate 160ms cubic-bezier(.2, 0, 0, 1), scale 140ms cubic-bezier(.2, 0, 0, 1), color 160ms ease-out, visibility 0s 160ms; }
+.tm-back::after { content: ''; position: absolute; inset: -4px 0; }
+.tm-view.is-book .tm-back { translate: -50% 0; opacity: 1; visibility: visible; transition: opacity 280ms 420ms cubic-bezier(.2, 0, 0, 1), translate 420ms 420ms cubic-bezier(.2, 0, 0, 1), scale 140ms cubic-bezier(.2, 0, 0, 1), color 160ms ease-out, visibility 0s; }   /* it comes up once the book has stood up */
+.tm-back:active { scale: .96; }
+.tm-back kbd { display: block; font: inherit; font-size: 10px; letter-spacing: .06em; line-height: 1; padding: 6px 7px; text-box: trim-both cap alphabetic; border-radius: 999px; color: var(--pg-cap); background: color-mix(in srgb, var(--text) 6%, transparent); }
+.tm-back-l { display: block; text-box: trim-both cap alphabetic; }
+@media (hover: hover) and (pointer: fine) { .tm-back:hover { color: var(--text); } .tm-back:hover .tm-fold.f1, .tm-back:hover .tm-fold.f3 { transform: skewY(-4deg); } .tm-back:hover .tm-fold.f2 { transform: skewY(4deg); } .tm-back:hover .tm-pin { transform: translateY(-1.5px) scale(1.2); } }
+@media (hover: none), (max-width: 700px) { .tm-back kbd { display: none; } .tm-back { padding-right: 14px; } }
+.tm-foot { position: relative; z-index: 6; flex: none; display: flex; align-items: center; justify-content: center; gap: 18px; width: min(680px, 100vw - 32px); }
+.tm-info { flex: 1 1 auto; text-align: center; min-height: 78px; }
+.tm-info .tb-date span { margin-left: 10px; opacity: .7; }
+.tm-arrow { all: unset; flex: none; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; color: var(--pg-cap); cursor: pointer; transition: color 160ms ease-out, background-color 160ms ease-out, opacity 160ms ease-out, scale 120ms ease-out; }
+.tm-arrow:active { scale: .96; } .tm-arrow[disabled] { opacity: .25; pointer-events: none; }
+.tm-hint { flex: none; margin: 4px 0 0; font-size: 11px; color: var(--pg-cap); opacity: .85; text-align: center; transition: opacity 200ms ease-out; }
+.tm:has(.tm-view.is-book) .tm-hint { opacity: 0; }   /* how to move the map is no use while a book is open */
+@media (max-width: 700px) { .tm-hint { display: none; } .tm-zoom { display: none; } }
+@media (prefers-reduced-motion: reduce) { .tm-view > canvas, .tm-view.is-book > canvas, .tm-bookwrap, .tm-bookwrap.is-on { transition: opacity 200ms linear, visibility 0s; scale: 1; } .tm-back, .tm-view.is-book .tm-back { translate: -50% 0; transition: opacity 200ms linear, visibility 0s; } }

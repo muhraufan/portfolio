@@ -45,11 +45,15 @@
 })();
 </script>
   <script>
-    // before first paint: the day rail, and this light's row stills
+    // Book and Map are one page (/timeline/view.js): which is in front is read from the address, before anything is drawn.
+    // Then, for the book: the day rail, and this light's row stills. For the map: its data and code are asked for at once.
     (function () {
-      var h = document.documentElement;
+      var h = document.documentElement, map = /\/timeline\/map\/(index\.html)?$/.test(location.pathname);
+      h.setAttribute('data-view', map ? 'map' : 'book');
       h.classList.add('tl-pre');
       var tod = h.getAttribute('data-tod') || 'midday';
+      if (map) { [['preload', '/timeline/map/geo.js?v=1', 'script'], ['modulepreload', '/timeline/map/map.js?v=2'], ['modulepreload', 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js']].forEach(function (q) {
+        var l = document.createElement('link'); l.rel = q[0]; l.href = q[1]; if (q[2]) l.as = q[2]; document.head.appendChild(l); }); return; }
       ['makuhari-messe', 'naruto-coffee', 'nadoya-no-katte-2026-11-06', 'shimotakaido-ozora-park', 'bear-pond-espresso', 'apple-marunouchi', 'cinta-jawa-shibuya', 'tokyo-nihombashi-tower', 'niko-and-shibuya', 'tsuchiya-kaban-nakameguro', 'fuglen-noborito', 'tokyo-camii', 'lifefit-yurigaoka', 'yoyogi-park', 'tokyo-big-sight', 'mufg-park', 'stayful-life-store', 'nadoya-no-katte', 'et-cultural-coffeehouse'].forEach(function (id) {
         var l = document.createElement('link');
         l.rel = 'preload'; l.as = 'image';
@@ -61,7 +65,8 @@
   <link rel="stylesheet" href="/css/style.css?v=47">
   <link rel="stylesheet" href="/css/light.css?v=1">
   <link rel="stylesheet" href="/css/postcard.css?v=7">
-  <link rel="stylesheet" href="/timeline/timeline.css?v=43">
+  <link rel="stylesheet" href="/timeline/timeline.css?v=45">
+  <link rel="stylesheet" href="/timeline/map/map.css?v=2">
   <!-- deferred scripts live in <head> so list.js can hold the first paint (blocking="render") until the rows exist:
        a stamp's cross-document morph needs its entry thumbnail named before the new page is captured (Chromium reveals mid-parse) -->
   <script src="/js/light-menu.js?v=2" defer></script>
@@ -91,14 +96,17 @@
   <script src="/timeline/lib/common.js?v=4" defer></script>
   <script src="/timeline/lib/data.js?v=15" defer></script>
   <script src="/timeline/lib/feel.js?v=2" defer></script>
-  <script src="/timeline/book-page.js?v=19" defer></script>
+  <script src="/timeline/view.js?v=1" defer></script>
+  <script src="/timeline/book-page.js?v=21" defer></script>
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9c2138bf16a142d7bb95bec172baee70"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body class="minimal tl3">
   <a class="m-skip-link" href="#t3-list">Skip to all places</a>
   <header class="t3-top pc">
     <div class="m-page">
-    <div class="m-top-controls t3-controls"><button class="m-lang-toggle" aria-label="Toggle language">JA</button><div class="pc-light"><button type="button" class="pc-light-btn" id="pc-light-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="pc-light-menu"><time class="pc-light-time"></time><span class="pc-light-sep" aria-hidden="true">&middot;</span><span class="pc-light-greet"></span><svg class="pc-light-chev" width="9" height="6" viewBox="0 0 9 6" aria-hidden="true"><path d="M1 1.2 4.5 4.8 8 1.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="pc-light-menu" id="pc-light-menu" role="menu" aria-labelledby="pc-light-label" hidden><div class="pc-light-label" id="pc-light-label" role="presentation">Change the light</div><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="auto"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="morning"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="midday"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="golden"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="night"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>
+    <div class="m-top-controls t3-controls"><nav class="tm-switch" id="tm-switch" aria-label="View" data-at="book"><span class="tm-sw-thumb" aria-hidden="true"></span><a href="/timeline/" data-view="book" id="tm-to-book" aria-current="page"><svg class="tm-ico" width="18" height="16" viewBox="0 0 18 16" aria-hidden="true"><path d="M9 3.6C7.4 2.5 5.2 2.1 2.2 2.3v9.9c3-.2 5.2.2 6.8 1.3 1.6-1.1 3.8-1.5 6.8-1.3V2.3c-3-.2-5.2.2-6.8 1.3zm0 0v9.9" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/></svg><span class="tm-sw-l" data-en="Book" data-ja="ブック">Book</span></a><a href="/timeline/map/" data-view="map" id="tm-to-map"><svg class="tm-ico tm-ico-map" width="20" height="16" viewBox="0 0 20 16" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path class="tm-fold f1" d="M1 2h6v12H1z"/><path class="tm-fold f2" d="M7 2h6v12H7z"/><path class="tm-fold f3" d="M13 2h6v12h-6z"/></g><circle class="tm-pin" cx="10" cy="7.6" r="1.7"/></svg><span class="tm-sw-l" data-en="Map" data-ja="マップ">Map</span></a></nav>
+<script>(function () { var sw = document.getElementById('tm-switch'), v = document.documentElement.getAttribute('data-view') === 'map' ? 'map' : 'book';   /* the thumb is where the address says, from the first paint; view.js does the rest */
+      sw.setAttribute('data-at', v); document.getElementById('tm-to-book').removeAttribute('aria-current'); document.getElementById('tm-to-' + v).setAttribute('aria-current', 'page'); })();</script><button class="m-lang-toggle" aria-label="Toggle language">JA</button><div class="pc-light"><button type="button" class="pc-light-btn" id="pc-light-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="pc-light-menu"><time class="pc-light-time"></time><span class="pc-light-sep" aria-hidden="true">&middot;</span><span class="pc-light-greet"></span><svg class="pc-light-chev" width="9" height="6" viewBox="0 0 9 6" aria-hidden="true"><path d="M1 1.2 4.5 4.8 8 1.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="pc-light-menu" id="pc-light-menu" role="menu" aria-labelledby="pc-light-label" hidden><div class="pc-light-label" id="pc-light-label" role="presentation">Change the light</div><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="auto"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="morning"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="midday"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="golden"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" role="menuitemradio" tabindex="-1" aria-checked="false" data-light="night"><span class="pc-li-name"></span><span class="pc-li-note"></span><svg class="pc-li-check" width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M1 4.6 4 7.6 10 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>
 <script>try{PCLight.stamp()}catch(e){}</script>
     </div>
     <a class="t3-home m-header" href="/" aria-label="Back to the homepage">
@@ -120,6 +128,22 @@
     <p class="tb-month" id="tb-month"></p>
     <nav class="tb-gallery" id="t3-list" aria-label="Places this month"></nav>
     <div class="tb-rail" id="tb-rail" role="slider" aria-orientation="horizontal" aria-label="Days" tabindex="-1"></div>
+  </main>
+  <main class="tm" id="tm">
+    <h1 class="m-visually-hidden" data-en="Timeline, on a map" data-ja="タイムライン（地図）">Timeline, on a map</h1>
+    <div class="tm-view" id="tm-view">
+      <div class="tm-tip" id="tm-tip" aria-hidden="true"></div>
+      <div class="tm-zoom"><button type="button" id="tm-in" aria-label="Zoom in">+</button><button type="button" id="tm-out" aria-label="Zoom out">&minus;</button></div>
+      <p class="tm-credit">Map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors</p>
+      <button type="button" class="tm-back" id="tm-back"><svg class="tm-ico tm-ico-map" width="20" height="16" viewBox="0 0 20 16" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path class="tm-fold f1" d="M1 2h6v12H1z"/><path class="tm-fold f2" d="M7 2h6v12H7z"/><path class="tm-fold f3" d="M13 2h6v12h-6z"/></g><circle class="tm-pin" cx="10" cy="7.6" r="1.7"/></svg><span class="tm-back-l" id="tm-back-l">Back to the map</span><kbd aria-hidden="true">Esc</kbd></button>
+      <div class="tm-bookwrap" id="tm-bookwrap"><section class="tb-book" aria-label="The book"><div class="tb-stage" id="tm-stage"></div></section></div>
+    </div>
+    <div class="tm-foot">
+      <button type="button" class="tm-arrow" id="tm-prev" aria-label="Earlier place"><svg width="10" height="16" viewBox="0 0 10 16" aria-hidden="true"><path d="M8 1.5 1.8 8 8 14.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="tm-info" id="tm-info" aria-live="polite"></div>
+      <button type="button" class="tm-arrow" id="tm-next" aria-label="Later place"><svg width="10" height="16" viewBox="0 0 10 16" aria-hidden="true"><path d="M2 1.5 8.2 8 2 14.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <p class="tm-hint" id="tm-hint"></p>
   </main>
   <p class="t3-say m-visually-hidden" aria-live="polite"></p>
   <div class="t3-foot"><div class="m-page"><button type="button" class="t3-sound" aria-pressed="true">Sound · on</button></div></div>
