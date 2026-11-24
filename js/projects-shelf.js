@@ -89,7 +89,7 @@
       s.ghost = g;
     }
     // 3) text arrives after the container lands: 4px rise, 40ms stagger, short
-    var parts = dlg.querySelectorAll('.ps-card-head > div, .ps-card-desc, .ps-card-actions');
+    var parts = dlg.querySelectorAll('.ps-card-head > div, .ps-card-desc, .ps-card-lesson, .ps-card-actions');
     parts.forEach(function (el, i) {
       anims.push(el.animate([{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 1, transform: 'none' }], { duration: 160, delay: 90 + i * 40, easing: EASE_OUT, fill: 'both' }));
     });

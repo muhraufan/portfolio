@@ -32,7 +32,8 @@ function liftAt(x, z) { if (!curled) return 0; let y = 0; for (let i = 0; i < 4;
 const AREA = { 'Yoyogi-Uehara, Tokyo': [35.669, 139.680], 'Shimokitazawa, Tokyo': [35.661, 139.667], 'Shibuya, Tokyo': [35.659, 139.701], 'Yoyogi, Tokyo': [35.672, 139.695],
   'Shimotakaido, Tokyo': [35.666, 139.641], 'Nakameguro, Tokyo': [35.644, 139.699], 'Nihonbashi, Tokyo': [35.684, 139.776], 'Marunouchi, Tokyo': [35.680, 139.763],
   'Ariake, Tokyo': [35.630, 139.794], 'Yanagisawa, Nishitokyo': [35.728, 139.552], 'Nakacho, Musashino': [35.706, 139.561], 'Izumi-Tamagawa, Komae': [35.6275, 139.5735],
-  'Noborito, Kawasaki': [35.6206, 139.570], 'Yurigaoka, Kawasaki': [35.609, 139.5165], 'Mihama, Chiba': [35.648, 140.035] };
+  'Noborito, Kawasaki': [35.6206, 139.570], 'Yurigaoka, Kawasaki': [35.609, 139.5165], 'Mihama, Chiba': [35.648, 140.035],
+  'Harajuku, Tokyo': [35.670, 139.705], 'Omotesando, Tokyo': [35.6655, 139.7127], 'Kyodo, Tokyo': [35.651, 139.636], 'Yanokuchi, Inagi': [35.627, 139.518], 'Fujimi, Kawasaki': [35.5288, 139.7134] };
 // where the city stands tall: [lat, lng, radius km, blocks, height]
 const HUBS = [[35.690, 139.700, 1.3, 120, 1.05], [35.659, 139.701, .9, 70, .7], [35.681, 139.765, 1.4, 130, .9], [35.729, 139.711, .9, 60, .7], [35.628, 139.739, .9, 50, .65], [35.665, 139.742, 1.1, 80, .95],
   [35.705, 139.775, 1, 50, .4], [35.628, 139.782, 1.1, 36, .4], [35.655, 139.792, 1, 40, .6], [35.531, 139.697, 1, 45, .5], [35.576, 139.659, .6, 30, .85], [35.648, 140.045, .9, 40, .5],
