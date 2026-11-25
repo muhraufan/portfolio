@@ -5,7 +5,7 @@
   /* ================= 2) FUGLEN COFFEE ROASTERS — Noborito (Oct 23, 13:40) =================
      a beige stone-tiled corner building with a maroon band, the red bird roundel, dark glass doors, benches,
      a white guardrail where the road runs past */
-  make('fuglen-noborito', { seed: 622, seenAt: '2026-10-23T13:40:00+09:00',
+  function spec() { return { seed: 622, seenAt: '2026-10-23T13:40:00+09:00',
     vending: { x: 20, foot: 252 },   // the home hero's night drinks machine: at the left end, clear of the bench and the sitter
     place: { en: 'FUGLEN COFFEE ROASTERS Noborito', ja: 'FUGLEN COFFEE ROASTERS 登戸' }, name: { en: 'FUGLEN COFFEE ROASTERS', ja: 'FUGLEN COFFEE ROASTERS' }, area: { en: 'Noborito, Kawasaki', ja: '川崎・登戸' },
     alt: 'Illustration of FUGLEN COFFEE ROASTERS in Noborito: a beige stone-tiled corner building with a maroon band, a red round bird sign, dark glass doors, wooden benches out front and a white guardrail by the road.',
@@ -102,5 +102,8 @@
       [[48, 76], [256, 40]].forEach(function (b) { P.push(r(b[0], 228, b[1], 5, 'bench', { shade: grain('benchShade', .4, 'down') })); P.push(r(b[0] + 3, 233, 3, 13, 'benchShade')); P.push(r(b[0] + b[1] - 6, 233, 3, 13, 'benchShade')); contact(P, b[0] + b[1] / 2, 246.6, b[1] / 2 + 2, .16); for (var wg = b[0] + 5; wg < b[0] + b[1] - 6; wg += 11 + (wg % 7)) P.push(r(wg, 229.6, 6 + (wg % 5), .5, 'benchGrain', { a: .6 })); P.push(r(b[0], 228, b[1], .8, 'cup', { a: .25 })); });
       sitter(P, 280, 228, 1.3, { coat: 'coatC', legs: 'legsDenim', hair: 'hairDark', dir: -1, cup: true, rimA: .5 });
       P.push(r(84, 221, 6, 7, 'cup', { r: [.6, .6, 1.4, 1.4] })); P.push(r(84, 223.5, 6, 1.4, 'bench', { a: .7 }));
-    } });
+    } }; }
+  make('fuglen-noborito', spec());
+  K.fuglen = spec;   // later visits register through this; one may load before this file, so flush any that waited
+  (K.fuglenQ || []).splice(0).forEach(function (f) { f(); });
 })();
