@@ -19,6 +19,7 @@
     'cinta-jawa-shibuya': { post: { x: 100, foot: 271 } },
     'et-cultural-coffeehouse': { post: { x: 100, foot: 271 }, vend: { x: 296 } },   // drinks machine clear of the shrubs
     'fuglen-noborito': { post: { x: 100, foot: 271 } },
+    'fuglen-noborito-2026-11-25': { post: { x: 100, foot: 271 } },
     'lifefit-yurigaoka': { post: { x: 100, foot: 271 } },
     'makuhari-messe': { post: { x: 34, foot: 271 }, crow: { x: 300, foot: 262 }, vend: { x: 366 }, birdsY: 40 },   // at the left, in front of the ramp wall: he walks off to the right, and must not pass behind it; the drinks machine clear of the last column
     'liverpool-fc-kawasaki': { crow: { x: 62, foot: 256 }, win: { x: 252.5, y: 98, w: 2.8, h: 3 }, birdsY: 30 },   // the pitch: no post box (no street); the crow on the red bench; a window of the white tower at night
