@@ -13,7 +13,7 @@
   var view = html.getAttribute('data-view') === 'map' ? 'map' : 'book', api = window.TLView = { quietUntil: 0 };
 
   // ---------- the map's half: its data, then its code, once ----------
-  var MAP = '/timeline/map/map.js?v=2', GEO = '/timeline/map/geo.js?v=1', mapP = null, hinted = view === 'map';
+  var MAP = '/timeline/map/map.js?v=3', GEO = '/timeline/map/geo.js?v=1', mapP = null, hinted = view === 'map';
   function hint() {                                // about to be wanted (the pointer is on the switch): fetch it, do not run it yet
     if (hinted) return; hinted = true;
     [['preload', GEO, 'script'], ['modulepreload', MAP]].forEach(function (q) { var l = document.createElement('link'); l.rel = q[0]; l.href = q[1]; if (q[2]) l.as = q[2]; document.head.appendChild(l); });

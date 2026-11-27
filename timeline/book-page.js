@@ -28,7 +28,7 @@
 
   var cur = 0, railMark = null;
   (function () { var h = decodeURIComponent(location.hash.slice(1)); if (!h) return; for (var i = 0; i < P.length; i++) if (P[i].id === h || P[i].place === h) { cur = i; break; } })();
-  (function () { var toMap = document.getElementById('tm-to-map'); if (toMap && cur) toMap.setAttribute('href', '/timeline/map/#' + P[cur].id); })();   // the map opens on the place the book is open at
+  (function () { var toMap = document.getElementById('tm-to-map'); if (toMap) toMap.setAttribute('href', '/timeline/map/#' + P[cur].id); })();   // the map opens on the place the book is open at
 
   // ---------- the ribbons: one bookmark per month, hanging from the book's front edge ----------
   var RIB = ['#c8553d', '#2f6f73', '#e0a93b', '#6b4a7c', '#7d9a6a', '#27324c'], MON_EN = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];

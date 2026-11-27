@@ -22,6 +22,7 @@
     'fuglen-noborito-2026-11-25': { post: { x: 100, foot: 271 } },
     'lifefit-yurigaoka': { post: { x: 100, foot: 271 } },
     'makuhari-messe': { post: { x: 34, foot: 271 }, crow: { x: 300, foot: 262 }, vend: { x: 366 }, birdsY: 40 },   // at the left, in front of the ramp wall: he walks off to the right, and must not pass behind it; the drinks machine clear of the last column
+    'maebashi-driving-school': { crow: { x: 120, foot: 226 }, win: { x: 250, y: 122.7, w: 14, h: 12.6 }, birdsY: 30 },   // a forecourt, not a street: no post box; the crow on the clipped pine
     'liverpool-fc-kawasaki': { crow: { x: 62, foot: 256 }, win: { x: 252.5, y: 98, w: 2.8, h: 3 }, birdsY: 30 },   // the pitch: no post box (no street); the crow on the red bench; a window of the white tower at night
     'kopikalyan-tokyo': { post: { x: 112, foot: 271 }, crow: { x: 318, foot: 252 }, win: { x: 165, y: 37, w: 24, h: 24 }, birdsY: 12 },   // right of the potted plant, left of the tactile strip: he walks off to the right; a pane of the glass building at night
     'apple-omotesando': { post: { x: 100, foot: 271 }, crow: { x: 290, foot: 252 }, win: { x: 23, y: 66, w: 11, h: 13 }, birdsY: 8 },   // left of the tactile strip: he walks off to the right; the stone neighbour's window at night

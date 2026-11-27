@@ -4,6 +4,7 @@
   var TL2 = window.TL2 = window.TL2 || {};
   var TZ = 'Asia/Tokyo';
   var REAL = [
+    { scene: 'maebashi-driving-school', seenAt: '2026-11-26T13:00:00+09:00', name: { en: 'Maebashi Driving School', ja: '前橋自動車教習所' }, area: { en: 'Sekine, Maebashi', ja: '前橋・関根' }, with: [{ name: 'Brian' }] },
     { scene: 'fuglen-noborito-2026-11-25', seenAt: '2026-11-25T15:50:00+09:00', name: { en: 'Fuglen Coffee Roasters', ja: 'フグレン コーヒー ロースターズ' }, area: { en: 'Noborito, Kawasaki', ja: '川崎・登戸' }, with: [{ name: 'Rizal' }, { name: 'Brian' }, { name: 'Denny' }, { name: 'Mei' }] },
     { scene: 'liverpool-fc-kawasaki', seenAt: '2026-11-23T12:55:00+09:00', name: { en: 'Liverpool F.C. Kawasaki', ja: 'リバプールFC 川崎' }, area: { en: 'Fujimi, Kawasaki', ja: '川崎・富士見' }, with: [{ name: 'Andre', url: 'https://www.instagram.com/andrerusl' }] },
     { scene: 'kopikalyan-tokyo', seenAt: '2026-11-21T14:00:00+09:00', name: { en: 'Kopikalyan Tokyo', ja: 'コピカリアン 東京' }, area: { en: 'Harajuku, Tokyo', ja: '東京・原宿' } },
