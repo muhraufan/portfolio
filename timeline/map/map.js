@@ -185,9 +185,11 @@ const cloudMat = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: t
 const visits = TL2.places().slice().reverse().filter(p => AREA[p.area.en]), piles = [], byKey = {}, perArea = {};
 visits.forEach((v, i) => { v.n = i; const k = v.name.en + '|' + v.area.en; if (!byKey[k]) { byKey[k] = { key: k, area: v.area.en, v: [] }; piles.push(byKey[k]); (perArea[v.area.en] = perArea[v.area.en] || []).push(byKey[k]); } byKey[k].v.push(v); v.pile = byKey[k]; });
 piles.forEach(p => { const g = perArea[p.area], n = g.length, a = AREA[p.area], ang = PI / 2 + g.indexOf(p) * 2 * PI / n, r = n > 1 ? .46 : 0; p.x = wx(a[1]) + Math.cos(ang) * r; p.z = wz(a[0]) - Math.sin(ang) * r; });
-let cur = visits.length - 1, carried = false;
-{ const h = decodeURIComponent(location.hash.slice(1)), at = h ? visits.findIndex(v => v.id === h || v.place === h) : -1; if (at >= 0) { cur = at; carried = true; } }   // a #place link, or the place the book was open at
-TL2.places().forEach(p => { if (!AREA[p.area.en] && !p.hidden && window.console) console.warn('Timeline map: no spot for "' + p.area.en + '". Add it to AREA in /timeline/map/map.js.'); });
+let cur = visits.length - 1, carried = false, away = '';   /* away: the book was on a place that is not on this sheet; going back to the book returns to it */
+{ const h = decodeURIComponent(location.hash.slice(1)), at = h ? visits.findIndex(v => v.id === h || v.place === h) : -1; if (at >= 0) { cur = at; carried = true; } else if (h) away = h; }   // a #place link, or the place the book was open at
+// Places beyond the edge of the sheet (it shows greater Tokyo only) are left off it, like hidden ones, and need no spot.
+const AWAY = ['Sekine, Maebashi'];
+TL2.places().forEach(p => { if (!AREA[p.area.en] && !p.hidden && AWAY.indexOf(p.area.en) < 0 && window.console) console.warn('Timeline map: no spot for "' + p.area.en + '". Add it to AREA in /timeline/map/map.js.'); });
 const baseMat = new THREE.MeshBasicMaterial({ color: 0xfffdf8 }), nowMat = new THREE.MeshBasicMaterial({ color: 0xc4402e }), ringMat = new THREE.MeshBasicMaterial({ color: 0xc4402e, transparent: true, opacity: .6, side: THREE.DoubleSide });
 const glowTex = (() => { const c = mk(128, 128), x = c.getContext('2d'), g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, 'rgba(255, 205, 130, .95)'); g.addColorStop(.4, 'rgba(255, 190, 110, .35)'); g.addColorStop(1, 'rgba(255, 190, 110, 0)'); x.fillStyle = g; x.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })();
 const shadeTex = (() => { const c = mk(128, 128), x = c.getContext('2d'), g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, 'rgba(30, 24, 14, .7)'); g.addColorStop(.55, 'rgba(30, 24, 14, .22)'); g.addColorStop(1, 'rgba(30, 24, 14, 0)'); x.fillStyle = g; x.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })();
@@ -407,11 +409,11 @@ const fmt = (d, o) => new Intl.DateTimeFormat(ja() ? 'ja-JP' : 'en-GB', Object.a
 function caption() { const v = visits[cur];
   info.innerHTML = '<p class="tb-date">' + fmt(v.from, { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' }) + '<span>' + (cur + 1) + ' / ' + visits.length + '</span></p><p class="tb-name"></p><p class="tb-area"></p>';
   info.querySelector('.tb-name').textContent = TL2.s(v.name); info.querySelector('.tb-area').textContent = TL2.s(v.area); prevB.disabled = cur <= 0; nextB.disabled = cur >= visits.length - 1;
-  if (shown && (location.hash || cur !== visits.length - 1)) try { history.replaceState(null, '', '#' + v.id); } catch (e) {} const toBook = document.getElementById('tm-to-book'); if (toBook) toBook.setAttribute('href', '/timeline/#' + v.id);   /* the book opens on the same place */
+  if (shown && (location.hash || cur !== visits.length - 1)) try { history.replaceState(null, '', '#' + v.id); } catch (e) {} const toBook = document.getElementById('tm-to-book'); if (toBook) toBook.setAttribute('href', '/timeline/#' + (away || v.id));   /* the book opens on the same place */
   prevB.setAttribute('aria-label', ja() ? '前の場所へ' : 'Earlier place'); nextB.setAttribute('aria-label', ja() ? '次の場所へ' : 'Later place');
   hint.textContent = ja() ? 'ドラッグで移動 · スクロールで拡大 · 場所をクリックでそのページへ' : 'Drag to move · scroll to zoom · click a place to open its page';
   document.getElementById('tm-back-l').textContent = ja() ? '地図にもどる' : 'Back to the map'; }
-function go(n) { n = clamp(n, 0, visits.length - 1); if (n === cur) return; skipIntro(); sfx('navigate', { direction: n > cur ? 'forward' : 'back' }); cur = n; caption(); dress(); const p = visits[cur].pile;
+function go(n) { n = clamp(n, 0, visits.length - 1); if (n === cur) return; away = ''; skipIntro(); sfx('navigate', { direction: n > cur ? 'forward' : 'back' }); cur = n; caption(); dress(); const p = visits[cur].pile;
   if (bookOpen) { cs.x = p.x; cs.z = p.z + .5; if (book) book.setScene(visits[cur].place, tod()); return; }
   flyTo(p.x, p.z + .8, Math.min(cs.d, 17), null, null, fly ? EASE_OUT : EASE_GO); }   /* turned mid-flight (keys pressed quickly), it carries on at speed instead of starting again from rest */
 
@@ -423,7 +425,7 @@ function loadBook() { if (book || !window.LastSeen || !LastSeen.popup) return Pr
   return import('/last-seen/popup/book.js?v=7').then(m => { book = m.createBook(stage, { label: k => (ja() ? (k === 'open' ? '飛び出す絵本（開いています）' : '飛び出す絵本') : null), onBuilt: () => stage.classList.add('is-book') });
     book.setScene(visits[cur].place, tod()); const t0 = performance.now(), rest = () => { if (bookOpen || opening) return; if (idle() || performance.now() - t0 > 4000) book.setActive(false); else setTimeout(rest, 120); }; setTimeout(rest, 300); return book; }).catch(() => null); }   /* a second picture being drawn under the map costs frames: stop it the moment the book is built */
 function landAt(p, x, z, d) { const o = [cs.x, cs.z, cs.d]; cs.x = x; cs.z = z; cs.d = d; place(); const s = screenOf(p); cs.x = o[0]; cs.z = o[1]; cs.d = o[2]; place(); return s; }   // where a place will be on screen once the camera has landed there
-function openPlace(v) { if (bookOpen || opening) return; const me = ++opening, p = v.pile; if (v.n !== cur) { cur = v.n; caption(); dress(); }
+function openPlace(v) { if (bookOpen || opening) return; const me = ++opening, p = v.pile; if (v.n !== cur) { away = ''; cur = v.n; caption(); dress(); }
   saved = { x: cs.x, z: cs.z, d: Math.max(cs.d, 20) }; let landed = false; hover = null; view.classList.remove('is-over'); tip.classList.remove('is-on');   /* the label does not follow the place into its book */ sfx('navigate', { direction: 'forward' });
   flyTo(p.x, p.z + .5, DMIN, clamp(440 + Math.hypot(p.x - cs.x, p.z + .5 - cs.z) * 9, 520, 760), () => { landed = true; }, EASE_GO); const f = fly, near = () => landed || (!!f && fly === f && f.ease(f.t) > .97);   /* starts at once, settles long; the book starts up out of the place while the camera is still settling */
   loadBook().then(b => { if (!b) { opening = 0; return; } b.setActive(true); b.shut(); b.setScene(v.place, tod());
@@ -522,7 +524,7 @@ const canPaint = () => !!(window.LastSeen && LastSeen.painters && LastSeen.paint
 const rested = () => !!gpu && (!canPaint() || (!queue.length && !half)) && !fly && !repaint && (!intro || (!intro.go && intro.sync === 2 && intro.calm >= 3));
 // Shown: it comes back as it was left. If the book was turned to another place meanwhile, that place is the one marked here, it gives a hop, and the camera goes to it only if it is out of sight.
 function seek(id) { const at = id ? visits.findIndex(v => v.id === id || v.place === id) : -1; if (at < 0) return 0; if (at === cur) return 1; cur = at; caption(); dress(); return 2; }
-function show(id) { const had = shown; shown = true; if (!had) shownAt = performance.now(); const found = seek(id);
+function show(id) { const had = shown; shown = true; if (!had) shownAt = performance.now(); const found = seek(id); away = found || !id ? '' : id;
   if (intro && !intro.go) { if (found) carried = true; }
   else if (found === 2) { const p = visits[cur].pile; if (bookOpen) { cs.x = p.x; cs.z = p.z + .5; if (book) book.setScene(visits[cur].place, tod()); } else { place(); gather(); const s = p.sc; p.hopV = 5.5; if (!reduce.matches && (s[0] < 60 || s[0] > W - 60 || s[1] < 90 || s[1] > H - 40)) flyTo(p.x, p.z + .8, cs.d, null, null, EASE_GO); } }
   else caption();
